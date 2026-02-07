@@ -88,7 +88,7 @@ export default function LoginForm() {
                         </span>
                     </label>
                     <Link
-                        to="/forgot-password"
+                        to="/auth/forgot-password"
                         className="text-xs font-bold text-[#0FE073] hover:underline"
                     >
                         Forgot password?

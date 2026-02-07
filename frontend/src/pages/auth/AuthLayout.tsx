@@ -21,7 +21,7 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
                     transition={{ duration: 0.8, ease: "easeOut" }}
                     className="relative z-10 flex flex-col justify-center text-left text-white h-full max-w-xl"
                 >
-                    <div className="mb-auto mt-4 flex items-center gap-3">
+                    <div className="mt-10 flex items-center gap-3">
                         <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#0F1E16] border border-[#2A3E31] text-[#0FE073]">
                             <svg
                                 viewBox="0 0 24 24"
@@ -47,10 +47,6 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
                         </p>
                     </div>
 
-                    <div className="mt-auto mb-4 flex gap-6 text-xs text-gray-500 uppercase tracking-widest font-medium">
-                        <span>+234 906 525 7784</span>
-                        <span>SUPPORT@AACP.COM</span>
-                    </div>
                 </motion.div>
             </div>
 
