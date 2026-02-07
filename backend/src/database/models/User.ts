@@ -9,7 +9,7 @@ export interface IUser extends Document {
     profilePicture?: string;
     location?: string;
     following: mongoose.Types.ObjectId[];
-    role: 'admin' | 'writer' | 'editor' | 'user';
+    role: 'business_owner' | 'advertiser' | 'admin' | 'super_admin'
     status: 'active' | 'banned' | 'suspended';
     isVerified: boolean;
     totalPosts: number;
@@ -55,8 +55,8 @@ const userSchema: Schema = new Schema(
 
         role: {
             type: String,
-            enum: ['business_owner', 'advertiser', 'user', 'admin', 'super_admin'],
-            default: 'user',
+            enum: ['business_owner', 'advertiser', 'admin', 'super_admin'],
+            default: 'advertiser',
             index: true,
         },
         status: {
@@ -75,12 +75,7 @@ const userSchema: Schema = new Schema(
         lastLogin: {
             type: Date,
         },
-        following: [
-            {
-                type: mongoose.Schema.Types.ObjectId,
-                ref: "News",
-            },
-        ],
+
     },
     { timestamps: true }
 );

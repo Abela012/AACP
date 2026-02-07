@@ -4,6 +4,7 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import errorHandler from './middlewares/error.middleware';
 import routes from './routes/index';
+import { clerkMiddleware } from "@clerk/express";
 
 const app: Application = express();
 
@@ -23,6 +24,7 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 // Routes
+app.use(clerkMiddleware());
 app.use('/api/v1', routes);
 
 // Error handling
