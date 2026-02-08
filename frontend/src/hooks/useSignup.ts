@@ -13,9 +13,14 @@ export const useSignup = () => {
     const [code, setCode] = useState("");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [role, setRole] = useState<'business_owner' | 'advertiser' | null>(null);
 
     const onSignUpPress = async () => {
         if (!isLoaded) return;
+        if (!role) {
+            setError("Please select a role before continuing.");
+            return;
+        }
         setLoading(true);
         setError(null);
         try {
@@ -29,10 +34,19 @@ export const useSignup = () => {
                 firstName,
                 lastName,
             });
+            // Store role in localStorage so useUserSync can send it to backend
+            localStorage.setItem('pendingUserRole', role);
             await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
             setPendingVerification(true);
-        } catch (err: any) {
-            setError(err.errors?.[0]?.message || "An error occurred during sign up.");
+        } catch (err: unknown) {
+            const clerkErr = err as { errors?: { message?: string }[] };
+            const msg = clerkErr.errors?.[0]?.message || "An error occurred during sign up.";
+            // Filter out heavy breach messages
+            if (msg.includes("data breach")) {
+                setError("Please use a stronger or different password for your safety.");
+            } else {
+                setError(msg);
+            }
         } finally {
             setLoading(false);
         }
@@ -46,12 +60,13 @@ export const useSignup = () => {
             const signUpAttempt = await signUp.attemptEmailAddressVerification({ code });
             if (signUpAttempt.status === "complete") {
                 await setActive({ session: signUpAttempt.createdSessionId });
-                navigate("/");
+                navigate("/dashboard");
             } else {
                 setError("Verification incomplete. Please try again.");
             }
-        } catch (err: any) {
-            setError(err.errors?.[0]?.message || "An error occurred during verification.");
+        } catch (err: unknown) {
+            const clerkErr = err as { errors?: { message?: string }[] };
+            setError(clerkErr.errors?.[0]?.message || "An error occurred during verification.");
         } finally {
             setLoading(false);
         }
@@ -71,6 +86,8 @@ export const useSignup = () => {
         loading,
         error,
         setError,
+        role,
+        setRole,
         onSignUpPress,
         onVerifyPress,
     };

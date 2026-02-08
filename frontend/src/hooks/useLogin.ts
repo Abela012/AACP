@@ -10,6 +10,7 @@ export const useLogin = () => {
     const [password, setPassword] = useState("");
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
+    const [role, setRole] = useState<'business_owner' | 'advertiser' | null>(null);
 
     const onSignInPress = async () => {
         if (!isLoaded) return;
@@ -27,8 +28,14 @@ export const useLogin = () => {
             } else {
                 setError("Sign in incomplete. Please check your information.");
             }
-        } catch (err: any) {
-            setError(err.errors?.[0]?.message || "An error occurred during sign in.");
+        } catch (err: unknown) {
+            const clerkErr = err as { errors?: { message?: string }[] };
+            const msg = clerkErr.errors?.[0]?.message || "An error occurred during sign in.";
+            if (msg.includes("data breach")) {
+                setError("Please use a stronger or different password for security.");
+            } else {
+                setError(msg);
+            }
         } finally {
             setLoading(false);
         }
@@ -36,15 +43,22 @@ export const useLogin = () => {
 
     const handleSocialAuth = async (strategy: "oauth_google" | "oauth_facebook" | "oauth_tiktok") => {
         if (!isLoaded) return;
+        if (!role) {
+            setError("Please select a role before continuing with social login.");
+            return;
+        }
         setError(null);
         try {
+            // Store role in localStorage so useUserSync can send it to backend
+            localStorage.setItem('pendingUserRole', role);
             await signIn.authenticateWithRedirect({
                 strategy,
-                redirectUrl: "/auth/login",
+                redirectUrl: "/sso-callback",
                 redirectUrlComplete: "/dashboard"
             });
-        } catch (error: any) {
-            setError(error.errors?.[0]?.message || "An error occurred during social auth.");
+        } catch (err: unknown) {
+            const clerkErr = err as { errors?: { message?: string }[] };
+            setError(clerkErr.errors?.[0]?.message || "An error occurred during social auth.");
         }
     };
 
@@ -56,6 +70,8 @@ export const useLogin = () => {
         error,
         setError,
         loading,
+        role,
+        setRole,
         onSignInPress,
         handleSocialAuth,
     };

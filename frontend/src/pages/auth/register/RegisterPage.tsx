@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { Link } from "react-router-dom";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Briefcase, Megaphone } from "lucide-react";
 import { useSignup } from "../../../hooks/useSignup";
 import FacebookIcon from "../../../assets/Facebook.png";
 import GoogleIcon from "../../../assets/google.webp";
@@ -20,6 +20,8 @@ export default function RegisterForm() {
         setPendingVerification,
         loading,
         error,
+        role,
+        setRole,
         onSignUpPress,
         onVerifyPress,
     } = useSignup();
@@ -57,6 +59,39 @@ export default function RegisterForm() {
 
             {!pendingVerification ? (
                 <form onSubmit={handleSubmit} className="space-y-5">
+                    {/* Role Selection */}
+                    <div>
+                        <label className="mb-2 block text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                            I am a
+                        </label>
+                        <div className="grid grid-cols-2 gap-3">
+                            <button
+                                type="button"
+                                onClick={() => setRole('business_owner')}
+                                className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all ${
+                                    role === 'business_owner'
+                                        ? 'border-[#0FE073] bg-[#0FE073]/10 text-[#0FE073]'
+                                        : 'border-[#1A2620] bg-[#121A16] text-gray-400 hover:border-[#23352C] hover:text-gray-300'
+                                }`}
+                            >
+                                <Briefcase size={24} />
+                                <span className="text-xs font-bold">Business Owner</span>
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setRole('advertiser')}
+                                className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all ${
+                                    role === 'advertiser'
+                                        ? 'border-[#0FE073] bg-[#0FE073]/10 text-[#0FE073]'
+                                        : 'border-[#1A2620] bg-[#121A16] text-gray-400 hover:border-[#23352C] hover:text-gray-300'
+                                }`}
+                            >
+                                <Megaphone size={24} />
+                                <span className="text-xs font-bold">Advertiser</span>
+                            </button>
+                        </div>
+                    </div>
+
                     <div>
                         <label className="mb-1.5 block text-xs font-semibold text-gray-400 uppercase tracking-wider">
                             Full Name

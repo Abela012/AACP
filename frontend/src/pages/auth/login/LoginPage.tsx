@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { Link } from "react-router-dom";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Briefcase, Megaphone } from "lucide-react";
 import { useLogin } from "../../../hooks/useLogin";
 import FacebookIcon from "../../../assets/Facebook.png";
 import GoogleIcon from "../../../assets/google.webp";
@@ -14,6 +14,8 @@ export default function LoginForm() {
         setPassword,
         error,
         loading,
+        role,
+        setRole,
         onSignInPress,
         handleSocialAuth,
     } = useLogin();
@@ -104,6 +106,36 @@ export default function LoginForm() {
                 </button>
             </form>
 
+            <div className="space-y-4 mt-3 mb-2">
+                <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                    Select your role for social login
+                </label>
+                <div className="grid grid-cols-2 gap-3">
+                    <button
+                        type="button"
+                        onClick={() => setRole('business_owner')}
+                        className={`flex flex-col items-center gap-2 p-3.5 rounded-xl border-2 transition-all ${role === 'business_owner'
+                            ? 'border-[#0FE073] bg-[#0FE073]/10 text-[#0FE073]'
+                            : 'border-[#1A2620] bg-[#121A16] text-gray-400 hover:border-[#23352C] hover:text-gray-300'
+                            }`}
+                    >
+                        <Briefcase size={20} />
+                        <span className="text-[11px] font-bold">Business Owner</span>
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => setRole('advertiser')}
+                        className={`flex flex-col items-center gap-2 p-3.5 rounded-xl border-2 transition-all ${role === 'advertiser'
+                            ? 'border-[#0FE073] bg-[#0FE073]/10 text-[#0FE073]'
+                            : 'border-[#1A2620] bg-[#121A16] text-gray-400 hover:border-[#23352C] hover:text-gray-300'
+                            }`}
+                    >
+                        <Megaphone size={20} />
+                        <span className="text-[11px] font-bold">Advertiser</span>
+                    </button>
+                </div>
+            </div>
+
             <div className="relative my-8">
                 <div className="absolute inset-0 flex items-center">
                     <div className="w-full border-t border-[#1A2620]"></div>
@@ -119,6 +151,7 @@ export default function LoginForm() {
                 <button
                     type="button"
                     onClick={() => handleSocialAuth("oauth_facebook")}
+
                     disabled={loading}
                     className="flex h-11 items-center justify-center rounded-xl border border-[#1A2620] bg-[#121A16] transition-all hover:bg-[#1A2620] hover:border-[#23352C] active:scale-95 disabled:opacity-50"
                 >
@@ -154,3 +187,4 @@ export default function LoginForm() {
         </div>
     );
 }
+

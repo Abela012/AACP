@@ -25,8 +25,9 @@ export const useForgotPassword = () => {
                 identifier: emailAddress,
             });
             setSuccessfulCreation(true);
-        } catch (err: any) {
-            setError(err.errors?.[0]?.message || "An error occurred. Please try again.");
+        } catch (err: unknown) {
+            const clerkErr = err as { errors?: { message?: string }[] };
+            setError(clerkErr.errors?.[0]?.message || "An error occurred. Please try again.");
         } finally {
             setLoading(false);
         }
@@ -52,8 +53,14 @@ export const useForgotPassword = () => {
                 console.error(result);
                 setError("Password reset incomplete. Please try again.");
             }
-        } catch (err: any) {
-            setError(err.errors?.[0]?.message || "An error occurred. Please check the code and try again.");
+        } catch (err: unknown) {
+            const clerkErr = err as { errors?: { message?: string }[] };
+            const msg = clerkErr.errors?.[0]?.message || "An error occurred. Please check the code and try again.";
+            if (msg.includes("data breach")) {
+                setError("Please use a stronger or different password for security.");
+            } else {
+                setError(msg);
+            }
         } finally {
             setLoading(false);
         }

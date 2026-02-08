@@ -128,13 +128,19 @@ export const syncUser = async (req: Request, res: Response): Promise<void> => {
       lastName: clerkUser.lastName || "",
       username: username,
       profilePicture: clerkUser.imageUrl || "",
+      role: req.body.role || (clerkUser.publicMetadata.role as string) || 'advertiser',
     };
+
+    console.log("Attempting to create user with data:", userData);
 
     const user = await User.create(userData);
 
+    console.log("User successfully created in MongoDB:", user._id);
+
     res.status(201).json({ user, message: "User created Successfully" });
   } catch (error: any) {
-    console.error("Error syncing user:", error);
+    console.error("Error syncing user for userId:", userId);
+    console.error("Error details:", error);
     res
       .status(500)
       .json({ message: "Failed to sync user", error: error.message });
