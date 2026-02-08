@@ -48,7 +48,7 @@ export const useForgotPassword = () => {
 
             if (result.status === "complete") {
                 await setActive({ session: result.createdSessionId });
-                navigate("/dashboard");
+                navigate("/dashboard", { replace: true });
             } else {
                 console.error(result);
                 setError("Password reset incomplete. Please try again.");

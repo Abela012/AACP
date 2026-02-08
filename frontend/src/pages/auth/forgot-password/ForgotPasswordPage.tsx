@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Eye, EyeOff, ArrowLeft } from "lucide-react";
+import { Eye, EyeOff, ArrowLeft, ShieldCheck } from "lucide-react";
 import { useForgotPassword } from "../../../hooks/useForgotPassword";
 
 export default function ForgotPasswordForm() {
@@ -23,18 +23,18 @@ export default function ForgotPasswordForm() {
 
     return (
         <div className="flex flex-col">
-            <div className="mb-8 text-left">
+            <div className="mb-10 text-left">
                 {!successfulCreation ? (
                     <>
-                        <h2 className="text-3xl font-serif font-bold text-white mb-2">Reset Password</h2>
-                        <p className="text-sm text-gray-400">
-                            Enter your email to receive a 6-digit verification code
+                        <h2 className="text-4xl font-bold text-[#001e00] mb-3">Reset password</h2>
+                        <p className="text-base text-[#5e6d55]">
+                            Enter your email to receive a 6-digit verification code.
                         </p>
                     </>
                 ) : (
                     <>
-                        <h2 className="text-3xl font-serif font-bold text-white mb-2">Set New Password</h2>
-                        <p className="text-sm text-gray-400">
+                        <h2 className="text-4xl font-bold text-[#001e00] mb-3">Set new password</h2>
+                        <p className="text-base text-[#5e6d55]">
                             We've sent a code to {emailAddress}
                         </p>
                     </>
@@ -42,15 +42,15 @@ export default function ForgotPasswordForm() {
             </div>
 
             {error && (
-                <div className="mb-6 p-3 bg-red-500/10 border border-red-500/20 text-red-400 text-sm rounded-xl text-center">
+                <div className="mb-8 p-3 bg-red-50 border border-red-100 text-red-600 text-sm rounded-xl text-center font-medium">
                     {error}
                 </div>
             )}
 
             {!successfulCreation ? (
-                <form onSubmit={onRequestCode} className="space-y-5">
+                <form onSubmit={onRequestCode} className="space-y-8">
                     <div>
-                        <label className="mb-1.5 block text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                        <label className="mb-1.5 block text-sm font-bold text-[#001e00]">
                             Email Address
                         </label>
                         <input
@@ -58,7 +58,7 @@ export default function ForgotPasswordForm() {
                             value={emailAddress}
                             onChange={(e) => setEmailAddress(e.target.value)}
                             placeholder="name@company.com"
-                            className="w-full rounded-xl border border-[#1A2620] bg-[#121A16] px-4 py-3 text-sm text-white placeholder-gray-600 transition-all focus:border-[#0FE073] focus:ring-1 focus:ring-[#0FE073] outline-none"
+                            className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-[#001e00] placeholder-gray-400 transition-all focus:border-[#14a800] focus:ring-1 focus:ring-[#14a800] outline-none"
                             required
                         />
                     </div>
@@ -66,29 +66,30 @@ export default function ForgotPasswordForm() {
                     <button
                         type="submit"
                         disabled={loading || !emailAddress}
-                        className="w-full rounded-xl bg-[#0FE073] py-3.5 text-sm font-bold text-black shadow-lg shadow-[#0FE073]/20 transition-all hover:bg-[#0BC463] hover:shadow-[#0FE073]/40 active:scale-[0.98] disabled:opacity-50"
+                        className="w-full rounded-full bg-[#14a800] py-3.5 text-base font-bold text-white shadow-sm transition-all hover:bg-[#108a00] active:scale-[0.98] disabled:opacity-50"
                     >
                         {loading ? "Sending..." : "Send Reset Code"}
                     </button>
 
                     <Link
                         to="/auth/login"
-                        className="flex items-center justify-center gap-2 text-sm font-bold text-gray-500 hover:text-[#0FE073] transition-colors"
+                        className="flex items-center justify-center gap-2 text-sm font-bold text-[#5e6d55] hover:text-[#14a800] transition-colors"
                     >
-                        <ArrowLeft size={16} /> Back to Sign In
+                        <ArrowLeft size={16} /> Back to Log In
                     </Link>
                 </form>
             ) : (
-                <form onSubmit={onResetPassword} className="space-y-5">
-                    <div>
-                        <label className="mb-1.5 block text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                <form onSubmit={onResetPassword} className="space-y-8">
+                    <div className="p-6 rounded-2xl bg-[#14a800]/5 border border-[#14a800]/10 text-center">
+                        <ShieldCheck className="w-12 h-12 text-[#14a800] mx-auto mb-4" />
+                        <label className="mb-4 block text-sm font-bold text-[#001e00]">
                             Verification Code
                         </label>
                         <input
                             type="text"
                             placeholder="123456"
                             maxLength={6}
-                            className="w-full rounded-xl border border-[#1A2620] bg-[#121A16] px-4 py-4 text-center text-xl font-bold tracking-[0.5em] text-white transition-all focus:border-[#0FE073] focus:ring-1 focus:ring-[#0FE073] outline-none"
+                            className="w-full rounded-xl border border-gray-200 bg-white px-4 py-4 text-center text-3xl font-bold tracking-[0.5em] text-[#001e00] transition-all focus:border-[#14a800] focus:ring-1 focus:ring-[#14a800] outline-none shadow-sm"
                             value={code}
                             onChange={(e) => setCode(e.target.value)}
                             required
@@ -96,7 +97,7 @@ export default function ForgotPasswordForm() {
                     </div>
 
                     <div>
-                        <label className="mb-1.5 block text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                        <label className="mb-1.5 block text-sm font-bold text-[#001e00]">
                             New Password
                         </label>
                         <div className="relative">
@@ -105,13 +106,13 @@ export default function ForgotPasswordForm() {
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                                 placeholder="••••••••"
-                                className="w-full rounded-xl border border-[#1A2620] bg-[#121A16] px-4 py-3 text-sm text-white placeholder-gray-600 transition-all focus:border-[#0FE073] focus:ring-1 focus:ring-[#0FE073] outline-none"
+                                className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-[#001e00] placeholder-gray-400 transition-all focus:border-[#14a800] focus:ring-1 focus:ring-[#14a800] outline-none"
                                 required
                             />
                             <button
                                 type="button"
                                 onClick={() => setShowPassword(!showPassword)}
-                                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#14a800] transition-colors"
                             >
                                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                             </button>
@@ -121,7 +122,7 @@ export default function ForgotPasswordForm() {
                     <button
                         type="submit"
                         disabled={loading || code.length !== 6 || !password}
-                        className="w-full rounded-xl bg-[#7C24E0] py-3.5 text-sm font-bold text-white shadow-lg shadow-purple-200 transition-all hover:bg-[#6B1FC5] hover:shadow-purple-300 active:scale-[0.98] disabled:opacity-50"
+                        className="w-full rounded-full bg-[#14a800] py-4 text-base font-bold text-white shadow-sm transition-all hover:bg-[#108a00] active:scale-[0.98] disabled:opacity-50"
                     >
                         {loading ? "Resetting Password..." : "Reset Password"}
                     </button>
@@ -129,20 +130,20 @@ export default function ForgotPasswordForm() {
                     <button
                         type="button"
                         onClick={() => setSuccessfulCreation(false)}
-                        className="w-full text-sm font-bold text-gray-500 hover:text-[#0FE073] transition-colors"
+                        className="w-full text-sm font-bold text-[#5e6d55] hover:text-[#14a800] transition-colors"
                     >
                         Resend Code
                     </button>
                 </form>
             )}
 
-            <p className="mt-8 text-center text-xs font-medium text-gray-500">
+            <p className="mt-10 text-center text-sm font-medium text-[#5e6d55]">
                 Wait, I remember my password!{" "}
                 <Link
                     to="/auth/login"
-                    className="font-bold text-[#0FE073] hover:underline"
+                    className="font-bold text-[#14a800] hover:underline"
                 >
-                    Sign in
+                    Log in
                 </Link>
             </p>
         </div>

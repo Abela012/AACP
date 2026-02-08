@@ -1,5 +1,5 @@
-import { Routes, Route } from 'react-router-dom'
-import { SignedIn, AuthenticateWithRedirectCallback } from '@clerk/clerk-react'
+import { SignedIn, SignedOut, AuthenticateWithRedirectCallback } from '@clerk/clerk-react'
+import { Routes, Route, Navigate } from 'react-router-dom'
 import AuthLayout from './pages/auth/AuthLayout'
 import LoginPage from './pages/auth/login/LoginPage'
 import RegisterPage from './pages/auth/register/RegisterPage'
@@ -12,18 +12,77 @@ function App() {
   return (
     <Routes>
       {/* Public Routes */}
-      <Route path="/auth/login" element={<AuthLayout><LoginPage /></AuthLayout>} />
-      <Route path="/auth/register" element={<AuthLayout><RegisterPage /></AuthLayout>} />
-      <Route path="/auth/forgot-password" element={<AuthLayout><ForgotPasswordPage /></AuthLayout>} />
-      <Route path="/sso-callback" element={<AuthenticateWithRedirectCallback signInForceRedirectUrl="/dashboard" signUpForceRedirectUrl="/dashboard" />} />
+      <Route
+        path="/auth/login"
+        element={
+          <>
+            <SignedOut>
+              <AuthLayout>
+                <LoginPage />
+              </AuthLayout>
+            </SignedOut>
+            <SignedIn>
+              <Navigate to="/" replace />
+            </SignedIn>
+          </>
+        }
+      />
+      <Route
+        path="/auth/register"
+        element={
+          <>
+            <SignedOut>
+              <AuthLayout>
+                <RegisterPage />
+              </AuthLayout>
+            </SignedOut>
+            <SignedIn>
+              <Navigate to="/" replace />
+            </SignedIn>
+          </>
+        }
+      />
+      <Route
+        path="/auth/forgot-password"
+        element={
+          <>
+            <SignedOut>
+              <AuthLayout>
+                <ForgotPasswordPage />
+              </AuthLayout>
+            </SignedOut>
+            <SignedIn>
+              <Navigate to="/" replace />
+            </SignedIn>
+          </>
+        }
+      />
+      <Route
+        path="/sso-callback"
+        element={
+          <>
+            <SignedOut>
+              <AuthenticateWithRedirectCallback signInForceRedirectUrl="/dashboard" signUpForceRedirectUrl="/dashboard" />
+            </SignedOut>
+            <SignedIn>
+              <Navigate to="/" replace />
+            </SignedIn>
+          </>
+        }
+      />
 
       {/* Protected Dashboard Routes */}
       <Route
         path="/dashboard/*"
         element={
-          <SignedIn>
-            <DashboardPage />
-          </SignedIn>
+          <>
+            <SignedIn>
+              <DashboardPage />
+            </SignedIn>
+            <SignedOut>
+              <Navigate to="/auth/login" replace />
+            </SignedOut>
+          </>
         }
       />
 

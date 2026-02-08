@@ -60,7 +60,7 @@ export const useSignup = () => {
             const signUpAttempt = await signUp.attemptEmailAddressVerification({ code });
             if (signUpAttempt.status === "complete") {
                 await setActive({ session: signUpAttempt.createdSessionId });
-                navigate("/dashboard");
+                navigate("/dashboard", { replace: true });
             } else {
                 setError("Verification incomplete. Please try again.");
             }

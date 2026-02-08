@@ -24,7 +24,7 @@ export const useLogin = () => {
 
             if (signInAttempt.status === "complete") {
                 await setActive({ session: signInAttempt.createdSessionId });
-                navigate("/dashboard");
+                navigate("/dashboard", { replace: true });
             } else {
                 setError("Sign in incomplete. Please check your information.");
             }
