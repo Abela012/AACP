@@ -12,30 +12,26 @@ export const useUserSync = () => {
     const syncUserMutation = useMutation({
         mutationFn: async () => {
             try {
-                // Read the role that was set during signup/SSO login
+                // Read the role that was stored during signup/social login
                 const pendingRole = localStorage.getItem('pendingUserRole') || undefined;
+                console.log("[useUserSync] Syncing user with role:", pendingRole);
                 return await userApi.syncUser(api, pendingRole);
-            } catch (error: unknown) {
-                const axiosErr = error as { response?: { data?: { error?: string } } };
-                if (axiosErr.response?.data?.error?.includes("E11000")) {
+            } catch (error: any) {
+                if (error.response?.data?.error?.includes("E11000")) {
                     return { data: { message: "User already synced" } };
                 }
                 throw error;
             }
         },
-        onSuccess: (response: { data?: { message?: string } }) => {
-            console.log("User synced successfully:", response.data?.message);
+        onSuccess: (response: any) => {
+            console.log("[useUserSync] User synced successfully:", response.data?.message);
             // Clean up the pending role from localStorage
             localStorage.removeItem('pendingUserRole');
             queryClient.invalidateQueries({ queryKey: ["authUser"] });
         },
-        onError: (error: unknown) => {
-            const axiosErr = error as { response?: { data?: unknown }; message?: string };
-            console.error("Sync user failed:", axiosErr.response?.data || axiosErr.message);
+        onError: (error: any) => {
+            console.error("[useUserSync] Sync failed:", error.response?.data || error.message);
         },
-        onSettled: () => {
-            console.log("Sync user process finished");
-        }
     });
 
     // auto-sync user when signed in
@@ -44,7 +40,6 @@ export const useUserSync = () => {
         if (isSignedIn && !syncUserMutation.isSuccess && !syncUserMutation.isPending) {
             syncUserMutation.mutate();
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isSignedIn, syncUserMutation.isSuccess, syncUserMutation.isPending]);
 
     return null;

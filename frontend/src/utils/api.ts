@@ -31,9 +31,9 @@ export const useApiClient = (): AxiosInstance => {
 
 // User API definitions based on backend/src/modules/User
 export const userApi = {
-    syncUser: (api: AxiosInstance) => api.post("/users/sync"),
+    syncUser: (api: AxiosInstance, role?: string) => api.post("/users/sync", { role }),
     getCurrentUser: (api: AxiosInstance) => api.get("/users/me"),
-    updateProfile: (api: AxiosInstance, data: any) =>
+    updateProfile: (api: AxiosInstance, data: Record<string, unknown>) =>
         api.put("/users/profile", data),
     uploadProfilePicture: (api: AxiosInstance, file: File) => {
         const formData = new FormData();
@@ -51,13 +51,13 @@ export const userApi = {
 export const opportunityApi = {
     getAll: (api: AxiosInstance) => api.get("/opportunities"),
     getById: (api: AxiosInstance, id: string) => api.get(`/opportunities/${id}`),
-    create: (api: AxiosInstance, data: any) => api.post("/opportunities", data),
+    create: (api: AxiosInstance, data: Record<string, unknown>) => api.post("/opportunities", data),
 };
 
 // Applications API based on backend/src/modules/applications
 export const applicationApi = {
     getMyApplications: (api: AxiosInstance) => api.get("/applications/my"),
-    apply: (api: AxiosInstance, opportunityId: string, data: any) =>
+    apply: (api: AxiosInstance, opportunityId: string, data: Record<string, unknown>) =>
         api.post(`/applications/apply/${opportunityId}`, data),
 };
 

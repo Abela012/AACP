@@ -1,10 +1,11 @@
-import { Routes, Route, Navigate } from 'react-router-dom'
-import { SignedIn, SignedOut, AuthenticateWithRedirectCallback } from '@clerk/clerk-react'
+import { Routes, Route } from 'react-router-dom'
+import { SignedIn, AuthenticateWithRedirectCallback } from '@clerk/clerk-react'
 import AuthLayout from './pages/auth/AuthLayout'
 import LoginPage from './pages/auth/login/LoginPage'
 import RegisterPage from './pages/auth/register/RegisterPage'
 import ForgotPasswordPage from './pages/auth/forgot-password/ForgotPasswordPage'
 import DashboardPage from './pages/dashboard/DashboardPage'
+import LandingPage from './pages/landing/LandingPage'
 import './App.css'
 
 function App() {
@@ -26,20 +27,8 @@ function App() {
         }
       />
 
-      {/* Default redirect or dashboard redirect if signed in */}
-      <Route
-        path="/"
-        element={
-          <>
-            <SignedIn>
-              <Navigate to="/dashboard" replace />
-            </SignedIn>
-            <SignedOut>
-              <Navigate to="/auth/login" replace />
-            </SignedOut>
-          </>
-        }
-      />
+      {/* Landing Page */}
+      <Route path="/" element={<LandingPage />} />
     </Routes>
   )
 }
