@@ -1,0 +1,2 @@
+// Wallet Store configuration
+export { };

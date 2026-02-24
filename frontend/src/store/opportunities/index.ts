@@ -1,0 +1,2 @@
+// Opportunities Store configuration
+export { };

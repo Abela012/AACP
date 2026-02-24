@@ -1,0 +1,2 @@
+// Auth Store configuration
+export { };

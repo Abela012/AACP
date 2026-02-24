@@ -1,0 +1,2 @@
+// Shared Pipes placeholder
+export { };
