@@ -55,7 +55,7 @@ export const createReview = async (data: Partial<IReview>): Promise<IReview> => 
  */
 export const getReviewsByUser = async (userId: string): Promise<IReview[]> => {
     const reviews = await Review.find({ reviewee: userId })
-        .populate('reviewer', 'name email profilePicture')
+        .populate('reviewer', 'fullName email profilePicture')
         .populate('collaboration', 'opportunity')
         .sort({ createdAt: -1 });
 
@@ -69,8 +69,8 @@ export const getReviewsByUser = async (userId: string): Promise<IReview[]> => {
  */
 export const getReviewsByCollaboration = async (collaborationId: string): Promise<IReview[]> => {
     const reviews = await Review.find({ collaboration: collaborationId })
-        .populate('reviewer', 'name email')
-        .populate('reviewee', 'name email');
+        .populate('reviewer', 'fullName email')
+        .populate('reviewee', 'fullName email');
 
     return reviews;
 };

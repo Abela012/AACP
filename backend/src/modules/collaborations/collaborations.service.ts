@@ -94,8 +94,8 @@ export const getCollaborationsByUser = async (userId: string): Promise<ICollabor
         ]
     })
         .populate('opportunity', 'title budget')
-        .populate('businessOwner', 'name email')
-        .populate('advertiser', 'name email')
+        .populate('businessOwner', 'fullName email')
+        .populate('advertiser', 'fullName email')
         .sort({ createdAt: -1 });
 
     return collaborations;
@@ -110,8 +110,8 @@ export const getCollaborationById = async (id: string): Promise<ICollaboration> 
     const collaboration = await Collaboration.findById(id)
         .populate('opportunity')
         .populate('application')
-        .populate('businessOwner', 'name email')
-        .populate('advertiser', 'name email');
+        .populate('businessOwner', 'fullName email')
+        .populate('advertiser', 'fullName email');
 
     if (!collaboration) {
         throw new Error('Collaboration not found');

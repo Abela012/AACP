@@ -69,7 +69,7 @@ export const withdrawApplication = async (id: string, advertiserId: string): Pro
  */
 export const getApplicationsByOpportunity = async (opportunityId: string): Promise<IApplication[]> => {
     const applications = await Application.find({ opportunity: opportunityId })
-        .populate('advertiser', 'name email profilePicture')
+        .populate('advertiser', 'fullName email profilePicture')
         .sort({ createdAt: -1 });
 
     return applications;

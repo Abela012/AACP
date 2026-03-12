@@ -1,5 +1,10 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
 
+/**
+ * Review Model
+ * Owner: Backend Developer 2
+ * Module: reviews
+ */
 export interface IReview extends Document {
     collaboration: mongoose.Types.ObjectId;
     reviewer: mongoose.Types.ObjectId;
@@ -25,17 +30,17 @@ export interface IReview extends Document {
 const reviewSchema: Schema<IReview> = new Schema(
     {
         collaboration: {
-            type: mongoose.Schema.Types.ObjectId,
+            type: Schema.Types.ObjectId,
             ref: 'Collaboration',
             required: true,
         },
         reviewer: {
-            type: mongoose.Schema.Types.ObjectId,
+            type: Schema.Types.ObjectId,
             ref: 'User',
             required: true,
         },
         reviewee: {
-            type: mongoose.Schema.Types.ObjectId,
+            type: Schema.Types.ObjectId,
             ref: 'User',
             required: true,
         },
@@ -69,11 +74,7 @@ const reviewSchema: Schema<IReview> = new Schema(
     { timestamps: true }
 );
 
-// Each party can only review once per collaboration
-reviewSchema.index(
-    { collaboration: 1, reviewer: 1 },
-    { unique: true }
-);
+reviewSchema.index({ collaboration: 1, reviewer: 1 }, { unique: true });
 reviewSchema.index({ reviewee: 1 });
 
 const Review: Model<IReview> = mongoose.model<IReview>('Review', reviewSchema);

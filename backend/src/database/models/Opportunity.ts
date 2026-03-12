@@ -1,5 +1,10 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
 
+/**
+ * Opportunity Model
+ * Owner: Backend Developer 2
+ * Module: opportunities
+ */
 export interface IOpportunity extends Document {
     businessOwner: mongoose.Types.ObjectId;
     title: string;
@@ -32,7 +37,7 @@ export interface IOpportunity extends Document {
 const opportunitySchema: Schema<IOpportunity> = new Schema(
     {
         businessOwner: {
-            type: mongoose.Schema.Types.ObjectId,
+            type: Schema.Types.ObjectId,
             ref: 'User',
             required: true,
         },
@@ -75,7 +80,7 @@ const opportunitySchema: Schema<IOpportunity> = new Schema(
         },
         maxApplicants: { type: Number, default: 10 },
         selectedAdvertiser: {
-            type: mongoose.Schema.Types.ObjectId,
+            type: Schema.Types.ObjectId,
             ref: 'User',
             default: null,
         },

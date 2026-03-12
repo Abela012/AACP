@@ -1,5 +1,10 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
 
+/**
+ * Collaboration Model
+ * Owner: Backend Developer 2
+ * Module: collaborations
+ */
 export interface ISubmission extends Document {
     fileUrl?: string;
     fileName?: string;
@@ -74,23 +79,23 @@ const milestoneSchema: Schema<IMilestone> = new Schema(
 const collaborationSchema: Schema<ICollaboration> = new Schema(
     {
         opportunity: {
-            type: mongoose.Schema.Types.ObjectId,
+            type: Schema.Types.ObjectId,
             ref: 'Opportunity',
             required: true,
         },
         application: {
-            type: mongoose.Schema.Types.ObjectId,
+            type: Schema.Types.ObjectId,
             ref: 'Application',
             required: true,
             unique: true,
         },
         businessOwner: {
-            type: mongoose.Schema.Types.ObjectId,
+            type: Schema.Types.ObjectId,
             ref: 'User',
             required: true,
         },
         advertiser: {
-            type: mongoose.Schema.Types.ObjectId,
+            type: Schema.Types.ObjectId,
             ref: 'User',
             required: true,
         },

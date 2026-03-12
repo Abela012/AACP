@@ -22,7 +22,7 @@ export const createOpportunity = async (data: Partial<IOpportunity>): Promise<IO
  */
 export const getAllOpportunities = async (): Promise<IOpportunity[]> => {
     const opportunities = await Opportunity.find()
-        .populate('businessOwner', 'name email')
+        .populate('businessOwner', 'fullName email')
         .sort({ createdAt: -1 });
     return opportunities;
 };
@@ -69,7 +69,7 @@ export const deleteOpportunity = async (id: string): Promise<IOpportunity | null
  */
 export const getOpportunitiesByUser = async (userId: string): Promise<IOpportunity[]> => {
     const opportunities = await Opportunity.find({ businessOwner: userId })
-        .populate('businessOwner', 'name email')
+        .populate('businessOwner', 'fullName email')
         .sort({ createdAt: -1 });
     return opportunities;
 };

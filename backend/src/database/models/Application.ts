@@ -1,5 +1,10 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
 
+/**
+ * Application Model
+ * Owner: Backend Developer 2
+ * Module: applications
+ */
 export interface IApplication extends Document {
     opportunity: mongoose.Types.ObjectId;
     advertiser: mongoose.Types.ObjectId;
@@ -27,12 +32,12 @@ export interface IApplication extends Document {
 const applicationSchema: Schema<IApplication> = new Schema(
     {
         opportunity: {
-            type: mongoose.Schema.Types.ObjectId,
+            type: Schema.Types.ObjectId,
             ref: 'Opportunity',
             required: true,
         },
         advertiser: {
-            type: mongoose.Schema.Types.ObjectId,
+            type: Schema.Types.ObjectId,
             ref: 'User',
             required: true,
         },
@@ -68,7 +73,7 @@ const applicationSchema: Schema<IApplication> = new Schema(
         rejectionReason: { type: String },
         reviewedAt: { type: Date },
         reviewedBy: {
-            type: mongoose.Schema.Types.ObjectId,
+            type: Schema.Types.ObjectId,
             ref: 'User',
         },
         aiMatchScore: { type: Number, default: null },
@@ -76,7 +81,6 @@ const applicationSchema: Schema<IApplication> = new Schema(
     { timestamps: true }
 );
 
-// Prevent duplicate applications
 applicationSchema.index({ opportunity: 1, advertiser: 1 }, { unique: true });
 applicationSchema.index({ advertiser: 1, status: 1 });
 
