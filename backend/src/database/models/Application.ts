@@ -1,19 +1,19 @@
-const mongoose = require('mongoose');
+import { Schema, model } from 'mongoose';
 
 /**
  * Application Model
  * Owner: Backend Developer 2
  * Module: applications
  */
-const applicationSchema = new mongoose.Schema(
+const applicationSchema = new Schema(
     {
         opportunity: {
-            type: mongoose.Schema.Types.ObjectId,
+            type: Schema.Types.ObjectId,
             ref: 'Opportunity',
             required: true,
         },
         advertiser: {
-            type: mongoose.Schema.Types.ObjectId,
+            type: Schema.Types.ObjectId,
             ref: 'User',
             required: true,
         },
@@ -49,7 +49,7 @@ const applicationSchema = new mongoose.Schema(
         rejectionReason: { type: String },
         reviewedAt: { type: Date },
         reviewedBy: {
-            type: mongoose.Schema.Types.ObjectId,
+            type: Schema.Types.ObjectId,
             ref: 'User',
         },
         aiMatchScore: { type: Number, default: null },
@@ -57,9 +57,9 @@ const applicationSchema = new mongoose.Schema(
     { timestamps: true }
 );
 
-// Prevent duplicate applications
 applicationSchema.index({ opportunity: 1, advertiser: 1 }, { unique: true });
 applicationSchema.index({ advertiser: 1, status: 1 });
 
-const Application = mongoose.model('Application', applicationSchema);
-module.exports = Application;
+const Application = model('Application', applicationSchema);
+
+export default Application;
