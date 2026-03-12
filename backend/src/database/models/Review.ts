@@ -1,24 +1,24 @@
-const mongoose = require('mongoose');
+import { Schema, model } from 'mongoose';
 
 /**
  * Review Model
  * Owner: Backend Developer 2
  * Module: reviews
  */
-const reviewSchema = new mongoose.Schema(
+const reviewSchema = new Schema(
     {
         collaboration: {
-            type: mongoose.Schema.Types.ObjectId,
+            type: Schema.Types.ObjectId,
             ref: 'Collaboration',
             required: true,
         },
         reviewer: {
-            type: mongoose.Schema.Types.ObjectId,
+            type: Schema.Types.ObjectId,
             ref: 'User',
             required: true,
         },
         reviewee: {
-            type: mongoose.Schema.Types.ObjectId,
+            type: Schema.Types.ObjectId,
             ref: 'User',
             required: true,
         },
@@ -52,12 +52,9 @@ const reviewSchema = new mongoose.Schema(
     { timestamps: true }
 );
 
-// Each party can only review once per collaboration
-reviewSchema.index(
-    { collaboration: 1, reviewer: 1 },
-    { unique: true }
-);
+reviewSchema.index({ collaboration: 1, reviewer: 1 }, { unique: true });
 reviewSchema.index({ reviewee: 1 });
 
-const Review = mongoose.model('Review', reviewSchema);
-module.exports = Review;
+const Review = model('Review', reviewSchema);
+
+export default Review;

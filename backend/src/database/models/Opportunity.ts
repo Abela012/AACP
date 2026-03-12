@@ -1,14 +1,14 @@
-const mongoose = require('mongoose');
+import { Schema, model } from 'mongoose';
 
 /**
  * Opportunity Model
  * Owner: Backend Developer 2
  * Module: opportunities
  */
-const opportunitySchema = new mongoose.Schema(
+const opportunitySchema = new Schema(
     {
         businessOwner: {
-            type: mongoose.Schema.Types.ObjectId,
+            type: Schema.Types.ObjectId,
             ref: 'User',
             required: true,
         },
@@ -52,7 +52,7 @@ const opportunitySchema = new mongoose.Schema(
         },
         maxApplicants: { type: Number, default: 10 },
         selectedAdvertiser: {
-            type: mongoose.Schema.Types.ObjectId,
+            type: Schema.Types.ObjectId,
             ref: 'User',
             default: null,
         },
@@ -67,5 +67,6 @@ opportunitySchema.index({ status: 1, category: 1 });
 opportunitySchema.index({ businessOwner: 1 });
 opportunitySchema.index({ createdAt: -1 });
 
-const Opportunity = mongoose.model('Opportunity', opportunitySchema);
-module.exports = Opportunity;
+const Opportunity = model('Opportunity', opportunitySchema);
+
+export default Opportunity;

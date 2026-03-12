@@ -2,12 +2,10 @@ const express = require('express');
 const router = express.Router();
 
 // Import routes
-// const authRoutes = require('../modules/auth/auth.routes');
-// const opportunityRoutes = require('../modules/opportunities/opportunity.routes');
+const walletRoutes = require('../modules/wallet/wallet.routes');
 
 // Use routes
-// router.use('/auth', authRoutes);
-// router.use('/opportunities', opportunityRoutes);
+router.use('/wallet', walletRoutes);
 
 // Health check route
 router.get('/health', (req, res) => {

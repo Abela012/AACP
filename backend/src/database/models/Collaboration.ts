@@ -1,11 +1,11 @@
-const mongoose = require('mongoose');
+import { Schema, model } from 'mongoose';
 
 /**
  * Collaboration Model
  * Owner: Backend Developer 2
  * Module: collaborations
  */
-const submissionSchema = new mongoose.Schema(
+const submissionSchema = new Schema(
     {
         fileUrl: String,
         fileName: String,
@@ -23,7 +23,7 @@ const submissionSchema = new mongoose.Schema(
     { _id: true }
 );
 
-const milestoneSchema = new mongoose.Schema(
+const milestoneSchema = new Schema(
     {
         title: { type: String, required: true },
         description: String,
@@ -38,26 +38,26 @@ const milestoneSchema = new mongoose.Schema(
     { _id: true }
 );
 
-const collaborationSchema = new mongoose.Schema(
+const collaborationSchema = new Schema(
     {
         opportunity: {
-            type: mongoose.Schema.Types.ObjectId,
+            type: Schema.Types.ObjectId,
             ref: 'Opportunity',
             required: true,
         },
         application: {
-            type: mongoose.Schema.Types.ObjectId,
+            type: Schema.Types.ObjectId,
             ref: 'Application',
             required: true,
             unique: true,
         },
         businessOwner: {
-            type: mongoose.Schema.Types.ObjectId,
+            type: Schema.Types.ObjectId,
             ref: 'User',
             required: true,
         },
         advertiser: {
-            type: mongoose.Schema.Types.ObjectId,
+            type: Schema.Types.ObjectId,
             ref: 'User',
             required: true,
         },
@@ -88,5 +88,6 @@ const collaborationSchema = new mongoose.Schema(
 collaborationSchema.index({ businessOwner: 1, status: 1 });
 collaborationSchema.index({ advertiser: 1, status: 1 });
 
-const Collaboration = mongoose.model('Collaboration', collaborationSchema);
-module.exports = Collaboration;
+const Collaboration = model('Collaboration', collaborationSchema);
+
+export default Collaboration;
