@@ -1,71 +1,88 @@
-import mongoose, { Schema, Document, Model } from 'mongoose';
-import bcrypt from 'bcryptjs';
+import mongoose, { Document, Schema } from "mongoose";
 
-/**
- * User Model
- * Shared across auth-protected modules.
- */
 export interface IUser extends Document {
-    fullName: string;
+    clerkId: string;
     email: string;
-    password?: string;
-    role: 'business_owner' | 'advertiser' | 'user' | 'admin' | 'super_admin';
-    isActive: boolean;
+    firstName: string;
+    lastName: string;
+    username: string;
     profilePicture?: string;
+    location?: string;
+    following: mongoose.Types.ObjectId[];
+    role: 'admin' | 'writer' | 'editor' | 'user';
+    status: 'active' | 'banned' | 'suspended';
+    isVerified: boolean;
+    totalPosts: number;
+    lastLogin: Date;
     createdAt: Date;
     updatedAt: Date;
-    comparePassword(enteredPassword: string): Promise<boolean>;
 }
 
-const userSchema: Schema<IUser> = new Schema(
+const userSchema: Schema = new Schema(
     {
-        fullName: {
+        clerkId: {
             type: String,
             required: true,
-            trim: true,
-            maxlength: 120,
+            unique: true,
         },
         email: {
             type: String,
             required: true,
             unique: true,
-            lowercase: true,
-            trim: true,
-            index: true,
         },
-        password: {
+        firstName: {
             type: String,
             required: true,
-            minlength: 6,
-            select: false,
         },
+        lastName: {
+            type: String,
+            required: true,
+        },
+        username: {
+            type: String,
+            required: true,
+            unique: true,
+        },
+        profilePicture: {
+            type: String,
+            default: "",
+        },
+
+        location: {
+            type: String,
+            default: "",
+        },
+
         role: {
             type: String,
             enum: ['business_owner', 'advertiser', 'user', 'admin', 'super_admin'],
             default: 'user',
             index: true,
         },
-        isActive: {
-            type: Boolean,
-            default: true,
+        status: {
+            type: String,
+            enum: ['active', 'banned', 'suspended'],
+            default: 'active',
         },
-        profilePicture: String,
+        isVerified: {
+            type: Boolean,
+            default: false,
+        },
+        totalPosts: {
+            type: Number,
+            default: 0,
+        },
+        lastLogin: {
+            type: Date,
+        },
+        following: [
+            {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "News",
+            },
+        ],
     },
     { timestamps: true }
 );
 
-userSchema.pre('save', async function (next) {
-    if (this.isModified('password') && this.password) {
-        const salt = await bcrypt.genSalt(10);
-        this.password = await bcrypt.hash(this.password, salt);
-    }
-    next();
-});
-
-userSchema.methods.comparePassword = async function (enteredPassword: string) {
-    return bcrypt.compare(enteredPassword, this.password);
-};
-
-const User: Model<IUser> = mongoose.model<IUser>('User', userSchema);
-
-export default User;
+export default mongoose.model<IUser>("User", userSchema);

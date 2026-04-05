@@ -1,36 +1,50 @@
-import { Request, Response, NextFunction } from 'express';
-import * as jwt from '../config/jwt';
-import User from '../database/models/User';
-import { error } from '../utils/response';
+import { Request, Response, NextFunction } from "express";
+import User from "../database/models/User.js";
+import { getAuth } from "@clerk/express";
 
-export const protect = async (req: Request, res: Response, next: NextFunction) => {
+// Middleware to ensure user is authenticated
+export const requireAuth = (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+) => {
+    const auth = getAuth(req);
+    if (!auth.userId) {
+        return res.status(401).json({ error: "Unauthorized" });
+    }
+    return next();
+};
+
+// Middleware to ensure user is an admin
+export const requireAdmin = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+) => {
+    const auth = getAuth(req);
+    if (!auth.userId) {
+        return res.status(401).json({ error: "Unauthorized" });
+    }
+
     try {
-        let token: string | undefined;
-        if (
-            req.headers.authorization &&
-            req.headers.authorization.startsWith('Bearer')
-        ) {
-            token = req.headers.authorization.split(' ')[1];
-        }
-
-        if (!token) {
-            return error(res, 'Not authorized, no token', 401);
-        }
-
-        const decoded = jwt.verifyToken(token);
-        const user = await User.findById(decoded.id).select('-password');
+        const user = await User.findOne({ clerkId: auth.userId });
 
         if (!user) {
-            return error(res, 'Not authorized, user not found', 401);
+            return res.status(404).json({ error: "User not found" });
         }
 
-        if (!user.isActive) {
-            return error(res, 'User account is deactivated', 403);
+        if (user.role !== "admin") {
+            return res.status(403).json({ error: "Forbidden: Admin access only" });
         }
 
-        req.user = user;
+        // Attach user to request for convenience in controllers
+        (req as any).currentUser = user;
+
         next();
-    } catch (err) {
-        return error(res, 'Not authorized, token failed', 401);
+    } catch (error) {
+        console.error("Admin check error:", error);
+        res.status(500).json({ error: "Internal Server Error" });
     }
 };
+
+export const protect = requireAuth;
