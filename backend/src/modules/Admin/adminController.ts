@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
-import User from "../../database/models/User.js";
-// import Report from "../../database/models/Report.js";
-// import Comment from "../../database/models/Comment.js";
+import User from "../../database/models/User";
+// import Report from "../../database/models/Report";
+// import Comment from "../../database/models/Comment";
 
 // --- Analytics ---
 export const getDashboardStats = async (req: Request, res: Response) => {

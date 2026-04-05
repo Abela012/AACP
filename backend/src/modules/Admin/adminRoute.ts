@@ -1,5 +1,5 @@
 import express from "express";
-import { requireAdmin } from "../../middlewares/auth.middleware.js";
+import { requireAdmin } from "../../middlewares/auth.middleware";
 import {
     getDashboardStats,
     getChartData,
@@ -9,7 +9,7 @@ import {
     getReports,
     resolveReport,
     createNews
-} from "./adminController.js";
+} from "./adminController";
 
 const router = express.Router();
 

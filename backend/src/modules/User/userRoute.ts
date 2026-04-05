@@ -4,7 +4,7 @@ import {
   syncUser,
   updateUserProfile,
   uploadProfilePicture,
-} from "./userController.js";
+} from "./userController";
 import { requireAuth } from "@clerk/express";
 import multer from "multer";
 

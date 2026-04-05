@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from "express";
-import User from "../database/models/User.js";
+import User from "../database/models/User";
 import { getAuth } from "@clerk/express";
 
 // Middleware to ensure user is authenticated
-export const requireAuth = (
+export const requireAuth = async (
     req: Request,
     res: Response,
     next: NextFunction,
@@ -12,7 +12,19 @@ export const requireAuth = (
     if (!auth.userId) {
         return res.status(401).json({ error: "Unauthorized" });
     }
-    return next();
+
+    try {
+        const user = await User.findOne({ clerkId: auth.userId });
+        if (!user) {
+            return res.status(404).json({ error: "User not found" });
+        }
+        // Attach user to request
+        (req as any).user = user;
+        return next();
+    } catch (err) {
+        console.error("Auth check error:", err);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
 };
 
 // Middleware to ensure user is an admin

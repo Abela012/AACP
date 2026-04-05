@@ -1,7 +1,7 @@
-import User from "../../database/models/User.js";
+import User from "../../database/models/User";
 import { Request, Response } from "express";
 import { getAuth, clerkClient } from "@clerk/express";
-import cloudinary from "../../config/cloudinary.js";
+import cloudinary from "../../config/cloudinary";
 
 interface MulterRequest extends Request {
   file?: Express.Multer.File;
