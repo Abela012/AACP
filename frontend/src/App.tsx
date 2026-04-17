@@ -22,6 +22,8 @@ import AdvertiserManualCheckoutPage from './pages/dashboard/advertiser/Advertise
 import ViewProfilePage from './pages/profile/view-profile/ViewProfilePage'
 import EditProfilePage from './pages/profile/edit-profile/EditProfilePage'
 import LandingPage from './pages/landing/LandingPage'
+import ConversationPage from './pages/chat/conversation/ConversationPage'
+import AdminDashboardPage from './pages/dashboard/admin/AdminDashboardPage'
 import './App.css'
 
 function App() {
@@ -107,6 +109,19 @@ function App() {
           <>
             <SignedIn>
               <BusinessDashboardPage />
+            </SignedIn>
+            <SignedOut>
+              <Navigate to="/auth/login" replace />
+            </SignedOut>
+          </>
+        }
+      />
+      <Route
+        path="/dashboard/admin"
+        element={
+          <>
+            <SignedIn>
+              <AdminDashboardPage />
             </SignedIn>
             <SignedOut>
               <Navigate to="/auth/login" replace />
@@ -274,6 +289,15 @@ function App() {
 
       {/* Landing Page */}
       <Route path="/" element={<LandingPage />} />
+      <Route
+        path="/messages"
+        element={
+          <>
+            <SignedIn><ConversationPage /></SignedIn>
+            <SignedOut><Navigate to="/auth/login" replace /></SignedOut>
+          </>
+        }
+      />
     </Routes>
   )
 }

@@ -5,12 +5,14 @@ import {
   MoreVertical, 
   MessageSquare,
 } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { cn } from '@/src/shared/utils/cn';
 import AdvertiserLayout from '@/src/shared/components/layouts/AdvertiserLayout';
 
 export default function AdvertiserCampaignsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('All Status');
+  const [selectedPlatform, setSelectedPlatform] = useState('All Platforms');
 
   const campaigns = [
     { id: 1, title: 'Summer Collection Review', brand: 'Global Tech Corp', status: 'In Progress', platform: 'TikTok', progress: 75, earnings: '$800', deadline: 'Oct 28, 2024' },
@@ -36,12 +38,13 @@ export default function AdvertiserCampaignsPage() {
 
   const filteredCampaigns = allCampaigns.filter(c => {
     const matchesStatus = selectedStatus === 'All Status' || c.status === selectedStatus;
+    const matchesPlatform = selectedPlatform === 'All Platforms' || c.platform === selectedPlatform;
     const searchLower = searchQuery.trim().toLowerCase();
     const matchesSearch = !searchLower || 
                          c.title.toLowerCase().includes(searchLower) || 
                          c.brand.toLowerCase().includes(searchLower) ||
                          c.platform.toLowerCase().includes(searchLower);
-    return matchesStatus && matchesSearch;
+    return matchesStatus && matchesPlatform && matchesSearch;
   });
 
   return (
@@ -81,6 +84,16 @@ export default function AdvertiserCampaignsPage() {
               <option>Pending Brief</option>
               <option>Applied</option>
               <option>Completed</option>
+            </select>
+            <select 
+              value={selectedPlatform}
+              onChange={(e) => setSelectedPlatform(e.target.value)}
+              className="px-4 py-2 rounded-xl border border-gray-100 dark:border-white/10 text-sm font-medium text-gray-600 dark:text-gray-400 outline-none bg-white dark:bg-white/5"
+            >
+              <option>All Platforms</option>
+              <option>TikTok</option>
+              <option>Instagram</option>
+              <option>YouTube</option>
             </select>
           </div>
         </div>
@@ -143,9 +156,9 @@ export default function AdvertiserCampaignsPage() {
                       </td>
                       <td className="px-8 py-6 text-right">
                         <div className="flex items-center justify-end gap-2">
-                          <button className="p-2 text-gray-400 dark:text-gray-500 hover:text-emerald-500 dark:hover:text-emerald-500 transition-colors">
+                          <Link to="/messages" className="p-2 text-gray-400 dark:text-gray-500 hover:text-emerald-500 dark:hover:text-emerald-500 transition-colors">
                             <MessageSquare size={18} />
-                          </button>
+                          </Link>
                           <button className="p-2 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
                             <MoreVertical size={18} />
                           </button>

@@ -49,6 +49,19 @@ export default function AdvertiserCheckoutPage() {
     setTimeout(() => {
       setIsProcessing(false);
       
+      // Record transaction
+      const transactions = JSON.parse(localStorage.getItem('advertiser_transactions') || '[]');
+      const newTransaction = {
+        id: `TXN-${Math.random().toString(36).substr(2, 9).toUpperCase()}`,
+        type: 'Coin Purchase',
+        amount: packDetails.price,
+        coins: packDetails.coins,
+        status: 'Completed',
+        date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+        method: paymentType === 'card' ? 'Visa •••• 4242' : 'Telebirr',
+      };
+      localStorage.setItem('advertiser_transactions', JSON.stringify([newTransaction, ...transactions]));
+
       // Update balance
       const currentCoins = parseInt(localStorage.getItem('advertiser_coins') || '450', 10);
       localStorage.setItem('advertiser_coins', (currentCoins + packDetails.coins).toString());
@@ -71,7 +84,7 @@ export default function AdvertiserCheckoutPage() {
             </p>
             <button 
               onClick={() => navigate('/advertiser/balance')}
-              className="w-full bg-[#8b5cf6] hover:bg-purple-500 text-white font-bold py-4 rounded-xl shadow-lg shadow-purple-500/20 active:scale-[0.98] transition-all"
+              className="w-full bg-emerald-500 hover:bg-emerald-400 text-black font-bold py-4 rounded-xl shadow-lg shadow-emerald-500/20 active:scale-[0.98] transition-all"
             >
               Back to Wallet
             </button>
@@ -135,10 +148,10 @@ export default function AdvertiserCheckoutPage() {
               </div>
 
               {/* Chapa Secure Banner */}
-              <div className="bg-purple-50/50 dark:bg-purple-500/10 border border-purple-100 dark:border-purple-500/20 rounded-2xl p-4 flex items-center justify-between mb-8">
+              <div className="bg-emerald-50/50 dark:bg-emerald-500/10 border border-emerald-100 dark:border-emerald-500/20 rounded-2xl p-4 flex items-center justify-between mb-8">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-500/20 flex items-center justify-center">
-                    <ShieldCheck size={16} className="text-[#8b5cf6] dark:text-purple-400" />
+                  <div className="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-500/20 flex items-center justify-center">
+                    <ShieldCheck size={16} className="text-emerald-500 dark:text-emerald-400" />
                   </div>
                   <span className="text-sm font-medium text-gray-900 dark:text-gray-200">Chapa Secure Payment Gateway</span>
                 </div>
@@ -162,7 +175,7 @@ export default function AdvertiserCheckoutPage() {
                       placeholder="Full Name on Card"
                       value={formData.name}
                       onChange={handleInputChange}
-                      className="w-full bg-white dark:bg-[#222] border border-gray-200 dark:border-white/5 rounded-xl px-4 py-4 text-sm focus:outline-none focus:border-[#8b5cf6] focus:ring-1 focus:ring-purple-500/50 transition-all text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600"
+                      className="w-full bg-white dark:bg-[#222] border border-gray-200 dark:border-white/5 rounded-xl px-4 py-4 text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/50 transition-all text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600"
                     />
                   </div>
                   
@@ -177,7 +190,7 @@ export default function AdvertiserCheckoutPage() {
                         maxLength={19}
                         value={formData.cardNumber}
                         onChange={handleInputChange}
-                        className="w-full bg-white dark:bg-[#222] border border-gray-200 dark:border-white/5 rounded-xl pl-4 pr-12 py-4 text-sm focus:outline-none focus:border-[#8b5cf6] focus:ring-1 focus:ring-purple-500/50 transition-all text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600"
+                        className="w-full bg-white dark:bg-[#222] border border-gray-200 dark:border-white/5 rounded-xl pl-4 pr-12 py-4 text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/50 transition-all text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600"
                       />
                       <CreditCard className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-600 w-5 h-5" />
                     </div>
@@ -194,7 +207,7 @@ export default function AdvertiserCheckoutPage() {
                         maxLength={5}
                         value={formData.expiry}
                         onChange={handleInputChange}
-                        className="w-full bg-white dark:bg-[#222] border border-gray-200 dark:border-white/5 rounded-xl px-4 py-4 text-sm focus:outline-none focus:border-[#8b5cf6] focus:ring-1 focus:ring-purple-500/50 transition-all text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600"
+                        className="w-full bg-white dark:bg-[#222] border border-gray-200 dark:border-white/5 rounded-xl px-4 py-4 text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/50 transition-all text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600"
                       />
                     </div>
                     <div className="space-y-2">
@@ -207,7 +220,7 @@ export default function AdvertiserCheckoutPage() {
                         maxLength={4}
                         value={formData.cvv}
                         onChange={handleInputChange}
-                        className="w-full bg-white dark:bg-[#222] border border-gray-200 dark:border-white/5 rounded-xl px-4 py-4 text-sm focus:outline-none focus:border-[#8b5cf6] focus:ring-1 focus:ring-purple-500/50 transition-all text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600"
+                        className="w-full bg-white dark:bg-[#222] border border-gray-200 dark:border-white/5 rounded-xl px-4 py-4 text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/50 transition-all text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600"
                       />
                     </div>
                   </div>
@@ -215,7 +228,7 @@ export default function AdvertiserCheckoutPage() {
                   <button 
                     type="submit"
                     disabled={isProcessing}
-                    className="w-full bg-[#8b5cf6] hover:bg-purple-500 text-white py-4 rounded-xl font-bold flex items-center justify-center gap-2 mt-8 transition-all shadow-lg shadow-purple-500/30 disabled:opacity-70 disabled:cursor-not-allowed"
+                    className="w-full bg-emerald-500 hover:bg-emerald-400 text-black py-4 rounded-xl font-bold flex items-center justify-center gap-2 mt-8 transition-all shadow-lg shadow-emerald-500/30 disabled:opacity-70 disabled:cursor-not-allowed"
                   >
                     {isProcessing ? (
                       <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -246,14 +259,14 @@ export default function AdvertiserCheckoutPage() {
             <div className="bg-white dark:bg-[#111] rounded-[2.5rem] p-6 md:p-8 shadow-sm border border-gray-100 dark:border-white/5 lg:sticky lg:top-32">
               <h2 className="text-xl font-bold mb-8 text-gray-900 dark:text-white">Order Summary</h2>
               
-              <div className="bg-purple-50/50 dark:bg-[#222] border border-purple-100 dark:border-white/5 rounded-2xl p-4 flex gap-4 items-center mb-8">
-                <div className="w-14 h-14 bg-[#8b5cf6] dark:bg-purple-500/10 rounded-xl flex items-center justify-center shrink-0">
-                  <Package className="text-white dark:text-purple-400 w-7 h-7" />
+              <div className="bg-emerald-50/50 dark:bg-[#222] border border-emerald-100 dark:border-white/5 rounded-2xl p-4 flex gap-4 items-center mb-8">
+                <div className="w-14 h-14 bg-emerald-500 dark:bg-emerald-500/10 rounded-xl flex items-center justify-center shrink-0">
+                  <Package className="text-black dark:text-emerald-400 w-7 h-7" />
                 </div>
                 <div>
                   <h3 className="font-bold text-gray-900 dark:text-white">{packDetails.title}</h3>
                   <p className="text-xs text-gray-500 mt-1">AI Ads Collaboration Platform</p>
-                  <p className="text-sm font-bold text-[#8b5cf6] dark:text-purple-400 mt-2">${packDetails.price.toFixed(2)}</p>
+                  <p className="text-sm font-bold text-emerald-500 dark:text-emerald-400 mt-2">${packDetails.price.toFixed(2)}</p>
                 </div>
               </div>
 
@@ -274,12 +287,12 @@ export default function AdvertiserCheckoutPage() {
 
               <div className="flex items-center justify-between mb-8">
                 <span className="font-bold text-gray-900 dark:text-white text-lg">Total Amount</span>
-                <span className="text-3xl font-black text-[#8b5cf6] dark:text-purple-500">${packDetails.price.toFixed(2)}</span>
+                <span className="text-3xl font-black text-emerald-500 dark:text-emerald-500">${packDetails.price.toFixed(2)}</span>
               </div>
 
               <div className="bg-gray-50 dark:bg-[#222] border border-gray-100 dark:border-white/5 rounded-xl p-5 flex gap-3 items-start mb-8">
-                <div className="w-5 h-5 rounded-full bg-[#8b5cf6] dark:bg-purple-500/10 flex items-center justify-center shrink-0 mt-0.5">
-                  <Info className="w-3 h-3 text-white dark:text-purple-400" />
+                <div className="w-5 h-5 rounded-full bg-emerald-500 dark:bg-emerald-500/10 flex items-center justify-center shrink-0 mt-0.5">
+                  <Info className="w-3 h-3 text-black dark:text-emerald-400" />
                 </div>
                 <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed font-medium">
                   Coins will be credited to your account instantly after successful payment. You will receive a receipt via your registered email.

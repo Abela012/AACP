@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { 
   TrendingUp, 
   TrendingDown, 
@@ -6,7 +7,8 @@ import {
   ChevronDown,
   Zap,
   Eye,
-  Video
+  Video,
+  Download
 } from 'lucide-react';
 import { cn } from '@/src/shared/utils/cn';
 import { 
@@ -24,7 +26,10 @@ import {
 import AdvertiserLayout from '@/src/shared/components/layouts/AdvertiserLayout';
 
 export default function AdvertiserAnalyticsPage() {
-  const data = [
+  const [timeRange, setTimeRange] = useState('Last 30 Days');
+  const [showRangeDropdown, setShowRangeDropdown] = useState(false);
+
+  const data30Days = [
     { name: 'Mon', reach: 4000, engagement: 2400 },
     { name: 'Tue', reach: 3000, engagement: 1398 },
     { name: 'Wed', reach: 2000, engagement: 9800 },
@@ -33,6 +38,30 @@ export default function AdvertiserAnalyticsPage() {
     { name: 'Sat', reach: 2390, engagement: 3800 },
     { name: 'Sun', reach: 3490, engagement: 4300 },
   ];
+
+  const data7Days = [
+    { name: 'Mon', reach: 1200, engagement: 800 },
+    { name: 'Tue', reach: 2100, engagement: 1100 },
+    { name: 'Wed', reach: 1800, engagement: 1500 },
+    { name: 'Thu', reach: 2400, engagement: 1900 },
+    { name: 'Fri', reach: 2900, engagement: 2200 },
+    { name: 'Sat', reach: 3100, engagement: 2600 },
+    { name: 'Sun', reach: 3500, engagement: 3000 },
+  ];
+
+  const currentData = timeRange === 'Last 7 Days' ? data7Days : data30Days;
+
+  const handleExportData = () => {
+    const csvContent = "data:text/csv;charset=utf-8," 
+      + ["Day,Reach,Engagement", ...currentData.map(d => `${d.name},${d.reach},${d.engagement}`)].join("\n");
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `analytics_export_${timeRange.replace(/ /g, '_').toLowerCase()}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   const platformData = [
     { name: 'TikTok', value: 55, color: '#10b981' },
@@ -55,13 +84,38 @@ export default function AdvertiserAnalyticsPage() {
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-1">Creator Insights</h1>
             <p className="text-gray-500 dark:text-gray-400 text-sm">Track your content performance and earnings across all platforms.</p>
           </div>
-          <div className="flex gap-3">
-            <button className="bg-white dark:bg-white/5 border border-gray-100 dark:border-white/10 px-6 py-3 rounded-xl font-bold text-sm text-gray-600 dark:text-gray-400 flex items-center gap-2 hover:bg-gray-50 dark:hover:bg-white/10 transition-all">
+          <div className="flex gap-3 relative">
+            <button 
+              onClick={() => setShowRangeDropdown(!showRangeDropdown)}
+              className="bg-white dark:bg-white/5 border border-gray-100 dark:border-white/10 px-6 py-3 rounded-xl font-bold text-sm text-gray-600 dark:text-gray-400 flex items-center gap-2 hover:bg-gray-50 dark:hover:bg-white/10 transition-all border-b-2 border-b-transparent active:border-b-emerald-500"
+            >
               <Calendar size={18} />
-              Last 30 Days
-              <ChevronDown size={16} />
+              {timeRange}
+              <ChevronDown size={16} className={cn("transition-transform", showRangeDropdown && "rotate-180")} />
             </button>
-            <button className="bg-emerald-500 text-black px-6 py-3 rounded-xl font-bold text-sm flex items-center gap-2 hover:bg-emerald-400 transition-all shadow-lg shadow-emerald-100 dark:shadow-none">
+            
+            {showRangeDropdown && (
+              <div className="absolute top-14 left-0 w-48 bg-white dark:bg-[#1a1a1a] border border-gray-100 dark:border-white/10 rounded-2xl shadow-xl overflow-hidden z-20">
+                {['Last 7 Days', 'Last 30 Days', 'Last 3 Months'].map((range) => (
+                  <button
+                    key={range}
+                    onClick={() => {
+                      setTimeRange(range);
+                      setShowRangeDropdown(false);
+                    }}
+                    className="w-full text-left px-5 py-3 text-sm hover:bg-gray-50 dark:hover:bg-white/5 transition-colors text-gray-700 dark:text-gray-300 font-medium"
+                  >
+                    {range}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            <button 
+              onClick={handleExportData}
+              className="bg-emerald-500 text-black px-6 py-3 rounded-xl font-bold text-sm flex items-center gap-2 hover:bg-emerald-400 transition-all shadow-lg shadow-emerald-500/20 active:scale-95"
+            >
+              <Download size={18} />
               Export Data
             </button>
           </div>
@@ -107,7 +161,7 @@ export default function AdvertiserAnalyticsPage() {
             </div>
             <div className="h-[300px] w-full">
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={data}>
+                <AreaChart data={currentData}>
                   <defs>
                     <linearGradient id="colorReach" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="#10b981" stopOpacity={0.1}/>

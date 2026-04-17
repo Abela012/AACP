@@ -57,6 +57,10 @@ export default function RoleDashboardRedirectPage() {
     return <Navigate to="/dashboard/advertiser" replace />;
   }
 
+  if (normalizedRole === "admin" || normalizedRole === "super_admin") {
+    return <Navigate to="/dashboard/admin" replace />;
+  }
+
   if (isError || timedOut) {
     // Fail-safe: never keep user stuck on loading page.
     return <Navigate to="/dashboard/advertiser" replace />;

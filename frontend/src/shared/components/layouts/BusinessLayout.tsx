@@ -14,21 +14,27 @@ import {
   X,
   Lock,
   ShieldCheck,
-  Sparkles
+  Sparkles,
+  LogOut,
+  MessageSquare
 } from 'lucide-react';
+import { useClerk } from '@clerk/clerk-react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/src/shared/utils/cn';
 import ThemeToggle from '@/src/shared/components/ThemeToggle';
 import { useUser } from '@/src/shared/context/UserContext';
+import { useProfile } from '@/src/shared/context/ProfileContext';
 
 interface BusinessLayoutProps {
   children: ReactNode;
 }
 
 export default function BusinessLayout({ children }: BusinessLayoutProps) {
+  const { signOut } = useClerk();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const location = useLocation();
-  const { onboardingStatus } = useUser();
+  const { onboardingStatus, logout: localLogout } = useUser();
+  const { profile } = useProfile();
   const isApproved = onboardingStatus === 'approved';
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -58,6 +64,7 @@ export default function BusinessLayout({ children }: BusinessLayoutProps) {
     { name: 'Campaigns', icon: Megaphone, path: '/campaigns' },
     { name: 'Matches', icon: Users, path: '/matches' },
     { name: 'Analytics', icon: BarChart3, path: '/analytics' },
+    { name: 'Messages', icon: MessageSquare, path: '/messages' },
   ];
 
   const systemNavigation = [
@@ -132,6 +139,16 @@ export default function BusinessLayout({ children }: BusinessLayoutProps) {
                   {item.name}
                 </Link>
               ))}
+              <button 
+                onClick={() => {
+                  localLogout();
+                  signOut();
+                }}
+                className="w-full mt-2 lg:mt-4 flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-all border border-transparent hover:border-red-100 dark:hover:border-red-500/20"
+              >
+                <LogOut size={18} />
+                Log Out
+              </button>
             </nav>
           </div>
         </div>
@@ -258,7 +275,7 @@ export default function BusinessLayout({ children }: BusinessLayoutProps) {
             
             <ThemeToggle />
             <Link to="/profile/view/business" className="w-10 h-10 rounded-xl overflow-hidden border border-gray-100 dark:border-white/10">
-              <img src="https://i.pravatar.cc/150?u=marcus" alt="Profile" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+              <img src={profile.avatarUrl} alt="Profile" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
             </Link>
           </div>
         </header>

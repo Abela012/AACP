@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, type ReactNode } from 'react';
 
-type UserRole = 'business' | 'advertiser' | null;
+type UserRole = 'business' | 'advertiser' | 'admin' | null;
 type OnboardingStatus = 'incomplete' | 'pending' | 'approved';
 
 interface UserContextType {

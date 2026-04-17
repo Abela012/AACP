@@ -7,6 +7,7 @@ import './index.css'
 import App from './App.tsx'
 import { UserProvider } from './shared/context/UserContext'
 import { ThemeProvider } from './shared/context/ThemeContext'
+import { ProfileProvider } from './shared/context/ProfileContext'
 
 // Global React Query client
 const queryClient = new QueryClient()
@@ -30,9 +31,11 @@ createRoot(document.getElementById('root')!).render(
       <QueryClientProvider client={queryClient}>
         <ThemeProvider>
           <UserProvider>
-            <BrowserRouter>
-              <App />
-            </BrowserRouter>
+            <ProfileProvider>
+              <BrowserRouter>
+                <App />
+              </BrowserRouter>
+            </ProfileProvider>
           </UserProvider>
         </ThemeProvider>
       </QueryClientProvider>

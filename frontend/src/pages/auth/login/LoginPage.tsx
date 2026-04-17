@@ -30,8 +30,8 @@ export default function LoginForm() {
     return (
         <div className="flex flex-col">
             <div className="mb-10 text-left">
-                <h2 className="text-4xl font-bold text-[#1e1b4b] mb-3">Welcome back</h2>
-                <p className="text-base text-[#6366f1]">
+                <h2 className="text-4xl font-bold text-[#001e00] mb-3">Welcome back</h2>
+                <p className="text-base text-[#5e6d55]">
                     Enter your credentials to access your account.
                 </p>
             </div>
@@ -43,7 +43,7 @@ export default function LoginForm() {
                     </div>
                 )}
                 <div>
-                    <label className="mb-1.5 block text-sm font-bold text-[#1e1b4b]">
+                    <label className="mb-1.5 block text-sm font-bold text-[#001e00]">
                         Email Address
                     </label>
                     <input
@@ -51,13 +51,13 @@ export default function LoginForm() {
                         value={emailAddress}
                         onChange={(e) => setEmailAddress(e.target.value)}
                         placeholder="you@example.com"
-                        className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-[#1e1b4b] placeholder-gray-400 transition-all focus:border-[#7c3aed] focus:ring-1 focus:ring-[#7c3aed] outline-none"
+                        className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-[#001e00] placeholder-gray-400 transition-all focus:border-[#14a800] focus:ring-1 focus:ring-[#14a800] outline-none"
                         required
                     />
                 </div>
 
                 <div>
-                    <label className="mb-1.5 block text-sm font-bold text-[#1e1b4b]">
+                    <label className="mb-1.5 block text-sm font-bold text-[#001e00]">
                         Password
                     </label>
                     <div className="relative">
@@ -66,13 +66,13 @@ export default function LoginForm() {
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             placeholder="Enter your password"
-                            className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-[#1e1b4b] placeholder-gray-400 transition-all focus:border-[#7c3aed] focus:ring-1 focus:ring-[#7c3aed] outline-none"
+                            className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-[#001e00] placeholder-gray-400 transition-all focus:border-[#14a800] focus:ring-1 focus:ring-[#14a800] outline-none"
                             required
                         />
                         <button
                             type="button"
                             onClick={() => setShowPassword(!showPassword)}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#7c3aed] transition-colors"
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#14a800] transition-colors"
                         >
                             {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                         </button>
@@ -83,15 +83,15 @@ export default function LoginForm() {
                     <label className="flex items-center gap-2 cursor-pointer group">
                         <input
                             type="checkbox"
-                            className="h-4 w-4 rounded border-gray-300 bg-white text-[#7c3aed] focus:ring-[#7c3aed] accent-[#7c3aed]"
+                            className="h-4 w-4 rounded border-gray-300 bg-white text-[#14a800] focus:ring-[#14a800] accent-[#14a800]"
                         />
-                        <span className="text-sm font-medium text-[#6366f1] group-hover:text-[#1e1b4b] transition-colors">
+                        <span className="text-sm font-medium text-[#5e6d55] group-hover:text-[#001e00] transition-colors">
                             Keep me signed in
                         </span>
                     </label>
                     <Link
                         to="/auth/forgot-password"
-                        className="text-sm font-bold text-[#7c3aed] hover:underline"
+                        className="text-sm font-bold text-[#14a800] hover:underline"
                     >
                         Forgot password?
                     </Link>
@@ -100,14 +100,14 @@ export default function LoginForm() {
                 <button
                     type="submit"
                     disabled={loading}
-                    className="w-full rounded-full bg-[#7c3aed] py-3.5 text-base font-bold text-white shadow-sm shadow-[#7c3aed]/20 transition-all hover:bg-[#6d28d9] active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2"
+                    className="w-full rounded-full bg-[#14a800] py-3.5 text-base font-bold text-white shadow-sm shadow-[#14a800]/20 transition-all hover:bg-[#108a00] active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2"
                 >
                     {loading ? "Signing In..." : "Log In"}
                 </button>
             </form>
 
             <div className="space-y-4 mt-8">
-                <label className="text-xs font-bold text-[#6366f1] uppercase tracking-wider block text-center">
+                <label className="text-xs font-bold text-[#5e6d55] uppercase tracking-wider block text-center">
                     Select your role for social login
                 </label>
                 <div className="grid grid-cols-2 gap-3">
@@ -115,8 +115,8 @@ export default function LoginForm() {
                         type="button"
                         onClick={() => setRole('business_owner')}
                         className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all ${role === 'business_owner'
-                            ? 'border-[#7c3aed] bg-[#7c3aed]/5 text-[#7c3aed]'
-                            : 'border-gray-100 bg-white text-[#6366f1] hover:border-[#7c3aed]/30 hover:text-[#1e1b4b]'
+                            ? 'border-[#14a800] bg-[#14a800]/5 text-[#14a800]'
+                            : 'border-gray-100 bg-white text-[#5e6d55] hover:border-[#14a800]/30 hover:text-[#001e00]'
                             }`}
                     >
                         <Briefcase size={20} />
@@ -126,8 +126,8 @@ export default function LoginForm() {
                         type="button"
                         onClick={() => setRole('advertiser')}
                         className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all ${role === 'advertiser'
-                            ? 'border-[#7c3aed] bg-[#7c3aed]/5 text-[#7c3aed]'
-                            : 'border-gray-100 bg-white text-[#6366f1] hover:border-[#7c3aed]/30 hover:text-[#1e1b4b]'
+                            ? 'border-[#14a800] bg-[#14a800]/5 text-[#14a800]'
+                            : 'border-gray-100 bg-white text-[#5e6d55] hover:border-[#14a800]/30 hover:text-[#001e00]'
                             }`}
                     >
                         <Megaphone size={20} />
@@ -141,7 +141,7 @@ export default function LoginForm() {
                     <div className="w-full border-t border-gray-100"></div>
                 </div>
                 <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-white px-4 text-[#6366f1] font-bold tracking-widest">
+                    <span className="bg-white px-4 text-[#5e6d55] font-bold tracking-widest">
                         Or continue with
                     </span>
                 </div>
@@ -174,11 +174,11 @@ export default function LoginForm() {
                 </button>
             </div>
 
-            <p className="mt-10 text-center text-sm font-medium text-[#6366f1]">
+            <p className="mt-10 text-center text-sm font-medium text-[#5e6d55]">
                 New to AACP?{" "}
                 <Link
                     to="/auth/register"
-                    className="font-bold text-[#7c3aed] hover:underline"
+                    className="font-bold text-[#14a800] hover:underline"
                 >
                     Create account
                 </Link>

@@ -29,11 +29,10 @@ export default function AdvertiserBalancePage() {
   });
 
   const [txHistory, setTxHistory] = useState(() => {
-    const history = localStorage.getItem('advertiser_tx_history');
+    const history = localStorage.getItem('advertiser_transactions');
     if (history) return JSON.parse(history);
     return [
-      { id: 1, type: 'deposit', title: 'Purchased 500 Coins', amount: '+500 Coins', date: 'Oct 24, 2024', status: 'Completed' },
-      { id: 2, type: 'spent', title: 'Applied for Campaign', amount: '-10 Coins', date: 'Oct 20, 2024', status: 'Completed' },
+      { id: 1, type: 'deposit', title: 'Welcome Bonus', amount: '$0.00', coins: '+450 Coins', date: 'Oct 24, 2024', status: 'Completed', method: 'System' },
     ];
   });
 
@@ -49,9 +48,9 @@ export default function AdvertiserBalancePage() {
           <div className="flex gap-3">
             <button 
               onClick={() => navigate('/advertiser/buy-coins')}
-              className="bg-gray-100 dark:bg-white/5 text-gray-900 dark:text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-gray-200 dark:hover:bg-white/10 transition-all border border-transparent dark:border-white/10 shadow-sm dark:shadow-none"
+              className="bg-emerald-500 hover:bg-emerald-400 text-black px-6 py-3 rounded-xl font-bold flex items-center gap-2 transition-all shadow-lg shadow-emerald-500/20 active:scale-95"
             >
-              <Coins size={18} className="text-amber-500" />
+              <Coins size={18} />
               Buy Coins
             </button>
           </div>
@@ -106,25 +105,25 @@ export default function AdvertiserBalancePage() {
                       <div className="flex items-center gap-4">
                         <div className={cn(
                           "w-10 h-10 rounded-xl flex items-center justify-center",
-                          t.type === 'spent' ? "bg-red-50 dark:bg-red-500/10 text-red-500 dark:text-red-400" : "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-500 dark:text-emerald-400"
+                          t.type === 'Spent' ? "bg-red-50 dark:bg-red-500/10 text-red-500 dark:text-red-400" : "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-500 dark:text-emerald-400"
                         )}>
-                          {t.type === 'spent' ? <ArrowUpRight size={20} /> : <ArrowDownLeft size={20} />}
+                          {t.type === 'Spent' ? <ArrowUpRight size={20} /> : <ArrowDownLeft size={20} />}
                         </div>
                         <div>
-                          <p className="text-sm font-bold text-gray-900 dark:text-white">{t.title}</p>
-                          <p className="text-[10px] text-gray-400 dark:text-gray-500 font-medium">{t.date}</p>
+                          <p className="text-sm font-bold text-gray-900 dark:text-white">{t.type === 'Coin Purchase' ? `Purchased ${t.coins} Coins` : t.title}</p>
+                          <p className="text-[10px] text-gray-400 dark:text-gray-500 font-medium">{t.date} • {t.method}</p>
                         </div>
                       </div>
                       <div className="text-right">
                         <p className={cn(
                           "text-sm font-bold",
-                          t.type === 'spent' ? "text-red-500 dark:text-red-400" : "text-emerald-600 dark:text-emerald-500"
+                          t.type === 'Spent' ? "text-red-500 dark:text-red-400" : "text-emerald-600 dark:text-emerald-500"
                         )}>
-                          {t.amount}
+                          {t.coins ? `${t.type === 'Spent' ? '-' : '+'}${t.coins} Coins` : t.amount}
                         </p>
                         <p className={cn(
                           "text-[10px] font-bold uppercase tracking-widest",
-                          t.status === 'Processing' ? "text-amber-500 dark:text-amber-400" : "text-gray-400 dark:text-gray-500"
+                          t.status === 'Pending' ? "text-amber-500 dark:text-amber-400" : "text-gray-400 dark:text-gray-500"
                         )}>{t.status}</p>
                       </div>
                     </div>

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { 
   ArrowLeft, 
@@ -10,7 +10,8 @@ import {
   UploadCloud,
   Clock,
   Lock,
-  HelpCircle
+  HelpCircle,
+  X
 } from 'lucide-react';
 import { cn } from '@/src/shared/utils/cn';
 import AdvertiserLayout from '@/src/shared/components/layouts/AdvertiserLayout';
@@ -29,6 +30,42 @@ export default function AdvertiserManualCheckoutPage() {
   const [copiedField, setCopiedField] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = () => {
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+    }
+  };
+
+  const removeFile = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setSelectedFile(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
 
   const handleCopy = (text: string, field: string) => {
     navigator.clipboard.writeText(text);
@@ -38,8 +75,25 @@ export default function AdvertiserManualCheckoutPage() {
 
   const handleSubmit = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
+    if (!selectedFile) {
+      alert("Please upload proof of payment before submitting.");
+      return;
+    }
     setIsSubmitting(true);
     setTimeout(() => {
+      // Record transaction
+      const transactions = JSON.parse(localStorage.getItem('advertiser_transactions') || '[]');
+      const newTransaction = {
+        id: `TXN-${Math.random().toString(36).substr(2, 9).toUpperCase()}`,
+        type: 'Coin Purchase',
+        amount: packDetails.price,
+        coins: packDetails.coins,
+        status: 'Pending',
+        date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+        method: 'Manual Payment',
+      };
+      localStorage.setItem('advertiser_transactions', JSON.stringify([newTransaction, ...transactions]));
+
       setIsSubmitting(false);
       setIsSuccess(true);
     }, 2000);
@@ -59,7 +113,7 @@ export default function AdvertiserManualCheckoutPage() {
             </p>
             <button 
               onClick={() => navigate('/advertiser/balance')}
-              className="w-full bg-[#8b5cf6] hover:bg-purple-500 text-white font-bold py-4 rounded-xl shadow-lg shadow-purple-500/20 active:scale-[0.98] transition-all"
+              className="w-full bg-emerald-500 hover:bg-emerald-400 text-black font-bold py-4 rounded-xl shadow-lg shadow-emerald-500/20 active:scale-[0.98] transition-all"
             >
               Back to Wallet
             </button>
@@ -88,9 +142,9 @@ export default function AdvertiserManualCheckoutPage() {
             </div>
           </div>
           
-          <div className="bg-purple-50 dark:bg-purple-500/10 border border-purple-100 dark:border-purple-500/20 px-4 py-2 rounded-lg flex items-center gap-2 text-xs font-bold text-purple-600 dark:text-purple-400 uppercase tracking-widest hidden sm:flex">
-            <div className="w-5 h-5 bg-[#8b5cf6] rounded-md flex items-center justify-center">
-              <ShieldIcon className="text-white w-3 h-3" />
+          <div className="bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-100 dark:border-emerald-500/20 px-4 py-2 rounded-lg flex items-center gap-2 text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest hidden sm:flex">
+            <div className="w-5 h-5 bg-emerald-500 rounded-md flex items-center justify-center">
+              <ShieldIcon className="text-black w-3 h-3" />
             </div>
             Secure Payment Gateway
           </div>
@@ -104,8 +158,8 @@ export default function AdvertiserManualCheckoutPage() {
             {/* Step 1: Transfer Instructions */}
             <div className="bg-white dark:bg-[#111] rounded-[2.5rem] p-6 md:p-10 shadow-sm border border-gray-100 dark:border-white/5">
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-6 h-6 rounded-full bg-[#8b5cf6] flex items-center justify-center shrink-0">
-                  <Info className="text-white w-3.5 h-3.5" />
+                <div className="w-6 h-6 rounded-full bg-emerald-500 flex items-center justify-center shrink-0">
+                  <Info className="text-black w-3.5 h-3.5" />
                 </div>
                 <h2 className="text-xl font-bold text-gray-900 dark:text-white">Manual Payment Instructions</h2>
               </div>
@@ -116,8 +170,8 @@ export default function AdvertiserManualCheckoutPage() {
               {/* Bank Card */}
               <div className="bg-gray-50 dark:bg-[#222] border border-gray-100 dark:border-white/5 rounded-2xl p-6 mb-4">
                 <div className="flex items-center gap-3 mb-6">
-                  <div className="w-10 h-10 rounded-xl bg-[#8b5cf6] flex items-center justify-center shadow-lg shadow-purple-500/20">
-                    <Building2 className="text-white w-5 h-5" />
+                  <div className="w-10 h-10 rounded-xl bg-emerald-500 flex items-center justify-center shadow-lg shadow-emerald-500/20">
+                    <Building2 className="text-black w-5 h-5" />
                   </div>
                   <h3 className="font-bold text-gray-900 dark:text-white">Bank Transfer</h3>
                 </div>
@@ -136,10 +190,10 @@ export default function AdvertiserManualCheckoutPage() {
                 <div>
                   <p className="text-xs text-gray-400 dark:text-gray-500 mb-1">Account Number</p>
                   <div className="flex items-center gap-3">
-                    <p className="font-bold text-lg text-[#8b5cf6] tracking-wider">100013456789</p>
+                    <p className="font-bold text-lg text-emerald-500 tracking-wider">100013456789</p>
                     <button 
                       onClick={() => handleCopy('100013456789', 'cbe')}
-                      className="text-gray-400 dark:text-gray-500 hover:text-[#8b5cf6] transition-colors"
+                      className="text-gray-400 dark:text-gray-500 hover:text-emerald-500 transition-colors"
                     >
                       {copiedField === 'cbe' ? <Check size={16} className="text-emerald-500" /> : <Copy size={16} />}
                     </button>
@@ -150,8 +204,8 @@ export default function AdvertiserManualCheckoutPage() {
               {/* Telebirr Card */}
               <div className="bg-gray-50 dark:bg-[#222] border border-gray-100 dark:border-white/5 rounded-2xl p-6">
                 <div className="flex items-center gap-3 mb-6">
-                  <div className="w-10 h-10 rounded-xl bg-[#8b5cf6] flex items-center justify-center shadow-lg shadow-purple-500/20">
-                    <Smartphone className="text-white w-5 h-5" />
+                  <div className="w-10 h-10 rounded-xl bg-emerald-500 flex items-center justify-center shadow-lg shadow-emerald-500/20">
+                    <Smartphone className="text-black w-5 h-5" />
                   </div>
                   <h3 className="font-bold text-gray-900 dark:text-white">Telebirr</h3>
                 </div>
@@ -164,10 +218,10 @@ export default function AdvertiserManualCheckoutPage() {
                   <div>
                     <p className="text-xs text-gray-400 dark:text-gray-500 mb-1">Telebirr Number</p>
                     <div className="flex items-center gap-3">
-                      <p className="font-bold text-lg text-[#8b5cf6] tracking-wider">+251 912 345 678</p>
+                      <p className="font-bold text-lg text-emerald-500 tracking-wider">+251 912 345 678</p>
                       <button 
                         onClick={() => handleCopy('+251912345678', 'telebirr')}
-                        className="text-gray-400 dark:text-gray-500 hover:text-[#8b5cf6] transition-colors"
+                        className="text-gray-400 dark:text-gray-500 hover:text-emerald-500 transition-colors"
                       >
                         {copiedField === 'telebirr' ? <Check size={16} className="text-emerald-500" /> : <Copy size={16} />}
                       </button>
@@ -181,34 +235,73 @@ export default function AdvertiserManualCheckoutPage() {
             {/* Step 2: Upload Proof */}
             <div className="bg-white dark:bg-[#111] rounded-[2.5rem] p-6 md:p-10 shadow-sm border border-gray-100 dark:border-white/5">
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-6 h-6 rounded-full bg-[#8b5cf6] flex items-center justify-center shrink-0">
-                  <UploadCloud className="text-white w-3.5 h-3.5" />
+                <div className="w-6 h-6 rounded-full bg-emerald-500 flex items-center justify-center shrink-0">
+                  <UploadCloud className="text-black w-3.5 h-3.5" />
                 </div>
                 <h2 className="text-xl font-bold text-gray-900 dark:text-white">Upload Proof of Payment</h2>
               </div>
 
-              <div className="border-2 border-dashed border-gray-200 dark:border-white/10 rounded-2xl p-10 flex flex-col items-center justify-center hover:border-[#8b5cf6] hover:bg-purple-50/50 dark:hover:bg-purple-500/5 transition-all cursor-pointer mb-6">
-                <div className="w-12 h-12 bg-gray-100 dark:bg-[#222] rounded-full flex items-center justify-center mb-4">
-                  <FileReceiptIcon className="text-gray-400 dark:text-gray-500 w-5 h-5" />
-                </div>
-                <p className="font-bold text-sm text-gray-900 dark:text-white mb-1">Click to upload or drag and drop</p>
-                <p className="text-[10px] text-gray-400 dark:text-gray-500 uppercase font-medium tracking-wide">SVG, PNG, JPG or PDF (max. 5MB)</p>
-              </div>
+              <input 
+                type="file"
+                ref={fileInputRef}
+                className="hidden"
+                accept=".jpg,.jpeg,.png,.pdf,.svg"
+                onChange={handleFileChange}
+              />
 
-              <div className="flex gap-3 bg-purple-50/50 dark:bg-purple-500/10 border border-purple-100 dark:border-purple-500/10 p-4 rounded-xl mb-6">
-                <Clock className="text-[#8b5cf6] w-5 h-5 shrink-0" />
+              {!selectedFile ? (
+                <div 
+                  onClick={() => fileInputRef.current?.click()}
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  onDrop={handleDrop}
+                  className={cn(
+                    "border-2 border-dashed rounded-2xl p-10 flex flex-col items-center justify-center transition-all cursor-pointer mb-6",
+                    isDragging 
+                      ? "border-emerald-500 bg-emerald-50/50 dark:bg-emerald-500/10" 
+                      : "border-gray-200 dark:border-white/10 hover:border-emerald-500 hover:bg-emerald-50/50 dark:hover:bg-emerald-500/5"
+                  )}
+                >
+                  <div className="w-12 h-12 bg-gray-100 dark:bg-[#222] rounded-full flex items-center justify-center mb-4">
+                    <FileReceiptIcon className="text-gray-400 dark:text-gray-500 w-5 h-5" />
+                  </div>
+                  <p className="font-bold text-sm text-gray-900 dark:text-white mb-1">Click to upload or drag and drop</p>
+                  <p className="text-[10px] text-gray-400 dark:text-gray-500 uppercase font-medium tracking-wide">SVG, PNG, JPG or PDF (max. 5MB)</p>
+                </div>
+              ) : (
+                <div className="border-2 border-emerald-500 bg-emerald-50/50 dark:bg-emerald-500/10 rounded-2xl p-8 flex items-center justify-between mb-6 animate-in fade-in zoom-in duration-300">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-emerald-500 rounded-xl flex items-center justify-center text-black">
+                      <FileReceiptIcon size={24} />
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold text-gray-900 dark:text-white line-clamp-1">{selectedFile.name}</p>
+                      <p className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">{(selectedFile.size / 1024 / 1024).toFixed(2)} MB • Ready to submit</p>
+                    </div>
+                  </div>
+                  <button 
+                    onClick={removeFile}
+                    className="p-2 hover:bg-emerald-500/10 rounded-full text-emerald-600 dark:text-emerald-400 transition-colors"
+                  >
+                    <X size={20} />
+                  </button>
+                </div>
+              )}
+
+              <div className="flex gap-3 bg-emerald-50/50 dark:bg-emerald-500/10 border border-emerald-100 dark:border-emerald-500/10 p-4 rounded-xl mb-6">
+                <Clock className="text-emerald-500 w-5 h-5 shrink-0" />
                 <p className="text-xs text-gray-600 dark:text-gray-300 leading-relaxed">
-                  <span className="font-bold text-gray-900 dark:text-white">Note:</span> Manual payments are processed within <span className="font-bold text-[#8b5cf6]">24-48 hours</span>. You will receive a notification once your coins are credited to your account.
+                  <span className="font-bold text-gray-900 dark:text-white">Note:</span> Manual payments are processed within <span className="font-bold text-emerald-500">24-48 hours</span>. You will receive a notification once your coins are credited to your account.
                 </p>
               </div>
 
               <button 
                 onClick={handleSubmit}
-                disabled={isSubmitting}
-                className="w-full bg-[#8b5cf6] hover:bg-purple-500 text-white py-4 rounded-xl font-bold flex items-center justify-center transition-all shadow-lg shadow-purple-500/30 disabled:opacity-70"
+                disabled={isSubmitting || !selectedFile}
+                className="w-full bg-emerald-500 hover:bg-emerald-400 text-black py-4 rounded-xl font-bold flex items-center justify-center transition-all shadow-lg shadow-emerald-500/30 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isSubmitting ? (
-                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  <div className="w-5 h-5 border-2 border-black/30 border-t-black rounded-full animate-spin" />
                 ) : (
                   "Submit Payment Request"
                 )}
@@ -247,7 +340,7 @@ export default function AdvertiserManualCheckoutPage() {
               <div className="mb-8">
                 <span className="text-[10px] text-gray-400 dark:text-gray-500 font-bold block mb-1">Total Payable</span>
                 <div className="flex items-center justify-between">
-                  <span className="text-3xl font-black text-[#8b5cf6]">${packDetails.price.toFixed(2)}</span>
+                  <span className="text-3xl font-black text-emerald-500 font-black">${packDetails.price.toFixed(2)}</span>
                   <span className="text-[8px] uppercase font-bold text-gray-400 dark:text-gray-500 tracking-widest mt-2">INCLUDED TAXES</span>
                 </div>
               </div>
