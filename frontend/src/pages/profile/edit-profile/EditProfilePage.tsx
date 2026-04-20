@@ -15,6 +15,7 @@ import {
   Phone,
   X,
   LogOut,
+  MapPin,
 } from 'lucide-react';
 import { useClerk } from '@clerk/clerk-react';
 import AdvertiserLayout from '@/src/shared/components/layouts/AdvertiserLayout';
@@ -45,6 +46,11 @@ export default function EditProfilePage() {
   const [businessName, setBusinessName] = useState(profile.businessName);
   const [website, setWebsite] = useState(profile.website);
   const [industry, setIndustry] = useState(profile.industry);
+  const [businessLocation, setBusinessLocation] = useState(profile.businessLocation || '');
+  const [companySize, setCompanySize] = useState(profile.companySize || '1-10');
+  const [monthlyBudget, setMonthlyBudget] = useState(profile.monthlyBudget || 0);
+  const [youtubeHandle, setYoutubeHandle] = useState(profile.youtubeHandle || '');
+  const [tiktokHandle, setTiktokHandle] = useState(profile.tiktokHandle || '');
 
   // Avatar state
   const [avatarPreview, setAvatarPreview] = useState<string>(profile.avatarUrl);
@@ -95,6 +101,11 @@ export default function EditProfilePage() {
         businessName,
         website,
         industry,
+        businessLocation,
+        companySize,
+        monthlyBudget,
+        youtubeHandle,
+        tiktokHandle,
         avatarUrl: avatarPreview,
       });
       setIsSaving(false);
@@ -330,20 +341,85 @@ export default function EditProfilePage() {
                     </div>
                     <div className="space-y-2">
                       <label className={labelCls}>Industry</label>
-                      <select
-                        value={industry}
-                        onChange={(e) => setIndustry(e.target.value)}
-                        className="w-full bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all text-gray-900 dark:text-white appearance-none"
-                      >
-                        <option>B2B Software</option>
-                        <option>SaaS</option>
-                        <option>E-commerce</option>
-                        <option>Fintech</option>
-                        <option>Healthcare</option>
-                        <option>Education</option>
-                        <option>Other</option>
-                      </select>
+                      <div className="relative">
+                        <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                        <select
+                          value={industry}
+                          onChange={(e) => setIndustry(e.target.value)}
+                          className="w-full bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl px-10 py-3 text-sm focus:outline-none focus:border-emerald-500 transition-all text-gray-900 dark:text-white appearance-none"
+                        >
+                          <option>B2B Software</option>
+                          <option>SaaS</option>
+                          <option>E-commerce</option>
+                          <option>Fintech</option>
+                          <option>Healthcare</option>
+                          <option>Education</option>
+                          <option>Other</option>
+                        </select>
+                      </div>
                     </div>
+                    <div className="space-y-2">
+                      <label className={labelCls}>Location</label>
+                      <div className="relative">
+                        <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                        <input
+                          type="text"
+                          value={businessLocation}
+                          onChange={(e) => setBusinessLocation(e.target.value)}
+                          className={inputCls}
+                          placeholder="City, Country"
+                        />
+                      </div>
+                    </div>
+                    {isBusiness ? (
+                      <>
+                        <div className="space-y-2">
+                          <label className={labelCls}>Monthly Budget ($)</label>
+                          <input
+                            type="number"
+                            value={monthlyBudget}
+                            onChange={(e) => setMonthlyBudget(Number(e.target.value))}
+                            className={inputCls.replace('pl-10', 'pl-4')}
+                          />
+                        </div>
+                        <div className="space-y-2 sm:col-span-2">
+                          <label className={labelCls}>Company Size</label>
+                          <select
+                            value={companySize}
+                            onChange={(e) => setCompanySize(e.target.value)}
+                            className="w-full bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-500 transition-all text-gray-900 dark:text-white appearance-none"
+                          >
+                            <option>1-10</option>
+                            <option>11-50</option>
+                            <option>51-200</option>
+                            <option>200+</option>
+                          </select>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div className="space-y-2">
+                          <label className={labelCls}>YouTube Handle</label>
+                          <input
+                            type="text"
+                            value={youtubeHandle}
+                            onChange={(e) => setYoutubeHandle(e.target.value)}
+                            className={inputCls.replace('pl-10', 'pl-4')}
+                            placeholder="@handle"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className={labelCls}>TikTok Handle</label>
+                          <input
+                            type="text"
+                            value={tiktokHandle}
+                            onChange={(e) => setTiktokHandle(e.target.value)}
+                            className={inputCls.replace('pl-10', 'pl-4')}
+                            placeholder="@handle"
+                          />
+                        </div>
+                      </>
+                    )}
                   </div>
                 </div>
               )}

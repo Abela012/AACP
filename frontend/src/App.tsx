@@ -21,6 +21,7 @@ import AdvertiserBuyCoinsPage from './pages/dashboard/advertiser/AdvertiserBuyCo
 import AdvertiserManualCheckoutPage from './pages/dashboard/advertiser/AdvertiserManualCheckoutPage'
 import ViewProfilePage from './pages/profile/view-profile/ViewProfilePage'
 import EditProfilePage from './pages/profile/edit-profile/EditProfilePage'
+import CompleteProfilePage from './pages/profile/complete-profile/CompleteProfilePage'
 import LandingPage from './pages/landing/LandingPage'
 import ConversationPage from './pages/chat/conversation/ConversationPage'
 import AdminDashboardPage from './pages/dashboard/admin/AdminDashboardPage'
@@ -272,13 +273,31 @@ function App() {
         path="/profile/complete/business"
         element={
           <>
-            <SignedIn><EditProfilePage /></SignedIn>
+            <SignedIn><CompleteProfilePage /></SignedIn>
             <SignedOut><Navigate to="/auth/login" replace /></SignedOut>
           </>
         }
       />
       <Route
         path="/profile/complete/advertiser"
+        element={
+          <>
+            <SignedIn><CompleteProfilePage /></SignedIn>
+            <SignedOut><Navigate to="/auth/login" replace /></SignedOut>
+          </>
+        }
+      />
+      <Route
+        path="/profile/edit/business"
+        element={
+          <>
+            <SignedIn><EditProfilePage /></SignedIn>
+            <SignedOut><Navigate to="/auth/login" replace /></SignedOut>
+          </>
+        }
+      />
+      <Route
+        path="/profile/edit/advertiser"
         element={
           <>
             <SignedIn><EditProfilePage /></SignedIn>

@@ -32,9 +32,17 @@ export default function AdvertiserBalancePage() {
     const history = localStorage.getItem('advertiser_transactions');
     if (history) return JSON.parse(history);
     return [
-      { id: 1, type: 'deposit', title: 'Welcome Bonus', amount: '$0.00', coins: '+450 Coins', date: 'Oct 24, 2024', status: 'Completed', method: 'System' },
+      { id: 1, type: 'deposit', title: 'Welcome Bonus', amount: '$0.00', coins: '450', date: 'Oct 24, 2024', status: 'Completed', method: 'System' },
     ];
   });
+
+  const totalSpent = txHistory
+    .filter((t: any) => t.type === 'Spent' && t.status === 'Completed')
+    .reduce((acc: number, t: any) => acc + parseInt(t.coins || '0', 10), 0);
+
+  const totalPurchased = txHistory
+    .filter((t: any) => (t.type === 'Coin Purchase' || (t.type === 'deposit' && t.coins)) && t.status === 'Completed')
+    .reduce((acc: number, t: any) => acc + parseInt(t.coins || '0', 10), 0);
 
 
   return (
@@ -74,13 +82,13 @@ export default function AdvertiserBalancePage() {
                 </div>
                 <div className="flex gap-10">
                   <div>
-                    <p className="text-emerald-900/60 text-[10px] font-bold uppercase tracking-widest mb-1">Purchased This Month</p>
-                    <p className="text-xl font-bold">1,000</p>
+                    <p className="text-emerald-900/60 text-[10px] font-bold uppercase tracking-widest mb-1">Total Coins Received</p>
+                    <p className="text-xl font-bold">{totalPurchased.toLocaleString()}</p>
                   </div>
                   <div className="w-px h-10 bg-black/10" />
                   <div>
                     <p className="text-emerald-900/60 text-[10px] font-bold uppercase tracking-widest mb-1">Total Spent</p>
-                    <p className="text-xl font-bold">150</p>
+                    <p className="text-xl font-bold">{totalSpent.toLocaleString()}</p>
                   </div>
                 </div>
               </div>

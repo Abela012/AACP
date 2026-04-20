@@ -37,6 +37,78 @@ export default function BuyCoinsPage() {
   const [selectedPackage, setSelectedPackage] = useState<any>(null);
   const [paymentMethod, setPaymentMethod] = useState<'CHAPA' | 'MANUAL'>('CHAPA');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    cardNumber: '',
+    expiry: '',
+    cvv: ''
+  });
+  const [prevFormData, setPrevFormData] = useState(formData);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    let newValue = value;
+
+    if (name === 'name') {
+      newValue = value.replace(/[0-9]/g, '');
+    } else if (name === 'cardNumber' || name === 'cvv' || name === 'expiry') {
+      if (name === 'cardNumber') {
+        newValue = value.replace(/[^0-9 ]/g, '');
+        newValue = newValue.replace(/\s?/g, '').replace(/(\d{4})/g, '$1 ').trim();
+      } else if (name === 'cvv') {
+        newValue = value.replace(/[^0-9]/g, '');
+      } else if (name === 'expiry') {
+        newValue = value.replace(/[^0-9/]/g, '');
+        if (newValue.length === 2 && !newValue.includes('/') && value.length > prevFormData.expiry.length) {
+          newValue = newValue + '/';
+        }
+      }
+    }
+
+    setFormData(prev => {
+      const next = { ...prev, [name]: newValue };
+      setPrevFormData(prev);
+      return next;
+    });
+  };
+
+  const validateCardData = () => {
+    const { name, cardNumber, expiry, cvv } = formData;
+    const newErrors: Record<string, string> = {};
+    
+    if (name.trim().length < 3) {
+      newErrors.name = 'Valid name required.';
+    }
+
+    const cleanCard = cardNumber.replace(/\s/g, '');
+    if (cleanCard.length < 13 || cleanCard.length > 19) {
+      newErrors.cardNumber = 'Invalid card number.';
+    }
+
+    if (!/^\d{2}\/\d{2}$/.test(expiry)) {
+      newErrors.expiry = 'Use MM/YY.';
+    } else {
+      const [month, year] = expiry.split('/').map(Number);
+      if (month < 1 || month > 12) {
+        newErrors.expiry = 'Invalid month.';
+      } else {
+        const now = new Date();
+        const currentYear = now.getFullYear() % 100;
+        const currentMonth = now.getMonth() + 1;
+        if (year < currentYear || (year === currentYear && month < currentMonth)) {
+          newErrors.expiry = 'Expired.';
+        }
+      }
+    }
+
+    if (cvv.length < 3) {
+      newErrors.cvv = 'Invalid CVV.';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const packages = [
     { id: 'starter', name: 'STARTER', price: 10, coins: 100, features: ['Standard access to all modules', 'No expiration on coins'] },
@@ -51,6 +123,8 @@ export default function BuyCoinsPage() {
   };
 
   const handlePayment = () => {
+    if (paymentMethod === 'CHAPA' && !validateCardData()) return;
+    
     setIsSubmitting(true);
     // Simulate payment processing
     setTimeout(() => {
@@ -315,39 +389,74 @@ export default function BuyCoinsPage() {
 
                     <div className="space-y-6">
                       <div>
-                        <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-3">Cardholder Name</label>
+                        <label className={cn("block text-xs font-bold uppercase tracking-widest mb-3 transition-colors", errors.name ? "text-red-500 font-black" : "text-gray-500 dark:text-gray-400 font-bold")}>
+                          Cardholder Name {errors.name && <span className="ml-2 italic font-medium">({errors.name})</span>}
+                        </label>
                         <input 
                           type="text" 
+                          name="name"
+                          value={formData.name}
+                          onChange={handleInputChange}
                           placeholder="Full Name on Card" 
-                          className="w-full px-6 py-4 rounded-2xl border border-gray-100 dark:border-white/10 bg-white dark:bg-white/5 focus:border-indigo-600 dark:focus:border-indigo-500 outline-none transition-all text-sm dark:text-white"
+                          className={cn(
+                            "w-full px-6 py-4 rounded-2xl border bg-white dark:bg-white/5 focus:ring-1 outline-none transition-all text-sm dark:text-white",
+                            errors.name ? "border-red-500 ring-red-500/20" : "border-gray-100 dark:border-white/10 focus:border-indigo-600 dark:focus:border-indigo-500"
+                          )}
                         />
                       </div>
                       <div>
-                        <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-3">Card Number</label>
+                        <label className={cn("block text-xs font-bold uppercase tracking-widest mb-3 transition-colors", errors.cardNumber ? "text-red-500 font-black" : "text-gray-500 dark:text-gray-400 font-bold")}>
+                          Card Number {errors.cardNumber && <span className="ml-2 italic font-medium">({errors.cardNumber})</span>}
+                        </label>
                         <div className="relative">
                           <input 
                             type="text" 
+                            name="cardNumber"
+                            value={formData.cardNumber}
+                            onChange={handleInputChange}
                             placeholder="0000 0000 0000 0000" 
-                            className="w-full px-6 py-4 rounded-2xl border border-gray-100 dark:border-white/10 bg-white dark:bg-white/5 focus:border-indigo-600 dark:focus:border-indigo-500 outline-none transition-all text-sm dark:text-white"
+                            maxLength={19}
+                            className={cn(
+                              "w-full px-6 py-4 rounded-2xl border bg-white dark:bg-white/5 focus:ring-1 outline-none transition-all text-sm dark:text-white",
+                              errors.cardNumber ? "border-red-500 ring-red-500/20" : "border-gray-100 dark:border-white/10 focus:border-indigo-600 dark:focus:border-indigo-500"
+                            )}
                           />
-                          <CreditCard className="absolute right-6 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 w-5 h-5" />
+                          <CreditCard className={cn("absolute right-6 top-1/2 -translate-y-1/2 w-5 h-5 transition-colors", errors.cardNumber ? "text-red-500" : "text-gray-400 dark:text-gray-500")} />
                         </div>
                       </div>
                       <div className="grid grid-cols-2 gap-6">
                         <div>
-                          <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-3">Expiry Date</label>
+                          <label className={cn("block text-xs font-bold uppercase tracking-widest mb-3 transition-colors", errors.expiry ? "text-red-500 font-black" : "text-gray-500 dark:text-gray-400 font-bold")}>
+                            Expiry Date {errors.expiry && <span className="ml-1 italic font-medium text-[9px]">({errors.expiry})</span>}
+                          </label>
                           <input 
                             type="text" 
+                            name="expiry"
+                            value={formData.expiry}
+                            onChange={handleInputChange}
                             placeholder="MM/YY" 
-                            className="w-full px-6 py-4 rounded-2xl border border-gray-100 dark:border-white/10 bg-white dark:bg-white/5 focus:border-indigo-600 dark:focus:border-indigo-500 outline-none transition-all text-sm dark:text-white"
+                            maxLength={5}
+                            className={cn(
+                              "w-full px-6 py-4 rounded-2xl border bg-white dark:bg-white/5 focus:ring-1 outline-none transition-all text-sm dark:text-white",
+                              errors.expiry ? "border-red-500 ring-red-500/20" : "border-gray-100 dark:border-white/10 focus:border-indigo-600 dark:focus:border-indigo-500"
+                            )}
                           />
                         </div>
                         <div>
-                          <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-3">CVV</label>
+                          <label className={cn("block text-xs font-bold uppercase tracking-widest mb-3 transition-colors", errors.cvv ? "text-red-500 font-black" : "text-gray-500 dark:text-gray-400 font-bold")}>
+                            CVV {errors.cvv && <span className="ml-1 italic font-medium text-[9px]">({errors.cvv})</span>}
+                          </label>
                           <input 
                             type="text" 
+                            name="cvv"
+                            value={formData.cvv}
+                            onChange={handleInputChange}
                             placeholder="123" 
-                            className="w-full px-6 py-4 rounded-2xl border border-gray-100 dark:border-white/10 bg-white dark:bg-white/5 focus:border-indigo-600 dark:focus:border-indigo-500 outline-none transition-all text-sm dark:text-white"
+                            maxLength={4}
+                            className={cn(
+                              "w-full px-6 py-4 rounded-2xl border bg-white dark:bg-white/5 focus:ring-1 outline-none transition-all text-sm dark:text-white",
+                              errors.cvv ? "border-red-500 ring-red-500/20" : "border-gray-100 dark:border-white/10 focus:border-indigo-600 dark:focus:border-indigo-500"
+                            )}
                           />
                         </div>
                       </div>

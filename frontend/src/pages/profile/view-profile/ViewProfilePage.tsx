@@ -33,13 +33,13 @@ export default function ViewProfilePage() {
   // Build profile display data from context
   const profileData = {
     name: profile.businessName || `${profile.firstName} ${profile.lastName}`,
-    type: isBusiness ? profile.industry || 'B2B Software' : 'Premium Advertiser',
-    bio: profile.bio,
-    established: '2019',
-    rating: '4.9',
-    reviews: isBusiness ? 128 : 84,
-    location: 'San Francisco, CA',
-    website: profile.website,
+    type: isBusiness ? profile.industry || 'B2B Software' : 'Premium Content Creator',
+    bio: profile.bio || 'No bio provided yet.',
+    established: '2024',
+    rating: '5.0',
+    reviews: isBusiness ? 0 : 0,
+    location: profile.businessLocation || (isBusiness ? 'Not Set' : (profile.geoTags?.[0] || 'Global')),
+    website: profile.website || 'No website',
     email: profile.email,
     phone: profile.phone,
     coverImage: isBusiness
@@ -47,18 +47,18 @@ export default function ViewProfilePage() {
       : 'https://images.unsplash.com/photo-1557683316-973673baf926?q=80&w=2629&auto=format&fit=crop',
     avatarImage: profile.avatarUrl,
     badges: isBusiness
-      ? ['Enterprise Software', 'High Match Rate', 'Verified Partner']
-      : ['Top Rated', 'SaaS Expert', 'B2B Specialist'],
+      ? profile.targetAudienceTags || ['Verified Business', 'Direct Advertiser']
+      : profile.selectedStyles || ['Content Creator', 'Social Media'],
     stats: isBusiness
       ? [
-          { label: 'Total Campaigns', value: '24' },
-          { label: 'Avg ROI', value: '412%' },
-          { label: 'Active Partnerships', value: '18' },
+          { label: 'Monthly Budget', value: profile.monthlyBudget ? `$${profile.monthlyBudget.toLocaleString()}` : '$0' },
+          { label: 'Platforms', value: profile.selectedPlatforms?.length.toString() || '0' },
+          { label: 'Company Size', value: profile.companySize || 'Private' },
         ]
       : [
-          { label: 'Campaigns Delivered', value: '156' },
-          { label: 'Performance Score', value: '98/100' },
-          { label: 'Avg Turnaround', value: '4 days' },
+          { label: 'Followers', value: profile.followers || '0' },
+          { label: 'Avg Views', value: profile.avgViews || '0' },
+          { label: 'Engagement', value: profile.engagementRate || '0%' },
         ],
   };
 
@@ -140,7 +140,7 @@ export default function ViewProfilePage() {
                 <div className="flex flex-col gap-3 min-w-[200px]">
                   <button
                     onClick={() =>
-                      navigate(isBusiness ? '/profile/complete/business' : '/profile/complete/advertiser')
+                      navigate(isBusiness ? '/profile/edit/business' : '/profile/edit/advertiser')
                     }
                     className="w-full bg-gray-900 dark:bg-white text-white dark:text-black font-bold py-2.5 rounded-xl mb-1 hover:bg-gray-800 dark:hover:bg-gray-200 transition-all shadow-lg flex items-center justify-center gap-2"
                   >

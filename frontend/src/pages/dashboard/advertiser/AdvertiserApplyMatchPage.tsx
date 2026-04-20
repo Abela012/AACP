@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { 
@@ -44,6 +44,26 @@ export default function AdvertiserApplyMatchPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [showInsufficientBalance, setShowInsufficientBalance] = useState(false);
+  const [resume, setResume] = useState<{ name: string; size: string } | null>({
+    name: 'Sarah_Reynolds_CV_2024.pdf',
+    size: '1.2 MB'
+  });
+  const resumeInputRef = useRef<HTMLInputElement>(null);
+
+  const handleResumeUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setResume({
+        name: file.name,
+        size: (file.size / (1024 * 1024)).toFixed(2) + ' MB'
+      });
+    }
+  };
+
+  const handleRemoveResume = () => {
+    setResume(null);
+    if (resumeInputRef.current) resumeInputRef.current.value = '';
+  };
 
   // Form State
   const [formData, setFormData] = useState({
@@ -121,19 +141,21 @@ export default function AdvertiserApplyMatchPage() {
       try {
         localStorage.setItem('advertiser_coins', (currentCoins - 10).toString());
 
-        const historyStr = localStorage.getItem('advertiser_tx_history');
+        const historyStr = localStorage.getItem('advertiser_transactions');
         const history = historyStr ? JSON.parse(historyStr) : [
-          { id: 1, type: 'deposit', title: 'Purchased 500 Coins', amount: '+500 Coins', date: 'Oct 24, 2024', status: 'Completed' }
+          { id: 1, type: 'deposit', title: 'Welcome Bonus', amount: '$0.00', coins: '450', date: 'Oct 24, 2024', status: 'Completed', method: 'System' }
         ];
         history.unshift({
           id: Date.now(),
-          type: 'spent',
+          type: 'Spent',
           title: `Applied for ${activeJobData.campaign || activeJobData.title}`,
+          coins: '10',
           amount: '-10 Coins',
           date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-          status: 'Completed'
+          status: 'Completed',
+          method: 'Platform'
         });
-        localStorage.setItem('advertiser_tx_history', JSON.stringify(history));
+        localStorage.setItem('advertiser_transactions', JSON.stringify(history));
 
         const stored = localStorage.getItem('appliedJobs');
         const appliedJobs = stored ? JSON.parse(stored) : [];
@@ -336,22 +358,41 @@ export default function AdvertiserApplyMatchPage() {
                     <h2 className="text-xl font-bold text-gray-900 dark:text-white">Resume / CV</h2>
                   </div>
                   
-                  <div className="border-2 border-dashed border-emerald-500/30 rounded-3xl p-8 text-center bg-emerald-500/5 hover:bg-emerald-500/10 transition-colors cursor-pointer group">
-                    <UploadCloud size={40} className="mx-auto text-emerald-500 mb-4 group-hover:-translate-y-1 transition-transform" />
-                    <p className="text-sm font-bold text-gray-900 dark:text-white mb-1">Click to upload or drag & drop</p>
-                    <p className="text-xs text-gray-500">PDF, DOC, DOCX up to 10MB</p>
-                  </div>
-                  
-                  <div className="mt-4 flex items-center justify-between p-4 bg-gray-50 dark:bg-black/50 rounded-2xl border border-gray-200 dark:border-white/10">
-                    <div className="flex items-center gap-3">
-                      <FileText className="text-emerald-500" size={20} />
-                      <div>
-                        <p className="text-sm font-bold text-gray-900 dark:text-white">Sarah_Reynolds_CV_2024.pdf</p>
-                        <p className="text-xs text-emerald-500">Parsed successfully • Auto-filling details</p>
-                      </div>
+                  <input 
+                    type="file" 
+                    ref={resumeInputRef}
+                    onChange={handleResumeUpload}
+                    className="hidden"
+                    accept=".pdf,.doc,.docx"
+                  />
+
+                  {!resume ? (
+                    <div 
+                      onClick={() => resumeInputRef.current?.click()}
+                      className="border-2 border-dashed border-emerald-500/30 rounded-3xl p-8 text-center bg-emerald-500/5 hover:bg-emerald-500/10 transition-colors cursor-pointer group"
+                    >
+                      <UploadCloud size={40} className="mx-auto text-emerald-500 mb-4 group-hover:-translate-y-1 transition-transform" />
+                      <p className="text-sm font-bold text-gray-900 dark:text-white mb-1">Click to upload or drag & drop</p>
+                      <p className="text-xs text-gray-500">PDF, DOC, DOCX up to 10MB</p>
                     </div>
-                    <button type="button" className="text-xs font-bold text-gray-400 hover:text-red-500">Remove</button>
-                  </div>
+                  ) : (
+                    <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-black/50 rounded-2xl border border-gray-200 dark:border-white/10">
+                      <div className="flex items-center gap-3">
+                        <FileText className="text-emerald-500" size={20} />
+                        <div>
+                          <p className="text-sm font-bold text-gray-900 dark:text-white">{resume.name}</p>
+                          <p className="text-xs text-emerald-500">{resume.size} • Uploaded successfully</p>
+                        </div>
+                      </div>
+                      <button 
+                        type="button" 
+                        onClick={handleRemoveResume}
+                        className="text-xs font-bold text-gray-400 hover:text-red-500"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  )}
                 </section>
 
               </motion.div>

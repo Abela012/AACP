@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom';
+
 type OnboardingStatus = "incomplete" | "pending" | "approved";
 type UserRole = "business" | "advertiser";
 
@@ -31,11 +33,21 @@ export default function OnboardingBanner({ status, role }: OnboardingBannerProps
   const config = statusMap[status];
 
   return (
-    <section className={`mb-6 rounded-2xl border p-4 ${config.className}`}>
-      <h2 className="text-sm font-semibold">
-        {config.title} ({role === "business" ? "Business Owner" : "Advertiser"})
-      </h2>
-      <p className="mt-1 text-xs">{config.description}</p>
+    <section className={`mb-6 rounded-2xl border p-4 flex items-center justify-between ${config.className}`}>
+      <div>
+        <h2 className="text-sm font-semibold">
+          {config.title} ({role === "business" ? "Business Owner" : "Advertiser"})
+        </h2>
+        <p className="mt-1 text-xs">{config.description}</p>
+      </div>
+      {status === 'incomplete' && (
+        <Link 
+          to={`/profile/complete/${role}`}
+          className="px-4 py-2 bg-amber-500 text-white rounded-xl text-xs font-bold hover:bg-amber-600 transition-colors shadow-lg shadow-amber-500/20"
+        >
+          Complete Profile
+        </Link>
+      )}
     </section>
   );
 }

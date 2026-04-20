@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -39,6 +39,18 @@ export default function AdvertiserMatchesPage() {
   const [selectedBudgetRange, setSelectedBudgetRange] = useState('All Budgets');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedJob, setSelectedJob] = useState<JobOpportunity | null>(null);
+  const [appliedJobs, setAppliedJobs] = useState<any[]>([]);
+
+  useEffect(() => {
+    const stored = localStorage.getItem('appliedJobs');
+    if (stored) {
+      setAppliedJobs(JSON.parse(stored));
+    }
+  }, []);
+
+  const isApplied = (job: JobOpportunity) => {
+    return appliedJobs.some(aj => aj.title === job.campaign || aj.title === job.brand + ' ' + job.campaign);
+  };
 
   const opportunities: JobOpportunity[] = [
     { id: 1, brand: 'Global Tech Corp', campaign: 'AI Workstation Launch', match: '98%', budget: '$2,500 - $5,000', platform: 'TikTok', image: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2070&auto=format&fit=crop', location: 'Remote', description: 'Tech innovator looking for high-energy creators to demonstrate our latest AI workstation capabilities.', requirements: ['Tech fluency', '100k+ followers', 'Video editing skills'] },
@@ -131,11 +143,18 @@ export default function AdvertiserMatchesPage() {
 
                   <div className="flex gap-4 pt-6 border-t border-gray-100 dark:border-white/10">
                      <button 
-                      onClick={(e) => handleApply(e, selectedJob)}
-                      className="flex-1 bg-emerald-500 text-black py-4 rounded-2xl font-bold text-lg hover:bg-emerald-400 transition-all shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2"
+                      onClick={(e) => !isApplied(selectedJob) && handleApply(e, selectedJob)}
+                      disabled={isApplied(selectedJob)}
+                      className={cn(
+                        "flex-1 py-4 rounded-2xl font-bold text-lg transition-all shadow-lg flex items-center justify-center gap-2",
+                        isApplied(selectedJob)
+                          ? "bg-gray-100 dark:bg-white/5 text-gray-400 cursor-not-allowed shadow-none"
+                          : "bg-emerald-500 text-black hover:bg-emerald-400 shadow-emerald-500/20"
+                      )}
                     >
-                      Apply for Campaign
-                      <ArrowRight size={20} />
+                      {isApplied(selectedJob) ? 'Already Applied' : 'Apply for Campaign'}
+                      {!isApplied(selectedJob) && <ArrowRight size={20} />}
+                      {isApplied(selectedJob) && <CheckCircle2 size={20} />}
                     </button>
                   </div>
                 </div>
@@ -245,11 +264,18 @@ export default function AdvertiserMatchesPage() {
 
                   <div className="flex gap-3">
                     <button 
-                      onClick={(e) => handleApply(e, o)}
-                      className="flex-1 bg-emerald-500 text-black py-4 rounded-2xl font-bold text-sm hover:bg-emerald-400 transition-all shadow-lg shadow-emerald-100 dark:shadow-none flex items-center justify-center gap-2"
+                      onClick={(e) => !isApplied(o) && handleApply(e, o)}
+                      disabled={isApplied(o)}
+                      className={cn(
+                        "flex-1 py-4 rounded-2xl font-bold text-sm transition-all shadow-lg flex items-center justify-center gap-2",
+                        isApplied(o) 
+                          ? "bg-gray-100 dark:bg-white/5 text-gray-400 cursor-not-allowed shadow-none" 
+                          : "bg-emerald-500 text-black hover:bg-emerald-400 shadow-emerald-100 dark:shadow-none"
+                      )}
                     >
-                      Apply Now
-                      <ArrowRight size={18} />
+                      {isApplied(o) ? 'Applied' : 'Apply Now'}
+                      {!isApplied(o) && <ArrowRight size={18} />}
+                      {isApplied(o) && <CheckCircle2 size={18} />}
                     </button>
                     <button 
                       onClick={(e) => e.stopPropagation()} 

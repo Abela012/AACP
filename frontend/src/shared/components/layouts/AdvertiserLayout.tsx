@@ -69,7 +69,7 @@ export default function AdvertiserLayout({ children }: AdvertiserLayoutProps) {
 
   const systemNavigation = [
     { name: 'Billing', icon: CreditCard, path: '/advertiser/balance' },
-    { name: 'Settings', icon: Settings, path: '/profile/complete/advertiser' }, // Using profile as settings for now
+    { name: 'Settings', icon: Settings, path: '/profile/edit/advertiser' },
   ];
 
   const headerNav = [
@@ -167,15 +167,6 @@ export default function AdvertiserLayout({ children }: AdvertiserLayoutProps) {
           </div>
         </div>
 
-        <div className="p-4">
-          <div className="bg-emerald-500/5 border border-emerald-500/10 rounded-2xl p-4">
-            <p className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest mb-2">Pro Plan</p>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">Your tokens reset in 4 days.</p>
-            <div className="h-1.5 w-full bg-gray-100 dark:bg-white/5 rounded-full overflow-hidden">
-              <div className="h-full bg-emerald-500 w-2/3"></div>
-            </div>
-          </div>
-        </div>
       </aside>
 
       {/* Main Content */}

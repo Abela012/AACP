@@ -10,6 +10,22 @@ export interface ProfileData {
   industry: string;
   avatarUrl: string;
   phone: string;
+  // NEW FIELDS
+  businessLocation?: string;
+  companySize?: string;
+  targetAudienceTags?: string[];
+  monthlyBudget?: number;
+  selectedPlatforms?: string[];
+  youtubeHandle?: string;
+  tiktokHandle?: string;
+  followers?: string;
+  avgViews?: string;
+  engagementRate?: string;
+  geoTags?: string[];
+  ageRanges?: string[];
+  primaryLanguage?: string;
+  baseRate?: string;
+  selectedStyles?: string[];
 }
 
 interface ProfileContextType {

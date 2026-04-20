@@ -160,7 +160,7 @@ export default function AdvertiserAnalyticsPage() {
               </div>
             </div>
             <div className="h-[300px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="100%" height="100%" minWidth={0}>
                 <AreaChart data={currentData}>
                   <defs>
                     <linearGradient id="colorReach" x1="0" y1="0" x2="0" y2="1">
@@ -186,7 +186,7 @@ export default function AdvertiserAnalyticsPage() {
           <div className="bg-white dark:bg-white/5 p-8 rounded-[2.5rem] border border-gray-100 dark:border-white/5 shadow-sm dark:shadow-none">
             <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-8">Audience Source</h3>
             <div className="h-[250px] w-full mb-8">
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="100%" height="100%" minWidth={0}>
                 <BarChart data={platformData} layout="vertical">
                   <XAxis type="number" hide />
                   <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{fontSize: 12, fontWeight: 600, fill: 'currentColor'}} width={80} />

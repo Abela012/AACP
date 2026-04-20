@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { 
   ArrowLeft, 
@@ -29,6 +29,7 @@ export default function AdvertiserCheckoutPage() {
   const [paymentType, setPaymentType] = useState<'card' | 'telebirr'>('card');
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   // Form states
   const [formData, setFormData] = useState({
@@ -39,11 +40,78 @@ export default function AdvertiserCheckoutPage() {
   });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+    const { name, value } = e.target;
+    let newValue = value;
+
+    if (name === 'name') {
+      // Don't let numbers in the name part
+      newValue = value.replace(/[0-9]/g, '');
+    } else if (name === 'cardNumber' || name === 'cvv' || name === 'expiry') {
+      // Don't let strings on the number parts (allow / for expiry and space for card formatting)
+      if (name === 'cardNumber') {
+        newValue = value.replace(/[^0-9 ]/g, '');
+        // Auto-format card number: 0000 0000 0000 0000
+        newValue = newValue.replace(/\s?/g, '').replace(/(\d{4})/g, '$1 ').trim();
+      } else if (name === 'cvv') {
+        newValue = value.replace(/[^0-9]/g, '');
+      } else if (name === 'expiry') {
+        newValue = value.replace(/[^0-9/]/g, '');
+        if (newValue.length === 2 && !newValue.includes('/') && value.length > prevFormData.expiry.length) {
+          newValue = newValue + '/';
+        }
+      }
+    }
+
+    setFormData(prev => ({ ...prev, [name]: newValue }));
+  };
+
+  const [prevFormData, setPrevFormData] = useState(formData);
+  useEffect(() => {
+    setPrevFormData(formData);
+  }, [formData]);
+
+  const validateForm = () => {
+    const { name, cardNumber, expiry, cvv } = formData;
+    const newErrors: Record<string, string> = {};
+    
+    // Check reliable data
+    if (name.trim().length < 3) {
+      newErrors.name = 'Please enter a valid cardholder name.';
+    }
+
+    const cleanCard = cardNumber.replace(/\s/g, '');
+    if (cleanCard.length < 13 || cleanCard.length > 19) {
+      newErrors.cardNumber = 'Please enter a valid card number.';
+    }
+
+    if (!/^\d{2}\/\d{2}$/.test(expiry)) {
+      newErrors.expiry = 'Use format MM/YY.';
+    } else {
+      const [month, year] = expiry.split('/').map(Number);
+      if (month < 1 || month > 12) {
+        newErrors.expiry = 'Invalid month.';
+      } else {
+        const now = new Date();
+        const currentYear = now.getFullYear() % 100;
+        const currentMonth = now.getMonth() + 1;
+        if (year < currentYear || (year === currentYear && month < currentMonth)) {
+          newErrors.expiry = 'Card is expired.';
+        }
+      }
+    }
+
+    if (cvv.length < 3) {
+      newErrors.cvv = 'Valid CVV required.';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handlePay = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!validateForm()) return;
+    
     setIsProcessing(true);
     // Simulate payment process
     setTimeout(() => {
@@ -167,7 +235,9 @@ export default function AdvertiserCheckoutPage() {
               {paymentType === 'card' ? (
                 <form onSubmit={handlePay} className="space-y-6">
                   <div className="space-y-2">
-                    <label className="text-sm text-gray-600 dark:text-gray-400 font-medium">Cardholder Name</label>
+                    <label className={cn("text-sm font-medium transition-colors", errors.name ? "text-red-500" : "text-gray-600 dark:text-gray-400")}>
+                      Cardholder Name {errors.name && <span className="text-[10px] ml-2 italic font-bold">({errors.name})</span>}
+                    </label>
                     <input 
                       required
                       type="text" 
@@ -175,12 +245,17 @@ export default function AdvertiserCheckoutPage() {
                       placeholder="Full Name on Card"
                       value={formData.name}
                       onChange={handleInputChange}
-                      className="w-full bg-white dark:bg-[#222] border border-gray-200 dark:border-white/5 rounded-xl px-4 py-4 text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/50 transition-all text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600"
+                      className={cn(
+                        "w-full bg-white dark:bg-[#222] border rounded-xl px-4 py-4 text-sm focus:outline-none transition-all text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600",
+                        errors.name ? "border-red-500/50 ring-1 ring-red-500/20" : "border-gray-200 dark:border-white/5 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/50"
+                      )}
                     />
                   </div>
                   
                   <div className="space-y-2">
-                    <label className="text-sm text-gray-600 dark:text-gray-400 font-medium">Card Number</label>
+                    <label className={cn("text-sm font-medium transition-colors", errors.cardNumber ? "text-red-500" : "text-gray-600 dark:text-gray-400")}>
+                      Card Number {errors.cardNumber && <span className="text-[10px] ml-2 italic font-bold">({errors.cardNumber})</span>}
+                    </label>
                     <div className="relative">
                       <input 
                         required
@@ -190,15 +265,20 @@ export default function AdvertiserCheckoutPage() {
                         maxLength={19}
                         value={formData.cardNumber}
                         onChange={handleInputChange}
-                        className="w-full bg-white dark:bg-[#222] border border-gray-200 dark:border-white/5 rounded-xl pl-4 pr-12 py-4 text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/50 transition-all text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600"
+                        className={cn(
+                          "w-full bg-white dark:bg-[#222] border rounded-xl pl-4 pr-12 py-4 text-sm focus:outline-none transition-all text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600",
+                          errors.cardNumber ? "border-red-500/50 ring-1 ring-red-500/20" : "border-gray-200 dark:border-white/5 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/50"
+                        )}
                       />
-                      <CreditCard className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-600 w-5 h-5" />
+                      <CreditCard className={cn("absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5", errors.cardNumber ? "text-red-500" : "text-gray-400 dark:text-gray-600")} />
                     </div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-6">
                     <div className="space-y-2">
-                      <label className="text-sm text-gray-600 dark:text-gray-400 font-medium">Expiry Date</label>
+                      <label className={cn("text-sm font-medium transition-colors", errors.expiry ? "text-red-500" : "text-gray-600 dark:text-gray-400")}>
+                        Expiry Date {errors.expiry && <span className="text-[10px] ml-2 italic font-bold">({errors.expiry})</span>}
+                      </label>
                       <input 
                         required
                         type="text" 
@@ -207,11 +287,16 @@ export default function AdvertiserCheckoutPage() {
                         maxLength={5}
                         value={formData.expiry}
                         onChange={handleInputChange}
-                        className="w-full bg-white dark:bg-[#222] border border-gray-200 dark:border-white/5 rounded-xl px-4 py-4 text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/50 transition-all text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600"
+                        className={cn(
+                          "w-full bg-white dark:bg-[#222] border rounded-xl px-4 py-4 text-sm focus:outline-none transition-all text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600",
+                          errors.expiry ? "border-red-500/50 ring-1 ring-red-500/20" : "border-gray-200 dark:border-white/5 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/50"
+                        )}
                       />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-sm text-gray-600 dark:text-gray-400 font-medium">CVV</label>
+                      <label className={cn("text-sm font-medium transition-colors", errors.cvv ? "text-red-500" : "text-gray-600 dark:text-gray-400")}>
+                        CVV {errors.cvv && <span className="text-[10px] ml-2 italic font-bold">({errors.cvv})</span>}
+                      </label>
                       <input 
                         required
                         type="password" 
@@ -220,7 +305,10 @@ export default function AdvertiserCheckoutPage() {
                         maxLength={4}
                         value={formData.cvv}
                         onChange={handleInputChange}
-                        className="w-full bg-white dark:bg-[#222] border border-gray-200 dark:border-white/5 rounded-xl px-4 py-4 text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/50 transition-all text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600"
+                        className={cn(
+                          "w-full bg-white dark:bg-[#222] border rounded-xl px-4 py-4 text-sm focus:outline-none transition-all text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600",
+                          errors.cvv ? "border-red-500/50 ring-1 ring-red-500/20" : "border-gray-200 dark:border-white/5 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/50"
+                        )}
                       />
                     </div>
                   </div>
