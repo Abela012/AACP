@@ -46,7 +46,8 @@ export const completeCollaboration = async (req: Request, res: Response) => {
  */
 export const getCollaborationsByUser = async (req: Request, res: Response) => {
     try {
-        const collaborations = await collaborationService.getCollaborationsByUser(req.params.userId as string);
+        const userId = req.params.userId === 'me' ? (req.user?._id?.toString() as string) : req.params.userId;
+        const collaborations = await collaborationService.getCollaborationsByUser(userId);
 
         return success(res, 'Collaborations retrieved successfully', collaborations);
     } catch (err: any) {

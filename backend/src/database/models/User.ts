@@ -10,8 +10,9 @@ export interface IUser extends Document {
     location?: string;
     following: mongoose.Types.ObjectId[];
     role: 'business_owner' | 'advertiser' | 'admin' | 'super_admin'
-    status: 'active' | 'banned' | 'suspended';
+    status: 'pending' | 'active' | 'banned' | 'suspended';
     isVerified: boolean;
+    profileData?: any;
     totalPosts: number;
     lastLogin: Date;
     createdAt: Date;
@@ -61,12 +62,16 @@ const userSchema: Schema = new Schema(
         },
         status: {
             type: String,
-            enum: ['active', 'banned', 'suspended'],
+            enum: ['pending', 'active', 'banned', 'suspended'],
             default: 'active',
         },
         isVerified: {
             type: Boolean,
             default: false,
+        },
+        profileData: {
+            type: Schema.Types.Mixed,
+            default: {},
         },
         totalPosts: {
             type: Number,

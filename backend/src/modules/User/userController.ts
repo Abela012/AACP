@@ -59,11 +59,17 @@ export const updateUserProfile = async (
   res: Response
 ): Promise<void> => {
   const { userId } = getAuth(req);
-  const { firstName, lastName } = req.body;
+  const { firstName, lastName, profileData, status } = req.body;
+
+  const updateFields: any = {};
+  if (firstName !== undefined) updateFields.firstName = firstName;
+  if (lastName !== undefined) updateFields.lastName = lastName;
+  if (profileData !== undefined) updateFields.profileData = profileData;
+  if (status !== undefined) updateFields.status = status;
 
   const user = await User.findOneAndUpdate(
     { clerkId: userId },
-    { firstName, lastName },
+    { $set: updateFields },
     {
       new: true,
     }
@@ -101,6 +107,11 @@ export const syncUser = async (req: Request, res: Response): Promise<void> => {
   // check if user already exists in db
   const existingUser = await User.findOne({ clerkId: userId });
   if (existingUser) {
+    // Auto-activate existing pending users to resolve current blockage
+    if (existingUser.status === 'pending') {
+      existingUser.status = 'active';
+      await existingUser.save();
+    }
     res
       .status(200)
       .json({ user: existingUser, message: "User already exists" });
@@ -133,11 +144,18 @@ export const syncUser = async (req: Request, res: Response): Promise<void> => {
 
     console.log("Attempting to create user with data:", userData);
 
-    const user = await User.create(userData);
-
-    console.log("User successfully created in MongoDB:", user._id);
-
-    res.status(201).json({ user, message: "User created Successfully" });
+    try {
+      const user = await User.create(userData);
+      console.log("User successfully created in MongoDB:", user._id);
+      res.status(201).json({ user, message: "User created Successfully" });
+    } catch (createError: any) {
+      if (createError.code === 11000) {
+        const existing = await User.findOne({ clerkId: userId });
+        res.status(200).json({ user: existing, message: "User already exists" });
+        return;
+      }
+      throw createError;
+    }
   } catch (error: any) {
     console.error("Error syncing user for userId:", userId);
     console.error("Error details:", error);

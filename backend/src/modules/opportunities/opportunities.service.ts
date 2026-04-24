@@ -1,4 +1,6 @@
 import Opportunity, { IOpportunity } from '../../database/models/Opportunity';
+import User from '../../database/models/User';
+import mongoose from 'mongoose';
 
 /**
  * Opportunity Service
@@ -68,7 +70,15 @@ export const deleteOpportunity = async (id: string): Promise<IOpportunity | null
  * @returns List of opportunities by the user
  */
 export const getOpportunitiesByUser = async (userId: string): Promise<IOpportunity[]> => {
-    const opportunities = await Opportunity.find({ businessOwner: userId })
+    let mongoUserId = userId;
+
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+        const user = await User.findOne({ clerkId: userId });
+        if (!user) return [];
+        mongoUserId = (user._id as any).toString();
+    }
+
+    const opportunities = await Opportunity.find({ businessOwner: mongoUserId })
         .populate('businessOwner', 'fullName email')
         .sort({ createdAt: -1 });
     return opportunities;

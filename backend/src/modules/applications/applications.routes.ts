@@ -17,6 +17,7 @@ router.use(protect);
 router.post('/', applyToOpportunityValidator, validate, applicationsController.applyToOpportunity);
 router.delete('/:id', applicationsController.withdrawApplication);
 
+router.get('/business-owner', applicationsController.getApplicationsForBusinessOwner);
 router.get('/opportunity/:id', applicationsController.getApplicationsByOpportunity);
 router.get('/user/:id', applicationsController.getApplicationsByAdvertiser);
 

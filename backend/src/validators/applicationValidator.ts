@@ -5,23 +5,24 @@ import Application from '../database/models/Application';
  * Validation rules for applying to an Opportunity
  */
 export const applyToOpportunityValidator = [
-    body('opportunityId')
-        .notEmpty().withMessage('Opportunity ID is required')
-        .isMongoId().withMessage('Invalid Opportunity ID'),
+    body('opportunity').optional().isMongoId().withMessage('Invalid Opportunity ID'),
+    body('opportunityId').optional().isMongoId().withMessage('Invalid Opportunity ID'),
 
+    body('coverLetter')
+        .optional()
+        .isLength({ min: 10 }).withMessage('Cover letter should be at least 10 characters long to be competitive'),
+        
     body('proposalMessage')
-        .notEmpty().withMessage('Proposal message is required')
-        .isLength({ min: 50 }).withMessage('Proposal message should be at least 50 characters long to be competitive'),
-
-    body('proposedPrice')
-        .notEmpty().withMessage('Proposed price is required')
-        .isNumeric().withMessage('Proposed price must be a number')
-        .custom((value: number) => value > 0).withMessage('Proposed price must be positive'),
+        .optional()
+        .isLength({ min: 10 }).withMessage('Proposal message should be at least 10 characters long to be competitive'),
 
     // Custom check for duplicate application
     body().custom(async (value: any, { req }: any) => {
+        const oppId = req.body.opportunity || req.body.opportunityId;
+        if (!oppId) throw new Error('Opportunity ID is required');
+        
         const existingApplication = await Application.findOne({
-            opportunity: req.body.opportunityId,
+            opportunity: oppId,
             advertiser: req.user?._id
         });
         if (existingApplication) {
