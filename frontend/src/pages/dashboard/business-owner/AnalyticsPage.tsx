@@ -32,26 +32,26 @@ export default function AnalyticsPage() {
   const navigate = useNavigate();
   
   const data = [
-    { name: 'Mon', reach: 4000, engagement: 2400 },
-    { name: 'Tue', reach: 3000, engagement: 1398 },
-    { name: 'Wed', reach: 2000, engagement: 9800 },
-    { name: 'Thu', reach: 2780, engagement: 3908 },
-    { name: 'Fri', reach: 1890, engagement: 4800 },
-    { name: 'Sat', reach: 2390, engagement: 3800 },
-    { name: 'Sun', reach: 3490, engagement: 4300 },
+    { name: 'Mon', reach: 0, engagement: 0 },
+    { name: 'Tue', reach: 0, engagement: 0 },
+    { name: 'Wed', reach: 0, engagement: 0 },
+    { name: 'Thu', reach: 0, engagement: 0 },
+    { name: 'Fri', reach: 0, engagement: 0 },
+    { name: 'Sat', reach: 0, engagement: 0 },
+    { name: 'Sun', reach: 0, engagement: 0 },
   ];
 
   const platformData = [
-    { name: 'TikTok', value: 45, color: '#6366f1' },
-    { name: 'Instagram', value: 30, color: '#ec4899' },
-    { name: 'YouTube', value: 25, color: '#ef4444' },
+    { name: 'TikTok', value: 0, color: '#10b981' },
+    { name: 'Instagram', value: 0, color: '#ec4899' },
+    { name: 'YouTube', value: 0, color: '#ef4444' },
   ];
 
   const stats = [
-    { label: 'Total Reach', value: '1.2M', trend: '+12.5%', trendType: 'up', icon: Users, color: 'text-indigo-600', bgColor: 'bg-indigo-50' },
-    { label: 'Avg. Engagement', value: '4.8%', trend: '+2.1%', trendType: 'up', icon: Zap, iconColor: 'text-amber-500', bgColor: 'bg-amber-50' },
-    { label: 'Total Spent', value: '$12,450', trend: '-5.2%', trendType: 'down', icon: DollarSign, color: 'text-green-600', bgColor: 'bg-green-50' },
-    { label: 'ROI', value: '3.4x', trend: '+0.8x', trendType: 'up', icon: Target, color: 'text-purple-600', bgColor: 'bg-purple-50' },
+    { label: 'Total Reach', value: '0', trend: '0%', trendType: 'neutral', icon: Users, color: 'text-emerald-600', bgColor: 'bg-emerald-50' },
+    { label: 'Avg. Engagement', value: '0%', trend: '0%', trendType: 'neutral', icon: Zap, iconColor: 'text-amber-500', bgColor: 'bg-amber-50' },
+    { label: 'Total Spent', value: '$0', trend: '0%', trendType: 'neutral', icon: DollarSign, color: 'text-green-600', bgColor: 'bg-green-50' },
+    { label: 'ROI', value: '0x', trend: '0x', trendType: 'neutral', icon: Target, color: 'text-purple-600', bgColor: 'bg-purple-50' },
   ];
 
   return (
@@ -68,7 +68,7 @@ export default function AnalyticsPage() {
               Last 30 Days
               <ChevronDown size={16} />
             </button>
-            <button className="bg-indigo-600 text-white px-6 py-3 rounded-xl font-bold text-sm flex items-center gap-2 hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100 dark:shadow-none">
+            <button className="bg-emerald-600 text-white px-6 py-3 rounded-xl font-bold text-sm flex items-center gap-2 hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-100 dark:shadow-none">
               Export Data
             </button>
           </div>
@@ -103,22 +103,25 @@ export default function AnalyticsPage() {
               <h3 className="text-lg font-bold text-gray-900 dark:text-white">Reach vs Engagement</h3>
               <div className="flex gap-4">
                 <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 bg-indigo-600 rounded-full" />
+                  <div className="w-3 h-3 bg-emerald-600 rounded-full" />
                   <span className="text-xs font-medium text-gray-500 dark:text-gray-400">Reach</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 bg-indigo-200 dark:bg-indigo-900/50 rounded-full" />
+                  <div className="w-3 h-3 bg-emerald-200 dark:bg-emerald-900/50 rounded-full" />
                   <span className="text-xs font-medium text-gray-500 dark:text-gray-400">Engagement</span>
                 </div>
               </div>
             </div>
-            <div className="h-[300px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
+            <div className="h-[300px] w-full relative">
+              <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
+                <p className="text-sm font-bold text-gray-400 dark:text-gray-600">No data available for this period</p>
+              </div>
+              <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                 <AreaChart data={data}>
                   <defs>
                     <linearGradient id="colorReach" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#6366f1" stopOpacity={0.1}/>
-                      <stop offset="95%" stopColor="#6366f1" stopOpacity={0}/>
+                      <stop offset="5%" stopColor="#10b981" stopOpacity={0.1}/>
+                      <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" className="dark:stroke-white/5" />
@@ -128,8 +131,8 @@ export default function AnalyticsPage() {
                     contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', backgroundColor: '#1a1a1a', color: '#fff' }}
                     itemStyle={{ color: '#fff' }}
                   />
-                  <Area type="monotone" dataKey="reach" stroke="#6366f1" strokeWidth={3} fillOpacity={1} fill="url(#colorReach)" />
-                  <Area type="monotone" dataKey="engagement" stroke="#c7d2fe" strokeWidth={3} fill="transparent" />
+                  <Area type="monotone" dataKey="reach" stroke="#10b981" strokeWidth={3} fillOpacity={1} fill="url(#colorReach)" />
+                  <Area type="monotone" dataKey="engagement" stroke="#a7f3d0" strokeWidth={3} fill="transparent" />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
@@ -139,7 +142,7 @@ export default function AnalyticsPage() {
           <div className="bg-white dark:bg-white/5 p-8 rounded-[2.5rem] border border-gray-100 dark:border-white/5 shadow-sm dark:shadow-none">
             <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-8">Platform Distribution</h3>
             <div className="h-[250px] w-full mb-8">
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                 <BarChart data={platformData} layout="vertical">
                   <XAxis type="number" hide />
                   <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{fontSize: 12, fontWeight: 600, fill: '#9ca3af'}} width={80} />

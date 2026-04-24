@@ -26,6 +26,8 @@ import {
 import { useUser } from '@/src/shared/context/UserContext';
 import { useProfile } from '@/src/shared/context/ProfileContext';
 import { cn } from '@/src/shared/utils/cn';
+import { useApiClient } from '@/src/api/apiClient';
+import { userApi } from '@/src/api/userApi';
 
 /* ─── Types ─── */
 interface TagItem {
@@ -231,10 +233,12 @@ function PlatformButton({
    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 
 export default function CompleteProfilePage() {
+  console.log("[CompleteProfilePage] Initializing component state...");
   const { userRole, setOnboardingStatus } = useUser();
   const { updateProfile } = useProfile();
   const location = useLocation();
   const navigate = useNavigate();
+  const api = useApiClient();
 
   const isBusiness =
     location.pathname.includes('/business') || userRole === 'business';
@@ -245,51 +249,33 @@ export default function CompleteProfilePage() {
 
   /* ── Advertiser-specific state ── */
   const [youtubeConnected, setYoutubeConnected] = useState(false);
-  const [tiktokConnected, setTiktokConnected] = useState(true);
+  const [tiktokConnected, setTiktokConnected] = useState(false);
   const [youtubeHandle, setYoutubeHandle] = useState('');
-  const [tiktokHandle, setTiktokHandle] = useState('@rivera_creates');
+  const [tiktokHandle, setTiktokHandle] = useState('');
   const [followers, setFollowers] = useState('');
   const [avgViews, setAvgViews] = useState('');
   const [engagementRate, setEngagementRate] = useState('');
-  const [geoTags, setGeoTags] = useState<TagItem[]>([
-    { label: 'USA', removable: true },
-    { label: 'UK', removable: true },
-    { label: 'Canada', removable: true },
-  ]);
+  const [geoTags, setGeoTags] = useState<TagItem[]>([]);
   const [newGeo, setNewGeo] = useState('');
   const [showGeoInput, setShowGeoInput] = useState(false);
-  const [selectedAgeRanges, setSelectedAgeRanges] = useState<string[]>([
-    '18-24',
-    '25-34',
-  ]);
-  const [portfolioUrl, setPortfolioUrl] = useState(
-    'https://youtube.com/c/creator'
-  );
+  const [selectedAgeRanges, setSelectedAgeRanges] = useState<string[]>([]);
+  const [portfolioUrl, setPortfolioUrl] = useState('');
   const [primaryLanguage, setPrimaryLanguage] = useState('English (US)');
-  const [baseRate, setBaseRate] = useState('500');
+  const [baseRate, setBaseRate] = useState('');
   const [bioPitch, setBioPitch] = useState('');
-  const [selectedStyles, setSelectedStyles] = useState<string[]>([
-    'Minimalist',
-    'Educational',
-  ]);
+  const [selectedStyles, setSelectedStyles] = useState<string[]>([]);
 
   /* ── Business-specific state ── */
   const [businessName, setBusinessName] = useState('');
-  const [industry, setIndustry] = useState('Organic Agriculture');
+  const [industry, setIndustry] = useState('Technology');
   const [businessLocation, setBusinessLocation] = useState('');
   const [websiteUrl, setWebsiteUrl] = useState('');
-  const [companySize, setCompanySize] = useState('11-50');
-  const [targetAudienceTags, setTargetAudienceTags] = useState<TagItem[]>([
-    { label: 'Eco-Conscious', removable: true },
-    { label: 'Urban Millennials', removable: true },
-  ]);
+  const [companySize, setCompanySize] = useState('1-10');
+  const [targetAudienceTags, setTargetAudienceTags] = useState<TagItem[]>([]);
   const [newAudienceTag, setNewAudienceTag] = useState('');
   const [showAudienceInput, setShowAudienceInput] = useState(false);
-  const [monthlyBudget, setMonthlyBudget] = useState(4200);
-  const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([
-    'Instagram',
-    'TikTok',
-  ]);
+  const [monthlyBudget, setMonthlyBudget] = useState(0);
+  const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
   const [brandDescription, setBrandDescription] = useState('');
 
   /* ── Constants ── */
@@ -411,11 +397,12 @@ export default function CompleteProfilePage() {
     }
   }, [newAudienceTag]);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     setIsSubmitting(true);
-    setTimeout(() => {
+    try {
+      let profileData;
       if (isBusiness) {
-        updateProfile({
+        profileData = {
           businessName,
           website: websiteUrl,
           industry,
@@ -425,9 +412,9 @@ export default function CompleteProfilePage() {
           targetAudienceTags: targetAudienceTags.map((t) => t.label),
           monthlyBudget,
           selectedPlatforms,
-        });
+        };
       } else {
-        updateProfile({
+        profileData = {
           bio: bioPitch,
           website: portfolioUrl,
           youtubeHandle,
@@ -440,12 +427,23 @@ export default function CompleteProfilePage() {
           primaryLanguage,
           baseRate,
           selectedStyles,
-        });
+        };
       }
-      setOnboardingStatus('pending');
-      setIsSubmitting(false);
+
+      await userApi.updateProfile(api, {
+        profileData,
+        status: 'active'
+      });
+
+      updateProfile(profileData);
+      setOnboardingStatus('approved');
       setSubmitted(true);
-    }, 1500);
+    } catch (error) {
+      console.error('Failed to submit profile:', error);
+      // Fallback or show toast
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -466,11 +464,11 @@ export default function CompleteProfilePage() {
             <CheckCircle2 size={40} className="text-emerald-500" />
           </div>
           <h2 className="text-2xl font-black text-gray-900 dark:text-white mb-3">
-            Profile Submitted!
+            Profile Approved!
           </h2>
           <p className="text-gray-500 dark:text-gray-400 text-sm mb-8 leading-relaxed">
-            Your profile has been submitted for admin review. You'll be notified
-            once it's approved and you can start{' '}
+            Your profile has been successfully updated and approved. You now have
+            full access to start{' '}
             {isBusiness ? 'creating campaigns' : 'matching with brands'}.
           </p>
           <button

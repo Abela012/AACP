@@ -13,7 +13,7 @@ export const useSignup = () => {
     const [code, setCode] = useState("");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [role, setRole] = useState<'business_owner' | 'advertiser' | null>(null);
+    const [role, setRole] = useState<'business_owner' | 'advertiser' | 'admin' | null>(null);
 
     const onSignUpPress = async () => {
         if (!isLoaded) return;

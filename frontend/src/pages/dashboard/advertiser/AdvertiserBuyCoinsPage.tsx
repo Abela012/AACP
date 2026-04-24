@@ -15,8 +15,12 @@ import {
 import { cn } from '@/src/shared/utils/cn';
 import AdvertiserLayout from '@/src/shared/components/layouts/AdvertiserLayout';
 
+import { useWalletBalance } from '@/src/hooks/useWallet';
+import { Loader2 } from 'lucide-react';
+
 export default function AdvertiserBuyCoinsPage() {
   const navigate = useNavigate();
+  const { data: balanceData, isLoading: balanceLoading } = useWalletBalance();
   
   const [selectedPack, setSelectedPack] = useState<'starter' | 'popular' | 'pro'>('popular');
   const [paymentMethod, setPaymentMethod] = useState<'chapa' | 'manual'>('chapa');
@@ -27,14 +31,7 @@ export default function AdvertiserBuyCoinsPage() {
     pro: { title: 'PRO', price: 80, coins: 1000, save: 'Save 20%', features: ['Unlock all premium features', 'Lifetime account verification'] },
   };
 
-  const [balance, setBalance] = useState(450);
-  
-  useEffect(() => {
-    const savedBalance = localStorage.getItem('advertiser_coins');
-    if (savedBalance) {
-      setBalance(parseInt(savedBalance, 10));
-    }
-  }, []);
+  const balance = balanceData?.balance || 0;
 
   const handleProceed = () => {
     const pack = packs[selectedPack];

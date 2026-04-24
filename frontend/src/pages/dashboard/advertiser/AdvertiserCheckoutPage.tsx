@@ -14,10 +14,13 @@ import {
 } from 'lucide-react';
 import { cn } from '@/src/shared/utils/cn';
 import AdvertiserLayout from '@/src/shared/components/layouts/AdvertiserLayout';
+import { walletApi } from '@/src/api/walletApi';
+import { useApiClient } from '@/src/api/apiClient';
 
 export default function AdvertiserCheckoutPage() {
   const navigate = useNavigate();
   const location = useLocation();
+  const api = useApiClient();
   
   // Passed state from the Buy Coins modal or fallback
   const packDetails = location.state?.pack || {
@@ -108,34 +111,23 @@ export default function AdvertiserCheckoutPage() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handlePay = (e: React.FormEvent) => {
+  const handlePay = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateForm()) return;
     
     setIsProcessing(true);
-    // Simulate payment process
-    setTimeout(() => {
-      setIsProcessing(false);
-      
-      // Record transaction
-      const transactions = JSON.parse(localStorage.getItem('advertiser_transactions') || '[]');
-      const newTransaction = {
-        id: `TXN-${Math.random().toString(36).substr(2, 9).toUpperCase()}`,
-        type: 'Coin Purchase',
-        amount: packDetails.price,
+    try {
+      await walletApi.requestCoins(api, {
         coins: packDetails.coins,
-        status: 'Completed',
-        date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-        method: paymentType === 'card' ? 'Visa •••• 4242' : 'Telebirr',
-      };
-      localStorage.setItem('advertiser_transactions', JSON.stringify([newTransaction, ...transactions]));
-
-      // Update balance
-      const currentCoins = parseInt(localStorage.getItem('advertiser_coins') || '450', 10);
-      localStorage.setItem('advertiser_coins', (currentCoins + packDetails.coins).toString());
-
+        paymentMethod: paymentType === 'card' ? 'chapa-card' : 'chapa-telebirr',
+        pricePaid: packDetails.price,
+      });
       setIsSuccess(true);
-    }, 2000);
+    } catch (err) {
+      console.error('Coin request failed:', err);
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   if (isSuccess) {
@@ -146,9 +138,9 @@ export default function AdvertiserCheckoutPage() {
             <div className="w-20 h-20 rounded-full bg-emerald-500/10 flex items-center justify-center mx-auto mb-6">
               <CheckCircle className="text-emerald-500 w-10 h-10" />
             </div>
-            <h2 className="text-2xl font-black text-gray-900 dark:text-white mb-2">Payment Successful!</h2>
+            <h2 className="text-2xl font-black text-gray-900 dark:text-white mb-2">Request Submitted!</h2>
             <p className="text-gray-500 dark:text-gray-400 mb-8 leading-relaxed text-sm">
-              Your transaction was completed via Chapa Secure Gateway. <strong className="text-emerald-500">{packDetails.coins} coins</strong> have been added to your wallet instantly!
+              Your coin purchase request for <strong className="text-emerald-500">{packDetails.coins} coins</strong> has been submitted. An admin will verify the transaction and credit your wallet shortly.
             </p>
             <button 
               onClick={() => navigate('/advertiser/balance')}

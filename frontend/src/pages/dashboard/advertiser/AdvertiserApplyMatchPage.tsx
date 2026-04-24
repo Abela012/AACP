@@ -16,38 +16,34 @@ import {
   ArrowRight,
   ShieldCheck,
   AlertCircle,
-  X
+  X,
+  Loader2
 } from 'lucide-react';
+import { useUser as useClerkUser } from '@clerk/clerk-react';
 import AdvertiserLayout from '@/src/shared/components/layouts/AdvertiserLayout';
 import { cn } from '@/src/shared/utils/cn';
-
-// Mock job data
-const jobData = {
-  id: 1,
-  title: 'AI Workstation Launch Campaign',
-  company: 'Global Tech Corp',
-  location: 'Remote',
-  salary: '$2,500 - $5,000 / campaign',
-  description: 'We are looking for a top-tier advertiser to spearhead our AI workstation launch on TikTok. You will be provided with high-end assets and creative freedom to drive conversions.'
-};
+import { useOpportunity } from '@/src/hooks/useOpportunities';
+import { useApply } from '@/src/hooks/useApplications';
+import { useWalletBalance } from '@/src/hooks/useWallet';
 
 export default function AdvertiserApplyMatchPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const { id } = useParams();
   
-  // Use passed job state, or fallback to mock if direct navigation
-  const passedJob = location.state?.job;
-  const activeJobData = passedJob || jobData;
+  const { data: oppData, isLoading: isLoadingOpp } = useOpportunity(id || '');
+  const activeJobData = oppData?.opportunity || location.state?.job || {};
+
+  const { data: walletData } = useWalletBalance();
+  const applyMutation = useApply();
   
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [showInsufficientBalance, setShowInsufficientBalance] = useState(false);
-  const [resume, setResume] = useState<{ name: string; size: string } | null>({
-    name: 'Sarah_Reynolds_CV_2024.pdf',
-    size: '1.2 MB'
-  });
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const { user: clerkUser } = useClerkUser();
+  const [resume, setResume] = useState<{ name: string; size: string } | null>(null);
   const resumeInputRef = useRef<HTMLInputElement>(null);
 
   const handleResumeUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -67,25 +63,25 @@ export default function AdvertiserApplyMatchPage() {
 
   // Form State
   const [formData, setFormData] = useState({
-    firstName: 'Sarah',
-    lastName: 'Reynolds',
-    email: 'collab@sarahreynolds.co',
-    phone: '+1 (555) 987-6543',
-    city: 'Austin',
-    country: 'USA',
-    linkedin: 'linkedin.com/in/sreynolds',
-    portfolio: 'sarahreynolds.co',
-    currentTitle: 'Lead Digital Strategist',
-    currentCompany: 'Freelance',
-    experienceYears: '5',
-    educationLevel: 'Bachelor',
-    fieldOfStudy: 'Marketing',
-    skills: ['TikTok Ads', 'Content Strategy', 'SaaS', 'Conversion Rate Optimization'],
-    tools: ['Google Analytics', 'Framer', 'CapCut'],
-    proficiency: 'Expert',
+    firstName: clerkUser?.firstName || '',
+    lastName: clerkUser?.lastName || '',
+    email: clerkUser?.emailAddresses[0]?.emailAddress || '',
+    phone: '',
+    city: '',
+    country: '',
+    linkedin: '',
+    portfolio: '',
+    currentTitle: '',
+    currentCompany: '',
+    experienceYears: '1-3',
+    educationLevel: '',
+    fieldOfStudy: '',
+    skills: [] as string[],
+    tools: [] as string[],
+    proficiency: 'Intermediate',
     coverLetter: '',
-    hasReactExperience: 'Yes',
-    expectedSalary: '$3500',
+    hasReactExperience: 'No',
+    expectedSalary: '',
     relocate: 'No',
     availability: 'Immediate',
     jobType: 'Contract',
@@ -93,6 +89,17 @@ export default function AdvertiserApplyMatchPage() {
     agreedToTerms: false,
     allowContact: true,
   });
+
+  useEffect(() => {
+    if (clerkUser) {
+      setFormData(prev => ({
+        ...prev,
+        firstName: clerkUser.firstName || '',
+        lastName: clerkUser.lastName || '',
+        email: clerkUser.emailAddresses[0]?.emailAddress || '',
+      }));
+    }
+  }, [clerkUser]);
 
   const [skillsInput, setSkillsInput] = useState('');
   
@@ -122,61 +129,43 @@ export default function AdvertiserApplyMatchPage() {
     }));
   };
 
-  const handleSubmit = (e?: React.FormEvent) => {
+  const APPLICATION_FEE = 50;
+
+  const handleSubmit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (currentStep < 3) {
       setCurrentStep(currentStep + 1);
       return;
     }
     
-    const currentCoins = parseInt(localStorage.getItem('advertiser_coins') || '450', 10);
-    if (currentCoins < 10) {
+    // Use availableBalance to match backend logic (total - locked)
+    const availableCoins = walletData?.availableBalance ?? walletData?.balance ?? 0;
+    if (availableCoins < APPLICATION_FEE) {
       setShowInsufficientBalance(true);
       return;
     }
 
     setIsSubmitting(true);
-    // Simulate API call and save to pseudo "campaigns" state via localStorage
-    setTimeout(() => {
-      try {
-        localStorage.setItem('advertiser_coins', (currentCoins - 10).toString());
-
-        const historyStr = localStorage.getItem('advertiser_transactions');
-        const history = historyStr ? JSON.parse(historyStr) : [
-          { id: 1, type: 'deposit', title: 'Welcome Bonus', amount: '$0.00', coins: '450', date: 'Oct 24, 2024', status: 'Completed', method: 'System' }
-        ];
-        history.unshift({
-          id: Date.now(),
-          type: 'Spent',
-          title: `Applied for ${activeJobData.campaign || activeJobData.title}`,
-          coins: '10',
-          amount: '-10 Coins',
-          date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-          status: 'Completed',
-          method: 'Platform'
-        });
-        localStorage.setItem('advertiser_transactions', JSON.stringify(history));
-
-        const stored = localStorage.getItem('appliedJobs');
-        const appliedJobs = stored ? JSON.parse(stored) : [];
-        appliedJobs.push({
-          id: Date.now() + Math.random(), // generate unique ID
-          title: activeJobData.campaign || activeJobData.title,
-          brand: activeJobData.brand || activeJobData.company,
-          status: 'Applied',
-          platform: activeJobData.platform || 'General',
-          progress: 0,
-          earnings: activeJobData.budget || activeJobData.salary || 'Varies',
-          deadline: 'Pending Review'
-        });
-        localStorage.setItem('appliedJobs', JSON.stringify(appliedJobs));
-      } catch (err) {
-        console.error('Failed to save to localStorage', err);
-      }
-
-      setIsSubmitting(false);
+    setSubmitError(null);
+    try {
+      await applyMutation.mutateAsync({
+        opportunity: id || '',
+        coverLetter: formData.coverLetter
+      });
       setIsSuccess(true);
-    }, 2000);
+    } catch (error: any) {
+      console.error('Failed to apply:', error);
+      let msg = error?.response?.data?.message || error?.message || 'Failed to submit application. Please try again.';
+      
+      // If there are detailed validation errors, display the first one to be clear
+      if (error?.response?.data?.errors && Array.isArray(error.response.data.errors) && error.response.data.errors.length > 0) {
+        msg = error.response.data.errors[0].message;
+      }
+      
+      setSubmitError(msg);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const formVariants = {
@@ -200,7 +189,7 @@ export default function AdvertiserApplyMatchPage() {
               transition={{ delay: 0.5, duration: 0.5 }}
               className="absolute -top-6 right-8 md:-top-8 md:-right-8 bg-amber-500 text-black font-bold px-6 py-3 rounded-2xl text-lg flex items-center gap-2 shadow-lg shadow-amber-500/30 rotate-12 z-10"
             >
-              -10 Coins
+              -50 Coins
             </motion.div>
             <div className="w-24 h-24 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto mb-8 relative">
               <div className="absolute inset-0 bg-emerald-500/20 rounded-full animate-ping opacity-75"></div>
@@ -251,8 +240,11 @@ export default function AdvertiserApplyMatchPage() {
                   <AlertCircle className="text-amber-500 w-10 h-10" />
                 </div>
                 <h2 className="text-2xl font-black text-gray-900 dark:text-white mb-2">Insufficient Coins</h2>
-                <p className="text-gray-500 dark:text-gray-400 mb-8 leading-relaxed">
-                  You need at least <strong>10 coins</strong> to apply for this job. Your current balance is not enough.
+                <p className="text-gray-500 dark:text-gray-400 mb-2 leading-relaxed">
+                  You need at least <strong>50 coins</strong> to apply for this opportunity.
+                </p>
+                <p className="text-sm text-amber-600 dark:text-amber-400 font-bold mb-8">
+                  Your current balance: <strong>{walletData?.availableBalance ?? walletData?.balance ?? 0} coins</strong>
                 </p>
                 <div className="flex flex-col gap-3">
                   <button 
@@ -282,9 +274,9 @@ export default function AdvertiserApplyMatchPage() {
               </button>
               <h1 className="text-2xl md:text-3xl font-black text-gray-900 dark:text-white mb-2">{activeJobData.campaign || activeJobData.title}</h1>
               <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500 font-medium">
-                <span className="flex items-center gap-1.5"><Building2 size={16} /> {activeJobData.brand || activeJobData.company}</span>
+                <span className="flex items-center gap-1.5"><Building2 size={16} /> {activeJobData.brand || activeJobData.company || activeJobData?.businessOwner?.companyName || 'Global Brand'}</span>
                 <span className="flex items-center gap-1.5"><MapPin size={16} /> {activeJobData.location || 'Remote'}</span>
-                <span className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-500"><DollarSign size={16} /> {activeJobData.budget || activeJobData.salary}</span>
+                <span className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-500"><DollarSign size={16} /> {(typeof activeJobData.budget === 'object' ? activeJobData.budget.amount : (activeJobData.budget || 0)).toLocaleString()}</span>
               </div>
             </div>
             <button className="w-12 h-12 bg-gray-50 dark:bg-white/5 rounded-2xl flex items-center justify-center text-gray-400 hover:text-emerald-500 transition-colors">
@@ -612,6 +604,13 @@ export default function AdvertiserApplyMatchPage() {
 
           {/* Floating Navigation Footer */}
           <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/80 dark:bg-black/80 backdrop-blur-xl border-t border-gray-100 dark:border-white/5 z-40 transform lg:pl-64 transition-all">
+            {/* Error Banner */}
+            {submitError && (
+              <div className="max-w-4xl mx-auto mb-3 px-4 py-2.5 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 rounded-xl flex items-center gap-2 text-sm text-red-600 dark:text-red-400 font-medium">
+                <AlertCircle size={16} className="shrink-0" />
+                {submitError}
+              </div>
+            )}
             <div className="max-w-4xl mx-auto flex justify-between items-center">
               {currentStep > 1 ? (
                 <button 

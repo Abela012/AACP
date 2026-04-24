@@ -21,28 +21,23 @@ import {
 import { cn } from '@/src/shared/utils/cn';
 import AdvertiserLayout from '@/src/shared/components/layouts/AdvertiserLayout';
 
+import { useWalletBalance, useWalletHistory } from '@/src/hooks/useWallet';
+import { Loader2 } from 'lucide-react';
+
 export default function AdvertiserBalancePage() {
   const navigate = useNavigate();
+  const { data: balanceData, isLoading: balanceLoading } = useWalletBalance();
+  const { data: txHistoryData, isLoading: historyLoading } = useWalletHistory();
 
-  const [availableBalance, setAvailableBalance] = useState(() => {
-    return parseInt(localStorage.getItem('advertiser_coins') || '450', 10);
-  });
+  const availableBalance = balanceData?.balance || 0;
+  const totalPurchased = txHistoryData
+    ?.filter((t: any) => t.type === 'credit')
+    .reduce((acc: number, t: any) => acc + t.amount, 0) || 0;
+  const totalSpent = txHistoryData
+    ?.filter((t: any) => t.type === 'debit')
+    .reduce((acc: number, t: any) => acc + t.amount, 0) || 0;
 
-  const [txHistory, setTxHistory] = useState(() => {
-    const history = localStorage.getItem('advertiser_transactions');
-    if (history) return JSON.parse(history);
-    return [
-      { id: 1, type: 'deposit', title: 'Welcome Bonus', amount: '$0.00', coins: '450', date: 'Oct 24, 2024', status: 'Completed', method: 'System' },
-    ];
-  });
-
-  const totalSpent = txHistory
-    .filter((t: any) => t.type === 'Spent' && t.status === 'Completed')
-    .reduce((acc: number, t: any) => acc + parseInt(t.coins || '0', 10), 0);
-
-  const totalPurchased = txHistory
-    .filter((t: any) => (t.type === 'Coin Purchase' || (t.type === 'deposit' && t.coins)) && t.status === 'Completed')
-    .reduce((acc: number, t: any) => acc + parseInt(t.coins || '0', 10), 0);
+  const isLoading = balanceLoading || historyLoading;
 
 
   return (
@@ -108,34 +103,44 @@ export default function AdvertiserBalancePage() {
               </div>
               <div className="bg-white dark:bg-white/5 rounded-[2.5rem] border border-gray-100 dark:border-white/5 shadow-sm dark:shadow-none overflow-hidden">
                 <div className="divide-y divide-gray-50 dark:divide-white/5">
-                  {txHistory.map((t: any) => (
-                    <div key={t.id} className="p-6 flex items-center justify-between hover:bg-gray-50/50 dark:hover:bg-white/5 transition-colors">
-                      <div className="flex items-center gap-4">
-                        <div className={cn(
-                          "w-10 h-10 rounded-xl flex items-center justify-center",
-                          t.type === 'Spent' ? "bg-red-50 dark:bg-red-500/10 text-red-500 dark:text-red-400" : "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-500 dark:text-emerald-400"
-                        )}>
-                          {t.type === 'Spent' ? <ArrowUpRight size={20} /> : <ArrowDownLeft size={20} />}
-                        </div>
-                        <div>
-                          <p className="text-sm font-bold text-gray-900 dark:text-white">{t.type === 'Coin Purchase' ? `Purchased ${t.coins} Coins` : t.title}</p>
-                          <p className="text-[10px] text-gray-400 dark:text-gray-500 font-medium">{t.date} • {t.method}</p>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <p className={cn(
-                          "text-sm font-bold",
-                          t.type === 'Spent' ? "text-red-500 dark:text-red-400" : "text-emerald-600 dark:text-emerald-500"
-                        )}>
-                          {t.coins ? `${t.type === 'Spent' ? '-' : '+'}${t.coins} Coins` : t.amount}
-                        </p>
-                        <p className={cn(
-                          "text-[10px] font-bold uppercase tracking-widest",
-                          t.status === 'Pending' ? "text-amber-500 dark:text-amber-400" : "text-gray-400 dark:text-gray-500"
-                        )}>{t.status}</p>
-                      </div>
+                  {isLoading ? (
+                    <div className="p-12 flex justify-center">
+                      <Loader2 className="w-8 h-8 animate-spin text-emerald-500" />
                     </div>
-                  ))}
+                  ) : txHistoryData?.length === 0 ? (
+                    <div className="p-12 text-center">
+                      <p className="text-gray-500">No transactions found.</p>
+                    </div>
+                  ) : (
+                    txHistoryData?.map((t: any) => (
+                      <div key={t._id} className="p-6 flex items-center justify-between hover:bg-gray-50/50 dark:hover:bg-white/5 transition-colors">
+                        <div className="flex items-center gap-4">
+                          <div className={cn(
+                            "w-10 h-10 rounded-xl flex items-center justify-center",
+                            t.type === 'debit' ? "bg-red-50 dark:bg-red-500/10 text-red-500 dark:text-red-400" : "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-500 dark:text-emerald-400"
+                          )}>
+                            {t.type === 'debit' ? <ArrowUpRight size={20} /> : <ArrowDownLeft size={20} />}
+                          </div>
+                          <div>
+                            <p className="text-sm font-bold text-gray-900 dark:text-white">{t.description}</p>
+                            <p className="text-[10px] text-gray-400 dark:text-gray-500 font-medium">{new Date(t.createdAt).toLocaleDateString()} • {t.type.toUpperCase()}</p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className={cn(
+                            "text-sm font-bold",
+                            t.type === 'debit' ? "text-red-500 dark:text-red-400" : "text-emerald-600 dark:text-emerald-500"
+                          )}>
+                            {t.type === 'debit' ? '-' : '+'}{t.amount} Coins
+                          </p>
+                          <p className={cn(
+                            "text-[10px] font-bold uppercase tracking-widest",
+                            t.status === 'pending' ? "text-amber-500 dark:text-amber-400" : "text-gray-400 dark:text-gray-500"
+                          )}>{t.status}</p>
+                        </div>
+                      </div>
+                    ))
+                  )}
                 </div>
               </div>
             </section>

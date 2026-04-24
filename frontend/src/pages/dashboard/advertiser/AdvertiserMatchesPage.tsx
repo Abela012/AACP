@@ -33,13 +33,19 @@ export interface JobOpportunity {
   requirements?: string[];
 }
 
+import { useOpportunities } from '@/src/hooks/useOpportunities';
+import { Loader2 } from 'lucide-react';
+
 export default function AdvertiserMatchesPage() {
   const navigate = useNavigate();
   const [selectedPlatform, setSelectedPlatform] = useState('All Platforms');
   const [selectedBudgetRange, setSelectedBudgetRange] = useState('All Budgets');
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedJob, setSelectedJob] = useState<JobOpportunity | null>(null);
+  const [selectedJob, setSelectedJob] = useState<any | null>(null);
   const [appliedJobs, setAppliedJobs] = useState<any[]>([]);
+
+  const { data: oppsData, isLoading } = useOpportunities();
+  const opportunities = oppsData?.opportunities ?? [];
 
   useEffect(() => {
     const stored = localStorage.getItem('appliedJobs');
@@ -48,46 +54,34 @@ export default function AdvertiserMatchesPage() {
     }
   }, []);
 
-  const isApplied = (job: JobOpportunity) => {
-    return appliedJobs.some(aj => aj.title === job.campaign || aj.title === job.brand + ' ' + job.campaign);
+  const isApplied = (job: any) => {
+    return appliedJobs.some(aj => aj.title === job.title);
   };
 
-  const opportunities: JobOpportunity[] = [
-    { id: 1, brand: 'Global Tech Corp', campaign: 'AI Workstation Launch', match: '98%', budget: '$2,500 - $5,000', platform: 'TikTok', image: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2070&auto=format&fit=crop', location: 'Remote', description: 'Tech innovator looking for high-energy creators to demonstrate our latest AI workstation capabilities.', requirements: ['Tech fluency', '100k+ followers', 'Video editing skills'] },
-    { id: 2, brand: 'Creative Studio', campaign: 'Sustainable Living', match: '95%', budget: '$1,200 - $3,000', platform: 'Instagram', image: 'https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=2069&auto=format&fit=crop', location: 'New York, USA', description: 'Promoting eco-friendly home products. Seeking authentic UGC showing seamless integration into daily life.', requirements: ['Lifestyle focus', 'High engagement rate', 'Eco-conscious'] },
-    { id: 3, brand: 'NexGen Retail', campaign: 'Smart Home Series', match: '92%', budget: '$3,000 - $7,500', platform: 'YouTube', image: 'https://images.unsplash.com/photo-1497215728101-856f4ea42174?q=80&w=2070&auto=format&fit=crop', location: 'Remote', description: 'In-depth review campaigns for our upcoming Q4 smart home ecosystem rollout.', requirements: ['Experience with long-form reviews', 'Tech audience', 'High production value'] },
-    { id: 4, brand: 'EcoStyle', campaign: 'Fall Fashion Week', match: '89%', budget: '$800 - $1,500', platform: 'TikTok', image: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=2070&auto=format&fit=crop', location: 'London, UK', description: 'Highlight our sustainable fall fashion lines during fashion week.', requirements: ['Fashion focus', 'Trendsetter', 'Quick turnarounds'] },
-    { id: 5, brand: 'HealthHub', campaign: 'Wellness Challenge', match: '87%', budget: '$1,500 - $2,500', platform: 'Instagram', image: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?q=80&w=2070&auto=format&fit=crop', location: 'Remote', description: '30-day wellness challenge influencer partnerships to drive app downloads.', requirements: ['Fitness/Health niche', 'Community builder', 'High trust score'] },
-  ];
-
-  const parseBudget = (budgetStr: string) => {
-    const numbers = budgetStr.replace(/[$,]/g, '').split('-').map(n => parseInt(n.trim()));
-    return { min: numbers[0], max: numbers[1] || numbers[0] };
-  };
-
-  const filteredOpportunities = opportunities.filter(o => {
-    const matchesPlatform = selectedPlatform === 'All Platforms' || o.platform === selectedPlatform;
+  const filteredOpportunities = opportunities.filter((o: any) => {
+    const matchesPlatform = selectedPlatform === 'All Platforms' || 
+                           (o.category && o.category.includes(selectedPlatform));
+                           
     const searchLower = searchQuery.trim().toLowerCase();
     const matchesSearch = !searchLower || 
-                         o.brand.toLowerCase().includes(searchLower) || 
-                         o.campaign.toLowerCase().includes(searchLower) ||
-                         o.platform.toLowerCase().includes(searchLower);
+                         (o.title && o.title.toLowerCase().includes(searchLower)) || 
+                         (o.description && o.description.toLowerCase().includes(searchLower));
     
     let matchesBudget = true;
     if (selectedBudgetRange !== 'All Budgets') {
-      const { min, max } = parseBudget(o.budget);
-      if (selectedBudgetRange === 'Under $1,000') matchesBudget = min < 1000;
-      else if (selectedBudgetRange === '$1,000 - $3,000') matchesBudget = (min >= 1000 && min <= 3000) || (max >= 1000 && max <= 3000);
-      else if (selectedBudgetRange === '$3,000 - $5,000') matchesBudget = (min >= 3000 && min <= 5000) || (max >= 3000 && max <= 5000);
-      else if (selectedBudgetRange === 'Over $5,000') matchesBudget = max > 5000;
+      const budget = o.budget?.amount || 0;
+      if (selectedBudgetRange === 'Under $1,000') matchesBudget = budget < 1000;
+      else if (selectedBudgetRange === '$1,000 - $3,000') matchesBudget = budget >= 1000 && budget <= 3000;
+      else if (selectedBudgetRange === '$3,000 - $5,000') matchesBudget = budget >= 3000 && budget <= 5000;
+      else if (selectedBudgetRange === 'Over $5,000') matchesBudget = budget > 5000;
     }
 
     return matchesPlatform && matchesSearch && matchesBudget;
   });
 
-  const handleApply = (e: React.MouseEvent, job: JobOpportunity) => {
+  const handleApply = (e: React.MouseEvent, job: any) => {
     e.stopPropagation();
-    navigate(`/advertiser/matches/${job.id}/apply`, { state: { job } });
+    navigate(`/advertiser/matches/${job._id}/apply`, { state: { job } });
   };
 
   return (
@@ -114,16 +108,16 @@ export default function AdvertiserMatchesPage() {
                     <X size={20} />
                   </button>
                   <div className="absolute bottom-6 left-8">
-                    <h2 className="text-3xl font-black text-white mb-1">{selectedJob.campaign}</h2>
-                    <p className="text-emerald-400 font-bold flex items-center gap-2"><Building2 size={16} />{selectedJob.brand}</p>
+                    <h2 className="text-3xl font-black text-white mb-1">{selectedJob.title}</h2>
+                    <p className="text-emerald-400 font-bold flex items-center gap-2"><Building2 size={16} />{selectedJob.owner?.firstName || 'Business Owner'}</p>
                   </div>
                 </div>
                 
                 <div className="p-8 overflow-y-auto">
                   <div className="flex flex-wrap gap-4 mb-8">
-                    <span className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold px-4 py-2 rounded-xl text-sm flex items-center gap-2"><DollarSign size={16} />{selectedJob.budget}</span>
-                    <span className="bg-blue-500/10 text-blue-600 dark:text-blue-400 font-bold px-4 py-2 rounded-xl text-sm flex items-center gap-2"><Zap size={16} />{selectedJob.platform}</span>
-                    <span className="bg-gray-100 dark:bg-white/5 text-gray-700 dark:text-gray-300 font-bold px-4 py-2 rounded-xl text-sm flex items-center gap-2"><MapPin size={16} />{selectedJob.location}</span>
+                    <span className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold px-4 py-2 rounded-xl text-sm flex items-center gap-2"><DollarSign size={16} />${(typeof selectedJob.budget === 'object' ? selectedJob.budget.amount : (selectedJob.budget || 0)).toLocaleString()}</span>
+                    <span className="bg-blue-500/10 text-blue-600 dark:text-blue-400 font-bold px-4 py-2 rounded-xl text-sm flex items-center gap-2"><Zap size={16} />{selectedJob.category || 'Any'}</span>
+                    <span className="bg-gray-100 dark:bg-white/5 text-gray-700 dark:text-gray-300 font-bold px-4 py-2 rounded-xl text-sm flex items-center gap-2"><MapPin size={16} />Remote</span>
                   </div>
 
                   <div className="space-y-6 text-gray-600 dark:text-gray-300 text-sm leading-relaxed mb-8">
@@ -134,9 +128,8 @@ export default function AdvertiserMatchesPage() {
                     <div>
                       <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">Requirements</h3>
                       <ul className="space-y-2">
-                        {selectedJob.requirements?.map((req, i) => (
-                          <li key={i} className="flex items-center gap-2"><CheckCircle2 className="text-emerald-500 shrink-0" size={16} /> {req}</li>
-                        ))}
+                        <li className="flex items-center gap-2"><CheckCircle2 className="text-emerald-500 shrink-0" size={16} /> High engagement rate</li>
+                        <li className="flex items-center gap-2"><CheckCircle2 className="text-emerald-500 shrink-0" size={16} /> Content alignment</li>
                       </ul>
                     </div>
                   </div>
@@ -215,25 +208,32 @@ export default function AdvertiserMatchesPage() {
 
         {/* Matches Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filteredOpportunities.length > 0 ? (
-            filteredOpportunities.map((o) => (
+          {isLoading ? (
+            <div className="col-span-full py-20 text-center">
+              <Loader2 size={48} className="animate-spin text-emerald-500 mx-auto mb-4" />
+              <p className="text-gray-500 font-bold">Finding best matches...</p>
+            </div>
+          ) : filteredOpportunities.length > 0 ? (
+            filteredOpportunities.map((o: any) => (
               <motion.div 
-                key={o.id}
+                key={o._id}
                 whileHover={{ y: -5 }}
                 onClick={() => setSelectedJob(o)}
                 className="bg-white dark:bg-white/5 rounded-[2.5rem] border border-gray-100 dark:border-white/5 shadow-sm dark:shadow-none overflow-hidden group cursor-pointer"
               >
                 <div className="h-48 relative">
-                  <img src={o.image} alt={o.brand} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                  <div className="w-full h-full bg-gray-200 dark:bg-white/5 flex items-center justify-center text-gray-400">
+                    <Building2 size={48} />
+                  </div>
                   <div className="absolute top-4 right-4 bg-emerald-500/90 backdrop-blur-md text-black text-[10px] font-bold px-3 py-1.5 rounded-full uppercase tracking-widest shadow-lg">
-                    {o.match} Match
+                    95% Match
                   </div>
                 </div>
                 <div className="p-8">
                   <div className="flex justify-between items-start mb-6">
                     <div>
-                      <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-1">{o.brand}</h3>
-                      <p className="text-xs text-emerald-600 dark:text-emerald-500 font-bold uppercase tracking-widest">{o.campaign}</p>
+                      <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-1 line-clamp-1">{o.owner?.firstName || 'Business'}</h3>
+                      <p className="text-xs text-emerald-600 dark:text-emerald-500 font-bold uppercase tracking-widest line-clamp-1">{o.title}</p>
                     </div>
                     <div className="flex items-center gap-1 text-amber-400">
                       <Star size={14} fill="currentColor" />
@@ -248,7 +248,7 @@ export default function AdvertiserMatchesPage() {
                       </div>
                       <div>
                         <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Budget</p>
-                        <p className="text-sm font-bold text-gray-900 dark:text-white">{o.budget}</p>
+                        <p className="text-sm font-bold text-gray-900 dark:text-white">${(typeof o.budget === 'object' ? o.budget.amount : (o.budget || 0)).toLocaleString()}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
@@ -257,7 +257,7 @@ export default function AdvertiserMatchesPage() {
                       </div>
                       <div>
                         <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Platform</p>
-                        <p className="text-sm font-bold text-gray-900 dark:text-white">{o.platform}</p>
+                        <p className="text-sm font-bold text-gray-900 dark:text-white">{o.category || 'Any'}</p>
                       </div>
                     </div>
                   </div>

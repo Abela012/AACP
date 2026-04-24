@@ -2,10 +2,12 @@ import { useAuth } from "@clerk/clerk-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { useApiClient, userApi } from "../utils/api";
+import { useUser } from "../shared/context/UserContext";
 
 export const useUserSync = () => {
     const { isSignedIn } = useAuth();
     const api = useApiClient();
+    const { setOnboardingStatus } = useUser();
 
     const queryClient = useQueryClient();
 
@@ -27,6 +29,15 @@ export const useUserSync = () => {
             console.log("[useUserSync] User synced successfully:", response.data?.message);
             // Clean up the pending role from localStorage
             localStorage.removeItem('pendingUserRole');
+            
+            // Update the global status based on the backend response
+            const status = response.data?.user?.status;
+            if (status === 'active') {
+                setOnboardingStatus('approved');
+            } else if (status === 'pending') {
+                setOnboardingStatus('pending');
+            }
+            
             queryClient.invalidateQueries({ queryKey: ["authUser"] });
         },
         onError: (error: any) => {
@@ -42,5 +53,9 @@ export const useUserSync = () => {
         }
     }, [isSignedIn, syncUserMutation.isSuccess, syncUserMutation.isPending]);
 
-    return null;
+    return {
+        sync: () => syncUserMutation.mutate(),
+        isLoading: syncUserMutation.isPending,
+        isSuccess: syncUserMutation.isSuccess
+    };
 };

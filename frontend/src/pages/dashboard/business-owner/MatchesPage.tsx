@@ -16,26 +16,30 @@ import { Link, useNavigate } from 'react-router-dom';
 import { cn } from '@/src/shared/utils/cn';
 import BusinessLayout from '@/src/shared/components/layouts/BusinessLayout';
 
+import { useBusinessOwnerApplications } from '@/src/hooks/useApplications';
+
 export default function MatchesPage() {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedPlatform, setSelectedPlatform] = useState('All Platforms');
 
-  const matches = [
-    { id: 1, name: 'Sarah Jenkins', category: 'Fashion & Lifestyle', score: '98%', followers: '1.2M', platform: 'TikTok', image: 'https://i.pravatar.cc/150?u=sarah' },
-    { id: 2, name: 'Alex Rivera', category: 'Tech & Gadgets', score: '95%', followers: '850K', platform: 'YouTube', image: 'https://i.pravatar.cc/150?u=alex' },
-    { id: 3, name: 'Elena Rodriguez', category: 'Beauty & Wellness', score: '92%', followers: '2.4M', platform: 'Instagram', image: 'https://i.pravatar.cc/150?u=elena' },
-    { id: 4, name: 'David Chen', category: 'Gaming & Setup', score: '89%', followers: '500K', platform: 'TikTok', image: 'https://i.pravatar.cc/150?u=david' },
-    { id: 5, name: 'Maya Patel', category: 'Food & Cooking', score: '87%', followers: '1.5M', platform: 'Instagram', image: 'https://i.pravatar.cc/150?u=maya' },
-  ];
+  const { data: applicationsData, isLoading } = useBusinessOwnerApplications();
+  const matches = applicationsData || [];
 
-  const filteredMatches = matches.filter(m => {
-    const matchesPlatform = selectedPlatform === 'All Platforms' || m.platform === selectedPlatform;
+  const filteredMatches = matches.filter((app: any) => {
+    const opp = app.opportunity || {};
+    const adv = app.advertiser || {};
+    
+    // We assume the advertiser matches the platforms required by the opportunity for now, or we can check opp platforms
+    const matchPlatform = opp.platforms?.[0] || 'Unknown';
+    const matchesPlatform = selectedPlatform === 'All Platforms' || opp.platforms?.includes(selectedPlatform);
+    
     const searchLower = searchQuery.trim().toLowerCase();
+    const fullName = `${adv.firstName || ''} ${adv.lastName || ''}`.toLowerCase();
     const matchesSearch = !searchLower || 
-                         m.name.toLowerCase().includes(searchLower) || 
-                         m.category.toLowerCase().includes(searchLower) ||
-                         m.platform.toLowerCase().includes(searchLower);
+                         fullName.includes(searchLower) || 
+                         (opp.category && opp.category.toLowerCase().includes(searchLower)) ||
+                         (opp.title && opp.title.toLowerCase().includes(searchLower));
     return matchesPlatform && matchesSearch;
   });
 
@@ -48,7 +52,7 @@ export default function MatchesPage() {
             <p className="text-gray-500 dark:text-gray-400 text-sm">Our AI has identified the best creators for your active campaigns.</p>
           </div>
           <div className="flex gap-3">
-            <button className="bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 px-6 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 transition-all">
+            <button className="bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 px-6 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-emerald-100 dark:hover:bg-emerald-900/30 transition-all">
               <Sparkles size={18} />
               Refine AI
             </button>
@@ -64,7 +68,7 @@ export default function MatchesPage() {
               placeholder="Search creators..." 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 rounded-xl border border-gray-100 dark:border-white/10 bg-white dark:bg-white/5 focus:border-indigo-600 dark:focus:border-indigo-500 outline-none text-sm dark:text-white"
+              className="w-full pl-10 pr-4 py-2 rounded-xl border border-gray-100 dark:border-white/10 bg-white dark:bg-white/5 focus:border-emerald-600 dark:focus:border-emerald-500 outline-none text-sm dark:text-white"
             />
           </div>
           <div className="flex gap-3">
@@ -87,54 +91,67 @@ export default function MatchesPage() {
 
         {/* Matches Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filteredMatches.length > 0 ? (
-            filteredMatches.map((m) => (
+          {isLoading ? (
+            <div className="col-span-full py-20 text-center">
+              <Loader2 size={32} className="animate-spin text-emerald-500 mx-auto mb-4" />
+              <p className="text-gray-500">Loading applicants...</p>
+            </div>
+          ) : filteredMatches.length > 0 ? (
+            filteredMatches.map((app: any) => {
+              const opp = app.opportunity || {};
+              const adv = app.advertiser || {};
+              const fullName = `${adv.firstName || ''} ${adv.lastName || ''}`;
+              
+              return (
               <motion.div 
-                key={m.id}
+                key={app._id}
                 whileHover={{ y: -5 }}
                 className="bg-white dark:bg-white/5 rounded-[2.5rem] border border-gray-100 dark:border-white/5 shadow-sm dark:shadow-none overflow-hidden group"
               >
                 <div className="p-8">
                   <div className="flex justify-between items-start mb-6">
                     <div className="relative">
-                      <div className="w-20 h-20 rounded-[2rem] overflow-hidden border-4 border-indigo-50 dark:border-indigo-900/20">
-                        <img src={m.image} alt={m.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                      <div className="w-20 h-20 rounded-[2rem] overflow-hidden border-4 border-emerald-50 dark:border-emerald-900/20">
+                        <img src={adv.profilePicture || `https://ui-avatars.com/api/?name=${fullName}&background=10b981&color=fff`} alt={fullName} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                       </div>
-                      <div className="absolute -bottom-2 -right-2 bg-indigo-600 text-white p-1.5 rounded-xl shadow-lg">
+                      <div className="absolute -bottom-2 -right-2 bg-emerald-600 text-white p-1.5 rounded-xl shadow-lg">
                         <CheckCircle2 size={14} />
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest mb-2">
-                        {m.score} Match
+                      <div className="bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest mb-2">
+                        {app.status === 'accepted' ? 'Hired' : app.status === 'rejected' ? 'Rejected' : 'Applicant'}
                       </div>
                       <div className="flex items-center gap-1 justify-end text-amber-400">
                         <Star size={14} fill="currentColor" />
-                        <span className="text-xs font-bold text-gray-900 dark:text-white">4.9</span>
+                        <span className="text-xs font-bold text-gray-900 dark:text-white">{app.aiMatchScore || '4.9'}</span>
                       </div>
                     </div>
                   </div>
 
                   <div className="mb-8">
-                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-1">{m.name}</h3>
-                    <p className="text-xs text-gray-400 dark:text-gray-500 font-medium mb-4">{m.category}</p>
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-1">{fullName}</h3>
+                    <p className="text-xs text-gray-400 dark:text-gray-500 font-medium mb-4">Applied for: {opp.title || 'Unknown Campaign'}</p>
                     <div className="flex gap-4">
                       <div>
-                        <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1">Followers</p>
-                        <p className="text-sm font-bold text-gray-900 dark:text-white">{m.followers}</p>
+                        <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1">Status</p>
+                        <p className="text-sm font-bold text-gray-900 dark:text-white capitalize">{app.status}</p>
                       </div>
                       <div className="w-px h-8 bg-gray-100 dark:bg-white/10" />
                       <div>
                         <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1">Platform</p>
-                        <p className="text-sm font-bold text-gray-900 dark:text-white">{m.platform}</p>
+                        <p className="text-sm font-bold text-gray-900 dark:text-white">{opp.platforms?.[0] || 'Any'}</p>
                       </div>
                     </div>
                   </div>
 
                   <div className="flex gap-3">
-                    <button className="flex-1 bg-indigo-600 text-white py-4 rounded-2xl font-bold text-sm hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100 dark:shadow-none flex items-center justify-center gap-2">
+                    <Link to="/messages" className="flex-1 bg-emerald-600 text-white py-4 rounded-2xl font-bold text-sm hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-100 dark:shadow-none flex items-center justify-center gap-2">
                       <MessageCircle size={18} />
-                      Contact
+                      Message
+                    </Link>
+                    <button className="w-14 h-14 border border-gray-100 dark:border-white/10 rounded-2xl flex items-center justify-center text-gray-400 dark:text-gray-500 hover:text-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 transition-all">
+                      <CheckCircle2 size={20} />
                     </button>
                     <button className="w-14 h-14 border border-gray-100 dark:border-white/10 rounded-2xl flex items-center justify-center text-gray-400 dark:text-gray-500 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-all">
                       <X size={20} />
@@ -142,7 +159,7 @@ export default function MatchesPage() {
                   </div>
                 </div>
               </motion.div>
-            ))
+            )})
           ) : (
             <div className="col-span-full py-20 text-center">
               <div className="w-16 h-16 bg-gray-50 dark:bg-white/5 rounded-2xl flex items-center justify-center mx-auto mb-4">

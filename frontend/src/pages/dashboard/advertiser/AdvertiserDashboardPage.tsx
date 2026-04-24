@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import { useAuth, useUser as useClerkUser } from '@clerk/clerk-react';
 import { 
   Plus, 
   TrendingUp, 
@@ -14,38 +15,42 @@ import {
   Target,
   Globe,
   ChevronRight,
-  Briefcase
+  Briefcase,
+  Loader2
 } from 'lucide-react';
 import OnboardingBanner from '../../../shared/components/OnboardingBanner';
 import { cn } from '@/src/shared/utils/cn';
 import AdvertiserLayout from '@/src/shared/components/layouts/AdvertiserLayout';
 import { useUser } from '@/src/shared/context/UserContext';
 import CompleteProfilePage from '../../profile/complete-profile/CompleteProfilePage';
+import { useUserSync } from '@/src/hooks/useUserSync';
+import { useMyApplications } from '@/src/hooks/useApplications';
+import { useWalletBalance } from '@/src/hooks/useWallet';
 
 export default function AdvertiserDashboardPage() {
   const navigate = useNavigate();
   const { onboardingStatus, setOnboardingStatus } = useUser();
+  const { user: clerkUser } = useClerkUser();
+  const myId = clerkUser?.id ?? '';
+  const { sync, isLoading: isSyncing } = useUserSync();
+  
   const [chartView, setChartView] = useState<'daily' | 'monthly'>('monthly');
   const isApproved = onboardingStatus === 'approved';
 
+  // Real data hooks
+  const { data: appsData, isLoading: isLoadingApps } = useMyApplications(myId);
+  const { data: walletData, isLoading: isLoadingWallet } = useWalletBalance();
+
+  const applications = appsData?.applications ?? [];
+  const activeCount = applications.filter(a => a.status === 'accepted').length;
+  const pendingCount = applications.filter(a => a.status === 'pending').length;
+
   const stats = [
-    { label: 'Trust Score', value: '4.8', subValue: '/5.0', trend: '+0.2% growth', trendType: 'up', icon: ShieldCheck, color: 'text-emerald-500' },
-    { label: 'Total Earnings', value: '$12,450', trend: '+12.5% vs last month', trendType: 'up', icon: DollarSign, color: 'text-blue-500' },
-    { label: 'Active Campaigns', value: '14', trend: '2 ending in 48h', trendType: 'neutral', icon: Zap, color: 'text-indigo-500' },
-    { label: 'AI Matches', value: '142', trend: '98.2% avg. accuracy', trendType: 'up', icon: Sparkles, color: 'text-cyan-500' },
+    { label: 'Trust Score', value: 'N/A', subValue: '', trend: 'New Account', trendType: 'neutral', icon: ShieldCheck, color: 'text-emerald-500' },
+    { label: 'Total Balance', value: isLoadingWallet ? '...' : `${walletData?.balance?.toLocaleString() ?? 0} AACP`, trend: 'Available to withdraw', trendType: 'neutral', icon: DollarSign, color: 'text-blue-500' },
+    { label: 'Active Campaigns', value: isLoadingApps ? '...' : activeCount.toString(), trend: `${pendingCount} pending`, trendType: 'neutral', icon: Zap, color: 'text-indigo-500' },
+    { label: 'AI Matches', value: '0', trend: 'N/A', trendType: 'neutral', icon: Sparkles, color: 'text-cyan-500' },
   ];
-
-  const applications = [
-    { name: 'Luxe Media Q4 Launch', time: 'Applied: 2 hours ago', budget: '$5,200 Budget', match: 'High Match 96%', status: 'PENDING', statusColor: 'text-amber-500 bg-amber-500/10' },
-    { name: 'Neural Systems Global', time: 'Applied: 3 days ago', budget: '$12,000 Budget', match: 'Mid Match 84%', status: 'ACTIVE', statusColor: 'text-emerald-500 bg-emerald-500/10' },
-    { name: 'BioHealth Marketing', time: 'Closed: Sep 12', budget: '$3,400 Payout', match: 'Completed', status: 'COMPLETED', statusColor: 'text-gray-400 bg-gray-400/10' },
-  ];
-
-  const reviews = [
-    { author: 'Elite Software Corp', time: '2d ago', rating: 5, text: '"Exceptional conversion rates on our latest SaaS campaign. Highly professional."' },
-    { author: 'Vanguard Apparel', time: '1w ago', rating: 5, text: '"Strong communication and great adherence to brand guidelines. Will work with again."' },
-  ];
-
 
   const handleStatClick = (label: string) => {
     if (label.includes('Campaign')) {
@@ -56,7 +61,7 @@ export default function AdvertiserDashboardPage() {
       navigate('/advertiser/matches');
       return;
     }
-    if (label.includes('Earnings')) {
+    if (label.includes('Balance') || label.includes('Earnings')) {
       navigate('/advertiser/balance');
       return;
     }
@@ -66,41 +71,40 @@ export default function AdvertiserDashboardPage() {
   return (
     <AdvertiserLayout>
       <main className="p-4 sm:p-8 max-w-[1400px] mx-auto w-full">
-        {/* Admin Simulation Toggle */}
-        <div className="mb-8 p-4 bg-gray-50 dark:bg-white/5 rounded-2xl flex flex-wrap items-center gap-4 border border-gray-100 dark:border-white/10">
-          <span className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Admin Simulation:</span>
-          <div className="flex gap-2">
-            {(['incomplete', 'pending', 'approved'] as const).map((status) => (
-              <button
-                key={status}
-                onClick={() => setOnboardingStatus(status)}
-                className={cn(
-                  "px-3 py-1 rounded-lg text-[10px] font-bold uppercase transition-all",
-                  onboardingStatus === status 
-                    ? "bg-emerald-500 text-black" 
-                    : "bg-white dark:bg-white/5 text-gray-500 hover:bg-gray-100 dark:hover:bg-white/10 border border-gray-100 dark:border-white/10"
-                )}
-              >
-                {status}
-              </button>
-            ))}
-          </div>
+        <div className="mb-8 p-4 bg-gray-50 dark:bg-white/5 rounded-2xl flex flex-wrap items-center gap-4 border border-gray-100 dark:border-white/10 hidden">
         </div>
 
         {onboardingStatus === 'incomplete' ? (
-          /* Show Complete Profile form in Incomplete Simulation */
           <div className="mt-8">
             <CompleteProfilePage />
           </div>
+        ) : onboardingStatus === 'pending' ? (
+          <div className="flex flex-col items-center justify-center py-20 px-4">
+            <div className="w-24 h-24 bg-amber-50 dark:bg-amber-500/10 text-amber-500 rounded-full flex items-center justify-center mb-6">
+              <ShieldCheck size={48} />
+            </div>
+            <h1 className="text-3xl font-black text-gray-900 dark:text-white mb-4 text-center">Account Pending Approval</h1>
+            <p className="text-gray-500 dark:text-gray-400 text-center max-w-md leading-relaxed mb-8">
+              Your complete profile has been submitted and is currently being reviewed by our administrative team. You will gain full access to the AACP platform features once approved.
+            </p>
+            <button 
+              onClick={() => sync()}
+              disabled={isSyncing}
+              className="px-6 py-3 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl text-sm font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-50 transition-all flex items-center gap-2 disabled:opacity-50"
+            >
+              {isSyncing && <Loader2 size={16} className="animate-spin" />}
+              Check Status Again
+            </button>
+          </div>
         ) : (
-          /* Show Regular Dashboard for Pending/Approved */
+          /* Show Regular Dashboard for Approved */
           <>
             <OnboardingBanner status={onboardingStatus} role="advertiser" />
             
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-10 gap-4">
               <div>
                 <h1 className="text-3xl sm:text-4xl font-bold mb-2 text-gray-900 dark:text-white">Performance <span className="text-emerald-500">Snapshot</span></h1>
-                <p className="text-gray-500 dark:text-gray-400 text-sm">Welcome back, Premium Advertiser. Your AI agents found 3 new high-value opportunities.</p>
+                <p className="text-gray-500 dark:text-gray-400 text-sm">Welcome back, {clerkUser?.firstName || 'User'}. Your AI agents found {pendingCount} new high-value opportunities.</p>
               </div>
             </div>
 
@@ -264,30 +268,45 @@ export default function AdvertiserDashboardPage() {
                     <button onClick={() => navigate('/advertiser/campaigns')} className="text-xs font-bold text-emerald-500 hover:underline">View all</button>
                   </div>
                   <div className="space-y-4">
-                    {applications.map((app, idx) => (
-                      <div key={idx} className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-5 rounded-2xl bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/5 hover:border-gray-200 dark:hover:border-white/10 transition-all group gap-4">
-                        <div className="flex items-center gap-4">
-                          <div className="w-12 h-12 bg-white dark:bg-white/5 rounded-xl flex items-center justify-center text-gray-400 border border-gray-100 dark:border-white/10">
-                            <Briefcase size={20} />
-                          </div>
-                          <div>
-                            <h4 className="font-bold text-sm mb-1 text-gray-900 dark:text-white">{app.name}</h4>
-                            <div className="flex items-center gap-3 text-[10px] font-medium text-gray-500">
-                              <span>{app.time}</span>
-                              <span className="w-1 h-1 bg-gray-300 dark:bg-gray-700 rounded-full"></span>
-                              <span className="text-emerald-500">{app.match}</span>
+                    {isLoadingApps ? (
+                      <div className="flex justify-center py-8">
+                        <Loader2 size={24} className="animate-spin text-emerald-500" />
+                      </div>
+                    ) : applications.length === 0 ? (
+                      <div className="text-center py-8">
+                        <p className="text-sm font-bold text-gray-500 dark:text-gray-400">No applications yet</p>
+                      </div>
+                    ) : (
+                      applications.slice(0, 3).map((app, idx) => {
+                        const oppTitle = typeof app.opportunity === 'object' ? app.opportunity.title : 'Opportunity';
+                        const statusColors = {
+                          pending: 'text-amber-500 bg-amber-500/10',
+                          accepted: 'text-emerald-500 bg-emerald-500/10',
+                          rejected: 'text-red-500 bg-red-500/10',
+                          withdrawn: 'text-gray-500 bg-gray-500/10'
+                        };
+                        return (
+                          <div key={app._id || idx} className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-5 rounded-2xl bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/5 hover:border-gray-200 dark:hover:border-white/10 transition-all group gap-4">
+                            <div className="flex items-center gap-4">
+                              <div className="w-12 h-12 bg-white dark:bg-white/5 rounded-xl flex items-center justify-center text-gray-400 border border-gray-100 dark:border-white/10">
+                                <Briefcase size={20} />
+                              </div>
+                              <div>
+                                <h4 className="font-bold text-sm mb-1 text-gray-900 dark:text-white">{oppTitle}</h4>
+                                <div className="flex items-center gap-3 text-[10px] font-medium text-gray-500">
+                                  <span>{new Date(app.createdAt).toLocaleDateString()}</span>
+                                  <span className="w-1 h-1 bg-gray-300 dark:bg-gray-700 rounded-full"></span>
+                                  <span className="text-emerald-500">AI Matched</span>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="flex items-center justify-between w-full sm:w-auto gap-8">
+                              <span className={cn("px-3 py-1 rounded-lg text-[10px] font-bold tracking-wider uppercase", statusColors[app.status] || statusColors.pending)}>{app.status}</span>
                             </div>
                           </div>
-                        </div>
-                        <div className="flex items-center justify-between w-full sm:w-auto gap-8">
-                          <div className="text-left sm:text-right">
-                            <p className="text-sm font-bold text-gray-900 dark:text-white">{app.budget}</p>
-                            <p className="text-[10px] text-gray-500 dark:text-gray-400">Projected Value</p>
-                          </div>
-                          <span className={cn("px-3 py-1 rounded-lg text-[10px] font-bold tracking-wider", app.statusColor)}>{app.status}</span>
-                        </div>
-                      </div>
-                    ))}
+                        );
+                      })
+                    )}
                   </div>
                 </div>
               </div>
@@ -343,7 +362,7 @@ export default function AdvertiserDashboardPage() {
                       <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">Market Pulse</span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <div><p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Trending Hotspot:</p><p className="text-sm font-bold text-gray-900 dark:text-white">North America</p></div>
+                      <div><p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Trending Hotspot:</p><p className="text-sm font-bold text-gray-900 dark:text-white">Global</p></div>
                       <ChevronRight className="text-gray-400 dark:text-gray-500 group-hover:text-emerald-500 dark:group-hover:text-emerald-400 transition-colors" />
                     </div>
                   </div>
