@@ -15,10 +15,13 @@ import {
 } from 'lucide-react';
 import { cn } from '@/src/shared/utils/cn';
 import AdvertiserLayout from '@/src/shared/components/layouts/AdvertiserLayout';
+import { walletApi } from '@/src/api/walletApi';
+import { useApiClient } from '@/src/api/apiClient';
 
 export default function AdvertiserManualCheckoutPage() {
   const navigate = useNavigate();
   const location = useLocation();
+  const api = useApiClient();
   
   // Passed state from the Buy Coins page or fallback
   const packDetails = location.state?.pack || {
@@ -73,30 +76,26 @@ export default function AdvertiserManualCheckoutPage() {
     setTimeout(() => setCopiedField(null), 2000);
   };
 
-  const handleSubmit = (e?: React.FormEvent) => {
+  const handleSubmit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!selectedFile) {
-      alert("Please upload proof of payment before submitting.");
+      alert('Please upload proof of payment before submitting.');
       return;
     }
     setIsSubmitting(true);
-    setTimeout(() => {
-      // Record transaction
-      const transactions = JSON.parse(localStorage.getItem('advertiser_transactions') || '[]');
-      const newTransaction = {
-        id: `TXN-${Math.random().toString(36).substr(2, 9).toUpperCase()}`,
-        type: 'Coin Purchase',
-        amount: packDetails.price,
+    try {
+      await walletApi.requestCoins(api, {
         coins: packDetails.coins,
-        status: 'Pending',
-        date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-        method: 'Manual Payment',
-      };
-      localStorage.setItem('advertiser_transactions', JSON.stringify([newTransaction, ...transactions]));
-
-      setIsSubmitting(false);
+        paymentMethod: 'manual-bank-transfer',
+        pricePaid: packDetails.price,
+      });
       setIsSuccess(true);
-    }, 2000);
+    } catch (err) {
+      console.error('Manual coin request failed:', err);
+      alert('Failed to submit payment request. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (isSuccess) {

@@ -1,4 +1,7 @@
-import { createContext, useContext, useState, type ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
+import { useApiClient } from '@/src/api/apiClient';
+import { userApi } from '@/src/api/userApi';
+import { useUser } from '@clerk/clerk-react';
 
 export interface ProfileData {
   firstName: string;
@@ -10,7 +13,6 @@ export interface ProfileData {
   industry: string;
   avatarUrl: string;
   phone: string;
-  // NEW FIELDS
   businessLocation?: string;
   companySize?: string;
   targetAudienceTags?: string[];
@@ -31,45 +33,72 @@ export interface ProfileData {
 interface ProfileContextType {
   profile: ProfileData;
   updateProfile: (data: Partial<ProfileData>) => void;
+  refreshProfile: () => Promise<void>;
+  isLoading: boolean;
 }
 
-const DEFAULT_BUSINESS_PROFILE: ProfileData = {
-  firstName: 'Sarah',
-  lastName: 'Reynolds',
-  email: 'partners@techvision.dev',
-  bio: 'Leading innovator in edge computing solutions for enterprise networks. We specialize in optimizing data flow and creating secure infrastructure for the cloud-first world.',
-  businessName: 'TechVision Solutions',
-  website: 'techvision.dev',
-  industry: 'B2B Software',
-  avatarUrl: 'https://i.pravatar.cc/150?u=techvision',
-  phone: '+1 (555) 123-4567',
+const EMPTY_PROFILE: ProfileData = {
+  firstName: '',
+  lastName: '',
+  email: '',
+  bio: '',
+  businessName: '',
+  website: '',
+  industry: '',
+  avatarUrl: '',
+  phone: '',
 };
 
 const ProfileContext = createContext<ProfileContextType | undefined>(undefined);
 
-function loadFromStorage(): ProfileData {
-  try {
-    const stored = localStorage.getItem('profileData');
-    if (stored) return { ...DEFAULT_BUSINESS_PROFILE, ...JSON.parse(stored) };
-  } catch {
-    // ignore
-  }
-  return DEFAULT_BUSINESS_PROFILE;
-}
-
 export function ProfileProvider({ children }: { children: ReactNode }) {
-  const [profile, setProfile] = useState<ProfileData>(loadFromStorage);
+  const [profile, setProfile] = useState<ProfileData>(EMPTY_PROFILE);
+  const [isLoading, setIsLoading] = useState(true);
+  const api = useApiClient();
+  const { isLoaded, isSignedIn, user: clerkUser } = useUser();
+
+  const refreshProfile = async () => {
+    if (!isSignedIn) {
+        setIsLoading(false);
+        return;
+    }
+    try {
+      const response = await userApi.getMe(api);
+      const userData = response.data.user;
+      if (userData) {
+        setProfile({
+          firstName: userData.firstName || '',
+          lastName: userData.lastName || '',
+          email: userData.email || '',
+          avatarUrl: userData.profilePicture || '',
+          ...userData.profileData,
+        });
+      }
+    } catch (error) {
+      console.error('Failed to fetch profile:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (isLoaded && isSignedIn) {
+      refreshProfile();
+    } else if (isLoaded && !isSignedIn) {
+        setProfile(EMPTY_PROFILE);
+        setIsLoading(false);
+    }
+  }, [isLoaded, isSignedIn]);
 
   const updateProfile = (data: Partial<ProfileData>) => {
     setProfile((prev) => {
       const next = { ...prev, ...data };
-      localStorage.setItem('profileData', JSON.stringify(next));
       return next;
     });
   };
 
   return (
-    <ProfileContext.Provider value={{ profile, updateProfile }}>
+    <ProfileContext.Provider value={{ profile, updateProfile, refreshProfile, isLoading }}>
       {children}
     </ProfileContext.Provider>
   );

@@ -1,5 +1,7 @@
 import Application, { IApplication } from '../../database/models/Application';
 import Opportunity, { IOpportunity } from '../../database/models/Opportunity';
+import User from '../../database/models/User';
+import mongoose from 'mongoose';
 
 /**
  * Application Service
@@ -69,7 +71,7 @@ export const withdrawApplication = async (id: string, advertiserId: string): Pro
  */
 export const getApplicationsByOpportunity = async (opportunityId: string): Promise<IApplication[]> => {
     const applications = await Application.find({ opportunity: opportunityId })
-        .populate('advertiser', 'fullName email profilePicture')
+        .populate('advertiser', 'firstName lastName email profilePicture')
         .sort({ createdAt: -1 });
 
     return applications;
@@ -81,8 +83,52 @@ export const getApplicationsByOpportunity = async (opportunityId: string): Promi
  * @returns List of applications
  */
 export const getApplicationsByAdvertiser = async (advertiserId: string): Promise<IApplication[]> => {
-    const applications = await Application.find({ advertiser: advertiserId })
-        .populate('opportunity', 'title company budget deadline')
+    let mongoUserId = advertiserId;
+    
+    // Resolve Clerk ID to MongoDB ObjectId if necessary
+    if (!mongoose.Types.ObjectId.isValid(advertiserId)) {
+        const user = await User.findOne({ clerkId: advertiserId });
+        if (!user) return [];
+        mongoUserId = (user._id as any).toString();
+    }
+
+    const applications = await Application.find({ advertiser: mongoUserId })
+        .populate({
+            path: 'opportunity',
+            select: 'title category platforms budget deadline businessOwner',
+            populate: {
+                path: 'businessOwner',
+                select: 'firstName lastName email profilePicture'
+            }
+        })
+        .sort({ createdAt: -1 });
+
+    return applications;
+};
+
+/**
+ * Get applications for all opportunities owned by a business owner
+ * @param businessOwnerId - Business Owner ID
+ * @returns List of applications
+ */
+export const getApplicationsForBusinessOwner = async (businessOwnerId: string): Promise<IApplication[]> => {
+    let mongoUserId = businessOwnerId;
+    
+    // Resolve Clerk ID to MongoDB ObjectId if necessary
+    if (!mongoose.Types.ObjectId.isValid(businessOwnerId)) {
+        const user = await User.findOne({ clerkId: businessOwnerId });
+        if (!user) return [];
+        mongoUserId = (user._id as any).toString();
+    }
+
+    // First, find all opportunities owned by this business owner
+    const opportunities = await mongoose.model('Opportunity').find({ businessOwner: mongoUserId }).select('_id title category platforms');
+    const opportunityIds = opportunities.map(opp => opp._id);
+
+    // Then, find all applications for those opportunities
+    const applications = await Application.find({ opportunity: { $in: opportunityIds } })
+        .populate('advertiser', 'firstName lastName email profilePicture')
+        .populate('opportunity', 'title category platforms')
         .sort({ createdAt: -1 });
 
     return applications;

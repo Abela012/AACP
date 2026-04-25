@@ -292,7 +292,7 @@ export default function AdvertiserLayout({ children }: AdvertiserLayoutProps) {
 
             <ThemeToggle />
             <Link to="/profile/view/advertiser" className="w-10 h-10 rounded-xl overflow-hidden border border-gray-100 dark:border-white/10">
-              <img src={profile.avatarUrl} alt="Profile" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+              <img src={profile.avatarUrl || null} alt="Profile" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
             </Link>
           </div>
         </header>

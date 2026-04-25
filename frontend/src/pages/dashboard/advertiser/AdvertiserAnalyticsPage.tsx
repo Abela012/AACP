@@ -30,23 +30,23 @@ export default function AdvertiserAnalyticsPage() {
   const [showRangeDropdown, setShowRangeDropdown] = useState(false);
 
   const data30Days = [
-    { name: 'Mon', reach: 4000, engagement: 2400 },
-    { name: 'Tue', reach: 3000, engagement: 1398 },
-    { name: 'Wed', reach: 2000, engagement: 9800 },
-    { name: 'Thu', reach: 2780, engagement: 3908 },
-    { name: 'Fri', reach: 1890, engagement: 4800 },
-    { name: 'Sat', reach: 2390, engagement: 3800 },
-    { name: 'Sun', reach: 3490, engagement: 4300 },
+    { name: 'Mon', reach: 0, engagement: 0 },
+    { name: 'Tue', reach: 0, engagement: 0 },
+    { name: 'Wed', reach: 0, engagement: 0 },
+    { name: 'Thu', reach: 0, engagement: 0 },
+    { name: 'Fri', reach: 0, engagement: 0 },
+    { name: 'Sat', reach: 0, engagement: 0 },
+    { name: 'Sun', reach: 0, engagement: 0 },
   ];
 
   const data7Days = [
-    { name: 'Mon', reach: 1200, engagement: 800 },
-    { name: 'Tue', reach: 2100, engagement: 1100 },
-    { name: 'Wed', reach: 1800, engagement: 1500 },
-    { name: 'Thu', reach: 2400, engagement: 1900 },
-    { name: 'Fri', reach: 2900, engagement: 2200 },
-    { name: 'Sat', reach: 3100, engagement: 2600 },
-    { name: 'Sun', reach: 3500, engagement: 3000 },
+    { name: 'Mon', reach: 0, engagement: 0 },
+    { name: 'Tue', reach: 0, engagement: 0 },
+    { name: 'Wed', reach: 0, engagement: 0 },
+    { name: 'Thu', reach: 0, engagement: 0 },
+    { name: 'Fri', reach: 0, engagement: 0 },
+    { name: 'Sat', reach: 0, engagement: 0 },
+    { name: 'Sun', reach: 0, engagement: 0 },
   ];
 
   const currentData = timeRange === 'Last 7 Days' ? data7Days : data30Days;
@@ -64,16 +64,16 @@ export default function AdvertiserAnalyticsPage() {
   };
 
   const platformData = [
-    { name: 'TikTok', value: 55, color: '#10b981' },
-    { name: 'Instagram', value: 25, color: '#ec4899' },
-    { name: 'YouTube', value: 20, color: '#ef4444' },
+    { name: 'TikTok', value: 0, color: '#10b981' },
+    { name: 'Instagram', value: 0, color: '#ec4899' },
+    { name: 'YouTube', value: 0, color: '#ef4444' },
   ];
 
   const stats = [
-    { label: 'Total Reach', value: '1.2M', trend: '+15.2%', trendType: 'up', icon: Eye, color: 'text-emerald-600', bgColor: 'bg-emerald-50' },
-    { label: 'Avg. Engagement', value: '5.2%', trend: '+1.8%', trendType: 'up', icon: Zap, iconColor: 'text-amber-500', bgColor: 'bg-amber-50' },
-    { label: 'Total Earnings', value: '$3,850', trend: '+24.5%', trendType: 'up', icon: DollarSign, color: 'text-emerald-600', bgColor: 'bg-emerald-50' },
-    { label: 'Active Campaigns', value: '4', trend: '+2', trendType: 'up', icon: Video, color: 'text-purple-600', bgColor: 'bg-purple-50' },
+    { label: 'Total Reach', value: '0', trend: '0%', trendType: 'neutral', icon: Eye, color: 'text-emerald-600', bgColor: 'bg-emerald-50' },
+    { label: 'Avg. Engagement', value: '0%', trend: '0%', trendType: 'neutral', icon: Zap, iconColor: 'text-amber-500', bgColor: 'bg-amber-50' },
+    { label: 'Total Earnings', value: '$0', trend: '0%', trendType: 'neutral', icon: DollarSign, color: 'text-emerald-600', bgColor: 'bg-emerald-50' },
+    { label: 'Active Campaigns', value: '0', trend: '0', trendType: 'neutral', icon: Video, color: 'text-purple-600', bgColor: 'bg-purple-50' },
   ];
 
   return (
@@ -159,8 +159,11 @@ export default function AdvertiserAnalyticsPage() {
                 </div>
               </div>
             </div>
-            <div className="h-[300px] w-full">
-              <ResponsiveContainer width="100%" height="100%" minWidth={0}>
+            <div className="h-[300px] w-full relative">
+              <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
+                <p className="text-sm font-bold text-gray-400 dark:text-gray-600">No data available for this period</p>
+              </div>
+              <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                 <AreaChart data={currentData}>
                   <defs>
                     <linearGradient id="colorReach" x1="0" y1="0" x2="0" y2="1">
@@ -186,7 +189,7 @@ export default function AdvertiserAnalyticsPage() {
           <div className="bg-white dark:bg-white/5 p-8 rounded-[2.5rem] border border-gray-100 dark:border-white/5 shadow-sm dark:shadow-none">
             <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-8">Audience Source</h3>
             <div className="h-[250px] w-full mb-8">
-              <ResponsiveContainer width="100%" height="100%" minWidth={0}>
+              <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                 <BarChart data={platformData} layout="vertical">
                   <XAxis type="number" hide />
                   <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{fontSize: 12, fontWeight: 600, fill: 'currentColor'}} width={80} />

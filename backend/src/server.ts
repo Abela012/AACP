@@ -1,46 +1,48 @@
+import { createServer } from 'http';
 import app from './app';
 import env from './config/env';
 import { connectDB, disConnect } from './config/database';
 import logger from './utils/logger';
-import { Server } from 'http';
+import { initSocket } from './socket/socket';
 
 // Connect to Database
 connectDB();
 
 const PORT = env.PORT || 5000;
 
-const server: Server = app.listen(PORT, () => {
+// Wrap Express in an HTTP server so Socket.IO can share the port
+const httpServer = createServer(app);
+
+// Attach Socket.IO
+const io = initSocket(httpServer);
+
+// Make io available to routes if needed
+(app as any).io = io;
+
+const server = httpServer.listen(PORT, () => {
     logger.info(`Server running in ${env.NODE_ENV} mode on port ${PORT}`);
+    logger.info(`Socket.IO ready on ws://localhost:${PORT}`);
 });
 
 // Handle unhandled promise rejections
-process.on('unhandledRejection', (err: any, promise: Promise<any>) => {
-    logger.error(`Error: ${err.message}`);
-    // Close server & exit process
-    server.close(() => process.exit(1));
-});
-
-
-
-// Handle unhandled promise rejections
-process.on("unhandledRejection", async (err: any) => {
-    console.log("Unhandled Rejection:", err);
+process.on('unhandledRejection', (err: any) => {
+    logger.error(`Unhandled Rejection: ${err.message}`);
     server.close(async () => {
         await disConnect();
         process.exit(1);
     });
 });
 
-//  Handle uncaught exceptions
-process.on("uncaughtException", async (err: any) => {
-    console.error("Uncaught Exception:", err);
+// Handle uncaught exceptions
+process.on('uncaughtException', async (err: any) => {
+    logger.error(`Uncaught Exception: ${err.message}`);
     await disConnect();
     process.exit(1);
 });
 
-// Gracefull shutdown
-process.on("SIGTERM", async () => {
-    console.log("SIGTERM received, shutting down gracefully");
+// Graceful shutdown
+process.on('SIGTERM', async () => {
+    logger.info('SIGTERM received — shutting down gracefully');
     server.close(async () => {
         await disConnect();
         process.exit(0);

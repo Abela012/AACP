@@ -11,6 +11,9 @@ import CampaignsPage from './pages/dashboard/business-owner/CampaignsPage'
 import MatchesPage from './pages/dashboard/business-owner/MatchesPage'
 import AnalyticsPage from './pages/dashboard/business-owner/AnalyticsPage'
 import BalancePage from './pages/dashboard/business-owner/BalancePage'
+import BusinessBuyCoinsPage from './pages/dashboard/business-owner/BuyCoinsPage'
+import BusinessManualCheckoutPage from './pages/dashboard/business-owner/BusinessManualCheckoutPage'
+import BusinessCheckoutPage from './pages/dashboard/business-owner/BusinessCheckoutPage'
 import AdvertiserCampaignsPage from './pages/dashboard/advertiser/AdvertiserCampaignsPage'
 import AdvertiserMatchesPage from './pages/dashboard/advertiser/AdvertiserMatchesPage'
 import AdvertiserApplyMatchPage from './pages/dashboard/advertiser/AdvertiserApplyMatchPage'
@@ -25,6 +28,20 @@ import CompleteProfilePage from './pages/profile/complete-profile/CompleteProfil
 import LandingPage from './pages/landing/LandingPage'
 import ConversationPage from './pages/chat/conversation/ConversationPage'
 import AdminDashboardPage from './pages/dashboard/admin/AdminDashboardPage'
+import AdminUsersPage from './pages/admin/users/AdminUsersPage'
+import AdminUserDetailPage from './pages/admin/users/AdminUserDetailPage'
+import AdminSuspendedUserPage from './pages/admin/users/AdminSuspendedUserPage'
+import UserApprovalPage from './pages/admin/user-approval/UserApprovalPage'
+import AdminPaymentsPage from './pages/admin/payments/AdminPaymentsPage'
+import AdminAnalyticsPage from './pages/admin/analytics/AdminAnalyticsPage'
+import AdminSettingsPage from './pages/admin/settings/AdminSettingsPage'
+import DisputesPage from './pages/admin/disputes/DisputesPage'
+import AdminNotificationsPage from './pages/admin/notifications/AdminNotificationsPage'
+import AdminProfilePage from './pages/admin/profile/AdminProfilePage'
+import AdminChatPage from './pages/admin/messages/AdminChatPage'
+import AdminHelpPage from './pages/admin/help/AdminHelpPage'
+import SystemLogsPage from './pages/admin/logs/SystemLogsPage'
+import CreateCampaignPage from './pages/dashboard/business-owner/CreateCampaignPage'
 import './App.css'
 
 function App() {
@@ -119,16 +136,7 @@ function App() {
       />
       <Route
         path="/dashboard/admin"
-        element={
-          <>
-            <SignedIn>
-              <AdminDashboardPage />
-            </SignedIn>
-            <SignedOut>
-              <Navigate to="/auth/login" replace />
-            </SignedOut>
-          </>
-        }
+        element={<AdminDashboardPage />}
       />
       <Route
         path="/dashboard/advertiser"
@@ -143,11 +151,75 @@ function App() {
           </>
         }
       />
+
+      {/* Admin Specific Routes */}
+      <Route
+        path="/admin/users"
+        element={<SignedIn><AdminUsersPage /></SignedIn>}
+      />
+      <Route
+        path="/admin/users/:id"
+        element={<SignedIn><AdminUserDetailPage /></SignedIn>}
+      />
+      <Route
+        path="/admin/users/:id/suspended"
+        element={<SignedIn><AdminSuspendedUserPage /></SignedIn>}
+      />
+      <Route
+        path="/admin/verification/:id"
+        element={<SignedIn><UserApprovalPage /></SignedIn>}
+      />
+      <Route
+        path="/admin/payments"
+        element={<SignedIn><AdminPaymentsPage /></SignedIn>}
+      />
+      <Route
+        path="/admin/analytics"
+        element={<SignedIn><AdminAnalyticsPage /></SignedIn>}
+      />
+      <Route
+        path="/admin/settings"
+        element={<SignedIn><AdminSettingsPage /></SignedIn>}
+      />
+      <Route
+        path="/admin/notifications"
+        element={<SignedIn><AdminNotificationsPage /></SignedIn>}
+      />
+      <Route
+        path="/admin/profile"
+        element={<SignedIn><AdminProfilePage /></SignedIn>}
+      />
+      <Route
+        path="/admin/disputes"
+        element={<SignedIn><DisputesPage /></SignedIn>}
+      />
+      <Route
+        path="/admin/messages"
+        element={<SignedIn><AdminChatPage /></SignedIn>}
+      />
+      <Route
+        path="/admin/help"
+        element={<SignedIn><AdminHelpPage /></SignedIn>}
+      />
+      <Route
+        path="/admin/logs"
+        element={<SignedIn><SystemLogsPage /></SignedIn>}
+      />
+
       <Route
         path="/campaigns"
         element={
           <>
             <SignedIn><CampaignsPage /></SignedIn>
+            <SignedOut><Navigate to="/auth/login" replace /></SignedOut>
+          </>
+        }
+      />
+      <Route
+        path="/campaign/new"
+        element={
+          <>
+            <SignedIn><CreateCampaignPage /></SignedIn>
             <SignedOut><Navigate to="/auth/login" replace /></SignedOut>
           </>
         }
@@ -175,6 +247,33 @@ function App() {
         element={
           <>
             <SignedIn><BalancePage /></SignedIn>
+            <SignedOut><Navigate to="/auth/login" replace /></SignedOut>
+          </>
+        }
+      />
+      <Route
+        path="/business/buy-coins"
+        element={
+          <>
+            <SignedIn><BusinessBuyCoinsPage /></SignedIn>
+            <SignedOut><Navigate to="/auth/login" replace /></SignedOut>
+          </>
+        }
+      />
+      <Route
+        path="/business/manual-checkout"
+        element={
+          <>
+            <SignedIn><BusinessManualCheckoutPage /></SignedIn>
+            <SignedOut><Navigate to="/auth/login" replace /></SignedOut>
+          </>
+        }
+      />
+      <Route
+        path="/business/checkout"
+        element={
+          <>
+            <SignedIn><BusinessCheckoutPage /></SignedIn>
             <SignedOut><Navigate to="/auth/login" replace /></SignedOut>
           </>
         }

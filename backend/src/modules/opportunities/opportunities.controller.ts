@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import * as opportunityService from './opportunities.service';
+import * as walletService from '../wallet/wallet.service';
 import { success, error } from '../../utils/response';
 
 /**
@@ -15,12 +16,34 @@ import { success, error } from '../../utils/response';
  */
 export const createOpportunity = async (req: Request, res: Response) => {
     try {
+        const userId = req.user?._id;
+        if (!userId) {
+            return error(res, 'User not authenticated', 401);
+        }
+
+        // 1. Check if user has enough coins (50 coins per post)
+        const balanceInfo = await walletService.getBalance(userId.toString());
+        if (balanceInfo.availableBalance < 50) {
+            return error(res, 'Insufficient coins. You need 50 coins to post a campaign.', 400);
+        }
+
         const data = {
             ...req.body,
-            businessOwner: req.user?._id,
+            businessOwner: userId,
         };
 
+        // 2. Create the opportunity
         const opportunity = await opportunityService.createOpportunity(data);
+
+        // 3. Deduct 50 coins
+        await walletService.debitCoins({
+            userId: userId.toString(),
+            amount: 50,
+            description: `Campaign post fee: ${opportunity.title}`,
+            referenceType: 'opportunity',
+            referenceId: (opportunity._id as any).toString()
+        });
+
         return success(res, 'Opportunity created successfully', opportunity, 201);
     } catch (err: any) {
         return error(res, err.message || 'Failed to create opportunity', 500);
@@ -75,7 +98,9 @@ export const updateOpportunity = async (req: Request, res: Response) => {
 
         // Check ownership — only the business owner who created it can update
         const businessOwnerId = (opportunity.businessOwner as any)._id || opportunity.businessOwner;
-        if (businessOwnerId.toString() !== req.user?._id.toString()) {
+        const currentUserId = req.user?._id;
+        
+        if (!currentUserId || businessOwnerId.toString() !== currentUserId.toString()) {
             return error(res, 'Not authorized to update this opportunity', 403);
         }
 
@@ -101,7 +126,9 @@ export const deleteOpportunity = async (req: Request, res: Response) => {
 
         // Check ownership — only the business owner who created it can delete
         const businessOwnerId = (opportunity.businessOwner as any)._id || opportunity.businessOwner;
-        if (businessOwnerId.toString() !== req.user?._id.toString()) {
+        const currentUserId = req.user?._id;
+
+        if (!currentUserId || businessOwnerId.toString() !== currentUserId.toString()) {
             return error(res, 'Not authorized to delete this opportunity', 403);
         }
 

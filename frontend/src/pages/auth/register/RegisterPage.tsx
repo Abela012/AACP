@@ -64,7 +64,7 @@ export default function RegisterForm() {
                         <label className="text-sm font-bold text-[#001e00] block">
                             I want to join as a
                         </label>
-                        <div className="grid grid-cols-2 gap-3">
+                        <div className="grid grid-cols-3 gap-3">
                             <button
                                 type="button"
                                 onClick={() => setRole('business_owner')}
@@ -75,7 +75,7 @@ export default function RegisterForm() {
                                 }`}
                             >
                                 <Briefcase size={22} />
-                                <span className="text-xs font-bold">Business Owner</span>
+                                <span className="text-[10px] font-black uppercase tracking-tight">Business</span>
                             </button>
                             <button
                                 type="button"
@@ -87,7 +87,19 @@ export default function RegisterForm() {
                                 }`}
                             >
                                 <Megaphone size={22} />
-                                <span className="text-xs font-bold">Advertiser</span>
+                                <span className="text-[10px] font-black uppercase tracking-tight">Advertiser</span>
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setRole('admin')}
+                                className={`flex flex-col items-center gap-2 p-5 rounded-xl border-2 transition-all ${
+                                    role === 'admin'
+                                        ? 'border-[#14a800] bg-[#14a800]/5 text-[#14a800]'
+                                        : 'border-gray-100 bg-white text-[#5e6d55] hover:border-[#14a800]/30 hover:text-[#001e00]'
+                                }`}
+                            >
+                                <ShieldCheck size={22} />
+                                <span className="text-[10px] font-black uppercase tracking-tight">Admin</span>
                             </button>
                         </div>
                     </div>
@@ -156,6 +168,9 @@ export default function RegisterForm() {
                             I agree to the <Link to="/terms" className="text-[#14a800] font-bold hover:underline">Terms of Service</Link> and <Link to="/privacy" className="text-[#14a800] font-bold hover:underline">Privacy Policy</Link>
                         </label>
                     </div>
+
+                    {/* Clerk Captcha Placeholder */}
+                    <div id="clerk-captcha" />
 
                     <button
                         type="submit"

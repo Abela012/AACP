@@ -1,15 +1,16 @@
-const walletService = require('./wallet.service');
-const { success } = require('../../utils/response');
+import { Request, Response, NextFunction } from 'express';
+import * as walletService from './wallet.service';
+import { success } from '../../utils/response';
 
-const isAdmin = (user) => ['admin', 'super_admin'].includes(user?.role);
+const isAdmin = (user: any) => ['admin', 'super_admin'].includes(user?.role);
 
 /**
  * Wallet Controller
  * Keep controllers thin: delegate logic to service layer.
  */
-exports.createWallet = async (req, res, next) => {
+export const createWallet = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const userId = isAdmin(req.user) && req.body.userId ? req.body.userId : req.user?._id;
+        const userId = isAdmin((req as any).user) && req.body.userId ? req.body.userId : (req as any).user?._id;
         const wallet = await walletService.createWallet(userId);
 
         return success(res, 'Wallet created successfully', wallet, 201);
@@ -18,7 +19,7 @@ exports.createWallet = async (req, res, next) => {
     }
 };
 
-exports.creditCoins = async (req, res, next) => {
+export const creditCoins = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const payload = {
             userId: req.body.userId,
@@ -27,7 +28,7 @@ exports.creditCoins = async (req, res, next) => {
             referenceType: req.body.referenceType,
             referenceId: req.body.referenceId,
             metadata: req.body.metadata,
-            performedBy: req.user?._id,
+            performedBy: (req as any).user?._id,
         };
 
         const result = await walletService.creditCoins(payload);
@@ -37,16 +38,16 @@ exports.creditCoins = async (req, res, next) => {
     }
 };
 
-exports.debitCoins = async (req, res, next) => {
+export const debitCoins = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const payload = {
-            userId: isAdmin(req.user) && req.body.userId ? req.body.userId : req.user?._id,
+            userId: isAdmin((req as any).user) && req.body.userId ? req.body.userId : (req as any).user?._id,
             amount: Number(req.body.amount),
             description: req.body.description,
             referenceType: req.body.referenceType,
             referenceId: req.body.referenceId,
             metadata: req.body.metadata,
-            performedBy: req.user?._id,
+            performedBy: (req as any).user?._id,
         };
 
         const result = await walletService.debitCoins(payload);
@@ -56,9 +57,9 @@ exports.debitCoins = async (req, res, next) => {
     }
 };
 
-exports.getBalance = async (req, res, next) => {
+export const getBalance = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const userId = isAdmin(req.user) && req.query.userId ? req.query.userId : req.user?._id;
+        const userId = isAdmin((req as any).user) && req.query.userId ? req.query.userId as string : (req as any).user?.clerkId || (req as any).user?._id;
         const result = await walletService.getBalance(userId);
         return success(res, 'Wallet balance retrieved successfully', result);
     } catch (err) {
@@ -66,7 +67,7 @@ exports.getBalance = async (req, res, next) => {
     }
 };
 
-exports.lockCoins = async (req, res, next) => {
+export const lockCoins = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const payload = {
             userId: req.body.userId,
@@ -75,7 +76,7 @@ exports.lockCoins = async (req, res, next) => {
             referenceType: req.body.referenceType || 'collaboration',
             referenceId: req.body.referenceId,
             metadata: req.body.metadata,
-            performedBy: req.user?._id,
+            performedBy: (req as any).user?._id,
         };
 
         const result = await walletService.lockCoins(payload);
@@ -85,7 +86,7 @@ exports.lockCoins = async (req, res, next) => {
     }
 };
 
-exports.unlockCoins = async (req, res, next) => {
+export const unlockCoins = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const payload = {
             userId: req.body.userId,
@@ -94,11 +95,37 @@ exports.unlockCoins = async (req, res, next) => {
             referenceType: req.body.referenceType || 'collaboration',
             referenceId: req.body.referenceId,
             metadata: req.body.metadata,
-            performedBy: req.user?._id,
+            performedBy: (req as any).user?._id,
         };
 
         const result = await walletService.unlockCoins(payload);
         return success(res, 'Coins unlocked successfully', result);
+    } catch (err) {
+        return next(err);
+    }
+};
+
+export const getTransactions = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const userId = isAdmin((req as any).user) && req.query.userId ? req.query.userId as string : (req as any).user?.clerkId || (req as any).user?._id;
+        const result = await walletService.getTransactions(userId);
+        return success(res, 'Wallet transactions retrieved successfully', result);
+    } catch (err) {
+        return next(err);
+    }
+};
+
+export const requestCoins = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const userId = (req as any).user?.clerkId || (req as any).user?._id;
+        const { coins, paymentMethod, pricePaid } = req.body;
+        const result = await walletService.requestCoins(
+            userId,
+            Number(coins),
+            paymentMethod || 'unknown',
+            Number(pricePaid) || 0,
+        );
+        return success(res, result.message, result.transaction, 201);
     } catch (err) {
         return next(err);
     }

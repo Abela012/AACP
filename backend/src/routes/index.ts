@@ -7,6 +7,7 @@ import walletRoutes from '../modules/wallet/wallet.routes';
 import paymentsRoutes from '../modules/payments/payments.routes';
 import userRoutes from '../modules/User/userRoute';
 import adminRoutes from '../modules/Admin/adminRoute';
+import chatRoutes from '../modules/chat/chat.routes';
 
 /**
  * API Routes Index
@@ -23,6 +24,7 @@ router.use('/wallet', walletRoutes);
 router.use('/payments', paymentsRoutes);
 router.use('/users', userRoutes);
 router.use('/admin', adminRoutes);
+router.use('/chat', chatRoutes);
 
 // Health check route
 router.get('/health', (req, res) => {

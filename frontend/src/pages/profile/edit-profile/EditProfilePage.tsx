@@ -23,11 +23,14 @@ import BusinessLayout from '@/src/shared/components/layouts/BusinessLayout';
 import { useUser } from '@/src/shared/context/UserContext';
 import { useProfile } from '@/src/shared/context/ProfileContext';
 import { cn } from '@/src/shared/utils/cn';
+import { useApiClient } from '@/src/api/apiClient';
+import { userApi } from '@/src/api/userApi';
 
 export default function EditProfilePage() {
   const { userRole, logout: localLogout } = useUser();
-  const { profile, updateProfile } = useProfile();
+  const { profile, updateProfile, refreshProfile, isLoading } = useProfile();
   const { signOut } = useClerk();
+  const api = useApiClient();
   const location = useLocation();
 
   const isBusiness = location.pathname.includes('/business') || userRole === 'business';
@@ -88,14 +91,12 @@ export default function EditProfilePage() {
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     setIsSaving(true);
-    setTimeout(() => {
-      // Persist everything to context (and localStorage via context)
-      updateProfile({
+    try {
+      const profileData = {
         firstName,
         lastName,
-        email,
         bio,
         phone,
         businessName,
@@ -106,12 +107,23 @@ export default function EditProfilePage() {
         monthlyBudget,
         youtubeHandle,
         tiktokHandle,
-        avatarUrl: avatarPreview,
+      };
+
+      await userApi.updateProfile(api, {
+        firstName,
+        lastName,
+        profileData,
       });
-      setIsSaving(false);
+      
+      updateProfile(profileData);
+      await refreshProfile();
       setShowSuccess(true);
       setTimeout(() => setShowSuccess(false), 3000);
-    }, 1000);
+    } catch (error) {
+      console.error('Failed to save profile:', error);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const containerVariants = {
@@ -122,6 +134,16 @@ export default function EditProfilePage() {
   const inputCls =
     'w-full bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl pl-10 pr-4 py-3 text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all text-gray-900 dark:text-white';
   const labelCls = 'text-xs font-bold text-gray-500 uppercase tracking-wider';
+
+  if (isLoading) {
+    return (
+      <Layout>
+        <div className="min-h-[60vh] flex items-center justify-center">
+          <div className="w-10 h-10 border-4 border-emerald-500/30 border-t-emerald-500 rounded-full animate-spin" />
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>
