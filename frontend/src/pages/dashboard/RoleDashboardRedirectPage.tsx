@@ -40,6 +40,36 @@ export default function RoleDashboardRedirectPage() {
     return pendingRole || userRole || "";
   }, []);
 
+  const rawRole =
+    (data as any)?.user?.role ??
+    (data as any)?.data?.user?.role ??
+    (data as any)?.role ??
+    (data as any)?.data?.role ??
+    fallbackRole;
+
+  const status = 
+    (data as any)?.user?.status ??
+    (data as any)?.data?.user?.status ??
+    (data as any)?.status ??
+    (data as any)?.data?.status;
+    
+  const normalizedRole = String(rawRole || "")
+    .toLowerCase()
+    .replace(/[-\s]/g, "_") as any;
+
+  useEffect(() => {
+    if (normalizedRole && normalizedRole !== (localStorage.getItem('userRole'))) {
+      console.log("[RoleDashboardRedirectPage] Updating UserContext role to:", normalizedRole);
+      // Map roles to context types
+      let contextRole = normalizedRole;
+      if (contextRole === 'business_owner') contextRole = 'business';
+      if (contextRole === 'super_admin') contextRole = 'admin';
+      
+      setUserRole(contextRole as any);
+      localStorage.setItem('userRole', contextRole);
+    }
+  }, [normalizedRole, setUserRole]);
+
   if (isLoading && !timedOut) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen p-6 bg-gray-50">
@@ -50,26 +80,21 @@ export default function RoleDashboardRedirectPage() {
     );
   }
 
-  const rawRole =
-    (data as any)?.user?.role ??
-    (data as any)?.data?.user?.role ??
-    (data as any)?.role ??
-    (data as any)?.data?.role ??
-    fallbackRole;
-    
-  const normalizedRole = String(rawRole || "")
-    .toLowerCase()
-    .replace(/[-\s]/g, "_") as any;
+  const isProfileComplete = 
+    (data as any)?.user?.profileData?.bio || 
+    (data as any)?.data?.user?.profileData?.bio ||
+    (data as any)?.profileData?.bio;
 
   if (normalizedRole && normalizedRole !== (localStorage.getItem('userRole'))) {
     console.log("[RoleDashboardRedirectPage] Updating UserContext role to:", normalizedRole);
-    // Map roles to context types
     let contextRole = normalizedRole;
     if (contextRole === 'business_owner') contextRole = 'business';
-    
     setUserRole(contextRole as any);
   }
 
+  const isApproved = status === 'active' || status === 'approved';
+
+  // Let the dashboards handle the status internally so they keep the sidebar/layout
   if (normalizedRole === "business" || normalizedRole === "business_owner") {
     return <Navigate to="/dashboard/business-owner" replace />;
   }

@@ -1,6 +1,6 @@
+import env from './config/env';
 import { createServer } from 'http';
 import app from './app';
-import env from './config/env';
 import { connectDB, disConnect } from './config/database';
 import logger from './utils/logger';
 import { initSocket } from './socket/socket';

@@ -43,6 +43,8 @@ import AdminChatPage from './pages/admin/messages/AdminChatPage'
 import AdminHelpPage from './pages/admin/help/AdminHelpPage'
 import AuditLogsPage from './pages/system/audit-logs/AuditLogsPage'
 import CreateCampaignPage from './pages/dashboard/business-owner/CreateCampaignPage'
+import CampaignApplicantsPage from './pages/dashboard/business-owner/CampaignApplicantsPage'
+import PendingApprovalPage from './pages/auth/PendingApprovalPage'
 import SuperAdminAdminManagementPage from './pages/super-admin/admin-management/AdminManagementPage'
 import SuperAdminAuditTrailPage from './pages/super-admin/audit-trail/AuditTrailPage'
 import SuperAdminPlatformPage from './pages/super-admin/platform/PlatformPage'
@@ -114,6 +116,7 @@ function App() {
         }
       />
 
+
       {/* Protected Dashboard Routes */}
       <Route
         path="/dashboard"
@@ -177,6 +180,10 @@ function App() {
         element={<SignedIn><AdminSuspendedUserPage /></SignedIn>}
       />
       <Route
+        path="/admin/verification"
+        element={<Navigate to="/admin/users" replace />}
+      />
+      <Route
         path="/admin/verification/:id"
         element={<SignedIn><UserApprovalPage /></SignedIn>}
       />
@@ -212,10 +219,10 @@ function App() {
         path="/admin/help"
         element={<SignedIn><AdminHelpPage /></SignedIn>}
       />
-      <Route
+      {/* <Route
         path="/admin/logs"
         element={<SignedIn><AuditLogsPage /></SignedIn>}
-      />
+      /> */}
 
       {/* Super Admin Specific Routes */}
       <Route
@@ -248,6 +255,15 @@ function App() {
         element={
           <>
             <SignedIn><CampaignsPage /></SignedIn>
+            <SignedOut><Navigate to="/auth/login" replace /></SignedOut>
+          </>
+        }
+      />
+      <Route
+        path="/campaign/:id/applicants"
+        element={
+          <>
+            <SignedIn><CampaignApplicantsPage /></SignedIn>
             <SignedOut><Navigate to="/auth/login" replace /></SignedOut>
           </>
         }
@@ -407,21 +423,15 @@ function App() {
       />
       <Route
         path="/profile/complete/business"
-        element={
-          <>
-            <SignedIn><CompleteProfilePage /></SignedIn>
-            <SignedOut><Navigate to="/auth/login" replace /></SignedOut>
-          </>
-        }
+        element={<Navigate to="/dashboard" replace />}
       />
       <Route
         path="/profile/complete/advertiser"
-        element={
-          <>
-            <SignedIn><CompleteProfilePage /></SignedIn>
-            <SignedOut><Navigate to="/auth/login" replace /></SignedOut>
-          </>
-        }
+        element={<Navigate to="/dashboard" replace />}
+      />
+      <Route
+        path="/pending-approval"
+        element={<Navigate to="/dashboard" replace />}
       />
       <Route
         path="/profile/edit/business"

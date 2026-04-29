@@ -9,7 +9,7 @@ export const applyToOpportunityValidator = [
     body('opportunityId').optional().isMongoId().withMessage('Invalid Opportunity ID'),
 
     body('coverLetter')
-        .optional()
+        .optional({ checkFalsy: true })
         .isLength({ min: 10 }).withMessage('Cover letter should be at least 10 characters long to be competitive'),
         
     body('proposalMessage')

@@ -10,7 +10,8 @@ import {
   ArrowRight,
   Sparkles,
   CheckCircle2,
-  X
+  X,
+  Loader2
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { cn } from '@/src/shared/utils/cn';
@@ -112,7 +113,12 @@ export default function MatchesPage() {
                   <div className="flex justify-between items-start mb-6">
                     <div className="relative">
                       <div className="w-20 h-20 rounded-[2rem] overflow-hidden border-4 border-emerald-50 dark:border-emerald-900/20">
-                        <img src={adv.profilePicture || `https://ui-avatars.com/api/?name=${fullName}&background=10b981&color=fff`} alt={fullName} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                        <img 
+                          src={adv.profilePicture || `https://ui-avatars.com/api/?name=${fullName}&background=10b981&color=fff`} 
+                          alt={fullName} 
+                          className="w-full h-full object-cover" 
+                          referrerPolicy="no-referrer" 
+                        />
                       </div>
                       <div className="absolute -bottom-2 -right-2 bg-emerald-600 text-white p-1.5 rounded-xl shadow-lg">
                         <CheckCircle2 size={14} />

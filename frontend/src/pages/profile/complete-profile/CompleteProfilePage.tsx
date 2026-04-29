@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { FaYoutube, FaInstagram, FaLinkedin } from 'react-icons/fa6';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -22,7 +22,9 @@ import {
   Palette,
   Users,
   Target,
+  Camera,
 } from 'lucide-react';
+import { useUser as useClerkUser } from '@clerk/clerk-react';
 import { useUser } from '@/src/shared/context/UserContext';
 import { useProfile } from '@/src/shared/context/ProfileContext';
 import { cn } from '@/src/shared/utils/cn';
@@ -232,13 +234,22 @@ function PlatformButton({
    ██  MAIN COMPONENT
    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 
-export default function CompleteProfilePage() {
+export default function CompleteProfilePage({ isInsideDashboard = false }: { isInsideDashboard?: boolean }) {
   console.log("[CompleteProfilePage] Initializing component state...");
   const { userRole, setOnboardingStatus } = useUser();
+  const { user: clerkUser } = useClerkUser();
   const { updateProfile } = useProfile();
   const location = useLocation();
   const navigate = useNavigate();
   const api = useApiClient();
+
+  useEffect(() => {
+    if (clerkUser) {
+      setFirstName(clerkUser.firstName || '');
+      setLastName(clerkUser.lastName || '');
+      setProfilePicture(clerkUser.imageUrl || '');
+    }
+  }, [clerkUser]);
 
   const isBusiness =
     location.pathname.includes('/business') || userRole === 'business';
@@ -246,12 +257,22 @@ export default function CompleteProfilePage() {
   /* ── Shared state ── */
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [profilePicture, setProfilePicture] = useState('');
+  const [isUploading, setIsUploading] = useState(false);
 
   /* ── Advertiser-specific state ── */
   const [youtubeConnected, setYoutubeConnected] = useState(false);
   const [tiktokConnected, setTiktokConnected] = useState(false);
+  const [instagramConnected, setInstagramConnected] = useState(false);
+  const [xConnected, setXConnected] = useState(false);
+  
   const [youtubeHandle, setYoutubeHandle] = useState('');
   const [tiktokHandle, setTiktokHandle] = useState('');
+  const [instagramHandle, setInstagramHandle] = useState('');
+  const [xHandle, setXHandle] = useState('');
+  
   const [followers, setFollowers] = useState('');
   const [avgViews, setAvgViews] = useState('');
   const [engagementRate, setEngagementRate] = useState('');
@@ -419,6 +440,8 @@ export default function CompleteProfilePage() {
           website: portfolioUrl,
           youtubeHandle,
           tiktokHandle,
+          instagramHandle,
+          xHandle,
           followers,
           avgViews,
           engagementRate,
@@ -431,11 +454,19 @@ export default function CompleteProfilePage() {
       }
 
       await userApi.updateProfile(api, {
+        firstName,
+        lastName,
+        profilePicture,
         profileData,
-        status: 'active'
+        status: 'pending'
       });
 
-      updateProfile(profileData);
+      updateProfile({
+        firstName,
+        lastName,
+        avatarUrl: profilePicture,
+        ...profileData
+      });
       setOnboardingStatus('approved');
       setSubmitted(true);
     } catch (error) {
@@ -464,24 +495,17 @@ export default function CompleteProfilePage() {
             <CheckCircle2 size={40} className="text-emerald-500" />
           </div>
           <h2 className="text-2xl font-black text-gray-900 dark:text-white mb-3">
-            Profile Approved!
+            Profile Submitted!
           </h2>
           <p className="text-gray-500 dark:text-gray-400 text-sm mb-8 leading-relaxed">
-            Your profile has been successfully updated and approved. You now have
-            full access to start{' '}
-            {isBusiness ? 'creating campaigns' : 'matching with brands'}.
+            Your profile has been successfully submitted for review. Our team will verify 
+            your details within 24-48 hours.
           </p>
           <button
-            onClick={() =>
-              navigate(
-                isBusiness
-                  ? '/dashboard/business-owner'
-                  : '/dashboard/advertiser'
-              )
-            }
+            onClick={() => navigate('/dashboard')}
             className="w-full bg-emerald-500 text-white font-bold py-3.5 rounded-2xl hover:bg-emerald-400 transition-all shadow-lg shadow-emerald-500/20"
           >
-            Go to Dashboard
+            Continue
           </button>
         </motion.div>
       </div>
@@ -491,6 +515,7 @@ export default function CompleteProfilePage() {
   return (
     <div className="min-h-screen bg-[#fafaf8] dark:bg-[#0a0a0a]">
       {/* ── Header ── */}
+      {!isInsideDashboard && (
       <header className="text-center pt-10 pb-8 px-4">
         {isBusiness ? (
           <>
@@ -523,10 +548,62 @@ export default function CompleteProfilePage() {
           </>
         )}
       </header>
+      )}
 
       {/* ── Main Form ── */}
       <div className="max-w-[620px] mx-auto px-4 pb-32 space-y-6">
         <AnimatePresence mode="wait">
+          {/* ━━ SHARED: PERSONAL INFORMATION ━━ */}
+          <SectionCard icon={<Users size={20} />} title="Personal Information">
+            <div className="flex flex-col items-center mb-8">
+              <div className="relative group">
+                <div className="w-24 h-24 rounded-full border-4 border-emerald-500/20 overflow-hidden bg-gray-100 dark:bg-white/5 shadow-xl">
+                  <img 
+                    src={profilePicture || `https://ui-avatars.com/api/?name=${firstName}+${lastName}&background=10b981&color=fff`} 
+                    alt="Profile" 
+                    className="w-full h-full object-cover" 
+                  />
+                </div>
+                <label className="absolute inset-0 flex items-center justify-center bg-black/40 text-white rounded-full opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity">
+                  <Camera size={24} />
+                  <input 
+                    type="file" 
+                    className="hidden" 
+                    accept="image/*"
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      setIsUploading(true);
+                      try {
+                        const formData = new FormData();
+                        formData.append('image', file);
+                        const res = await api.post('/users/profile/picture?type=avatar', formData, {
+                          headers: { 'Content-Type': 'multipart/form-data' }
+                        });
+                        setProfilePicture(res.data.user.profilePicture);
+                      } catch (err) {
+                        console.error('Upload failed:', err);
+                      } finally {
+                        setIsUploading(false);
+                      }
+                    }}
+                  />
+                </label>
+                {isUploading && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full">
+                    <div className="w-8 h-8 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  </div>
+                )}
+              </div>
+              <p className="mt-3 text-xs font-bold text-gray-500 uppercase tracking-wider">Profile Picture</p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <InputField label="First Name" value={firstName} onChange={setFirstName} placeholder="John" />
+              <InputField label="Last Name" value={lastName} onChange={setLastName} placeholder="Doe" />
+            </div>
+          </SectionCard>
+
           {isBusiness ? (
             /* ━━ BUSINESS PROFILE ━━ */
             <>
@@ -757,10 +834,10 @@ export default function CompleteProfilePage() {
           ) : (
             /* ━━ ADVERTISER (CREATOR) PROFILE ━━ */
             <>
-              {/* Platform Connection */}
+              {/* Social Media Details */}
               <SectionCard
                 icon={<Sparkles size={20} />}
-                title="Platform Connection"
+                title="Social Media Details"
               >
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                   <div className="space-y-2">
@@ -802,6 +879,47 @@ export default function CompleteProfilePage() {
                       value={tiktokHandle}
                       onChange={(e) => setTiktokHandle(e.target.value)}
                       placeholder="@tiktok_handle"
+                      className="w-full bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-emerald-500 transition-all"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <PlatformButton
+                      icon={
+                        <FaInstagram
+                          size={18}
+                          className="text-pink-500"
+                        />
+                      }
+                      label="Instagram"
+                      connected={instagramConnected}
+                      onClick={() =>
+                        setInstagramConnected(!instagramConnected)
+                      }
+                    />
+                    <input
+                      value={instagramHandle}
+                      onChange={(e) => setInstagramHandle(e.target.value)}
+                      placeholder="@instagram_handle"
+                      className="w-full bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-emerald-500 transition-all"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <PlatformButton
+                      icon={
+                        <svg viewBox="0 0 24 24" aria-hidden="true" className="w-[18px] h-[18px] fill-current text-gray-900 dark:text-white">
+                          <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path>
+                        </svg>
+                      }
+                      label="X (Twitter)"
+                      connected={xConnected}
+                      onClick={() =>
+                        setXConnected(!xConnected)
+                      }
+                    />
+                    <input
+                      value={xHandle}
+                      onChange={(e) => setXHandle(e.target.value)}
+                      placeholder="@x_handle"
                       className="w-full bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-emerald-500 transition-all"
                     />
                   </div>
@@ -1076,7 +1194,7 @@ export default function CompleteProfilePage() {
         </div>
       )}
 
-      {/* ── Footer ── */}
+      {!isInsideDashboard && (
       <footer className="text-center py-8 px-4 border-t border-gray-100 dark:border-white/[0.04]">
         <div className="flex items-center justify-center gap-6 text-xs text-gray-400 mb-3">
           <a href="#" className="hover:text-gray-600 dark:hover:text-gray-300 transition-colors uppercase tracking-wider font-semibold">
@@ -1093,6 +1211,7 @@ export default function CompleteProfilePage() {
           © 2024 AACP. Built for the Organic Professional.
         </p>
       </footer>
+      )}
     </div>
   );
 }

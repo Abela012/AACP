@@ -12,7 +12,7 @@ export const connectSocket = (token: string): Socket => {
 
     socket = io(SOCKET_URL, {
         auth: { token },
-        transports: ['websocket', 'polling'],
+        transports: ['polling', 'websocket'],
         reconnection: true,
         reconnectionAttempts: 5,
         reconnectionDelay: 1000,

@@ -12,6 +12,7 @@ export interface ProfileData {
   website: string;
   industry: string;
   avatarUrl: string;
+  coverImageUrl: string;
   phone: string;
   businessLocation?: string;
   companySize?: string;
@@ -46,6 +47,7 @@ const EMPTY_PROFILE: ProfileData = {
   website: '',
   industry: '',
   avatarUrl: '',
+  coverImageUrl: '',
   phone: '',
 };
 
@@ -71,11 +73,17 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
           lastName: userData.lastName || '',
           email: userData.email || '',
           avatarUrl: userData.profilePicture || '',
+          coverImageUrl: userData.coverImage || '',
           ...userData.profileData,
         });
       }
-    } catch (error) {
-      console.error('Failed to fetch profile:', error);
+    } catch (error: any) {
+      if (error?.response?.status === 404) {
+        // User not synced yet. This is expected for brand new users.
+        console.log('[ProfileContext] User not found yet. Awaiting sync...');
+      } else {
+        console.error('[ProfileContext] Failed to fetch profile:', error);
+      }
     } finally {
       setIsLoading(false);
     }

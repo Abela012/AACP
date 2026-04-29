@@ -42,9 +42,9 @@ export default function ViewProfilePage() {
     website: profile.website || 'No website',
     email: profile.email,
     phone: profile.phone,
-    coverImage: isBusiness
+    coverImage: profile.coverImageUrl || (isBusiness
       ? 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2672&auto=format&fit=crop'
-      : 'https://images.unsplash.com/photo-1557683316-973673baf926?q=80&w=2629&auto=format&fit=crop',
+      : 'https://images.unsplash.com/photo-1557683316-973673baf926?q=80&w=2629&auto=format&fit=crop'),
     avatarImage: profile.avatarUrl,
     badges: isBusiness
       ? profile.targetAudienceTags || ['Verified Business', 'Direct Advertiser']
@@ -109,7 +109,7 @@ export default function ViewProfilePage() {
               {/* Avatar */}
               <div className="absolute -top-16 md:-top-20 left-6 md:left-10 w-28 h-28 md:w-36 md:h-36 rounded-3xl border-4 border-white dark:border-[#111] overflow-hidden bg-white z-20 shadow-xl">
                 <img
-                  src={profileData.avatarImage}
+                  src={profileData.avatarImage || `https://ui-avatars.com/api/?name=${profileData.name}&background=10b981&color=fff`}
                   alt={profileData.name}
                   className="w-full h-full object-cover"
                 />

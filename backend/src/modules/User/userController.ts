@@ -24,18 +24,29 @@ export const uploadProfilePicture = async (
   }
 
   try {
-    // Convert buffer to base64
-    const b64 = Buffer.from(req.file.buffer).toString("base64");
-    const dataURI = "data:" + req.file.mimetype + ";base64," + b64;
+    // Upload using stream instead of dataURI for better reliability
+    const uploadFromBuffer = (buffer: Buffer) => {
+      return new Promise((resolve, reject) => {
+        const stream = cloudinary.uploader.upload_stream(
+          {
+            folder: "et-pulse/avatars",
+            resource_type: "image",
+          },
+          (error, result) => {
+            if (result) resolve(result);
+            else reject(error);
+          }
+        );
+        stream.end(buffer);
+      });
+    };
 
-    const result = await cloudinary.uploader.upload(dataURI, {
-      folder: "et-pulse/avatars",
-      resource_type: "image",
-    });
-
+    const result: any = await uploadFromBuffer(req.file.buffer);
+    const type = req.query.type === 'cover' ? 'coverImage' : 'profilePicture';
+ 
     const user = await User.findOneAndUpdate(
       { clerkId: userId },
-      { profilePicture: result.secure_url },
+      { $set: { [type]: result.secure_url } },
       { new: true }
     );
 
@@ -59,13 +70,15 @@ export const updateUserProfile = async (
   res: Response
 ): Promise<void> => {
   const { userId } = getAuth(req);
-  const { firstName, lastName, profileData, status } = req.body;
+  const { firstName, lastName, profileData, status, profilePicture, coverImage } = req.body;
 
   const updateFields: any = {};
   if (firstName !== undefined) updateFields.firstName = firstName;
   if (lastName !== undefined) updateFields.lastName = lastName;
   if (profileData !== undefined) updateFields.profileData = profileData;
   if (status !== undefined) updateFields.status = status;
+  if (profilePicture !== undefined) updateFields.profilePicture = profilePicture;
+  if (coverImage !== undefined) updateFields.coverImage = coverImage;
 
   const user = await User.findOneAndUpdate(
     { clerkId: userId },
@@ -107,11 +120,6 @@ export const syncUser = async (req: Request, res: Response): Promise<void> => {
   // check if user already exists in db
   const existingUser = await User.findOne({ clerkId: userId });
   if (existingUser) {
-    // Auto-activate existing pending users to resolve current blockage
-    if (existingUser.status === 'pending') {
-      existingUser.status = 'active';
-      await existingUser.save();
-    }
     res
       .status(200)
       .json({ user: existingUser, message: "User already exists" });

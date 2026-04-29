@@ -23,8 +23,10 @@ export const userApi = {
     getMe: async (api: AxiosInstance) => {
         try {
             return await api.get('/users/me');
-        } catch (error) {
-            console.warn('GetMe API call failed:', error);
+        } catch (error: any) {
+            if (error?.response?.status !== 404) {
+                console.warn('GetMe API call failed:', error);
+            }
             throw error;
         }
     },

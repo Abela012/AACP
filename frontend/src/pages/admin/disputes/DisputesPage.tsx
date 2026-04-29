@@ -89,12 +89,12 @@ export default function DisputesPage() {
 
   const tabs = [
     { key: 'all' as const, label: 'All Disputes', count: disputes.length },
-    { key: 'open' as const, label: 'Open', count: disputes.filter(d => d.status === 'OPEN').length },
-    { key: 'resolved' as const, label: 'Resolved', count: disputes.filter(d => d.status === 'RESOLVED').length },
-    { key: 'escalated' as const, label: 'Escalated', count: disputes.filter(d => d.status === 'ESCALATED').length },
+    { key: 'open' as const, label: 'Open', count: disputes.filter((d: any) => d.status === 'OPEN').length },
+    { key: 'resolved' as const, label: 'Resolved', count: disputes.filter((d: any) => d.status === 'RESOLVED').length },
+    { key: 'escalated' as const, label: 'Escalated', count: disputes.filter((d: any) => d.status === 'ESCALATED').length },
   ];
 
-  const filteredDisputes = disputes.filter(d => {
+  const filteredDisputes = disputes.filter((d: any) => {
     const matchesSearch = d.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
                          d.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          d.reporter.toLowerCase().includes(searchQuery.toLowerCase());
@@ -266,7 +266,7 @@ export default function DisputesPage() {
                     </td>
                   </tr>
                 ) : (
-                  filteredDisputes.map((dispute, idx) => (
+                  filteredDisputes.map((dispute: any, idx: number) => (
                   <tr key={idx} className="group hover:bg-[#F8F8FD] dark:hover:bg-white/5 transition-colors">
                     <td className="py-6 px-8">
                       <div className="flex items-start gap-3">

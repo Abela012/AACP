@@ -11,6 +11,8 @@ export const useLogin = () => {
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const [role, setRole] = useState<'business_owner' | 'advertiser' | 'admin' | null>(null);
+    const [verificationCode, setVerificationCode] = useState("");
+    const [status, setStatus] = useState<string | null>(null);
 
     const onSignInPress = async () => {
         if (!isLoaded) return;
@@ -26,7 +28,15 @@ export const useLogin = () => {
                 await setActive({ session: signInAttempt.createdSessionId });
                 navigate("/dashboard", { replace: true });
             } else {
-                setError("Sign in incomplete. Please check your information.");
+                setStatus(signInAttempt.status);
+                if (signInAttempt.status === "needs_first_factor") {
+                    setError("Account verification required. Please check your email for a verification code or link.");
+                } else if (signInAttempt.status === "needs_second_factor") {
+                    setError("Two-factor authentication required. Please enter the code sent to your email or authenticator app.");
+                } else {
+                    const statusStr = signInAttempt.status || 'incomplete';
+                    setError(`Sign in ${statusStr.replace('_', ' ')}. Please complete all required steps in your Clerk dashboard.`);
+                }
             }
         } catch (err: unknown) {
             const clerkErr = err as { errors?: { message?: string }[] };
@@ -36,6 +46,30 @@ export const useLogin = () => {
             } else {
                 setError(msg);
             }
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const onVerifySecondFactor = async () => {
+        if (!isLoaded) return;
+        setLoading(true);
+        setError(null);
+        try {
+            const result = await signIn.attemptSecondFactor({
+                strategy: "email_code",
+                code: verificationCode,
+            });
+
+            if (result.status === "complete") {
+                await setActive({ session: result.createdSessionId });
+                navigate("/dashboard", { replace: true });
+            } else {
+                setError(`Verification failed: ${result.status}`);
+            }
+        } catch (err: unknown) {
+            const clerkErr = err as { errors?: { message?: string }[] };
+            setError(clerkErr.errors?.[0]?.message || "Invalid verification code.");
         } finally {
             setLoading(false);
         }
@@ -72,5 +106,9 @@ export const useLogin = () => {
         setRole,
         onSignInPress,
         handleSocialAuth,
+        status,
+        verificationCode,
+        setVerificationCode,
+        onVerifySecondFactor,
     };
 };

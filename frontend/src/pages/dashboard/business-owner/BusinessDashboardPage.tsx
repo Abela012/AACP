@@ -23,6 +23,7 @@ import { cn } from '@/src/shared/utils/cn';
 import { useUser } from '@/src/shared/context/UserContext';
 import BusinessLayout from '@/src/shared/components/layouts/BusinessLayout';
 import CompleteProfilePage from '../../profile/complete-profile/CompleteProfilePage';
+import PendingApprovalState from '@/src/shared/components/PendingApprovalState';
 import { useUserSync } from '@/src/hooks/useUserSync';
 import { useMyOpportunities } from '@/src/hooks/useOpportunities';
 import { useWalletBalance } from '@/src/hooks/useWallet';
@@ -77,26 +78,13 @@ export default function BusinessDashboardPage() {
 
         {onboardingStatus === 'incomplete' ? (
           <div className="mt-8">
-            <CompleteProfilePage />
+            <CompleteProfilePage isInsideDashboard={true} />
           </div>
         ) : onboardingStatus === 'pending' ? (
-          <div className="flex flex-col items-center justify-center py-20 px-4">
-            <div className="w-24 h-24 bg-amber-50 dark:bg-amber-500/10 text-amber-500 rounded-full flex items-center justify-center mb-6">
-              <ShieldCheck size={48} />
-            </div>
-            <h1 className="text-3xl font-black text-gray-900 dark:text-white mb-4 text-center">Account Pending Approval</h1>
-            <p className="text-gray-500 dark:text-gray-400 text-center max-w-md leading-relaxed mb-8">
-              Your business profile has been submitted and is currently being reviewed by our administrative team. You will gain full access to the AACP platform features once approved.
-            </p>
-            <button 
-              onClick={() => sync()}
-              disabled={isSyncing}
-              className="px-6 py-3 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl text-sm font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-50 transition-all flex items-center gap-2 disabled:opacity-50"
-            >
-              {isSyncing && <Loader2 size={16} className="animate-spin" />}
-              Check Status Again
-            </button>
-          </div>
+          <PendingApprovalState 
+            onRefresh={() => sync()} 
+            isRefreshing={isSyncing} 
+          />
         ) : (
           <>
             <OnboardingBanner status={onboardingStatus} role="business" />

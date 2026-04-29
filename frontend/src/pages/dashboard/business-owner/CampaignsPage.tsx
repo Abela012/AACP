@@ -118,7 +118,11 @@ export default function CampaignsPage() {
                   </tr>
                 ) : filteredCampaigns.length > 0 ? (
                   filteredCampaigns.map((c: Opportunity) => (
-                    <tr key={c._id} className="hover:bg-gray-50/50 dark:hover:bg-white/5 transition-colors group">
+                    <tr 
+                      key={c._id} 
+                      onClick={() => navigate(`/campaign/${c._id}/applicants`)}
+                      className="hover:bg-gray-50/50 dark:hover:bg-white/5 transition-colors group cursor-pointer"
+                    >
                       <td className="px-8 py-6">
                         <p className="text-sm font-bold text-gray-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">{c.title}</p>
                       </td>

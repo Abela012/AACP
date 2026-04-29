@@ -7,10 +7,11 @@ export interface IUser extends Document {
     lastName: string;
     username: string;
     profilePicture?: string;
+    coverImage?: string;
     location?: string;
     following: mongoose.Types.ObjectId[];
     role: 'business_owner' | 'advertiser' | 'admin' | 'super_admin'
-    status: 'pending' | 'active' | 'banned' | 'suspended';
+    status: 'pending' | 'active' | 'approved' | 'banned' | 'suspended';
     isVerified: boolean;
     profileData?: any;
     totalPosts: number;
@@ -48,6 +49,10 @@ const userSchema: Schema = new Schema(
             type: String,
             default: "",
         },
+        coverImage: {
+            type: String,
+            default: "",
+        },
 
         location: {
             type: String,
@@ -62,8 +67,8 @@ const userSchema: Schema = new Schema(
         },
         status: {
             type: String,
-            enum: ['pending', 'active', 'banned', 'suspended'],
-            default: 'active',
+            enum: ['pending', 'active', 'approved', 'banned', 'suspended'],
+            default: 'pending',
         },
         isVerified: {
             type: Boolean,
