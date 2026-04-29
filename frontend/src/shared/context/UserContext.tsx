@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import { useUser as useClerkUser } from '@clerk/clerk-react';
 
-type UserRole = 'business' | 'advertiser' | 'admin' | null;
+type UserRole = 'business' | 'advertiser' | 'admin' | 'super_admin' | null;
 type OnboardingStatus = 'incomplete' | 'pending' | 'approved';
 
 interface UserContextType {

@@ -66,7 +66,6 @@ export default function RoleDashboardRedirectPage() {
     // Map roles to context types
     let contextRole = normalizedRole;
     if (contextRole === 'business_owner') contextRole = 'business';
-    if (contextRole === 'super_admin') contextRole = 'admin';
     
     setUserRole(contextRole as any);
   }
@@ -75,7 +74,11 @@ export default function RoleDashboardRedirectPage() {
     return <Navigate to="/dashboard/business-owner" replace />;
   }
 
-  if (normalizedRole === "admin" || normalizedRole === "super_admin") {
+  if (normalizedRole === "super_admin") {
+    return <Navigate to="/dashboard/super-admin" replace />;
+  }
+
+  if (normalizedRole === "admin") {
     return <Navigate to="/dashboard/admin" replace />;
   }
 

@@ -7,6 +7,7 @@ import walletRoutes from '../modules/wallet/wallet.routes';
 import paymentsRoutes from '../modules/payments/payments.routes';
 import userRoutes from '../modules/User/userRoute';
 import adminRoutes from '../modules/Admin/adminRoute';
+import superAdminRoutes from '../modules/super-admin/superAdmin.routes';
 import chatRoutes from '../modules/chat/chat.routes';
 
 /**
@@ -24,6 +25,7 @@ router.use('/wallet', walletRoutes);
 router.use('/payments', paymentsRoutes);
 router.use('/users', userRoutes);
 router.use('/admin', adminRoutes);
+router.use('/super-admin', superAdminRoutes);
 router.use('/chat', chatRoutes);
 
 // Health check route

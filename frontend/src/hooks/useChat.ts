@@ -49,6 +49,7 @@ export const useChat = (roomId: string, recipientId?: string): UseChat => {
     const [isLoading, setIsLoading] = useState(false);
     const [typingUsers, setTypingUsers] = useState<string[]>([]);
     const [onlineUsers, setOnlineUsers] = useState<string[]>([]);
+    const [conversationId, setConversationId] = useState<string>('');
     const typingTimeouts = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
 
     // ── Connect socket and Load History ──
@@ -56,6 +57,7 @@ export const useChat = (roomId: string, recipientId?: string): UseChat => {
         if (!isSignedIn || !roomId) return;
 
         let mounted = true;
+        const effectiveRoomId = conversationId || roomId;
 
         const init = async () => {
             setIsLoading(true);
@@ -67,12 +69,13 @@ export const useChat = (roomId: string, recipientId?: string): UseChat => {
                 if (recipientId) {
                     const convRes = await chatApi.startConversation(api, recipientId);
                     if (convRes.data?.success && convRes.data.data._id) {
+                        if (mounted) setConversationId(convRes.data.data._id);
                         const historyRes = await chatApi.getMessages(api, convRes.data.data._id);
                         if (historyRes.data?.success && mounted) {
                             // Map backend messages to hook format
                             const history = historyRes.data.data.map(m => ({
                                 _id: m._id,
-                                roomId: roomId, // Maintain compatibility with roomId system
+                                roomId: convRes.data.data._id, // use conversation id for socket room
                                 text: m.text,
                                 sender: m.sender,
                                 createdAt: m.createdAt
@@ -90,11 +93,11 @@ export const useChat = (roomId: string, recipientId?: string): UseChat => {
                 s.on('disconnect', () => mounted && setIsConnected(false));
 
                 // Join the room
-                joinRoom(roomId);
+                joinRoom(effectiveRoomId);
 
                 // ── Receive messages ──
                 s.on('message:receive', (msg: ChatMessage) => {
-                    if (!mounted || msg.roomId !== roomId) return;
+                    if (!mounted || msg.roomId !== effectiveRoomId) return;
                     setMessages(prev => {
                         // Prevent duplicates if already in history
                         if (prev.some(m => m._id === msg._id)) return prev;
@@ -139,7 +142,7 @@ export const useChat = (roomId: string, recipientId?: string): UseChat => {
 
         return () => {
             mounted = false;
-            leaveRoom(roomId);
+            leaveRoom(effectiveRoomId);
             const s = getSocket();
             if (s) {
                 s.off('message:receive');
@@ -151,28 +154,30 @@ export const useChat = (roomId: string, recipientId?: string): UseChat => {
                 s.off('disconnect');
             }
         };
-    }, [isSignedIn, roomId, recipientId]);
+    }, [isSignedIn, roomId, recipientId, conversationId]);
 
     // ── Typing debounce ──
     const typingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     const sendMessage = useCallback((text: string, recipientId?: string) => {
-        if (!text.trim() || !roomId) return;
-        emitMessage(roomId, text.trim(), recipientId);
+        const effectiveRoomId = conversationId || roomId;
+        if (!text.trim() || !effectiveRoomId) return;
+        emitMessage(effectiveRoomId, text.trim(), recipientId);
 
         // Stop typing after sending
-        stopTyping(roomId);
+        stopTyping(effectiveRoomId);
         if (typingTimerRef.current) clearTimeout(typingTimerRef.current);
-    }, [roomId]);
+    }, [roomId, conversationId]);
 
     /** Call this on every keystroke to emit typing events */
     const handleTyping = useCallback(() => {
-        startTyping(roomId);
+        const effectiveRoomId = conversationId || roomId;
+        startTyping(effectiveRoomId);
         if (typingTimerRef.current) clearTimeout(typingTimerRef.current);
-        typingTimerRef.current = setTimeout(() => stopTyping(roomId), 2000);
-    }, [roomId]);
+        typingTimerRef.current = setTimeout(() => stopTyping(effectiveRoomId), 2000);
+    }, [roomId, conversationId]);
 
-    return { messages, sendMessage, isConnected, typingUsers, onlineUsers };
+    return { messages, sendMessage, isConnected, isLoading, typingUsers, onlineUsers };
 };
 
 /** Disconnect socket globally — call on logout */

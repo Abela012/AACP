@@ -16,7 +16,9 @@ const queryClient = new QueryClient()
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY
 
 if (!PUBLISHABLE_KEY) {
-  throw new Error("Missing Publishable Key")
+  throw new Error(
+    'Missing Clerk publishable key. Set VITE_CLERK_PUBLISHABLE_KEY in frontend/.env.local or frontend/.env.'
+  )
 }
 
 createRoot(document.getElementById('root')!).render(

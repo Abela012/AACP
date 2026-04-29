@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import Dispute from '../../database/models/Dispute';
 import { success } from '../../utils/response';
+import { createAuditLog } from '../audit/audit.service';
 
 export const getDisputes = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -55,7 +56,8 @@ export const resolveDispute = async (req: Request, res: Response, next: NextFunc
     try {
         const { disputeId } = req.params;
         const { reason } = req.body;
-        const adminId = (req as any).user?._id;
+        const actor = (req as any).currentUser || (req as any).user;
+        const adminId = actor?._id;
 
         const dispute = await Dispute.findOneAndUpdate(
             { id: disputeId },
@@ -72,6 +74,18 @@ export const resolveDispute = async (req: Request, res: Response, next: NextFunc
 
         if (!dispute) return res.status(404).json({ error: "Dispute not found" });
 
+        if (actor?._id && actor?.role) {
+            await createAuditLog({
+                action: 'DISPUTE_RESOLVED',
+                actorId: String(actor._id),
+                actorRole: actor.role,
+                targetType: 'dispute',
+                targetId: disputeId,
+                message: 'Resolved dispute',
+                metadata: { disputeId, reason },
+                req,
+            });
+        }
         return success(res, "Dispute resolved", dispute);
     } catch (error) {
         next(error);
@@ -81,6 +95,7 @@ export const resolveDispute = async (req: Request, res: Response, next: NextFunc
 export const escalateDispute = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { disputeId } = req.params;
+        const actor = (req as any).currentUser || (req as any).user;
         
         const dispute = await Dispute.findOneAndUpdate(
             { id: disputeId },
@@ -90,6 +105,18 @@ export const escalateDispute = async (req: Request, res: Response, next: NextFun
 
         if (!dispute) return res.status(404).json({ error: "Dispute not found" });
 
+        if (actor?._id && actor?.role) {
+            await createAuditLog({
+                action: 'DISPUTE_ESCALATED',
+                actorId: String(actor._id),
+                actorRole: actor.role,
+                targetType: 'dispute',
+                targetId: disputeId,
+                message: 'Escalated dispute',
+                metadata: { disputeId },
+                req,
+            });
+        }
         return success(res, "Dispute escalated", dispute);
     } catch (error) {
         next(error);
