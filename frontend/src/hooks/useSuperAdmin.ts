@@ -26,6 +26,21 @@ export const usePromoteExistingUserToAdmin = () => {
   });
 };
 
+export const useCreateAdminUser = () => {
+  const api = useApiClient();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: { email: string; password: string; role?: 'admin' | 'super_admin' }) =>
+      superAdminApi.createAdminUser(api, payload).then(r => r.data.data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['superAdminAdmins'] });
+      queryClient.invalidateQueries({ queryKey: ['superAdminAuditLogs'] });
+      queryClient.invalidateQueries({ queryKey: ['superAdminNotifications'] });
+      queryClient.invalidateQueries({ queryKey: ['superAdminSecuritySummary'] });
+    },
+  });
+};
+
 export const useUpdateAdminUser = () => {
   const api = useApiClient();
   const queryClient = useQueryClient();

@@ -12,9 +12,9 @@ export default function SuperAdminDashboardPage() {
       desc: 'Orchestrate governance and access controls.',
       icon: Users,
       path: '/super-admin/admin-management',
-      color: 'text-[#7C3AED]',
-      bg: 'bg-purple-50 dark:bg-purple-500/10',
-      border: 'border-purple-100 dark:border-purple-500/20',
+      color: 'text-[#14a800]',
+      bg: 'bg-green-50 dark:bg-green-500/10',
+      border: 'border-green-100 dark:border-green-500/20',
     },
     {
       title: 'Audit Trail',
@@ -74,7 +74,7 @@ export default function SuperAdminDashboardPage() {
                 <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${c.bg} ${c.color} border ${c.border}`}>
                   <c.icon size={20} />
                 </div>
-                <div className="text-[#9A9FA5] group-hover:text-[#7C3AED] transition-colors">
+                <div className="text-[#9A9FA5] group-hover:text-[#14a800] transition-colors">
                   <ArrowRight size={18} />
                 </div>
               </div>

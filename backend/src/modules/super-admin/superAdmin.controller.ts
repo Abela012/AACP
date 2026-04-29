@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+import { clerkClient } from '@clerk/express';
 import AuditLog from '../../database/models/AuditLog';
 import User from '../../database/models/User';
 import Transaction from '../../database/models/Transaction';
@@ -24,6 +25,23 @@ const getOrCreatePlatformConfig = async () => {
     });
 
     return config;
+};
+
+const generateUniqueUsername = async (email: string) => {
+    const base = email
+        .split('@')[0]
+        .toLowerCase()
+        .replace(/[^a-z0-9_]/g, '_')
+        .replace(/_+/g, '_')
+        .replace(/^_+|_+$/g, '') || 'admin_user';
+
+    let username = base;
+    let attempt = 0;
+    while (await User.exists({ username })) {
+        attempt += 1;
+        username = `${base}_${Math.floor(100 + Math.random() * 900)}${attempt}`;
+    }
+    return username;
 };
 
 export const getAuditLogs = async (req: Request, res: Response, next: NextFunction) => {
@@ -122,6 +140,70 @@ export const promoteExistingUserToAdmin = async (req: Request, res: Response, ne
         }
 
         return success(res, 'User promoted successfully', { user });
+    } catch (error) {
+        return next(error);
+    }
+};
+
+export const createAdminUser = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const actor = (req as any).currentUser || (req as any).user;
+        const { email, password, role } = req.body as {
+            email?: string;
+            password?: string;
+            role?: 'admin' | 'super_admin';
+        };
+
+        const normalizedEmail = String(email || '').trim().toLowerCase();
+        const normalizedRole = role === 'super_admin' ? 'super_admin' : 'admin';
+
+        if (!normalizedEmail) {
+            return res.status(400).json({ error: 'email is required' });
+        }
+        if (!password || password.length < 8) {
+            return res.status(400).json({ error: 'password must be at least 8 characters' });
+        }
+
+        const existingUser = await User.findOne({ email: normalizedEmail });
+        if (existingUser) {
+            return res.status(409).json({ error: 'User already exists. Use promote for existing users.' });
+        }
+
+        const clerkUser = await clerkClient.users.createUser({
+            emailAddress: [normalizedEmail],
+            password,
+            publicMetadata: { role: normalizedRole },
+        });
+
+        const username = await generateUniqueUsername(normalizedEmail);
+
+        const user = await User.create({
+            clerkId: clerkUser.id,
+            email: normalizedEmail,
+            firstName: clerkUser.firstName || '',
+            lastName: clerkUser.lastName || '',
+            username,
+            profilePicture: clerkUser.imageUrl || '',
+            role: normalizedRole,
+            status: 'active',
+            isVerified: true,
+        });
+
+        if (actor?._id && actor?.role) {
+            await createAuditLog({
+                action: 'USER_ROLE_UPDATED',
+                actorId: String(actor._id),
+                actorRole: actor.role,
+                targetUserId: String(user._id),
+                targetType: 'user',
+                targetId: String(user._id),
+                message: `Created ${normalizedRole} account for ${normalizedEmail}`,
+                metadata: { role: normalizedRole, email: normalizedEmail, source: 'super_admin_create_admin' },
+                req,
+            });
+        }
+
+        return success(res, 'Admin account created successfully', { user });
     } catch (error) {
         return next(error);
     }

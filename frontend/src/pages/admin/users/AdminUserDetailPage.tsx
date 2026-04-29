@@ -289,7 +289,7 @@ export default function AdminUserDetailPage() {
                     <label className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest block mb-2">Content Styles</label>
                     <div className="flex flex-wrap gap-2">
                       {user.profileData?.selectedStyles?.map((style: string, i: number) => (
-                        <span key={i} className="px-3 py-1 bg-purple-50 dark:bg-purple-500/10 text-purple-600 rounded-lg text-[10px] font-bold border border-purple-100 dark:border-purple-500/20">
+                        <span key={i} className="px-3 py-1 bg-green-50 dark:bg-green-500/10 text-[#14a800] rounded-lg text-[10px] font-bold border border-green-100 dark:border-green-500/20">
                           {style}
                         </span>
                       )) || <span className="text-xs text-gray-400">None</span>}

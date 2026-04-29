@@ -7,6 +7,7 @@ import {
   updatePlatformConfig,
   getSecuritySummary,
   promoteExistingUserToAdmin,
+  createAdminUser,
   updateAdminUser,
   getSuperAdminNotifications,
   getSuperAdminProfile,
@@ -18,6 +19,7 @@ router.use(requireSuperAdmin);
 
 router.get('/admins', getAdmins);
 router.post('/admins/promote', promoteExistingUserToAdmin);
+router.post('/admins/create', createAdminUser);
 router.patch('/admins/:userId', updateAdminUser);
 router.get('/audit-logs', getAuditLogs);
 router.get('/platform-config', getPlatformConfig);

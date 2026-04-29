@@ -2,15 +2,16 @@ import { useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Users, Search, Shield, UserPlus, Loader2, AlertCircle, Ban, CheckCircle2, Crown } from 'lucide-react';
 import SuperAdminLayout from '@/src/shared/components/layouts/SuperAdminLayout';
-import { usePromoteExistingUserToAdmin, useSuperAdmins, useUpdateAdminUser } from '@/src/hooks/useSuperAdmin';
+import { useCreateAdminUser, useSuperAdmins, useUpdateAdminUser } from '@/src/hooks/useSuperAdmin';
 
 export default function SuperAdminAdminManagementPage() {
   const [search, setSearch] = useState('');
   const [inviteEmail, setInviteEmail] = useState('');
+  const [invitePassword, setInvitePassword] = useState('');
   const [inviteRole, setInviteRole] = useState<'admin' | 'super_admin'>('admin');
   const [toast, setToast] = useState<{ show: boolean; message: string; type: 'success' | 'error' }>({ show: false, message: '', type: 'success' });
   const { data, isLoading, isError, refetch } = useSuperAdmins({ search: search || undefined });
-  const promoteUser = usePromoteExistingUserToAdmin();
+  const createAdmin = useCreateAdminUser();
   const updateAdmin = useUpdateAdminUser();
 
   const admins = data?.admins ?? [];
@@ -26,17 +27,26 @@ export default function SuperAdminAdminManagementPage() {
     setTimeout(() => setToast({ show: false, message: '', type: 'success' }), 3000);
   };
 
-  const handlePromote = async () => {
+  const handleCreateAdmin = async () => {
     if (!inviteEmail.trim()) {
-      showToast('Enter an existing user email first', 'error');
+      showToast('Enter admin email first', 'error');
+      return;
+    }
+    if (!invitePassword.trim() || invitePassword.trim().length < 8) {
+      showToast('Password must be at least 8 characters', 'error');
       return;
     }
     try {
-      await promoteUser.mutateAsync({ email: inviteEmail.trim(), role: inviteRole });
+      await createAdmin.mutateAsync({
+        email: inviteEmail.trim(),
+        password: invitePassword.trim(),
+        role: inviteRole,
+      });
       setInviteEmail('');
-      showToast(`Promoted ${inviteRole === 'super_admin' ? 'super admin' : 'admin'} successfully`);
+      setInvitePassword('');
+      showToast(`${inviteRole === 'super_admin' ? 'Super admin' : 'Admin'} account created successfully`);
     } catch (error: any) {
-      showToast(error?.response?.data?.error || 'Failed to promote user', 'error');
+      showToast(error?.response?.data?.error || 'Failed to create admin account', 'error');
     }
   };
 
@@ -72,8 +82,15 @@ export default function SuperAdminAdminManagementPage() {
             <input
               value={inviteEmail}
               onChange={(e) => setInviteEmail(e.target.value)}
-              placeholder="Existing user email"
+              placeholder="Admin email"
               className="bg-white dark:bg-white/5 border border-[#EFEFEF] dark:border-white/10 rounded-2xl px-4 py-3 text-sm w-64 outline-none"
+            />
+            <input
+              type="password"
+              value={invitePassword}
+              onChange={(e) => setInvitePassword(e.target.value)}
+              placeholder="Temporary password"
+              className="bg-white dark:bg-white/5 border border-[#EFEFEF] dark:border-white/10 rounded-2xl px-4 py-3 text-sm w-56 outline-none"
             />
             <select
               value={inviteRole}
@@ -84,12 +101,12 @@ export default function SuperAdminAdminManagementPage() {
               <option value="super_admin">Super Admin</option>
             </select>
             <button
-              onClick={handlePromote}
-              disabled={promoteUser.isPending}
+              onClick={handleCreateAdmin}
+              disabled={createAdmin.isPending}
               className="px-5 py-3 bg-[#14a800] hover:bg-[#108a00] text-white rounded-2xl text-xs font-black uppercase tracking-widest shadow-lg shadow-green-100 dark:shadow-none flex items-center gap-2 disabled:opacity-60"
             >
-              {promoteUser.isPending ? <Loader2 size={16} className="animate-spin" /> : <UserPlus size={16} />}
-              Promote User
+              {createAdmin.isPending ? <Loader2 size={16} className="animate-spin" /> : <UserPlus size={16} />}
+              Create Admin
             </button>
           </div>
         </div>

@@ -151,7 +151,7 @@ export default function SuperAdminAuditTrailPage() {
                         </td>
                         <td className="py-6 px-8">
                           <div className="text-xs font-bold">{actorName}</div>
-                          <div className="text-[10px] font-black uppercase tracking-widest text-[#7C3AED]">
+                          <div className="text-[10px] font-black uppercase tracking-widest text-[#14a800]">
                             {l.actorRole}
                           </div>
                         </td>

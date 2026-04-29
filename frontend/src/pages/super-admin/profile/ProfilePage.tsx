@@ -19,7 +19,7 @@ export default function SuperAdminProfilePage() {
 
         {isLoading ? (
           <div className="flex items-center justify-center h-80">
-            <Loader2 className="w-10 h-10 text-[#7C3AED] animate-spin" />
+            <Loader2 className="w-10 h-10 text-[#14a800] animate-spin" />
           </div>
         ) : isError ? (
           <div className="bg-white dark:bg-[#111111] p-10 rounded-[2.5rem] border border-[#EFEFEF] dark:border-white/5 shadow-sm text-center">
@@ -31,7 +31,7 @@ export default function SuperAdminProfilePage() {
               <div className="lg:col-span-8 bg-white dark:bg-[#111111] p-8 rounded-[2.5rem] border border-[#EFEFEF] dark:border-white/5 shadow-sm">
                 <div className="flex items-start justify-between gap-6">
                   <div className="flex items-center gap-5">
-                    <div className="w-20 h-20 rounded-[2rem] overflow-hidden bg-purple-100 dark:bg-purple-500/20 flex items-center justify-center text-[#7C3AED] font-black text-2xl">
+                    <div className="w-20 h-20 rounded-[2rem] overflow-hidden bg-green-100 dark:bg-green-500/20 flex items-center justify-center text-[#14a800] font-black text-2xl">
                       {profile?.profilePicture ? (
                         <img src={profile.profilePicture} className="w-full h-full object-cover" />
                       ) : (
@@ -44,7 +44,7 @@ export default function SuperAdminProfilePage() {
                         Approved
                       </div>
                       <h2 className="text-4xl font-black">{profile?.firstName} {profile?.lastName}</h2>
-                      <p className="text-xl text-[#7C3AED] font-medium mt-1">Velocity Root</p>
+                      <p className="text-xl text-[#14a800] font-medium mt-1">Velocity Root</p>
                     </div>
                   </div>
                   <button className="px-5 py-3 bg-white dark:bg-white/5 border border-[#EFEFEF] dark:border-white/10 rounded-2xl text-xs font-black uppercase tracking-widest">
@@ -55,7 +55,7 @@ export default function SuperAdminProfilePage() {
 
               <div className="lg:col-span-4 bg-white dark:bg-[#111111] p-8 rounded-[2.5rem] border border-[#EFEFEF] dark:border-white/5 shadow-sm space-y-6">
                 <div className="flex items-center gap-3">
-                  <Mail className="text-[#7C3AED]" size={18} />
+                  <Mail className="text-[#14a800]" size={18} />
                   <div>
                     <p className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest">Email</p>
                     <p className="text-sm font-bold">{profile?.email}</p>
@@ -73,7 +73,7 @@ export default function SuperAdminProfilePage() {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="bg-white dark:bg-[#111111] p-6 rounded-[2rem] border border-[#EFEFEF] dark:border-white/5 shadow-sm">
-                <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-purple-50 dark:bg-purple-500/10 text-[#7C3AED] mb-5">
+                <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-green-50 dark:bg-green-500/10 text-[#14a800] mb-5">
                   <Activity size={20} />
                 </div>
                 <p className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest mb-2">Audit Events</p>
@@ -86,7 +86,7 @@ export default function SuperAdminProfilePage() {
                 <p className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest mb-2">Governed Admins</p>
                 <p className="text-2xl font-black">{data?.stats.governedAdmins ?? 0}</p>
               </div>
-              <div className="bg-[#7C3AED] p-6 rounded-[2rem] shadow-xl text-white">
+              <div className="bg-[#14a800] p-6 rounded-[2rem] shadow-xl text-white">
                 <p className="text-[10px] font-black uppercase tracking-widest opacity-80 mb-2">Trust Score</p>
                 <p className="text-4xl font-black">98</p>
                 <p className="text-xs font-medium opacity-90 mt-2">Root-level governance and elevated access control enabled.</p>

@@ -17,7 +17,7 @@ export default function AdminHelpPage() {
   const categories = [
     { title: 'User Management', desc: 'Approvals, suspensions, and role management.', icon: Shield, color: 'text-blue-500', bg: 'bg-blue-50 dark:bg-blue-500/10' },
     { title: 'Financial Controls', icon: Zap, desc: 'Managing coin requests and platform fees.', color: 'text-amber-500', bg: 'bg-amber-50 dark:bg-amber-500/10' },
-    { title: 'Dispute Resolution', icon: MessageSquare, desc: 'Handling complaints and three-way chats.', color: 'text-purple-500', bg: 'bg-purple-50 dark:bg-purple-500/10' },
+    { title: 'Dispute Resolution', icon: MessageSquare, desc: 'Handling complaints and three-way chats.', color: 'text-[#14a800]', bg: 'bg-green-50 dark:bg-green-500/10' },
     { title: 'Platform Policy', icon: FileText, desc: 'Community guidelines and legal docs.', color: 'text-[#14a800]', bg: 'bg-green-50 dark:bg-green-500/10' },
   ];
 
