@@ -4,19 +4,20 @@ import env from './config/env';
 import { connectDB, disConnect } from './config/database';
 import logger from './utils/logger';
 import { initSocket } from './socket/socket';
+import { initFacebookCronJobs } from './jobs/facebook-cron.job';
 
 // Connect to Database
 connectDB();
 
+// Initialize Facebook Cron Jobs
+initFacebookCronJobs();
+
 const PORT = env.PORT || 5000;
 
-// Wrap Express in an HTTP server so Socket.IO can share the port
 const httpServer = createServer(app);
 
-// Attach Socket.IO
 const io = initSocket(httpServer);
 
-// Make io available to routes if needed
 (app as any).io = io;
 
 const server = httpServer.listen(PORT, () => {
