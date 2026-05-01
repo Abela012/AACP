@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
@@ -16,6 +16,7 @@ import {
   X,
   LogOut,
   MapPin,
+  Briefcase,
 } from 'lucide-react';
 import { useClerk } from '@clerk/clerk-react';
 import AdvertiserLayout from '@/src/shared/components/layouts/AdvertiserLayout';
@@ -41,23 +42,46 @@ export default function EditProfilePage() {
   const [showSuccess, setShowSuccess] = useState(false);
 
   // Local form state – seeded from context
-  const [firstName, setFirstName] = useState(profile.firstName);
-  const [lastName, setLastName] = useState(profile.lastName);
-  const [email, setEmail] = useState(profile.email);
-  const [bio, setBio] = useState(profile.bio);
-  const [phone, setPhone] = useState(profile.phone);
-  const [businessName, setBusinessName] = useState(profile.businessName);
-  const [website, setWebsite] = useState(profile.website);
-  const [industry, setIndustry] = useState(profile.industry);
+  const [firstName, setFirstName] = useState(profile.firstName || '');
+  const [lastName, setLastName] = useState(profile.lastName || '');
+  const [email, setEmail] = useState(profile.email || '');
+  const [bio, setBio] = useState(profile.bio || '');
+  const [phone, setPhone] = useState(profile.phone || '');
+  const [businessName, setBusinessName] = useState(profile.businessName || '');
+  const [website, setWebsite] = useState(profile.website || '');
+  const [industry, setIndustry] = useState(profile.industry || 'B2B Software');
   const [businessLocation, setBusinessLocation] = useState(profile.businessLocation || '');
   const [companySize, setCompanySize] = useState(profile.companySize || '1-10');
   const [monthlyBudget, setMonthlyBudget] = useState(profile.monthlyBudget || 0);
   const [youtubeHandle, setYoutubeHandle] = useState(profile.youtubeHandle || '');
   const [tiktokHandle, setTiktokHandle] = useState(profile.tiktokHandle || '');
 
+  // Sync local state when profile loads/refreshes
+  useEffect(() => {
+    if (profile && !isLoading) {
+      setFirstName(profile.firstName || '');
+      setLastName(profile.lastName || '');
+      setEmail(profile.email || '');
+      setBio(profile.bio || '');
+      setPhone(profile.phone || '');
+      setBusinessName(profile.businessName || '');
+      setWebsite(profile.website || '');
+      setIndustry(profile.industry || 'B2B Software');
+      setBusinessLocation(profile.businessLocation || '');
+      setCompanySize(profile.companySize || '1-10');
+      setMonthlyBudget(profile.monthlyBudget || 0);
+      setYoutubeHandle(profile.youtubeHandle || '');
+      setTiktokHandle(profile.tiktokHandle || '');
+      setAvatarPreview(profile.avatarUrl || '');
+      setCoverPreview(profile.coverImageUrl || '');
+    }
+  }, [profile, isLoading]);
+
   // Avatar state
-  const [avatarPreview, setAvatarPreview] = useState<string>(profile.avatarUrl);
+  const [avatarPreview, setAvatarPreview] = useState<string>(profile.avatarUrl || '');
+  const [coverPreview, setCoverPreview] = useState<string>(profile.coverImageUrl || '');
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const coverInputRef = useRef<HTMLInputElement>(null);
 
   // Notification toggles
   const [notifOpportunities, setNotifOpportunities] = useState(true);
@@ -71,20 +95,55 @@ export default function EditProfilePage() {
     { id: 'notifications', label: 'Notifications', icon: Bell },
   ];
 
-  const handleAvatarChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAvatarChange = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > 800 * 1024) {
-      alert('Image must be under 800KB.');
+    if (file.size > 1024 * 1024 * 2) { // 2MB
+      alert('Image must be under 2MB.');
       return;
     }
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      const result = ev.target?.result as string;
-      setAvatarPreview(result);
-    };
-    reader.readAsDataURL(file);
-  }, []);
+    
+    setIsSaving(true);
+    try {
+      const formData = new FormData();
+      formData.append('image', file);
+      const res = await api.post('/users/profile/picture?type=avatar', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      
+      const newUrl = res.data.user.profilePicture;
+      setAvatarPreview(newUrl);
+      updateProfile({ avatarUrl: newUrl });
+    } catch (error) {
+      console.error('Failed to upload avatar:', error);
+      alert('Failed to upload image.');
+    } finally {
+      setIsSaving(false);
+    }
+  }, [api, updateProfile]);
+ 
+   const handleCoverChange = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+     const file = e.target.files?.[0];
+     if (!file) return;
+     
+     setIsSaving(true);
+     try {
+       const formData = new FormData();
+       formData.append('image', file);
+       const res = await api.post('/users/profile/picture?type=cover', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      
+      const newUrl = res.data.user.coverImage;
+      setCoverPreview(newUrl);
+      updateProfile({ coverImageUrl: newUrl });
+     } catch (error) {
+       console.error('Failed to upload cover:', error);
+       alert('Failed to upload image.');
+     } finally {
+       setIsSaving(false);
+     }
+   }, [api, updateProfile]);
 
   const handleRemoveAvatar = () => {
     setAvatarPreview('https://i.pravatar.cc/150?u=techvision');
@@ -107,6 +166,16 @@ export default function EditProfilePage() {
         monthlyBudget,
         youtubeHandle,
         tiktokHandle,
+        coverImage: coverPreview,
+        // Include advertiser specific fields if they exist in state
+        followers: profile.followers,
+        avgViews: profile.avgViews,
+        engagementRate: profile.engagementRate,
+        geoTags: profile.geoTags,
+        ageRanges: profile.ageRanges,
+        primaryLanguage: profile.primaryLanguage,
+        baseRate: profile.baseRate,
+        selectedStyles: profile.selectedStyles,
       };
 
       await userApi.updateProfile(api, {
@@ -222,12 +291,42 @@ export default function EditProfilePage() {
                 <div className="space-y-6">
                   <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6">General Information</h2>
 
+                  {/* Cover Image Upload */}
+                  <div className="mb-8 space-y-4">
+                    <label className={labelCls}>Cover Image</label>
+                    <div className="relative h-40 w-full rounded-2xl overflow-hidden group border border-gray-200 dark:border-white/10">
+                      <img 
+                        src={coverPreview || (isBusiness 
+                          ? 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2672&auto=format&fit=crop' 
+                          : 'https://images.unsplash.com/photo-1557683316-973673baf926?q=80&w=2629&auto=format&fit=crop')} 
+                        alt="Cover" 
+                        className="w-full h-full object-cover" 
+                      />
+                      <div 
+                        onClick={() => coverInputRef.current?.click()}
+                        className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                      >
+                        <div className="bg-white/20 backdrop-blur-md px-4 py-2 rounded-xl text-white font-bold text-xs flex items-center gap-2 border border-white/20">
+                          <ImageIcon size={16} />
+                          Change Cover
+                        </div>
+                      </div>
+                      <input 
+                        ref={coverInputRef}
+                        type="file"
+                        className="hidden"
+                        accept="image/*"
+                        onChange={handleCoverChange}
+                      />
+                    </div>
+                  </div>
+
                   {/* Avatar Upload */}
                   <div className="flex items-center gap-6 mb-8 pb-8 border-b border-gray-100 dark:border-white/5">
                     <div className="relative group">
                       <div className="w-24 h-24 rounded-full bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 overflow-hidden">
                         <img
-                          src={avatarPreview}
+                          src={avatarPreview || `https://ui-avatars.com/api/?name=${firstName}+${lastName}&background=10b981&color=fff`}
                           alt="Avatar"
                           className="w-full h-full object-cover"
                         />
@@ -399,8 +498,12 @@ export default function EditProfilePage() {
                           <label className={labelCls}>Monthly Budget ($)</label>
                           <input
                             type="number"
+                            min="0"
                             value={monthlyBudget}
-                            onChange={(e) => setMonthlyBudget(Number(e.target.value))}
+                            onChange={(e) => {
+                              const val = Math.max(0, Number(e.target.value));
+                              setMonthlyBudget(val);
+                            }}
                             className={inputCls.replace('pl-10', 'pl-4')}
                           />
                         </div>

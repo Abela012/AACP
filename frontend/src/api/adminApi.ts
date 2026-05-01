@@ -9,7 +9,7 @@ export interface AdminUser {
     username: string;
     profilePicture?: string;
     role: 'business_owner' | 'advertiser' | 'admin' | 'super_admin';
-    status: 'active' | 'banned' | 'suspended';
+    status: 'pending' | 'active' | 'approved' | 'banned' | 'suspended';
     isVerified: boolean;
     createdAt: string;
     updatedAt: string;

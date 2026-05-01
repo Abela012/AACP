@@ -80,7 +80,6 @@ export default function AdvertiserApplyMatchPage() {
     tools: [] as string[],
     proficiency: 'Intermediate',
     coverLetter: '',
-    hasReactExperience: 'No',
     expectedSalary: '',
     relocate: 'No',
     availability: 'Immediate',
@@ -476,17 +475,6 @@ export default function AdvertiserApplyMatchPage() {
                       <h3 className="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-2"><AlertCircle size={16} className="text-amber-500" /> Screening Questions</h3>
                       
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="space-y-2">
-                          <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Do you have experience with React?</label>
-                          <div className="flex gap-4">
-                            {['Yes', 'No'].map(val => (
-                              <label key={val} className="flex items-center gap-2 cursor-pointer">
-                                <input type="radio" name="hasReactExperience" value={val} checked={formData.hasReactExperience === val} onChange={handleInputChange} className="accent-emerald-500 w-4 h-4" />
-                                <span className="text-sm">{val}</span>
-                              </label>
-                            ))}
-                          </div>
-                        </div>
                         <div className="space-y-2">
                           <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Expected salary (USD)?</label>
                           <input type="text" name="expectedSalary" value={formData.expectedSalary} onChange={handleInputChange} className="w-full bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2 text-sm focus:border-emerald-500 outline-none text-gray-900 dark:text-white" />

@@ -24,6 +24,7 @@ import { cn } from '@/src/shared/utils/cn';
 import ThemeToggle from '@/src/shared/components/ThemeToggle';
 import { useUser } from '@/src/shared/context/UserContext';
 import { useProfile } from '@/src/shared/context/ProfileContext';
+import { useNotifications } from '@/src/hooks/useNotifications';
 
 interface AdvertiserLayoutProps {
   children: ReactNode;
@@ -37,6 +38,7 @@ export default function AdvertiserLayout({ children }: AdvertiserLayoutProps) {
   const { profile } = useProfile();
   const isApproved = onboardingStatus === 'approved';
 
+  const { notifications, unreadCount, markAllAsRead } = useNotifications();
   const [searchQuery, setSearchQuery] = useState('');
   const [showNotifications, setShowNotifications] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
@@ -233,12 +235,19 @@ export default function AdvertiserLayout({ children }: AdvertiserLayoutProps) {
             {/* Notifications */}
             <div className="relative" ref={notifRef}>
               <button 
-                onClick={() => setShowNotifications(!showNotifications)}
-                className="w-10 h-10 bg-gray-50 dark:bg-white/5 rounded-xl flex items-center justify-center text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-all relative"
+                onClick={() => {
+                  setShowNotifications(!showNotifications);
+                  if (!showNotifications) markAllAsRead();
+                }}
+                className="w-10 h-10 bg-gray-50 dark:bg-white/5 rounded-xl flex items-center justify-center text-gray-500 dark:text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-all relative"
               >
                 <Bell size={20} />
-                <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full animate-pulse blur-[1px]"></span>
-                <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full"></span>
+                {unreadCount > 0 && (
+                  <>
+                    <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full animate-pulse blur-[1px]"></span>
+                    <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full"></span>
+                  </>
+                )}
               </button>
               
               <AnimatePresence>
@@ -251,39 +260,33 @@ export default function AdvertiserLayout({ children }: AdvertiserLayoutProps) {
                   >
                     <div className="p-6 border-b border-gray-100 dark:border-white/5 flex justify-between items-center bg-gray-50/50 dark:bg-white/[0.02]">
                       <h3 className="font-bold text-gray-900 dark:text-white">Notifications</h3>
-                      <span className="bg-emerald-500/10 text-emerald-500 text-[10px] font-bold px-2 py-1 rounded-lg uppercase tracking-wider">3 New</span>
+                      {unreadCount > 0 && (
+                        <span className="bg-emerald-600/10 text-emerald-600 text-[10px] font-bold px-2 py-1 rounded-lg uppercase tracking-wider">{unreadCount} New</span>
+                      )}
                     </div>
                     <div className="max-h-80 overflow-y-auto divide-y divide-gray-50 dark:divide-white/5">
-                      <div className="p-5 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors cursor-pointer flex gap-4">
-                        <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center shrink-0">
-                          <Sparkles size={18} className="text-emerald-500" />
+                      {notifications.length > 0 ? (
+                        notifications.map((notif) => (
+                          <div key={notif.id} className="p-5 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors cursor-pointer flex gap-4">
+                            <div className={cn(
+                              "w-10 h-10 rounded-xl flex items-center justify-center shrink-0",
+                              notif.type === 'application' ? "bg-emerald-600/10 text-emerald-600" : "bg-blue-600/10 text-blue-600"
+                            )}>
+                              {notif.type === 'application' ? <Sparkles size={18} /> : <MessageSquare size={18} />}
+                            </div>
+                            <div>
+                              <p className="text-sm font-bold text-gray-900 dark:text-white mb-1">{notif.title}</p>
+                              <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed mb-2">{notif.message}</p>
+                              <span className="text-[10px] font-bold text-gray-400 uppercase">{new Date(notif.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                            </div>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="p-10 text-center">
+                          <Bell className="mx-auto text-gray-300 dark:text-gray-700 mb-3" size={32} />
+                          <p className="text-xs font-bold text-gray-400">All caught up!</p>
                         </div>
-                        <div>
-                          <p className="text-sm font-bold text-gray-900 dark:text-white mb-1">New AI Match Found!</p>
-                          <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed mb-2">A high-conversion tech creator matches your campaign criteria.</p>
-                          <span className="text-[10px] font-bold text-emerald-500 uppercase">2 mins ago</span>
-                        </div>
-                      </div>
-                      <div className="p-5 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors cursor-pointer flex gap-4">
-                        <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center shrink-0">
-                          <Megaphone size={18} className="text-blue-500" />
-                        </div>
-                        <div>
-                          <p className="text-sm font-bold text-gray-900 dark:text-white mb-1">Campaign Approved</p>
-                          <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed mb-2">Your "Summer Launch" campaign is now live.</p>
-                          <span className="text-[10px] font-bold text-gray-400 uppercase">1 hour ago</span>
-                        </div>
-                      </div>
-                      <div className="p-5 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors cursor-pointer flex gap-4">
-                        <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center shrink-0">
-                          <CreditCard size={18} className="text-amber-500" />
-                        </div>
-                        <div>
-                          <p className="text-sm font-bold text-gray-900 dark:text-white mb-1">Coins Credited</p>
-                          <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed mb-2">500 coins have been added to your wallet successfully.</p>
-                          <span className="text-[10px] font-bold text-gray-400 uppercase">1 day ago</span>
-                        </div>
-                      </div>
+                      )}
                     </div>
                   </motion.div>
                 )}
@@ -292,7 +295,12 @@ export default function AdvertiserLayout({ children }: AdvertiserLayoutProps) {
 
             <ThemeToggle />
             <Link to="/profile/view/advertiser" className="w-10 h-10 rounded-xl overflow-hidden border border-gray-100 dark:border-white/10">
-              <img src={profile.avatarUrl || null} alt="Profile" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+              <img 
+                src={profile.avatarUrl || `https://ui-avatars.com/api/?name=${profile.firstName}+${profile.lastName}&background=10b981&color=fff`} 
+                alt="Profile" 
+                className="w-full h-full object-cover" 
+                referrerPolicy="no-referrer" 
+              />
             </Link>
           </div>
         </header>

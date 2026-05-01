@@ -48,6 +48,16 @@ export default function AdminUsersPage() {
     }, 400);
   };
 
+  const handleApprove = (user: AdminUser) => {
+    updateStatus.mutate(
+      { userId: user._id, status: 'approved' },
+      {
+        onSuccess: () => showToast(`${user.firstName} has been approved.`),
+        onError: () => showToast('Failed to approve user.', 'error'),
+      }
+    );
+  };
+
   const handleSuspend = (user: AdminUser) => {
     const newStatus = user.status === 'banned' ? 'active' : 'banned';
     updateStatus.mutate(
@@ -85,7 +95,7 @@ export default function AdminUsersPage() {
   };
 
   const statusStyle = (status: AdminUser['status']) => {
-    if (status === 'active') return 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600';
+    if (status === 'active' || status === 'approved') return 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600';
     if (status === 'banned') return 'bg-red-100 dark:bg-red-500/20 text-red-600';
     return 'bg-amber-100 dark:bg-amber-500/20 text-amber-600';
   };
@@ -189,13 +199,11 @@ export default function AdminUsersPage() {
                           className="flex items-center gap-4 hover:opacity-80 transition-opacity"
                         >
                           <div className="w-10 h-10 rounded-xl overflow-hidden bg-gray-100 shrink-0">
-                            {user.profilePicture ? (
-                              <img src={user.profilePicture} alt={user.firstName} className="w-full h-full object-cover" />
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center bg-green-100 dark:bg-green-500/20 text-[#14a800] font-black text-sm">
-                                {user.firstName?.[0] ?? user.email[0].toUpperCase()}
-                              </div>
-                            )}
+                            <img 
+                              src={user.profilePicture || `https://ui-avatars.com/api/?name=${user.firstName}+${user.lastName}&background=10b981&color=fff`} 
+                              alt={user.firstName} 
+                              className="w-full h-full object-cover" 
+                            />
                           </div>
                           <div>
                             <p className="text-sm font-bold text-[#1A1D1F] dark:text-white leading-none mb-1">
@@ -231,12 +239,22 @@ export default function AdminUsersPage() {
                           </Link>
                           {!user.isVerified && (
                             <Link
-                              to="/admin/verification"
+                              to={`/admin/verification/${user._id}`}
                               className="p-2 hover:bg-white dark:hover:bg-white/10 rounded-xl transition-all text-[#9A9FA5] hover:text-[#14a800]"
                               title="Review Verification"
                             >
                               <ShieldCheck size={18} />
                             </Link>
+                          )}
+                          {user.status === 'pending' && (
+                            <button
+                              onClick={() => handleApprove(user)}
+                              disabled={updateStatus.isPending}
+                              className="p-2 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 rounded-xl transition-all text-emerald-500"
+                              title="Approve User"
+                            >
+                              <ShieldCheck size={18} />
+                            </button>
                           )}
                           <button
                             onClick={() => handleSuspend(user)}

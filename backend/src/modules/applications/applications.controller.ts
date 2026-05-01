@@ -124,10 +124,16 @@ export const applyToOpportunity = async (req: Request, res: Response) => {
                         
                         io.to(conversationId).emit('message:receive', message);
                         
-                        io.to(businessOwnerClerkId).emit('notification:message', {
-                            from: user.firstName,
-                            preview: `New application for ${opportunity.title}`,
-                            roomId: conversationId,
+                        io.to(`user:${(businessOwner._id as any).toString()}`).emit('notification:new', {
+                            type: 'application',
+                            title: 'New Application Received',
+                            message: `${advertiserName} applied for "${opportunity.title}"`,
+                            data: {
+                                opportunityId: opportunity._id,
+                                advertiserId: advertiserId,
+                                conversationId
+                            },
+                            createdAt: new Date().toISOString()
                         });
                     }
                 }

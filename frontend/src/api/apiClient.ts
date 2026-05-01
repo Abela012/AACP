@@ -48,7 +48,9 @@ export const useApiClient = (): AxiosInstance => {
                     console.error('[API] Forbidden — insufficient permissions');
                 }
                 if (status === 404) {
-                    console.error('[API] Resource not found:', error.config?.url);
+                    if (!error.config?.url?.includes('/users/me')) {
+                        console.error('[API] Resource not found:', error.config?.url);
+                    }
                 }
                 if (status >= 500) {
                     console.error('[API] Server error:', message || 'Unknown error');

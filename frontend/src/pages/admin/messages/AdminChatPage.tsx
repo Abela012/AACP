@@ -40,7 +40,7 @@ export default function AdminChatPage() {
     e.preventDefault();
     if (!message.trim() || !activeChat) return;
     
-    emitMessage(message);
+    emitMessage(message, activeChat._id);
     setMessage('');
   };
 

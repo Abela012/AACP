@@ -3,9 +3,12 @@ import { motion } from 'framer-motion';
 import { User, Mail, Shield, Key, History, CreditCard, Camera, CheckCircle2, AlertCircle } from 'lucide-react';
 import AdminLayout from '@/src/shared/components/layouts/AdminLayout';
 import { useUser as useClerkUser } from '@clerk/clerk-react';
+import { useApiClient } from '@/src/api/apiClient';
+import { userApi } from '@/src/api/userApi';
 
 export default function AdminProfilePage() {
   const { user: clerkUser } = useClerkUser();
+  const api = useApiClient();
   const [isEditing, setIsEditing] = useState(false);
   const [is2FAEnabled, setIs2FAEnabled] = useState(false);
   const [profileName, setProfileName] = useState(clerkUser?.fullName || 'Administrator');
@@ -34,6 +37,17 @@ export default function AdminProfilePage() {
         showToast('Profile photo updated successfully!');
       };
       reader.readAsDataURL(file);
+
+      // Upload to backend (persists + updates DB profilePicture)
+      userApi.uploadProfilePicture(api, file)
+        .then((res: any) => {
+          const url = res?.data?.user?.profilePicture;
+          if (url) setProfileImage(url);
+          showToast('Profile photo saved successfully!');
+        })
+        .catch(() => {
+          showToast('Failed to upload profile photo. Please try again.', 'error');
+        });
     }
   };
 

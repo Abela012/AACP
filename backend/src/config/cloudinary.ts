@@ -1,9 +1,14 @@
 import { v2 as cloudinary } from "cloudinary";
 
+if (!process.env.CLOUDINARY_API_KEY) {
+    console.error("CRITICAL: CLOUDINARY_API_KEY is missing in process.env");
+}
+
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
     api_key: process.env.CLOUDINARY_API_KEY,
     api_secret: process.env.CLOUDINARY_API_SECRET,
+    secure: true,
 });
 
 export default cloudinary;

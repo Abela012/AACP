@@ -24,17 +24,29 @@ export const uploadProfilePicture = async (
   }
 
   try {
-    const base64 = Buffer.from(req.file.buffer).toString("base64");
-    const dataURI = "data:" + req.file.mimetype + ";base64," + base64;
+    // Upload using stream instead of dataURI for better reliability
+    const uploadFromBuffer = (buffer: Buffer) => {
+      return new Promise((resolve, reject) => {
+        const stream = cloudinary.uploader.upload_stream(
+          {
+            folder: "aacp/images",
+            resource_type: "image",
+          },
+          (error, result) => {
+            if (result) resolve(result);
+            else reject(error);
+          }
+        );
+        stream.end(buffer);
+      });
+    };
 
-    const result = await cloudinary.uploader.upload(dataURI, {
-      folder: "aacp/images",
-      resource_type: "image",
-    });
-
+    const result: any = await uploadFromBuffer(req.file.buffer);
+    const type = req.query.type === 'cover' ? 'coverImage' : 'profilePicture';
+ 
     const user = await User.findOneAndUpdate(
       { clerkId: userId },
-      { profilePicture: result.secure_url },
+      { $set: { [type]: result.secure_url } },
       { new: true }
     );
 
@@ -54,7 +66,10 @@ export const uploadProfilePicture = async (
 };
 
 
-export const updateUserProfile = async (req: Request, res: Response) => {
+export const updateUserProfile = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
 
   const ALLOWED_FIELDS = [
     "firstName",
@@ -184,11 +199,6 @@ export const syncUser = async (req: Request, res: Response): Promise<void> => {
   // check if user already exists in db
   const existingUser = await User.findOne({ clerkId: userId });
   if (existingUser) {
-    // Auto-activate existing pending users to resolve current blockage
-    if (existingUser.status === 'pending') {
-      existingUser.status = 'active';
-      await existingUser.save();
-    }
     res
       .status(200)
       .json({ user: existingUser, message: "User already exists" });

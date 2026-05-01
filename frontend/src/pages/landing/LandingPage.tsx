@@ -1,7 +1,6 @@
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import { motion, type Variants } from 'framer-motion';
 import {
-  ArrowRight,
   BarChart3,
   Megaphone,
   Users,

@@ -23,9 +23,23 @@ export const userApi = {
     getMe: async (api: AxiosInstance) => {
         try {
             return await api.get('/users/me');
-        } catch (error) {
-            console.warn('GetMe API call failed:', error);
+        } catch (error: any) {
+            if (error?.response?.status !== 404) {
+                console.warn('GetMe API call failed:', error);
+            }
             throw error;
         }
-    }
+    },
+    uploadProfilePicture: async (api: AxiosInstance, file: File) => {
+        try {
+            const formData = new FormData();
+            formData.append('image', file);
+            return await api.post('/users/profile/picture', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' },
+            });
+        } catch (error) {
+            console.warn('UploadProfilePicture API call failed:', error);
+            throw error;
+        }
+    },
 };

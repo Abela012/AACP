@@ -8,6 +8,7 @@ import { error } from '../utils/response';
 const validate = (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+        console.log('Validation failed:', errors.array());
         return error(
             res,
             'Validation failed',

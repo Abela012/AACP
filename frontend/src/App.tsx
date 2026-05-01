@@ -28,6 +28,7 @@ import CompleteProfilePage from './pages/profile/complete-profile/CompleteProfil
 import LandingPage from './pages/landing/LandingPage'
 import ConversationPage from './pages/chat/conversation/ConversationPage'
 import AdminDashboardPage from './pages/dashboard/admin/AdminDashboardPage'
+import SuperAdminDashboardPage from './pages/dashboard/super-admin/SuperAdminDashboardPage'
 import AdminUsersPage from './pages/admin/users/AdminUsersPage'
 import AdminUserDetailPage from './pages/admin/users/AdminUserDetailPage'
 import AdminSuspendedUserPage from './pages/admin/users/AdminSuspendedUserPage'
@@ -41,7 +42,16 @@ import AdminProfilePage from './pages/admin/profile/AdminProfilePage'
 import AdminChatPage from './pages/admin/messages/AdminChatPage'
 import AdminHelpPage from './pages/admin/help/AdminHelpPage'
 // import SystemLogsPage from './pages/admin/logs/SystemLogsPage'
+import AuditLogsPage from './pages/system/audit-logs/AuditLogsPage'
 import CreateCampaignPage from './pages/dashboard/business-owner/CreateCampaignPage'
+import CampaignApplicantsPage from './pages/dashboard/business-owner/CampaignApplicantsPage'
+import PendingApprovalPage from './pages/auth/PendingApprovalPage'
+import SuperAdminAdminManagementPage from './pages/super-admin/admin-management/AdminManagementPage'
+import SuperAdminAuditTrailPage from './pages/super-admin/audit-trail/AuditTrailPage'
+import SuperAdminPlatformPage from './pages/super-admin/platform/PlatformPage'
+import SuperAdminSecurityPage from './pages/super-admin/security/SecurityPage'
+import SuperAdminNotificationsPage from './pages/super-admin/notifications/NotificationsPage'
+import SuperAdminProfilePage from './pages/super-admin/profile/ProfilePage'
 import './App.css'
 
 function App() {
@@ -107,6 +117,7 @@ function App() {
         }
       />
 
+
       {/* Protected Dashboard Routes */}
       <Route
         path="/dashboard"
@@ -139,6 +150,10 @@ function App() {
         element={<AdminDashboardPage />}
       />
       <Route
+        path="/dashboard/super-admin"
+        element={<SuperAdminDashboardPage />}
+      />
+      <Route
         path="/dashboard/advertiser"
         element={
           <>
@@ -164,6 +179,10 @@ function App() {
       <Route
         path="/admin/users/:id/suspended"
         element={<SignedIn><AdminSuspendedUserPage /></SignedIn>}
+      />
+      <Route
+        path="/admin/verification"
+        element={<Navigate to="/admin/users" replace />}
       />
       <Route
         path="/admin/verification/:id"
@@ -203,14 +222,49 @@ function App() {
       />
       {/* <Route
         path="/admin/logs"
-        element={<SignedIn><SystemLogsPage /></SignedIn>}
+        element={<SignedIn><AuditLogsPage /></SignedIn>}
       /> */}
+
+      {/* Super Admin Specific Routes */}
+      <Route
+        path="/super-admin/admin-management"
+        element={<SignedIn><SuperAdminAdminManagementPage /></SignedIn>}
+      />
+      <Route
+        path="/super-admin/audit-trail"
+        element={<SignedIn><SuperAdminAuditTrailPage /></SignedIn>}
+      />
+      <Route
+        path="/super-admin/platform"
+        element={<SignedIn><SuperAdminPlatformPage /></SignedIn>}
+      />
+      <Route
+        path="/super-admin/security"
+        element={<SignedIn><SuperAdminSecurityPage /></SignedIn>}
+      />
+      <Route
+        path="/super-admin/notifications"
+        element={<SignedIn><SuperAdminNotificationsPage /></SignedIn>}
+      />
+      <Route
+        path="/super-admin/profile"
+        element={<SignedIn><SuperAdminProfilePage /></SignedIn>}
+      />
 
       <Route
         path="/campaigns"
         element={
           <>
             <SignedIn><CampaignsPage /></SignedIn>
+            <SignedOut><Navigate to="/auth/login" replace /></SignedOut>
+          </>
+        }
+      />
+      <Route
+        path="/campaign/:id/applicants"
+        element={
+          <>
+            <SignedIn><CampaignApplicantsPage /></SignedIn>
             <SignedOut><Navigate to="/auth/login" replace /></SignedOut>
           </>
         }
@@ -370,21 +424,15 @@ function App() {
       />
       <Route
         path="/profile/complete/business"
-        element={
-          <>
-            <SignedIn><CompleteProfilePage /></SignedIn>
-            <SignedOut><Navigate to="/auth/login" replace /></SignedOut>
-          </>
-        }
+        element={<Navigate to="/dashboard" replace />}
       />
       <Route
         path="/profile/complete/advertiser"
-        element={
-          <>
-            <SignedIn><CompleteProfilePage /></SignedIn>
-            <SignedOut><Navigate to="/auth/login" replace /></SignedOut>
-          </>
-        }
+        element={<Navigate to="/dashboard" replace />}
+      />
+      <Route
+        path="/pending-approval"
+        element={<Navigate to="/dashboard" replace />}
       />
       <Route
         path="/profile/edit/business"

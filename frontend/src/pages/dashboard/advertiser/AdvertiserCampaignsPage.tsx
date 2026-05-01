@@ -1,17 +1,19 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { 
   Search, 
   Filter, 
   MoreVertical, 
   MessageSquare,
+  CheckCircle2,
+  XCircle,
+  TrendingUp,
+  Loader2
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { cn } from '@/src/shared/utils/cn';
 import AdvertiserLayout from '@/src/shared/components/layouts/AdvertiserLayout';
-
 import { useUser as useClerkUser } from '@clerk/clerk-react';
 import { useMyApplications } from '@/src/hooks/useApplications';
-import { Loader2 } from 'lucide-react';
 
 export default function AdvertiserCampaignsPage() {
   const { user: clerkUser } = useClerkUser();
@@ -21,7 +23,8 @@ export default function AdvertiserCampaignsPage() {
   const [selectedPlatform, setSelectedPlatform] = useState('All Platforms');
 
   const { data: appsData, isLoading } = useMyApplications(myId);
-  const applications = appsData?.applications ?? [];
+  // appsData is the direct array from the API success response
+  const applications = Array.isArray(appsData) ? appsData : (appsData as any)?.applications ?? [];
 
   const filteredCampaigns = applications.filter((app: any) => {
     const statusMap: Record<string, string> = {
@@ -57,6 +60,48 @@ export default function AdvertiserCampaignsPage() {
           </div>
         </div>
 
+        {/* Summary Dashboard */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+          <div className="bg-white dark:bg-white/5 p-6 rounded-[2rem] border border-gray-100 dark:border-white/5 shadow-sm">
+            <div className="flex justify-between items-center mb-4">
+              <span className="text-[10px] font-black text-amber-500 uppercase tracking-widest">Pending Review</span>
+              <div className="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-500">
+                 <Loader2 size={16} className="animate-spin" />
+              </div>
+            </div>
+            <p className="text-3xl font-black text-gray-900 dark:text-white">
+              {applications.filter((a: any) => a.status === 'pending').length}
+            </p>
+            <p className="text-xs font-bold text-gray-400 mt-1">Applications awaiting brand review</p>
+          </div>
+
+          <div className="bg-white dark:bg-white/5 p-6 rounded-[2rem] border border-gray-100 dark:border-white/5 shadow-sm">
+            <div className="flex justify-between items-center mb-4">
+              <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest">Accepted</span>
+              <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-500">
+                 <CheckCircle2 size={16} />
+              </div>
+            </div>
+            <p className="text-3xl font-black text-gray-900 dark:text-white">
+              {applications.filter((a: any) => a.status === 'accepted').length}
+            </p>
+            <p className="text-xs font-bold text-gray-400 mt-1">Active collaborations in progress</p>
+          </div>
+
+          <div className="bg-white dark:bg-white/5 p-6 rounded-[2rem] border border-gray-100 dark:border-white/5 shadow-sm">
+            <div className="flex justify-between items-center mb-4">
+              <span className="text-[10px] font-black text-red-500 uppercase tracking-widest">Rejected</span>
+              <div className="w-8 h-8 rounded-lg bg-red-500/10 flex items-center justify-center text-red-500">
+                 <XCircle size={16} />
+              </div>
+            </div>
+            <p className="text-3xl font-black text-gray-900 dark:text-white">
+              {applications.filter((a: any) => a.status === 'rejected').length}
+            </p>
+            <p className="text-xs font-bold text-gray-400 mt-1">Declined opportunities</p>
+          </div>
+        </div>
+
         {/* Filters & Search */}
         <div className="bg-white dark:bg-white/5 p-4 rounded-2xl border border-gray-100 dark:border-white/5 shadow-sm dark:shadow-none mb-8 flex flex-col sm:flex-row gap-4 justify-between">
           <div className="relative flex-1">
@@ -80,20 +125,10 @@ export default function AdvertiserCampaignsPage() {
               className="px-4 py-2 rounded-xl border border-gray-100 dark:border-white/10 text-sm font-medium text-gray-600 dark:text-gray-400 outline-none bg-white dark:bg-white/5"
             >
               <option>All Status</option>
-              <option>In Progress</option>
-              <option>Pending Brief</option>
               <option>Applied</option>
-              <option>Completed</option>
-            </select>
-            <select 
-              value={selectedPlatform}
-              onChange={(e) => setSelectedPlatform(e.target.value)}
-              className="px-4 py-2 rounded-xl border border-gray-100 dark:border-white/10 text-sm font-medium text-gray-600 dark:text-gray-400 outline-none bg-white dark:bg-white/5"
-            >
-              <option>All Platforms</option>
-              <option>TikTok</option>
-              <option>Instagram</option>
-              <option>YouTube</option>
+              <option>In Progress</option>
+              <option>Rejected</option>
+              <option>Withdrawn</option>
             </select>
           </div>
         </div>
@@ -105,10 +140,10 @@ export default function AdvertiserCampaignsPage() {
               <thead>
                 <tr className="border-b border-gray-50 dark:border-white/5">
                   <th className="px-8 py-6 text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Campaign & Brand</th>
-                  <th className="px-8 py-6 text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Status</th>
-                  <th className="px-8 py-6 text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Platform</th>
-                  <th className="px-8 py-6 text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Progress</th>
-                  <th className="px-8 py-6 text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Earnings</th>
+                  <th className="px-8 py-6 text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Application Status</th>
+                  <th className="px-8 py-6 text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Category</th>
+                  <th className="px-8 py-6 text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Journey</th>
+                  <th className="px-8 py-6 text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Budget</th>
                   <th className="px-8 py-6 text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Deadline</th>
                   <th className="px-8 py-6 text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest"></th>
                 </tr>
@@ -160,10 +195,10 @@ export default function AdvertiserCampaignsPage() {
                           </div>
                         </td>
                         <td className="px-8 py-6">
-                          <p className="text-sm font-bold text-gray-900 dark:text-white">${opp.budget?.amount?.toLocaleString() || '0'}</p>
+                          <p className="text-sm font-bold text-gray-900 dark:text-white">${opp?.budget?.amount?.toLocaleString() || '0'}</p>
                         </td>
                         <td className="px-8 py-6">
-                          <p className="text-sm text-gray-500 dark:text-gray-400">{opp.deadline ? new Date(opp.deadline).toLocaleDateString() : 'No Deadline'}</p>
+                          <p className="text-sm text-gray-500 dark:text-gray-400">{opp?.deadline ? new Date(opp.deadline).toLocaleDateString() : 'No Deadline'}</p>
                         </td>
                         <td className="px-8 py-6 text-right">
                           <div className="flex items-center justify-end gap-2">

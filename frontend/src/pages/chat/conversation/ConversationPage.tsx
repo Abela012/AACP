@@ -169,13 +169,8 @@ export default function ConversationPage() {
                 )}
               >
                 <div className="relative shrink-0">
-                  {contact.avatar ? (
-                    <img src={contact.avatar} alt={contact.name} className="w-12 h-12 rounded-full object-cover" />
-                  ) : (
-                    <div className="w-12 h-12 rounded-full bg-emerald-100 dark:bg-emerald-500/20 flex items-center justify-center text-emerald-600 font-black">
-                      {contact.name[0]}
-                    </div>
-                  )}
+                  <img src={contact.avatar || `https://ui-avatars.com/api/?name=${contact.name}&background=10b981&color=fff`} alt={contact.name} className="w-12 h-12 rounded-full object-cover" />
+
                   {contact.online && (
                     <div className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-white dark:border-[#0a0a0a] rounded-full" />
                   )}
@@ -206,13 +201,8 @@ export default function ConversationPage() {
             <header className="px-8 h-20 border-b border-gray-100 dark:border-white/5 flex items-center justify-between shrink-0">
               <div className="flex items-center gap-4">
                 <div className="relative">
-                  {activeContact.avatar ? (
-                    <img src={activeContact.avatar} alt={activeContact.name} className="w-10 h-10 rounded-full object-cover" />
-                  ) : (
-                    <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 font-black">
-                      {activeContact.name[0]}
-                    </div>
-                  )}
+                  <img src={activeContact.avatar || `https://ui-avatars.com/api/?name=${activeContact.name}&background=10b981&color=fff`} alt={activeContact.name} className="w-10 h-10 rounded-full object-cover" />
+
                   {activeContact.online && (
                     <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 border-2 border-white dark:border-[#0a0a0a] rounded-full" />
                   )}
@@ -265,13 +255,8 @@ export default function ConversationPage() {
                   <div key={msg._id} className={cn("flex w-full", isMine ? "justify-end" : "justify-start")}>
                     {!isMine && (
                       <div className="w-8 h-8 rounded-full overflow-hidden mr-3 shrink-0 self-end">
-                        {activeContact.avatar ? (
-                          <img src={activeContact.avatar} alt={msg.sender.firstName} className="w-full h-full object-cover" />
-                        ) : (
-                          <div className="w-full h-full bg-emerald-100 flex items-center justify-center text-emerald-600 font-black text-xs">
-                            {msg.sender.firstName[0]}
-                          </div>
-                        )}
+                        <img src={activeContact.avatar || `https://ui-avatars.com/api/?name=${msg.sender.firstName}+${msg.sender.lastName}&background=10b981&color=fff`} alt={msg.sender.firstName} className="w-full h-full object-cover" />
+
                       </div>
                     )}
                     <div className={cn("max-w-[70%] group", isMine ? "items-end text-right" : "items-start")}>

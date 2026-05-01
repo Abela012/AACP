@@ -69,6 +69,9 @@ export const initSocket = (httpServer: HttpServer): SocketServer => {
         onlineUsers.set(userId, socket.id);
         logger.info(`Socket connected: ${user.firstName} (${userId})`);
 
+        // Join private room for targeted notifications
+        socket.join(`user:${userId}`);
+
         // Notify others that this user is online
         socket.broadcast.emit('user:online', { userId });
 
@@ -128,16 +131,18 @@ export const initSocket = (httpServer: HttpServer): SocketServer => {
                 // Broadcast to everyone in the room (including sender for confirmation)
                 io.to(payload.roomId).emit('message:receive', message);
 
-                // Also send to recipient's personal room if specified and they're online
-                if (payload.recipientId) {
-                    const recipientSocketId = onlineUsers.get(recipientMongoId || payload.recipientId);
-                    if (recipientSocketId) {
-                        io.to(recipientSocketId).emit('notification:message', {
-                            from: user.firstName,
-                            preview: payload.text.slice(0, 60),
+                // Also send to recipient's personal room if specified
+                if (recipientMongoId) {
+                    io.to(`user:${recipientMongoId}`).emit('notification:new', {
+                        type: 'message',
+                        title: `New message from ${user.firstName}`,
+                        message: payload.text.slice(0, 60),
+                        data: {
                             roomId: payload.roomId,
-                        });
-                    }
+                            senderId: userId
+                        },
+                        createdAt: new Date().toISOString()
+                    });
                 }
             } catch (err) {
                 logger.error(`Error processing message: ${err}`);

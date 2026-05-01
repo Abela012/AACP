@@ -3,6 +3,7 @@ import User from "../../database/models/User";
 import Transaction from "../../database/models/Transaction";
 import * as walletService from '../wallet/wallet.service';
 import { success } from '../../utils/response';
+import { createAuditLog } from '../audit/audit.service';
 // import Report from "../../database/models/Report";
 // import Comment from "../../database/models/Comment";
 
@@ -86,11 +87,26 @@ export const updateUserRole = async (req: Request, res: Response) => {
         const { userId } = req.params;
         const { role } = req.body;
 
-        if (!['admin', 'writer', 'editor', 'user'].includes(role)) {
+        if (!['business_owner', 'advertiser', 'admin', 'super_admin'].includes(role)) {
             return res.status(400).json({ error: "Invalid role" });
         }
 
+        const actor = (req as any).currentUser || (req as any).user;
+
         const user = await User.findByIdAndUpdate(userId, { role }, { new: true });
+        if (actor?._id && actor?.role) {
+            await createAuditLog({
+                action: 'USER_ROLE_UPDATED',
+                actorId: String(actor._id),
+                actorRole: actor.role,
+                targetUserId: userId,
+                targetType: 'user',
+                targetId: userId,
+                message: `Updated user role to ${role}`,
+                metadata: { role },
+                req,
+            });
+        }
         res.json(user);
     } catch (error) {
         res.status(500).json({ error: "Failed to update user role" });
@@ -102,7 +118,21 @@ export const banUser = async (req: Request, res: Response) => {
         const { userId } = req.params;
         const { status } = req.body; // active, banned, suspended
 
+        const actor = (req as any).currentUser || (req as any).user;
         const user = await User.findByIdAndUpdate(userId, { status }, { new: true });
+        if (actor?._id && actor?.role) {
+            await createAuditLog({
+                action: 'USER_STATUS_UPDATED',
+                actorId: String(actor._id),
+                actorRole: actor.role,
+                targetUserId: userId,
+                targetType: 'user',
+                targetId: userId,
+                message: `Updated user status to ${status}`,
+                metadata: { status },
+                req,
+            });
+        }
         res.json(user);
     } catch (error) {
         res.status(500).json({ error: "Failed to update user status" });
@@ -169,8 +199,22 @@ export const getWalletRequests = async (req: Request, res: Response, next: NextF
 export const approveWalletRequest = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { requestId } = req.params;
-        const adminId = (req as any).user?._id;
+        const actor = (req as any).currentUser || (req as any).user;
+        const adminId = actor?._id;
         const result = await walletService.approveRequest(requestId, adminId);
+        if (actor?._id && actor?.role) {
+            await createAuditLog({
+                action: 'WALLET_REQUEST_APPROVED',
+                actorId: String(actor._id),
+                actorRole: actor.role,
+                targetUserId: String(result?.transaction?.user || ''),
+                targetType: 'transaction',
+                targetId: requestId,
+                message: 'Approved coin request',
+                metadata: { requestId },
+                req,
+            });
+        }
         return success(res, "Request approved and coins credited", result);
     } catch (error) {
         next(error);
@@ -181,8 +225,21 @@ export const rejectWalletRequest = async (req: Request, res: Response, next: Nex
     try {
         const { requestId } = req.params;
         const { reason } = req.body;
-        const adminId = (req as any).user?._id;
+        const actor = (req as any).currentUser || (req as any).user;
+        const adminId = actor?._id;
         const result = await walletService.rejectRequest(requestId, adminId, reason);
+        if (actor?._id && actor?.role) {
+            await createAuditLog({
+                action: 'WALLET_REQUEST_REJECTED',
+                actorId: String(actor._id),
+                actorRole: actor.role,
+                targetType: 'transaction',
+                targetId: requestId,
+                message: 'Rejected coin request',
+                metadata: { requestId, reason },
+                req,
+            });
+        }
         return success(res, "Request rejected", result);
     } catch (error) {
         next(error);
