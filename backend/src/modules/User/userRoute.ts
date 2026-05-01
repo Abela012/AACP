@@ -11,7 +11,6 @@ import multer from "multer";
 const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage() });
 
-// protected routes
 router.put("/profile", requireAuth(), updateUserProfile);
 router.post(
   "/profile/picture",
@@ -19,7 +18,7 @@ router.post(
   upload.single("image"),
   uploadProfilePicture
 );
-router.get("/me", requireAuth(), getCurrentUser);
+router.get("/user", requireAuth(), getCurrentUser);
 router.post("/sync", syncUser);
 
 export default router;

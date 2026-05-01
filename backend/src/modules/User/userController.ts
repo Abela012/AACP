@@ -24,12 +24,11 @@ export const uploadProfilePicture = async (
   }
 
   try {
-    // Convert buffer to base64
-    const b64 = Buffer.from(req.file.buffer).toString("base64");
-    const dataURI = "data:" + req.file.mimetype + ";base64," + b64;
+    const base64 = Buffer.from(req.file.buffer).toString("base64");
+    const dataURI = "data:" + req.file.mimetype + ";base64," + base64;
 
     const result = await cloudinary.uploader.upload(dataURI, {
-      folder: "et-pulse/avatars",
+      folder: "aacp/images",
       resource_type: "image",
     });
 
@@ -54,41 +53,119 @@ export const uploadProfilePicture = async (
   }
 };
 
-export const updateUserProfile = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
-  const { userId } = getAuth(req);
-  const { firstName, lastName, profileData, status } = req.body;
 
-  const updateFields: any = {};
-  if (firstName !== undefined) updateFields.firstName = firstName;
-  if (lastName !== undefined) updateFields.lastName = lastName;
-  if (profileData !== undefined) updateFields.profileData = profileData;
-  if (status !== undefined) updateFields.status = status;
+export const updateUserProfile = async (req: Request, res: Response) => {
 
-  const user = await User.findOneAndUpdate(
-    { clerkId: userId },
-    { $set: updateFields },
-    {
-      new: true,
+  const ALLOWED_FIELDS = [
+    "firstName",
+    "lastName",
+    "username",
+    "profilePicture",
+    "location",
+    "profileData",
+  ];
+
+  try {
+    const { userId } = getAuth(req);
+
+    if (!userId) {
+      res.status(401).json({ message: "Unauthorized" });
+      return;
     }
-  );
-  if (!user) {
-    res.status(404).json({ error: "User not found" });
-    return;
-  }
 
-  res.status(200).json({ user });
+    // Find user
+    const user = await User.findOne({ clerkId: userId });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const updates: any = {};
+
+    for (const key of ALLOWED_FIELDS) {
+      if (req.body[key] !== undefined) {
+        updates[key] = req.body[key];
+      }
+    }
+
+    if (updates.username) {
+      const usernameRegex = /^[a-z0-9_]{3,20}$/;
+
+      const username = updates.username.toLowerCase().trim();
+
+      if (!usernameRegex.test(username)) {
+        return res.status(400).json({
+          message:
+            "Invalid username. Use 3-20 chars: lowercase letters, numbers, underscore only.",
+        });
+      }
+
+      const existing = await User.findOne({
+        username,
+        _id: { $ne: user._id },
+      });
+
+      if (existing) {
+        return res.status(409).json({ message: "Username already taken" });
+      }
+    }
+
+    // 🧠 Safely merge profileData (avoid overwriting entire object)
+    if (updates.profileData && typeof updates.profileData === "object") {
+      updates.profileData = {
+        ...(user.profileData || {}),
+        ...updates.profileData,
+      };
+    }
+
+    // 🚫 Strictly remove system-controlled fields (extra safety layer)
+    const forbiddenFields = [
+      "role",
+      "status",
+      "email",
+      "clerkId",
+      "totalPosts",
+      "lastLogin",
+      "createdAt",
+      "updatedAt",
+    ];
+
+    for (const field of forbiddenFields) {
+      delete updates[field];
+    }
+
+    // 🧾 Update user safely
+    const updatedUser = await User.findByIdAndUpdate(
+      user._id,
+      { $set: updates },
+      {
+        new: true,
+        runValidators: true, // 🔥 important: ensures schema rules still apply
+      }
+    ).select("-__v");
+
+    return res.status(200).json({
+      message: "Profile updated successfully",
+      user: updatedUser,
+    });
+  } catch (error) {
+    console.error("Update profile error:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
 };
+
 
 export const getCurrentUser = async (
   req: Request,
   res: Response
 ): Promise<void> => {
   const { userId } = getAuth(req);
+  if (!userId) {
+    res.status(401).json({ message: "Unauthorized" });
+    return;
+  }
 
-  const user = await User.findOne({ clerkId: userId });
+  const user = await User.findOne({ clerkId: userId }).lean();
   if (!user) {
     res.status(404).json({ message: "User not found" });
     return;
@@ -126,20 +203,23 @@ export const syncUser = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    let username = clerkUser.emailAddresses[0].emailAddress.split("@")[0];
-    const existingUsername = await User.findOne({ username });
-    if (existingUsername) {
-      username = `${username}_${Math.floor(Math.random() * 1000)}`;
+    let baseUsername = email.split("@")[0].toLowerCase().trim();
+    let username = baseUsername;
+    let counter = 0;
+
+    while (await User.findOne({ username })) {
+      counter++;
+      username = `${baseUsername}_${counter}`;
     }
 
     const userData = {
       clerkId: userId,
-      email: clerkUser.emailAddresses[0].emailAddress,
+      email,
       firstName: clerkUser.firstName || "",
       lastName: clerkUser.lastName || "",
       username: username,
       profilePicture: clerkUser.imageUrl || "",
-      role: req.body.role || (clerkUser.publicMetadata.role as string) || 'advertiser',
+      role: (clerkUser.publicMetadata.role as string) || 'advertiser',
     };
 
     console.log("Attempting to create user with data:", userData);

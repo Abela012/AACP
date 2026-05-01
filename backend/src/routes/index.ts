@@ -7,14 +7,10 @@ import walletRoutes from '../modules/wallet/wallet.routes';
 import userRoutes from '../modules/User/userRoute';
 import adminRoutes from '../modules/Admin/adminRoute';
 import chatRoutes from '../modules/chat/chat.routes';
-
-/**
- * API Routes Index
- */
+import facebookRoutes from '../modules/facebook/facebook.routes';
 
 const router = express.Router();
 
-// Use routes
 router.use('/opportunities', opportunityRoutes);
 router.use('/applications', applicationRoutes);
 router.use('/collaborations', collaborationRoutes);
@@ -23,8 +19,8 @@ router.use('/wallet', walletRoutes);
 router.use('/users', userRoutes);
 router.use('/admin', adminRoutes);
 router.use('/chat', chatRoutes);
+router.use('/facebook', facebookRoutes);
 
-// Health check route
 router.get('/health', (req, res) => {
     res.status(200).json({ status: 'OK', message: 'API is running' });
 });

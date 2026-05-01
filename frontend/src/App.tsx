@@ -40,7 +40,7 @@ import AdminNotificationsPage from './pages/admin/notifications/AdminNotificatio
 import AdminProfilePage from './pages/admin/profile/AdminProfilePage'
 import AdminChatPage from './pages/admin/messages/AdminChatPage'
 import AdminHelpPage from './pages/admin/help/AdminHelpPage'
-import SystemLogsPage from './pages/admin/logs/SystemLogsPage'
+// import SystemLogsPage from './pages/admin/logs/SystemLogsPage'
 import CreateCampaignPage from './pages/dashboard/business-owner/CreateCampaignPage'
 import './App.css'
 
@@ -201,10 +201,10 @@ function App() {
         path="/admin/help"
         element={<SignedIn><AdminHelpPage /></SignedIn>}
       />
-      <Route
+      {/* <Route
         path="/admin/logs"
         element={<SignedIn><SystemLogsPage /></SignedIn>}
-      />
+      /> */}
 
       <Route
         path="/campaigns"
