@@ -42,8 +42,6 @@ router.get("/disputes", getDisputes);
 router.put("/disputes/:disputeId/resolve", resolveDispute);
 router.put("/disputes/:disputeId/escalate", escalateDispute);
 
-// News
-router.post("/news", createNews);
 
 // Wallet
 router.get("/wallet/requests", getWalletRequests);

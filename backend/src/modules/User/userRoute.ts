@@ -12,6 +12,7 @@ const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage() });
 
 router.put("/profile", requireAuth(), updateUserProfile);
+
 router.post(
   "/profile/picture",
   requireAuth(),
@@ -19,6 +20,7 @@ router.post(
   uploadProfilePicture
 );
 router.get("/user", requireAuth(), getCurrentUser);
+
 router.post("/sync", syncUser);
 
 export default router;
