@@ -37,7 +37,11 @@ if (env.NODE_ENV === 'development') {
     app.use(morgan('dev'));
 }
 
+// Swagger UI
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
 app.use(clerkMiddleware());
+
 app.use('/api/v1', routes);
 
 app.use(errorHandler);
@@ -50,8 +54,6 @@ const io = initSocket(httpServer);
 
 (app as any).io = io;
 
-// Swagger UI
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 const server = httpServer.listen(PORT, () => {
     logger.info(`Server running in ${env.NODE_ENV} mode on port ${PORT}`);
