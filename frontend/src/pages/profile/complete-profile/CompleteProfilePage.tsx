@@ -53,7 +53,7 @@ function SectionCard({
       initial={{ opacity: 0, y: 24 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.45, ease: [0.25, 0.46, 0.45, 0.94] }}
-      className="bg-white dark:bg-[#111] rounded-3xl border border-gray-100 dark:border-white/[0.06] p-6 md:p-8 shadow-[0_1px_3px_rgba(0,0,0,0.04)]"
+      className="bg-white dark:bg-[#111] rounded-3xl border border-gray-100 dark:border-white/6 p-6 md:p-8 shadow-[0_1px_3px_rgba(0,0,0,0.04)]"
     >
       <div className="flex items-center gap-3 mb-6">
         <span className="text-emerald-600 dark:text-emerald-400">{icon}</span>
@@ -267,12 +267,12 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
   const [tiktokConnected, setTiktokConnected] = useState(false);
   const [instagramConnected, setInstagramConnected] = useState(false);
   const [xConnected, setXConnected] = useState(false);
-  
+
   const [youtubeHandle, setYoutubeHandle] = useState('');
   const [tiktokHandle, setTiktokHandle] = useState('');
   const [instagramHandle, setInstagramHandle] = useState('');
   const [xHandle, setXHandle] = useState('');
-  
+
   const [followers, setFollowers] = useState('');
   const [avgViews, setAvgViews] = useState('');
   const [engagementRate, setEngagementRate] = useState('');
@@ -453,12 +453,11 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
         };
       }
 
-      await userApi.updateProfile(api, {
+      await userApi.submitProfile(api, {
         firstName,
         lastName,
         profilePicture,
         profileData,
-        status: 'pending'
       });
 
       updateProfile({
@@ -467,7 +466,6 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
         avatarUrl: profilePicture,
         ...profileData
       });
-      setOnboardingStatus('approved');
       setSubmitted(true);
     } catch (error) {
       console.error('Failed to submit profile:', error);
@@ -489,7 +487,7 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ type: 'spring', stiffness: 200, damping: 20 }}
-          className="bg-white dark:bg-[#111] rounded-3xl border border-gray-100 dark:border-white/[0.06] p-10 max-w-md w-full text-center shadow-xl"
+          className="bg-white dark:bg-[#111] rounded-3xl border border-gray-100 dark:border-white/6 p-10 max-w-md w-full text-center shadow-xl"
         >
           <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center">
             <CheckCircle2 size={40} className="text-emerald-500" />
@@ -498,11 +496,14 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
             Profile Submitted!
           </h2>
           <p className="text-gray-500 dark:text-gray-400 text-sm mb-8 leading-relaxed">
-            Your profile has been successfully submitted for review. Our team will verify 
+            Your profile has been successfully submitted for review. Our team will verify
             your details within 24-48 hours.
           </p>
           <button
-            onClick={() => navigate('/dashboard')}
+            onClick={() => {
+              setOnboardingStatus('pending');
+              navigate('/dashboard');
+            }}
             className="w-full bg-emerald-500 text-white font-bold py-3.5 rounded-2xl hover:bg-emerald-400 transition-all shadow-lg shadow-emerald-500/20"
           >
             Continue
@@ -516,59 +517,58 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
     <div className="min-h-screen bg-[#fafaf8] dark:bg-[#0a0a0a]">
       {/* ── Header ── */}
       {!isInsideDashboard && (
-      <header className="text-center pt-10 pb-8 px-4">
-        {isBusiness ? (
-          <>
-            <p className="text-sm font-bold text-gray-500 dark:text-gray-400 tracking-wider mb-2">
-              AACP
-            </p>
-            <h1 className="text-3xl md:text-4xl font-black text-emerald-600 dark:text-emerald-400 tracking-tight mb-3">
-              Business Profile
-            </h1>
-            <p className="text-gray-500 dark:text-gray-400 text-sm max-w-md mx-auto leading-relaxed">
-              Craft your brand's digital identity to connect with creators who
-              share your organic vision.
-            </p>
-          </>
-        ) : (
-          <>
-            <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400 tracking-[0.15em] uppercase mb-3">
-              Step 2 of 4 • Profile Setup
-            </p>
-            <h1 className="text-3xl md:text-4xl font-black text-gray-900 dark:text-white tracking-tight mb-3">
-              Complete Your Profile
-            </h1>
-            <p className="text-gray-500 dark:text-gray-400 text-sm max-w-lg mx-auto leading-relaxed mb-5">
-              Let's showcase your digital footprint. High-fidelity profiles
-              receive 4x more engagement from premium brands.
-            </p>
-            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 text-emerald-700 dark:text-emerald-400 text-xs font-bold">
-              <Shield size={14} /> Secure Application
-            </span>
-          </>
-        )}
-      </header>
+        <header className="text-center pt-10 pb-8 px-4">
+          {isBusiness ? (
+            <>
+              <p className="text-sm font-bold text-gray-500 dark:text-gray-400 tracking-wider mb-2">
+                AACP
+              </p>
+              <h1 className="text-3xl md:text-4xl font-black text-emerald-600 dark:text-emerald-400 tracking-tight mb-3">
+                Business Profile
+              </h1>
+              <p className="text-gray-500 dark:text-gray-400 text-sm max-w-md mx-auto leading-relaxed">
+                Craft your brand's digital identity to connect with creators who
+                share your organic vision.
+              </p>
+            </>
+          ) : (
+            <>
+              <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400 tracking-[0.15em] uppercase mb-3">
+                Step 2 of 4 • Profile Setup
+              </p>
+              <h1 className="text-3xl md:text-4xl font-black text-gray-900 dark:text-white tracking-tight mb-3">
+                Complete Your Profile
+              </h1>
+              <p className="text-gray-500 dark:text-gray-400 text-sm max-w-lg mx-auto leading-relaxed mb-5">
+                Let's showcase your digital footprint. High-fidelity profiles
+                receive 4x more engagement from premium brands.
+              </p>
+              <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 text-emerald-700 dark:text-emerald-400 text-xs font-bold">
+                <Shield size={14} /> Secure Application
+              </span>
+            </>
+          )}
+        </header>
       )}
 
       {/* ── Main Form ── */}
       <div className="max-w-[620px] mx-auto px-4 pb-32 space-y-6">
-        <AnimatePresence mode="wait">
           {/* ━━ SHARED: PERSONAL INFORMATION ━━ */}
           <SectionCard icon={<Users size={20} />} title="Personal Information">
             <div className="flex flex-col items-center mb-8">
               <div className="relative group">
                 <div className="w-24 h-24 rounded-full border-4 border-emerald-500/20 overflow-hidden bg-gray-100 dark:bg-white/5 shadow-xl">
-                  <img 
-                    src={profilePicture || `https://ui-avatars.com/api/?name=${firstName}+${lastName}&background=10b981&color=fff`} 
-                    alt="Profile" 
-                    className="w-full h-full object-cover" 
+                  <img
+                    src={profilePicture || `https://ui-avatars.com/api/?name=${firstName}+${lastName}&background=10b981&color=fff`}
+                    alt="Profile"
+                    className="w-full h-full object-cover"
                   />
                 </div>
                 <label className="absolute inset-0 flex items-center justify-center bg-black/40 text-white rounded-full opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity">
                   <Camera size={24} />
-                  <input 
-                    type="file" 
-                    className="hidden" 
+                  <input
+                    type="file"
+                    className="hidden"
                     accept="image/*"
                     onChange={async (e) => {
                       const file = e.target.files?.[0];
@@ -770,8 +770,8 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
                           platform === 'Instagram'
                             ? FaInstagram
                             : platform === 'TikTok'
-                            ? Music2
-                            : FaLinkedin;
+                              ? Music2
+                              : FaLinkedin;
                         return (
                           <button
                             key={platform}
@@ -1086,7 +1086,6 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
               </SectionCard>
             </>
           )}
-        </AnimatePresence>
 
         {/* ── Submit CTA (Advertiser) ── */}
         {!isBusiness && (
@@ -1124,7 +1123,7 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5 }}
-            className="bg-emerald-50 dark:bg-emerald-500/[0.06] border border-emerald-100 dark:border-emerald-500/15 rounded-2xl p-4 flex items-start gap-3"
+            className="bg-emerald-50 dark:bg-emerald-500/6 border border-emerald-100 dark:border-emerald-500/15 rounded-2xl p-4 flex items-start gap-3"
           >
             <Lightbulb
               size={18}
@@ -1144,7 +1143,7 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
 
       {/* ── Bottom Bar (Business) ── */}
       {isBusiness && (
-        <div className="fixed bottom-0 left-0 right-0 bg-white/90 dark:bg-[#111]/90 backdrop-blur-xl border-t border-gray-100 dark:border-white/[0.06] px-4 py-4 z-50">
+        <div className="fixed bottom-0 left-0 right-0 bg-white/90 dark:bg-[#111]/90 backdrop-blur-xl border-t border-gray-100 dark:border-white/[0.06 px-4 py-4 z-50">
           <div className="max-w-[620px] mx-auto flex items-center gap-4">
             {/* Progress */}
             <div className="flex-1">
@@ -1195,22 +1194,22 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
       )}
 
       {!isInsideDashboard && (
-      <footer className="text-center py-8 px-4 border-t border-gray-100 dark:border-white/[0.04]">
-        <div className="flex items-center justify-center gap-6 text-xs text-gray-400 mb-3">
-          <a href="#" className="hover:text-gray-600 dark:hover:text-gray-300 transition-colors uppercase tracking-wider font-semibold">
-            Terms
-          </a>
-          <a href="#" className="hover:text-gray-600 dark:hover:text-gray-300 transition-colors uppercase tracking-wider font-semibold">
-            Privacy
-          </a>
-          <a href="#" className="hover:text-gray-600 dark:hover:text-gray-300 transition-colors uppercase tracking-wider font-semibold">
-            Support
-          </a>
-        </div>
-        <p className="text-[11px] text-gray-400 dark:text-gray-500">
-          © 2024 AACP. Built for the Organic Professional.
-        </p>
-      </footer>
+        <footer className="text-center py-8 px-4 border-t border-gray-100 dark:border-white/4">
+          <div className="flex items-center justify-center gap-6 text-xs text-gray-400 mb-3">
+            <a href="#" className="hover:text-gray-600 dark:hover:text-gray-300 transition-colors uppercase tracking-wider font-semibold">
+              Terms
+            </a>
+            <a href="#" className="hover:text-gray-600 dark:hover:text-gray-300 transition-colors uppercase tracking-wider font-semibold">
+              Privacy
+            </a>
+            <a href="#" className="hover:text-gray-600 dark:hover:text-gray-300 transition-colors uppercase tracking-wider font-semibold">
+              Support
+            </a>
+          </div>
+          <p className="text-[11px] text-gray-400 dark:text-gray-500">
+            © 2024 AACP. Built for the Organic Professional.
+          </p>
+        </footer>
       )}
     </div>
   );

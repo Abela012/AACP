@@ -174,6 +174,69 @@ export const updateUserProfile = async (
   }
 };
 
+export const submitProfileForReview = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  const ALLOWED_FIELDS = [
+    "firstName",
+    "lastName",
+    "username",
+    "profilePicture",
+    "location",
+    "profileData",
+  ];
+
+  try {
+    const { userId } = getAuth(req);
+
+    if (!userId) {
+      res.status(401).json({ message: "Unauthorized" });
+      return;
+    }
+
+    const user = await User.findOne({ clerkId: userId });
+
+    if (!user) {
+      res.status(404).json({ message: "User not found" });
+      return;
+    }
+
+    const updates: any = {};
+
+    for (const key of ALLOWED_FIELDS) {
+      if (req.body[key] !== undefined) {
+        updates[key] = req.body[key];
+      }
+    }
+
+    // Force status to pending for review
+    updates.status = "pending";
+
+    // 🧠 Safely merge profileData
+    if (updates.profileData && typeof updates.profileData === "object") {
+      updates.profileData = {
+        ...(user.profileData || {}),
+        ...updates.profileData,
+      };
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+      user._id,
+      { $set: updates },
+      { new: true, runValidators: true }
+    ).select("-__v");
+
+    res.status(200).json({
+      message: "Profile submitted for review successfully",
+      user: updatedUser,
+    });
+  } catch (error) {
+    console.error("Submit profile error:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
 
 export const getCurrentUser = async (
   req: Request,

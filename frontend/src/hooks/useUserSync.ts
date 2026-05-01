@@ -3,11 +3,13 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { useApiClient, userApi } from "../utils/api";
 import { useUser } from "../shared/context/UserContext";
+import { useProfile } from "../shared/context/ProfileContext";
 
 export const useUserSync = () => {
     const { isSignedIn } = useAuth();
     const api = useApiClient();
     const { setOnboardingStatus } = useUser();
+    const { refreshProfile } = useProfile();
 
     const queryClient = useQueryClient();
 
@@ -25,7 +27,7 @@ export const useUserSync = () => {
                 throw error;
             }
         },
-        onSuccess: (response: any) => {
+        onSuccess: async (response: any) => {
             console.log("[useUserSync] User synced successfully:", response.data?.message);
             // Clean up the pending role from localStorage
             localStorage.removeItem('pendingUserRole');
@@ -39,6 +41,9 @@ export const useUserSync = () => {
             }
             
             queryClient.invalidateQueries({ queryKey: ["authUser"] });
+
+            // Re-fetch profile now that the user exists in the database
+            await refreshProfile();
         },
         onError: (error: any) => {
             console.error("[useUserSync] Sync failed:", error.response?.data || error.message);

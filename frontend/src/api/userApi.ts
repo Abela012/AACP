@@ -20,6 +20,14 @@ export const userApi = {
             throw error;
         }
     },
+    submitProfile: async (api: AxiosInstance, data: any) => {
+        try {
+            return await api.post('/users/submit', data);
+        } catch (error) {
+            console.warn('SubmitProfile API call failed:', error);
+            throw error;
+        }
+    },
     getMe: async (api: AxiosInstance) => {
         try {
             return await api.get('/users/me');

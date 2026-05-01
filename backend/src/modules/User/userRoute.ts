@@ -3,6 +3,7 @@ import {
   getCurrentUser,
   syncUser,
   updateUserProfile,
+  submitProfileForReview,
   uploadProfilePicture,
 } from "./userController";
 import { requireAuth } from "@clerk/express";
@@ -12,6 +13,7 @@ const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage() });
 
 router.put("/profile", requireAuth(), updateUserProfile);
+router.post("/submit", requireAuth(), submitProfileForReview);
 
 router.post(
   "/profile/picture",
@@ -19,7 +21,7 @@ router.post(
   upload.single("image"),
   uploadProfilePicture
 );
-router.get("/user", requireAuth(), getCurrentUser);
+router.get("/me", requireAuth(), getCurrentUser); // alias used by frontend userApi.getMe()
 
 router.post("/sync", syncUser);
 

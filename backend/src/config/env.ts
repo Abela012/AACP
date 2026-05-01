@@ -11,6 +11,7 @@ interface EnvConfig {
     FACEBOOK_APP_SECRET?: string;
     FACEBOOK_ACCESS_TOKEN?: string;
     ENCRYPTION_SECRET: string;
+    CORS_ORIGIN?: string;
 }
 
 const env: EnvConfig = {
@@ -23,6 +24,7 @@ const env: EnvConfig = {
     FACEBOOK_APP_SECRET: process.env.FACEBOOK_APP_SECRET,
     FACEBOOK_ACCESS_TOKEN: process.env.FACEBOOK_ACCESS_TOKEN,
     ENCRYPTION_SECRET: process.env.ENCRYPTION_SECRET as string,
+    CORS_ORIGIN: process.env.CORS_ORIGIN,
 };
 
 const requiredEnvVars: (keyof EnvConfig)[] = ['MONGO_URI', 'ENCRYPTION_SECRET'];
