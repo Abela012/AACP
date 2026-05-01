@@ -43,7 +43,7 @@ export const uploadProfilePicture = async (
 
     const result: any = await uploadFromBuffer(req.file.buffer);
     const type = req.query.type === 'cover' ? 'coverImage' : 'profilePicture';
- 
+
     const user = await User.findOneAndUpdate(
       { clerkId: userId },
       { $set: { [type]: result.secure_url } },
@@ -92,7 +92,8 @@ export const updateUserProfile = async (
     const user = await User.findOne({ clerkId: userId });
 
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      res.status(404).json({ message: "User not found" });
+      return;
     }
 
     const updates: any = {};
@@ -109,10 +110,11 @@ export const updateUserProfile = async (
       const username = updates.username.toLowerCase().trim();
 
       if (!usernameRegex.test(username)) {
-        return res.status(400).json({
+        res.status(400).json({
           message:
             "Invalid username. Use 3-20 chars: lowercase letters, numbers, underscore only.",
         });
+        return
       }
 
       const existing = await User.findOne({
@@ -121,7 +123,8 @@ export const updateUserProfile = async (
       });
 
       if (existing) {
-        return res.status(409).json({ message: "Username already taken" });
+        res.status(409).json({ message: "Username already taken" });
+        return
       }
     }
 
@@ -159,13 +162,15 @@ export const updateUserProfile = async (
       }
     ).select("-__v");
 
-    return res.status(200).json({
+    res.status(200).json({
       message: "Profile updated successfully",
       user: updatedUser,
     });
+    return
   } catch (error) {
     console.error("Update profile error:", error);
-    return res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ message: "Internal server error" });
+    return
   }
 };
 
