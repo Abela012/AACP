@@ -10,6 +10,8 @@ import adminRoutes from '../modules/Admin/adminRoute';
 import superAdminRoutes from '../modules/super-admin/superAdmin.routes';
 import chatRoutes from '../modules/chat/chat.routes';
 import facebookRoutes from '../modules/facebook/facebook.routes';
+import recommendationRoutes from '../modules/recommendations/recommendation.routes';
+import marketingAnalysisRoutes from '../modules/marketing-analysis/marketing-analysis.routes';
 
 const router = express.Router();
 
@@ -24,6 +26,8 @@ router.use('/admin', adminRoutes);
 router.use('/super-admin', superAdminRoutes);
 router.use('/chat', chatRoutes);
 router.use('/facebook', facebookRoutes);
+router.use('/recommendations', recommendationRoutes);
+router.use('/marketing-analysis', marketingAnalysisRoutes);
 
 router.get('/health', (req, res) => {
     res.status(200).json({ status: 'OK', message: 'API is running' });

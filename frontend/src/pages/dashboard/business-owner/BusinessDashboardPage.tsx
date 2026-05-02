@@ -27,6 +27,7 @@ import PendingApprovalState from '@/src/shared/components/PendingApprovalState';
 import { useUserSync } from '@/src/hooks/useUserSync';
 import { useMyOpportunities } from '@/src/hooks/useOpportunities';
 import { useWalletBalance } from '@/src/hooks/useWallet';
+import { useRecommendations } from '@/src/hooks/useRecommendations';
 import { type Opportunity } from '@/src/api/opportunityApi';
 
 export default function BusinessDashboardPage() {
@@ -41,6 +42,7 @@ export default function BusinessDashboardPage() {
   // Real data hooks
   const { data: oppsData, isLoading: isLoadingOpps } = useMyOpportunities(myId);
   const { data: walletData, isLoading: isLoadingWallet } = useWalletBalance();
+  const { data: recsData, isLoading: isLoadingRecs } = useRecommendations();
 
   const opportunities = oppsData?.opportunities ?? [];
   const activeCount = opportunities.filter((o: Opportunity) => o.status === 'open').length;
@@ -213,8 +215,51 @@ export default function BusinessDashboardPage() {
                       </div>
                     </div>
                   )}
-                  <div className="flex items-center gap-3 mb-8"><Sparkles className="text-cyan-500" /><h3 className="text-lg font-bold text-gray-900 dark:text-white">AI Recommendations</h3></div>
-                  <p className="text-xs text-gray-500 leading-relaxed">Upgrade to see personalized brand matches and campaign insights.</p>
+                  <div className="flex items-center justify-between mb-8">
+                    <div className="flex items-center gap-3"><Sparkles className="text-cyan-500" /><h3 className="text-lg font-bold text-gray-900 dark:text-white">AI Recommendations</h3></div>
+                    <button onClick={() => navigate('/matches')} className="text-xs font-bold text-emerald-600 hover:underline">View all</button>
+                  </div>
+                  <div className="space-y-4">
+                    {isLoadingRecs ? (
+                      <div className="flex justify-center py-6">
+                        <Loader2 size={24} className="animate-spin text-emerald-600" />
+                      </div>
+                    ) : (recsData?.recommendations ?? []).length === 0 ? (
+                      <div className="text-center py-6">
+                        <Sparkles className="w-8 h-8 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
+                        <p className="text-xs text-gray-500 leading-relaxed">Complete your profile to get personalized advertiser matches and campaign insights.</p>
+                      </div>
+                    ) : (
+                      (recsData?.recommendations ?? []).slice(0, 3).map((rec, idx) => (
+                        <div key={rec.targetId || idx} className="flex items-center justify-between p-4 rounded-2xl bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/5 hover:border-emerald-600/30 transition-all cursor-pointer">
+                          <div className="flex items-center gap-3">
+                            {rec.meta?.profilePicture ? (
+                              <img src={rec.meta.profilePicture} alt={rec.name} className="w-10 h-10 rounded-xl object-cover border border-gray-100 dark:border-white/10" />
+                            ) : (
+                              <div className="w-10 h-10 bg-emerald-600/10 rounded-xl flex items-center justify-center text-emerald-600 font-bold text-sm">
+                                {rec.name?.[0]?.toUpperCase() || '?'}
+                              </div>
+                            )}
+                            <div>
+                              <h4 className="font-bold text-sm text-gray-900 dark:text-white">{rec.name}</h4>
+                              <div className="flex items-center gap-2 text-[10px] text-gray-500">
+                                {rec.category && <span>{rec.category}</span>}
+                                {rec.location && <span>• {rec.location}</span>}
+                                {rec.meta?.followers && <span>• {Number(rec.meta.followers).toLocaleString()} followers</span>}
+                              </div>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <div className="text-right">
+                              <span className="text-sm font-bold text-emerald-600">{rec.score}%</span>
+                              <p className="text-[10px] text-gray-400">match</p>
+                            </div>
+                            <ChevronRight size={16} className="text-gray-300" />
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
                 </div>
                 <div className="bg-white dark:bg-white/5 p-6 rounded-[2rem] border border-gray-100 dark:border-white/5 relative overflow-hidden group shadow-sm dark:shadow-none">
                   <div className="relative z-10"><div className="flex items-center gap-2 mb-4"><Globe className="text-emerald-500 w-4 h-4" /><span className="text-[10px] font-black uppercase tracking-widest text-emerald-500">Market Pulse</span></div><div className="flex items-center justify-between"><div><p className="text-xs text-gray-500 mb-1">Trending Hotspot:</p><p className="text-sm font-bold text-gray-900 dark:text-white">Global</p></div><ChevronRight className="text-gray-400 group-hover:text-emerald-600 transition-colors" /></div></div>
