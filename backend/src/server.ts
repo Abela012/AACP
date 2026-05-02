@@ -29,7 +29,23 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(helmet());
 app.use(cors({
-    origin: ['http://localhost:5000', 'http://localhost:5173', 'http://localhost:8080', 'http://127.0.0.1:8080'],
+    origin: (origin, callback) => {
+        // Allow requests with no origin (mobile apps, Postman, etc.)
+        if (!origin) return callback(null, true);
+        // In development, allow all localhost origins regardless of port
+        if (env.NODE_ENV === 'development' && /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) {
+            return callback(null, true);
+        }
+        // Production whitelist from env
+        const allowedOrigins = [
+            env.CORS_ORIGIN,
+            process.env.FRONTEND_URL,
+        ].filter(Boolean);
+        if (allowedOrigins.includes(origin)) {
+            return callback(null, true);
+        }
+        callback(new Error(`CORS: origin ${origin} not allowed`));
+    },
     credentials: true,
 }));
 

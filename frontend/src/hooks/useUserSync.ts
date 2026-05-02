@@ -37,12 +37,22 @@ export const useUserSync = () => {
             // Clean up the pending role from localStorage
             localStorage.removeItem('pendingUserRole');
 
-            // Update the global status based on the backend response
+            // Determine onboarding status:
+            // - 'active'  → approved by admin
+            // - 'pending' AND has profileData → submitted profile, waiting for review
+            // - 'pending' AND no profileData  → brand new user, must complete profile first
             const status = response.data?.user?.status;
-            if (status === 'active') {
+            const profileData = response.data?.user?.profileData;
+            const hasSubmittedProfile = profileData &&
+                (profileData.bio || profileData.businessName);
+
+            if (status === 'active' || status === 'approved') {
                 setOnboardingStatus('approved');
-            } else if (status === 'pending') {
+            } else if (status === 'pending' && hasSubmittedProfile) {
                 setOnboardingStatus('pending');
+            } else {
+                // New user who hasn't filled their profile yet
+                setOnboardingStatus('incomplete');
             }
 
             queryClient.invalidateQueries({ queryKey: ["authUser"] });

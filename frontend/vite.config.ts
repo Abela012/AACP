@@ -21,5 +21,9 @@ export default defineConfig(({ mode }) => {
         } : {}),
       },
     },
+    server: {
+      port: 5173,
+      strictPort: true, // Fail instead of auto-incrementing to a different port
+    },
   };
 })

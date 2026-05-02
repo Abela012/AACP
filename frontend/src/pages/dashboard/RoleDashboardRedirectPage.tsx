@@ -146,7 +146,7 @@ export default function RoleDashboardRedirectPage() {
           <h2 className="text-2xl font-bold text-red-600 mb-2">Sync Error</h2>
           <p className="text-gray-600 mb-6">We couldn't synchronize your account with our database.</p>
           <div className="text-left bg-gray-50 p-4 rounded-xl mb-6 font-mono text-[10px] overflow-auto max-h-32">
-            Error details: {JSON.stringify(isError)}
+            {(isError as any)?.message || (isError as any)?.response?.data?.message || "Unknown error"}
           </div>
           <button
             onClick={() => window.location.reload()}

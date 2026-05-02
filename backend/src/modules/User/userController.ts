@@ -282,7 +282,20 @@ export const syncUser = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
+    // --- Handle case where email already exists with a different clerkId ---
+    // (common in dev when Clerk sessions reset or user re-registered)
+    const userByEmail = await User.findOne({ email });
+    if (userByEmail) {
+      console.log(`[syncUser] Email ${email} exists with different clerkId. Updating clerkId.`);
+      userByEmail.clerkId = userId;
+      await userByEmail.save();
+      res.status(200).json({ user: userByEmail, message: "User re-linked" });
+      return;
+    }
+
     let baseUsername = email.split("@")[0].toLowerCase().trim();
+    // sanitize: replace non-allowed chars with underscore
+    baseUsername = baseUsername.replace(/[^a-z0-9_]/g, "_");
     let username = baseUsername;
     let counter = 0;
 
@@ -317,7 +330,14 @@ export const syncUser = async (req: Request, res: Response): Promise<void> => {
       res.status(201).json({ user, message: "User created Successfully" });
     } catch (createError: any) {
       if (createError.code === 11000) {
-        const existing = await User.findOne({ clerkId: userId });
+        // Last-resort fallback: find by either clerkId or email
+        const existing = await User.findOne({
+          $or: [{ clerkId: userId }, { email }]
+        });
+        if (existing && existing.clerkId !== userId) {
+          existing.clerkId = userId;
+          await existing.save();
+        }
         res.status(200).json({ user: existing, message: "User already exists" });
         return;
       }
