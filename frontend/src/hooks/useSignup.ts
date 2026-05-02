@@ -8,12 +8,13 @@ export const useSignup = () => {
 
     const [emailAddress, setEmailAddress] = useState("");
     const [password, setPassword] = useState("");
-    const [fullName, setFullName] = useState("");
+    const [firstName, setFirstName] = useState("");
+    const [lastName, setLastName] = useState("");
     const [pendingVerification, setPendingVerification] = useState(false);
     const [code, setCode] = useState("");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [role, setRole] = useState<'business_owner' | 'advertiser' | 'admin' | null>(null);
+    const [role, setRole] = useState<'business_owner' | 'advertiser' | null>(null);
 
     const onSignUpPress = async () => {
         if (!isLoaded) return;
@@ -24,15 +25,11 @@ export const useSignup = () => {
         setLoading(true);
         setError(null);
         try {
-            const nameParts = fullName.trim().split(" ");
-            const firstName = nameParts[0];
-            const lastName = nameParts.length > 1 ? nameParts.slice(1).join(" ") : "";
-
             await signUp.create({
                 emailAddress: emailAddress.trim(),
                 password,
-                firstName,
-                lastName,
+                firstName: firstName.trim(),
+                lastName: lastName.trim(),
             });
             // Store role in localStorage so useUserSync can send it to backend
             localStorage.setItem('pendingUserRole', role);
@@ -79,8 +76,10 @@ export const useSignup = () => {
         setEmailAddress,
         password,
         setPassword,
-        fullName,
-        setFullName,
+        firstName,
+        setFirstName,
+        lastName,
+        setLastName,
         pendingVerification,
         setPendingVerification,
         loading,

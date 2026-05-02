@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { Link } from "react-router-dom";
-import { Eye, EyeOff, Briefcase, Megaphone, ShieldCheck } from "lucide-react";
+import { Eye, EyeOff, Briefcase, Megaphone } from "lucide-react";
 import { useLogin } from "../../../hooks/useLogin";
 import FacebookIcon from "../../../assets/Facebook.png";
 import GoogleIcon from "../../../assets/google.webp";
@@ -140,7 +140,7 @@ export default function LoginForm() {
                 <label className="text-xs font-bold text-[#5e6d55] uppercase tracking-wider block text-center">
                     Select your role for social login
                 </label>
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-2 gap-3">
                     <button
                         type="button"
                         onClick={() => setRole('business_owner')}
@@ -162,17 +162,6 @@ export default function LoginForm() {
                     >
                         <Megaphone size={20} />
                         <span className="text-[10px] font-black uppercase tracking-tight">Advertiser</span>
-                    </button>
-                    <button
-                        type="button"
-                        onClick={() => setRole('admin')}
-                        className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all ${role === 'admin'
-                            ? 'border-[#14a800] bg-[#14a800]/5 text-[#14a800]'
-                            : 'border-gray-100 bg-white text-[#5e6d55] hover:border-[#14a800]/30 hover:text-[#001e00]'
-                            }`}
-                    >
-                        <ShieldCheck size={20} />
-                        <span className="text-[10px] font-black uppercase tracking-tight">Admin</span>
                     </button>
                 </div>
             </div>

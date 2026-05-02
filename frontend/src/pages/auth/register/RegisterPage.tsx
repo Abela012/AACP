@@ -14,8 +14,10 @@ export default function RegisterForm() {
         setEmailAddress,
         password,
         setPassword,
-        fullName,
-        setFullName,
+        firstName,
+        setFirstName,
+        lastName,
+        setLastName,
         pendingVerification,
         setPendingVerification,
         loading,
@@ -64,7 +66,7 @@ export default function RegisterForm() {
                         <label className="text-sm font-bold text-[#001e00] block">
                             I want to join as a
                         </label>
-                        <div className="grid grid-cols-3 gap-3">
+                        <div className="grid grid-cols-2 gap-3">
                             <button
                                 type="button"
                                 onClick={() => setRole('business_owner')}
@@ -89,34 +91,37 @@ export default function RegisterForm() {
                                 <Megaphone size={22} />
                                 <span className="text-[10px] font-black uppercase tracking-tight">Advertiser</span>
                             </button>
-                            <button
-                                type="button"
-                                onClick={() => setRole('admin')}
-                                className={`flex flex-col items-center gap-2 p-5 rounded-xl border-2 transition-all ${
-                                    role === 'admin'
-                                        ? 'border-[#14a800] bg-[#14a800]/5 text-[#14a800]'
-                                        : 'border-gray-100 bg-white text-[#5e6d55] hover:border-[#14a800]/30 hover:text-[#001e00]'
-                                }`}
-                            >
-                                <ShieldCheck size={22} />
-                                <span className="text-[10px] font-black uppercase tracking-tight">Admin</span>
-                            </button>
                         </div>
                     </div>
 
                     <div className="space-y-6">
-                        <div>
-                            <label className="mb-1.5 block text-sm font-bold text-[#001e00]">
-                                Full Name
-                            </label>
-                            <input
-                                type="text"
-                                value={fullName}
-                                onChange={(e) => setFullName(e.target.value)}
-                                placeholder="John Doe"
-                                className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-[#001e00] placeholder-gray-400 transition-all focus:border-[#14a800] focus:ring-1 focus:ring-[#14a800] outline-none"
-                                required
-                            />
+                        <div className="flex gap-4">
+                            <div className="w-1/2">
+                                <label className="mb-1.5 block text-sm font-bold text-[#001e00]">
+                                    First Name
+                                </label>
+                                <input
+                                    type="text"
+                                    value={firstName}
+                                    onChange={(e) => setFirstName(e.target.value)}
+                                    placeholder="John"
+                                    className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-[#001e00] placeholder-gray-400 transition-all focus:border-[#14a800] focus:ring-1 focus:ring-[#14a800] outline-none"
+                                    required
+                                />
+                            </div>
+                            <div className="w-1/2">
+                                <label className="mb-1.5 block text-sm font-bold text-[#001e00]">
+                                    Last Name
+                                </label>
+                                <input
+                                    type="text"
+                                    value={lastName}
+                                    onChange={(e) => setLastName(e.target.value)}
+                                    placeholder="Doe"
+                                    className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-[#001e00] placeholder-gray-400 transition-all focus:border-[#14a800] focus:ring-1 focus:ring-[#14a800] outline-none"
+                                    required
+                                />
+                            </div>
                         </div>
 
                         <div>

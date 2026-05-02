@@ -291,6 +291,14 @@ export const syncUser = async (req: Request, res: Response): Promise<void> => {
       username = `${baseUsername}_${counter}`;
     }
 
+    // Only allow public-facing roles via sync endpoint
+    // Admin and super_admin roles must be assigned manually by an admin
+    const ALLOWED_SELF_ASSIGN_ROLES = ['business_owner', 'advertiser'];
+    const requestedRole = req.body?.role;
+    const resolvedRole = (requestedRole && ALLOWED_SELF_ASSIGN_ROLES.includes(requestedRole))
+      ? requestedRole
+      : 'advertiser';
+
     const userData = {
       clerkId: userId,
       email,
@@ -298,7 +306,7 @@ export const syncUser = async (req: Request, res: Response): Promise<void> => {
       lastName: clerkUser.lastName || "",
       username: username,
       profilePicture: clerkUser.imageUrl || "",
-      role: (clerkUser.publicMetadata.role as string) || 'advertiser',
+      role: resolvedRole,
     };
 
     console.log("Attempting to create user with data:", userData);

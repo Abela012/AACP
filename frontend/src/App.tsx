@@ -41,7 +41,6 @@ import AdminNotificationsPage from './pages/admin/notifications/AdminNotificatio
 import AdminProfilePage from './pages/admin/profile/AdminProfilePage'
 import AdminChatPage from './pages/admin/messages/AdminChatPage'
 import AdminHelpPage from './pages/admin/help/AdminHelpPage'
-// import SystemLogsPage from './pages/admin/logs/SystemLogsPage'
 import AuditLogsPage from './pages/system/audit-logs/AuditLogsPage'
 import CreateCampaignPage from './pages/dashboard/business-owner/CreateCampaignPage'
 import CampaignApplicantsPage from './pages/dashboard/business-owner/CampaignApplicantsPage'
@@ -52,6 +51,7 @@ import SuperAdminPlatformPage from './pages/super-admin/platform/PlatformPage'
 import SuperAdminSecurityPage from './pages/super-admin/security/SecurityPage'
 import SuperAdminNotificationsPage from './pages/super-admin/notifications/NotificationsPage'
 import SuperAdminProfilePage from './pages/super-admin/profile/ProfilePage'
+import RoleGuard from './core/guards/RoleGuard'
 import './App.css'
 
 function App() {
@@ -117,7 +117,6 @@ function App() {
         }
       />
 
-
       {/* Protected Dashboard Routes */}
       <Route
         path="/dashboard"
@@ -132,296 +131,242 @@ function App() {
           </>
         }
       />
+      
+      {/* Business Owner Routes */}
       <Route
         path="/dashboard/business-owner"
         element={
-          <>
-            <SignedIn>
+          <SignedIn>
+            <RoleGuard allowedRoles={['business']}>
               <BusinessDashboardPage />
-            </SignedIn>
-            <SignedOut>
-              <Navigate to="/auth/login" replace />
-            </SignedOut>
-          </>
+            </RoleGuard>
+          </SignedIn>
         }
       />
-      <Route
-        path="/dashboard/admin"
-        element={<AdminDashboardPage />}
-      />
-      <Route
-        path="/dashboard/super-admin"
-        element={<SuperAdminDashboardPage />}
-      />
-      <Route
-        path="/dashboard/advertiser"
-        element={
-          <>
-            <SignedIn>
-              <AdvertiserDashboardPage />
-            </SignedIn>
-            <SignedOut>
-              <Navigate to="/auth/login" replace />
-            </SignedOut>
-          </>
-        }
-      />
-
-      {/* Admin Specific Routes */}
-      <Route
-        path="/admin/users"
-        element={<SignedIn><AdminUsersPage /></SignedIn>}
-      />
-      <Route
-        path="/admin/users/:id"
-        element={<SignedIn><AdminUserDetailPage /></SignedIn>}
-      />
-      <Route
-        path="/admin/users/:id/suspended"
-        element={<SignedIn><AdminSuspendedUserPage /></SignedIn>}
-      />
-      <Route
-        path="/admin/verification"
-        element={<Navigate to="/admin/users" replace />}
-      />
-      <Route
-        path="/admin/verification/:id"
-        element={<SignedIn><UserApprovalPage /></SignedIn>}
-      />
-      <Route
-        path="/admin/payments"
-        element={<SignedIn><AdminPaymentsPage /></SignedIn>}
-      />
-      <Route
-        path="/admin/analytics"
-        element={<SignedIn><AdminAnalyticsPage /></SignedIn>}
-      />
-      <Route
-        path="/admin/settings"
-        element={<SignedIn><AdminSettingsPage /></SignedIn>}
-      />
-      <Route
-        path="/admin/notifications"
-        element={<SignedIn><AdminNotificationsPage /></SignedIn>}
-      />
-      <Route
-        path="/admin/profile"
-        element={<SignedIn><AdminProfilePage /></SignedIn>}
-      />
-      <Route
-        path="/admin/disputes"
-        element={<SignedIn><DisputesPage /></SignedIn>}
-      />
-      <Route
-        path="/admin/messages"
-        element={<SignedIn><AdminChatPage /></SignedIn>}
-      />
-      <Route
-        path="/admin/help"
-        element={<SignedIn><AdminHelpPage /></SignedIn>}
-      />
-      {/* <Route
-        path="/admin/logs"
-        element={<SignedIn><AuditLogsPage /></SignedIn>}
-      /> */}
-
-      {/* Super Admin Specific Routes */}
-      <Route
-        path="/super-admin/admin-management"
-        element={<SignedIn><SuperAdminAdminManagementPage /></SignedIn>}
-      />
-      <Route
-        path="/super-admin/audit-trail"
-        element={<SignedIn><SuperAdminAuditTrailPage /></SignedIn>}
-      />
-      <Route
-        path="/super-admin/platform"
-        element={<SignedIn><SuperAdminPlatformPage /></SignedIn>}
-      />
-      <Route
-        path="/super-admin/security"
-        element={<SignedIn><SuperAdminSecurityPage /></SignedIn>}
-      />
-      <Route
-        path="/super-admin/notifications"
-        element={<SignedIn><SuperAdminNotificationsPage /></SignedIn>}
-      />
-      <Route
-        path="/super-admin/profile"
-        element={<SignedIn><SuperAdminProfilePage /></SignedIn>}
-      />
-
       <Route
         path="/campaigns"
         element={
-          <>
-            <SignedIn><CampaignsPage /></SignedIn>
-            <SignedOut><Navigate to="/auth/login" replace /></SignedOut>
-          </>
+          <SignedIn>
+            <RoleGuard allowedRoles={['business']}>
+              <CampaignsPage />
+            </RoleGuard>
+          </SignedIn>
         }
       />
       <Route
         path="/campaign/:id/applicants"
         element={
-          <>
-            <SignedIn><CampaignApplicantsPage /></SignedIn>
-            <SignedOut><Navigate to="/auth/login" replace /></SignedOut>
-          </>
+          <SignedIn>
+            <RoleGuard allowedRoles={['business']}>
+              <CampaignApplicantsPage />
+            </RoleGuard>
+          </SignedIn>
         }
       />
       <Route
         path="/campaign/new"
         element={
-          <>
-            <SignedIn><CreateCampaignPage /></SignedIn>
-            <SignedOut><Navigate to="/auth/login" replace /></SignedOut>
-          </>
+          <SignedIn>
+            <RoleGuard allowedRoles={['business']}>
+              <CreateCampaignPage />
+            </RoleGuard>
+          </SignedIn>
         }
       />
       <Route
         path="/matches"
         element={
-          <>
-            <SignedIn><MatchesPage /></SignedIn>
-            <SignedOut><Navigate to="/auth/login" replace /></SignedOut>
-          </>
+          <SignedIn>
+            <RoleGuard allowedRoles={['business']}>
+              <MatchesPage />
+            </RoleGuard>
+          </SignedIn>
         }
       />
       <Route
         path="/analytics"
         element={
-          <>
-            <SignedIn><AnalyticsPage /></SignedIn>
-            <SignedOut><Navigate to="/auth/login" replace /></SignedOut>
-          </>
+          <SignedIn>
+            <RoleGuard allowedRoles={['business']}>
+              <AnalyticsPage />
+            </RoleGuard>
+          </SignedIn>
         }
       />
       <Route
         path="/balance"
         element={
-          <>
-            <SignedIn><BalancePage /></SignedIn>
-            <SignedOut><Navigate to="/auth/login" replace /></SignedOut>
-          </>
+          <SignedIn>
+            <RoleGuard allowedRoles={['business']}>
+              <BalancePage />
+            </RoleGuard>
+          </SignedIn>
         }
       />
       <Route
         path="/business/buy-coins"
         element={
-          <>
-            <SignedIn><BusinessBuyCoinsPage /></SignedIn>
-            <SignedOut><Navigate to="/auth/login" replace /></SignedOut>
-          </>
+          <SignedIn>
+            <RoleGuard allowedRoles={['business']}>
+              <BusinessBuyCoinsPage />
+            </RoleGuard>
+          </SignedIn>
         }
       />
       <Route
         path="/business/manual-checkout"
         element={
-          <>
-            <SignedIn><BusinessManualCheckoutPage /></SignedIn>
-            <SignedOut><Navigate to="/auth/login" replace /></SignedOut>
-          </>
+          <SignedIn>
+            <RoleGuard allowedRoles={['business']}>
+              <BusinessManualCheckoutPage />
+            </RoleGuard>
+          </SignedIn>
         }
       />
       <Route
         path="/business/checkout"
         element={
-          <>
-            <SignedIn><BusinessCheckoutPage /></SignedIn>
-            <SignedOut><Navigate to="/auth/login" replace /></SignedOut>
-          </>
-        }
-      />
-      <Route
-        path="/advertiser/campaigns"
-        element={
-          <>
-            <SignedIn><AdvertiserCampaignsPage /></SignedIn>
-            <SignedOut><Navigate to="/auth/login" replace /></SignedOut>
-          </>
-        }
-      />
-      <Route
-        path="/advertiser/matches"
-        element={
-          <>
-            <SignedIn><AdvertiserMatchesPage /></SignedIn>
-            <SignedOut><Navigate to="/auth/login" replace /></SignedOut>
-          </>
-        }
-      />
-      <Route
-        path="/advertiser/matches/:id/apply"
-        element={
-          <>
-            <SignedIn><AdvertiserApplyMatchPage /></SignedIn>
-            <SignedOut><Navigate to="/auth/login" replace /></SignedOut>
-          </>
-        }
-      />
-      <Route
-        path="/advertiser/analytics"
-        element={
-          <>
-            <SignedIn><AdvertiserAnalyticsPage /></SignedIn>
-            <SignedOut><Navigate to="/auth/login" replace /></SignedOut>
-          </>
-        }
-      />
-      <Route
-        path="/advertiser/balance"
-        element={
-          <>
-            <SignedIn><AdvertiserBalancePage /></SignedIn>
-            <SignedOut><Navigate to="/auth/login" replace /></SignedOut>
-          </>
-        }
-      />
-      <Route
-        path="/advertiser/checkout"
-        element={
-          <>
-            <SignedIn><AdvertiserCheckoutPage /></SignedIn>
-            <SignedOut><Navigate to="/auth/login" replace /></SignedOut>
-          </>
-        }
-      />
-      <Route
-        path="/advertiser/buy-coins"
-        element={
-          <>
-            <SignedIn><AdvertiserBuyCoinsPage /></SignedIn>
-            <SignedOut><Navigate to="/auth/login" replace /></SignedOut>
-          </>
-        }
-      />
-      <Route
-        path="/advertiser/manual-checkout"
-        element={
-          <>
-            <SignedIn><AdvertiserManualCheckoutPage /></SignedIn>
-            <SignedOut><Navigate to="/auth/login" replace /></SignedOut>
-          </>
+          <SignedIn>
+            <RoleGuard allowedRoles={['business']}>
+              <BusinessCheckoutPage />
+            </RoleGuard>
+          </SignedIn>
         }
       />
       <Route
         path="/profile/view/business"
         element={
-          <>
-            <SignedIn><ViewProfilePage /></SignedIn>
-            <SignedOut><Navigate to="/auth/login" replace /></SignedOut>
-          </>
+          <SignedIn>
+            <RoleGuard allowedRoles={['business']}>
+              <ViewProfilePage />
+            </RoleGuard>
+          </SignedIn>
+        }
+      />
+      <Route
+        path="/profile/edit/business"
+        element={
+          <SignedIn>
+            <RoleGuard allowedRoles={['business']}>
+              <EditProfilePage />
+            </RoleGuard>
+          </SignedIn>
+        }
+      />
+
+      {/* Advertiser Routes */}
+      <Route
+        path="/dashboard/advertiser"
+        element={
+          <SignedIn>
+            <RoleGuard allowedRoles={['advertiser']}>
+              <AdvertiserDashboardPage />
+            </RoleGuard>
+          </SignedIn>
+        }
+      />
+      <Route
+        path="/advertiser/campaigns"
+        element={
+          <SignedIn>
+            <RoleGuard allowedRoles={['advertiser']}>
+              <AdvertiserCampaignsPage />
+            </RoleGuard>
+          </SignedIn>
+        }
+      />
+      <Route
+        path="/advertiser/matches"
+        element={
+          <SignedIn>
+            <RoleGuard allowedRoles={['advertiser']}>
+              <AdvertiserMatchesPage />
+            </RoleGuard>
+          </SignedIn>
+        }
+      />
+      <Route
+        path="/advertiser/matches/:id/apply"
+        element={
+          <SignedIn>
+            <RoleGuard allowedRoles={['advertiser']}>
+              <AdvertiserApplyMatchPage />
+            </RoleGuard>
+          </SignedIn>
+        }
+      />
+      <Route
+        path="/advertiser/analytics"
+        element={
+          <SignedIn>
+            <RoleGuard allowedRoles={['advertiser']}>
+              <AdvertiserAnalyticsPage />
+            </RoleGuard>
+          </SignedIn>
+        }
+      />
+      <Route
+        path="/advertiser/balance"
+        element={
+          <SignedIn>
+            <RoleGuard allowedRoles={['advertiser']}>
+              <AdvertiserBalancePage />
+            </RoleGuard>
+          </SignedIn>
+        }
+      />
+      <Route
+        path="/advertiser/checkout"
+        element={
+          <SignedIn>
+            <RoleGuard allowedRoles={['advertiser']}>
+              <AdvertiserCheckoutPage />
+            </RoleGuard>
+          </SignedIn>
+        }
+      />
+      <Route
+        path="/advertiser/buy-coins"
+        element={
+          <SignedIn>
+            <RoleGuard allowedRoles={['advertiser']}>
+              <AdvertiserBuyCoinsPage />
+            </RoleGuard>
+          </SignedIn>
+        }
+      />
+      <Route
+        path="/advertiser/manual-checkout"
+        element={
+          <SignedIn>
+            <RoleGuard allowedRoles={['advertiser']}>
+              <AdvertiserManualCheckoutPage />
+            </RoleGuard>
+          </SignedIn>
         }
       />
       <Route
         path="/profile/view/advertiser"
         element={
-          <>
-            <SignedIn><ViewProfilePage /></SignedIn>
-            <SignedOut><Navigate to="/auth/login" replace /></SignedOut>
-          </>
+          <SignedIn>
+            <RoleGuard allowedRoles={['advertiser']}>
+              <ViewProfilePage />
+            </RoleGuard>
+          </SignedIn>
         }
       />
+      <Route
+        path="/profile/edit/advertiser"
+        element={
+          <SignedIn>
+            <RoleGuard allowedRoles={['advertiser']}>
+              <EditProfilePage />
+            </RoleGuard>
+          </SignedIn>
+        }
+      />
+
+      {/* Profile Completion / Common Redirects */}
       <Route
         path="/profile/complete/business"
         element={<Navigate to="/dashboard" replace />}
@@ -434,36 +379,44 @@ function App() {
         path="/pending-approval"
         element={<Navigate to="/dashboard" replace />}
       />
+
+      {/* Admin Specific Routes */}
+      <Route path="/dashboard/admin" element={<SignedIn><RoleGuard allowedRoles={['admin']}><AdminDashboardPage /></RoleGuard></SignedIn>} />
+      <Route path="/admin/users" element={<SignedIn><RoleGuard allowedRoles={['admin']}><AdminUsersPage /></RoleGuard></SignedIn>} />
+      <Route path="/admin/users/:id" element={<SignedIn><RoleGuard allowedRoles={['admin']}><AdminUserDetailPage /></RoleGuard></SignedIn>} />
+      <Route path="/admin/users/:id/suspended" element={<SignedIn><RoleGuard allowedRoles={['admin']}><AdminSuspendedUserPage /></RoleGuard></SignedIn>} />
+      <Route path="/admin/verification" element={<Navigate to="/admin/users" replace />} />
+      <Route path="/admin/verification/:id" element={<SignedIn><RoleGuard allowedRoles={['admin']}><UserApprovalPage /></RoleGuard></SignedIn>} />
+      <Route path="/admin/payments" element={<SignedIn><RoleGuard allowedRoles={['admin']}><AdminPaymentsPage /></RoleGuard></SignedIn>} />
+      <Route path="/admin/analytics" element={<SignedIn><RoleGuard allowedRoles={['admin']}><AdminAnalyticsPage /></RoleGuard></SignedIn>} />
+      <Route path="/admin/settings" element={<SignedIn><RoleGuard allowedRoles={['admin']}><AdminSettingsPage /></RoleGuard></SignedIn>} />
+      <Route path="/admin/notifications" element={<SignedIn><RoleGuard allowedRoles={['admin']}><AdminNotificationsPage /></RoleGuard></SignedIn>} />
+      <Route path="/admin/profile" element={<SignedIn><RoleGuard allowedRoles={['admin']}><AdminProfilePage /></RoleGuard></SignedIn>} />
+      <Route path="/admin/disputes" element={<SignedIn><RoleGuard allowedRoles={['admin']}><DisputesPage /></RoleGuard></SignedIn>} />
+      <Route path="/admin/messages" element={<SignedIn><RoleGuard allowedRoles={['admin']}><AdminChatPage /></RoleGuard></SignedIn>} />
+      <Route path="/admin/help" element={<SignedIn><RoleGuard allowedRoles={['admin']}><AdminHelpPage /></RoleGuard></SignedIn>} />
+
+      {/* Super Admin Specific Routes */}
+      <Route path="/dashboard/super-admin" element={<SignedIn><RoleGuard allowedRoles={['admin']}><SuperAdminDashboardPage /></RoleGuard></SignedIn>} />
+      <Route path="/super-admin/admin-management" element={<SignedIn><RoleGuard allowedRoles={['admin']}><SuperAdminAdminManagementPage /></RoleGuard></SignedIn>} />
+      <Route path="/super-admin/audit-trail" element={<SignedIn><RoleGuard allowedRoles={['admin']}><SuperAdminAuditTrailPage /></RoleGuard></SignedIn>} />
+      <Route path="/super-admin/platform" element={<SignedIn><RoleGuard allowedRoles={['admin']}><SuperAdminPlatformPage /></RoleGuard></SignedIn>} />
+      <Route path="/super-admin/security" element={<SignedIn><RoleGuard allowedRoles={['admin']}><SuperAdminSecurityPage /></RoleGuard></SignedIn>} />
+      <Route path="/super-admin/notifications" element={<SignedIn><RoleGuard allowedRoles={['admin']}><SuperAdminNotificationsPage /></RoleGuard></SignedIn>} />
+      <Route path="/super-admin/profile" element={<SignedIn><RoleGuard allowedRoles={['admin']}><SuperAdminProfilePage /></RoleGuard></SignedIn>} />
+
+      {/* Chat / Common Auth Routes */}
       <Route
-        path="/profile/edit/business"
+        path="/messages"
         element={
-          <>
-            <SignedIn><EditProfilePage /></SignedIn>
-            <SignedOut><Navigate to="/auth/login" replace /></SignedOut>
-          </>
-        }
-      />
-      <Route
-        path="/profile/edit/advertiser"
-        element={
-          <>
-            <SignedIn><EditProfilePage /></SignedIn>
-            <SignedOut><Navigate to="/auth/login" replace /></SignedOut>
-          </>
+          <SignedIn>
+            <ConversationPage />
+          </SignedIn>
         }
       />
 
       {/* Landing Page */}
       <Route path="/" element={<LandingPage />} />
-      <Route
-        path="/messages"
-        element={
-          <>
-            <SignedIn><ConversationPage /></SignedIn>
-            <SignedOut><Navigate to="/auth/login" replace /></SignedOut>
-          </>
-        }
-      />
     </Routes>
   )
 }
