@@ -30,10 +30,6 @@ export const useUserSync = () => {
         onSuccess: async (response: any) => {
             console.log("[useUserSync] User synced successfully:", response.data?.message);
 
-            // Log the token here since we know this block runs successfully
-            const token = await getToken();
-            console.log("AUTH TOKEN", token);
-
             // Clean up the pending role from localStorage
             localStorage.removeItem('pendingUserRole');
 
@@ -43,8 +39,10 @@ export const useUserSync = () => {
             // - 'pending' AND no profileData  → brand new user, must complete profile first
             const status = response.data?.user?.status;
             const profileData = response.data?.user?.profileData;
-            const hasSubmittedProfile = profileData &&
-                (profileData.bio || profileData.businessName);
+            const pendingProfileData = response.data?.user?.pendingProfileData;
+            const hasSubmittedProfile = 
+                (profileData && (profileData.bio || profileData.businessName)) ||
+                (pendingProfileData && (pendingProfileData.bio || pendingProfileData.businessName));
 
             if (status === 'active' || status === 'approved') {
                 setOnboardingStatus('approved');

@@ -113,12 +113,7 @@ export default function RoleDashboardRedirectPage() {
     (data as any)?.data?.user?.profileData?.bio ||
     (data as any)?.profileData?.bio;
 
-  if (normalizedRole && normalizedRole !== (localStorage.getItem('userRole'))) {
-    console.log("[RoleDashboardRedirectPage] Updating UserContext role to:", normalizedRole);
-    let contextRole = normalizedRole;
-    if (contextRole === 'business_owner') contextRole = 'business';
-    setUserRole(contextRole as any);
-  }
+
 
   const isApproved = status === 'active' || status === 'approved';
 

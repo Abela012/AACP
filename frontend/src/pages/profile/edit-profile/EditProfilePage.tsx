@@ -153,38 +153,43 @@ export default function EditProfilePage() {
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      const profileData = {
-        firstName,
-        lastName,
-        bio,
-        phone,
-        businessName,
-        website,
-        industry,
-        businessLocation,
-        companySize,
-        monthlyBudget,
-        youtubeHandle,
-        tiktokHandle,
-        coverImage: coverPreview,
-        // Include advertiser specific fields if they exist in state
-        followers: profile.followers,
-        avgViews: profile.avgViews,
-        engagementRate: profile.engagementRate,
-        geoTags: profile.geoTags,
-        ageRanges: profile.ageRanges,
-        primaryLanguage: profile.primaryLanguage,
-        baseRate: profile.baseRate,
-        selectedStyles: profile.selectedStyles,
-      };
-
-      await userApi.updateProfile(api, {
-        firstName,
-        lastName,
-        profileData,
-      });
+      if (activeTab === 'general') {
+        const profileData = {
+          bio,
+          phone,
+          coverImage: coverPreview,
+        };
+        await userApi.updateProfile(api, {
+          firstName,
+          lastName,
+          profileData,
+        });
+        updateProfile({ firstName, lastName, ...profileData });
+      } else if (activeTab === 'company') {
+        const profileData = {
+          businessName,
+          website,
+          industry,
+          businessLocation,
+          companySize,
+          monthlyBudget,
+          youtubeHandle,
+          tiktokHandle,
+          followers: profile.followers,
+          avgViews: profile.avgViews,
+          engagementRate: profile.engagementRate,
+          geoTags: profile.geoTags,
+          ageRanges: profile.ageRanges,
+          primaryLanguage: profile.primaryLanguage,
+          baseRate: profile.baseRate,
+          selectedStyles: profile.selectedStyles,
+        };
+        await userApi.submitProfile(api, {
+          profileData,
+        });
+        alert('Your detailed information has been submitted for admin review! Changes will appear once approved.');
+      }
       
-      updateProfile(profileData);
       await refreshProfile();
       setShowSuccess(true);
       setTimeout(() => setShowSuccess(false), 3000);

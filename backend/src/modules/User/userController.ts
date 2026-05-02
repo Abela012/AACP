@@ -214,12 +214,14 @@ export const submitProfileForReview = async (
     // Force status to pending for review
     updates.status = "pending";
 
-    // 🧠 Safely merge profileData
+    // 🧠 Safely merge profileData into pendingProfileData
     if (updates.profileData && typeof updates.profileData === "object") {
-      updates.profileData = {
+      updates.pendingProfileData = {
         ...(user.profileData || {}),
+        ...(user.pendingProfileData || {}),
         ...updates.profileData,
       };
+      delete updates.profileData;
     }
 
     const updatedUser = await User.findByIdAndUpdate(
