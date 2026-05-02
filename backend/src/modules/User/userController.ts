@@ -76,8 +76,9 @@ export const updateUserProfile = async (
     "lastName",
     "username",
     "profilePicture",
+    "coverImage",
     "location",
-    "profileData",
+    "profileData"
   ];
 
   try {

@@ -29,9 +29,10 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(helmet());
 app.use(cors({
-    origin: env.CORS_ORIGIN || ['http://localhost:5173', 'http://localhost:3000'],
+    origin: ['http://localhost:5000', 'http://localhost:5173', 'http://localhost:8080', 'http://127.0.0.1:8080'],
     credentials: true,
 }));
+
 
 if (env.NODE_ENV === 'development') {
     app.use(morgan('dev'));

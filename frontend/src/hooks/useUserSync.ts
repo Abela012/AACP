@@ -6,7 +6,7 @@ import { useUser } from "../shared/context/UserContext";
 import { useProfile } from "../shared/context/ProfileContext";
 
 export const useUserSync = () => {
-    const { isSignedIn } = useAuth();
+    const { isSignedIn, getToken } = useAuth();
     const api = useApiClient();
     const { setOnboardingStatus } = useUser();
     const { refreshProfile } = useProfile();
@@ -29,9 +29,14 @@ export const useUserSync = () => {
         },
         onSuccess: async (response: any) => {
             console.log("[useUserSync] User synced successfully:", response.data?.message);
+
+            // Log the token here since we know this block runs successfully
+            const token = await getToken();
+            console.log("AUTH TOKEN", token);
+
             // Clean up the pending role from localStorage
             localStorage.removeItem('pendingUserRole');
-            
+
             // Update the global status based on the backend response
             const status = response.data?.user?.status;
             if (status === 'active') {
@@ -39,7 +44,7 @@ export const useUserSync = () => {
             } else if (status === 'pending') {
                 setOnboardingStatus('pending');
             }
-            
+
             queryClient.invalidateQueries({ queryKey: ["authUser"] });
 
             // Re-fetch profile now that the user exists in the database
