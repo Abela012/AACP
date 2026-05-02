@@ -29,15 +29,20 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(helmet());
 app.use(cors({
-    origin: env.CORS_ORIGIN || ['http://localhost:5173', 'http://localhost:3000'],
+    origin: ['http://localhost:5000', 'http://localhost:5173', 'http://localhost:8080', 'http://127.0.0.1:8080'],
     credentials: true,
 }));
+
 
 if (env.NODE_ENV === 'development') {
     app.use(morgan('dev'));
 }
 
+// Swagger UI
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
 app.use(clerkMiddleware());
+
 app.use('/api/v1', routes);
 
 app.use(errorHandler);
@@ -50,8 +55,6 @@ const io = initSocket(httpServer);
 
 (app as any).io = io;
 
-// Swagger UI
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 const server = httpServer.listen(PORT, () => {
     logger.info(`Server running in ${env.NODE_ENV} mode on port ${PORT}`);

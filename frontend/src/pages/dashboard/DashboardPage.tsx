@@ -5,7 +5,7 @@ import { useUserSync } from '../../hooks/useUserSync';
 export default function DashboardPage() {
     const { user } = useUser();
     const { signOut } = useClerk();
-    
+
     // Automatically syncs the user details to MongoDB via the backend
     useUserSync();
 
@@ -15,7 +15,7 @@ export default function DashboardPage() {
             <header className="bg-white border-b border-gray-200">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                         <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
+                        <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
                             <span className="text-white font-bold text-lg">A</span>
                         </div>
                         <span className="text-xl font-bold text-gray-900 tracking-tight">AACP</span>
@@ -25,7 +25,7 @@ export default function DashboardPage() {
                             {user?.primaryEmailAddress?.emailAddress}
                         </span>
                         <div className="h-6 w-px bg-gray-200 mx-2 hidden sm:block"></div>
-                        <button 
+                        <button
                             onClick={() => signOut({ redirectUrl: '/auth/login' })}
                             className="flex items-center gap-2 text-sm font-semibold text-gray-600 hover:text-red-600 transition-colors"
                         >
