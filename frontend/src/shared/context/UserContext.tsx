@@ -23,7 +23,11 @@ export function UserProvider({ children }: { children: ReactNode }) {
   });
   
   const [onboardingStatus, setOnboardingStatusState] = useState<OnboardingStatus>(() => {
-    return (localStorage.getItem('onboardingStatus') as OnboardingStatus) || 'incomplete';
+    // Only trust 'approved' from localStorage (safe to cache).
+    // 'pending' and 'incomplete' must always be re-validated by useUserSync
+    // to avoid showing the wrong screen to new users on re-login.
+    const stored = localStorage.getItem('onboardingStatus') as OnboardingStatus;
+    return stored === 'approved' ? 'approved' : 'incomplete';
   });
 
   // Keep track of the current user to detect session changes

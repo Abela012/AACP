@@ -14,6 +14,7 @@ export interface IUser extends Document {
     status: 'pending' | 'active' | 'approved' | 'banned' | 'suspended';
     isVerified: boolean;
     profileData?: any;
+    pendingProfileData?: any;
     totalPosts: number;
     lastLogin: Date;
     createdAt: Date;
@@ -76,6 +77,10 @@ const userSchema: Schema = new Schema(
         profileData: {
             type: Schema.Types.Mixed,
             default: {},
+        },
+        pendingProfileData: {
+            type: Schema.Types.Mixed,
+            default: null,
         },
         totalPosts: {
             type: Number,

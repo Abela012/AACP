@@ -119,7 +119,25 @@ export const banUser = async (req: Request, res: Response) => {
         const { status } = req.body; // active, banned, suspended
 
         const actor = (req as any).currentUser || (req as any).user;
-        const user = await User.findByIdAndUpdate(userId, { status }, { new: true });
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ error: "User not found" });
+        }
+        
+        user.status = status;
+        if (status === 'active' || status === 'approved') {
+            if (user.pendingProfileData) {
+                user.profileData = {
+                    ...(user.profileData || {}),
+                    ...user.pendingProfileData
+                };
+                user.pendingProfileData = null;
+                // Mark modified for Mixed type
+                user.markModified('profileData');
+                user.markModified('pendingProfileData');
+            }
+        }
+        await user.save();
         if (actor?._id && actor?.role) {
             await createAuditLog({
                 action: 'USER_STATUS_UPDATED',

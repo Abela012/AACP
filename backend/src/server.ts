@@ -29,15 +29,38 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(helmet());
 app.use(cors({
-    origin: env.CORS_ORIGIN || ['http://localhost:5173', 'http://localhost:3000'],
+    origin: (origin, callback) => {
+        // Allow requests with no origin (mobile apps, Postman, etc.)
+        if (!origin) return callback(null, true);
+        // In development, allow all localhost origins regardless of port
+        if (env.NODE_ENV === 'development' && /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) {
+            return callback(null, true);
+        }
+        // Production whitelist from env
+        const allowedOrigins = [
+            env.CORS_ORIGIN,
+            process.env.FRONTEND_URL,
+        ].filter(Boolean);
+        if (allowedOrigins.includes(origin)) {
+            return callback(null, true);
+        }
+        callback(new Error(`CORS: origin ${origin} not allowed`));
+    },
     credentials: true,
 }));
 
+
 if (env.NODE_ENV === 'development') {
-    app.use(morgan('dev'));
+    app.use(morgan('dev'))
+}
+
+// Swagger UI
+if (process.env.NODE_ENV === 'development') {
+    app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 }
 
 app.use(clerkMiddleware());
+
 app.use('/api/v1', routes);
 
 app.use(errorHandler);
@@ -50,8 +73,6 @@ const io = initSocket(httpServer);
 
 (app as any).io = io;
 
-// Swagger UI
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 const server = httpServer.listen(PORT, () => {
     logger.info(`Server running in ${env.NODE_ENV} mode on port ${PORT}`);

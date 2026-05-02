@@ -10,7 +10,7 @@ export const useLogin = () => {
     const [password, setPassword] = useState("");
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
-    const [role, setRole] = useState<'business_owner' | 'advertiser' | 'admin' | null>(null);
+    const [role, setRole] = useState<'business_owner' | 'advertiser' | null>(null);
     const [verificationCode, setVerificationCode] = useState("");
     const [status, setStatus] = useState<string | null>(null);
 
@@ -78,11 +78,16 @@ export const useLogin = () => {
     const handleSocialAuth = async (strategy: "oauth_google" | "oauth_facebook" | "oauth_tiktok") => {
         if (!isLoaded) return;
         setError(null);
+
+        // Require role selection before SSO login
+        if (!role) {
+            setError("Please select a role (Business or Advertiser) before continuing with social login.");
+            return;
+        }
+
         try {
-            // Store role in localStorage if selected, so useUserSync can send it to backend
-            if (role) {
-                localStorage.setItem('pendingUserRole', role);
-            }
+            // Store role in localStorage so useUserSync can send it to backend
+            localStorage.setItem('pendingUserRole', role);
             await signIn.authenticateWithRedirect({
                 strategy,
                 redirectUrl: "/sso-callback",

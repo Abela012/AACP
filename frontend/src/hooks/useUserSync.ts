@@ -6,7 +6,7 @@ import { useUser } from "../shared/context/UserContext";
 import { useProfile } from "../shared/context/ProfileContext";
 
 export const useUserSync = () => {
-    const { isSignedIn } = useAuth();
+    const { isSignedIn, getToken } = useAuth();
     const api = useApiClient();
     const { setOnboardingStatus } = useUser();
     const { refreshProfile } = useProfile();
@@ -29,17 +29,30 @@ export const useUserSync = () => {
         },
         onSuccess: async (response: any) => {
             console.log("[useUserSync] User synced successfully:", response.data?.message);
+
             // Clean up the pending role from localStorage
             localStorage.removeItem('pendingUserRole');
-            
-            // Update the global status based on the backend response
+
+            // Determine onboarding status:
+            // - 'active'  → approved by admin
+            // - 'pending' AND has profileData → submitted profile, waiting for review
+            // - 'pending' AND no profileData  → brand new user, must complete profile first
             const status = response.data?.user?.status;
-            if (status === 'active') {
+            const profileData = response.data?.user?.profileData;
+            const pendingProfileData = response.data?.user?.pendingProfileData;
+            const hasSubmittedProfile = 
+                (profileData && (profileData.bio || profileData.businessName)) ||
+                (pendingProfileData && (pendingProfileData.bio || pendingProfileData.businessName));
+
+            if (status === 'active' || status === 'approved') {
                 setOnboardingStatus('approved');
-            } else if (status === 'pending') {
+            } else if (status === 'pending' && hasSubmittedProfile) {
                 setOnboardingStatus('pending');
+            } else {
+                // New user who hasn't filled their profile yet
+                setOnboardingStatus('incomplete');
             }
-            
+
             queryClient.invalidateQueries({ queryKey: ["authUser"] });
 
             // Re-fetch profile now that the user exists in the database
