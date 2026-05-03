@@ -52,6 +52,7 @@ import SuperAdminSecurityPage from './pages/super-admin/security/SecurityPage'
 import SuperAdminNotificationsPage from './pages/super-admin/notifications/NotificationsPage'
 import SuperAdminProfilePage from './pages/super-admin/profile/ProfilePage'
 import RoleGuard from './core/guards/RoleGuard'
+import CollaborationsPage from './pages/collaboration/list/CollaborationsPage'
 import './App.css'
 
 function App() {
@@ -254,6 +255,17 @@ function App() {
         }
       />
 
+      <Route
+        path="/collaborations"
+        element={
+          <SignedIn>
+            <RoleGuard allowedRoles={['business']}>
+              <CollaborationsPage />
+            </RoleGuard>
+          </SignedIn>
+        }
+      />
+
       {/* Advertiser Routes */}
       <Route
         path="/dashboard/advertiser"
@@ -361,6 +373,17 @@ function App() {
           <SignedIn>
             <RoleGuard allowedRoles={['advertiser']}>
               <EditProfilePage />
+            </RoleGuard>
+          </SignedIn>
+        }
+      />
+
+      <Route
+        path="/advertiser/collaborations"
+        element={
+          <SignedIn>
+            <RoleGuard allowedRoles={['advertiser']}>
+              <CollaborationsPage />
             </RoleGuard>
           </SignedIn>
         }

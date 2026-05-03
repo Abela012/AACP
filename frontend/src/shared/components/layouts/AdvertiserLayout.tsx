@@ -16,7 +16,8 @@ import {
   ShieldCheck,
   Users,
   LogOut,
-  MessageSquare
+  MessageSquare,
+  Briefcase
 } from 'lucide-react';
 import { useClerk } from '@clerk/clerk-react';
 import { Link, useLocation } from 'react-router-dom';
@@ -81,6 +82,7 @@ export default function AdvertiserLayout({ children }: AdvertiserLayoutProps) {
   const headerNav = [
     { name: 'Dashboard', path: '/dashboard/advertiser' },
     { name: 'Opportunities', path: '/advertiser/matches' },
+    { name: 'Collaborations', path: '/advertiser/collaborations' },
     { name: 'Analytics', path: '/advertiser/analytics' },
     { name: 'Campaigns', path: '/advertiser/campaigns' },
   ];

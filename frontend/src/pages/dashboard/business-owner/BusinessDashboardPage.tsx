@@ -170,7 +170,10 @@ export default function BusinessDashboardPage() {
                       </div>
                     </div>
                   )}
-                  <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-8">Active Collaborations</h3>
+                  <div className="flex justify-between items-center mb-8">
+                    <h3 className="text-lg font-bold text-gray-900 dark:text-white">Active Collaborations</h3>
+                    <Link to="/collaborations" className="text-xs font-bold text-emerald-600 hover:underline">View all</Link>
+                  </div>
                   <div className="space-y-4">
                     {isLoadingOpps ? (
                       <div className="flex justify-center py-8">
