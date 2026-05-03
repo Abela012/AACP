@@ -69,3 +69,57 @@ export const getCollaborationById = async (req: Request, res: Response) => {
         return error(res, err.message, 500);
     }
 };
+
+/**
+ * @desc    Add a milestone to a collaboration
+ * @route   POST /api/v1/collaborations/:id/milestones
+ */
+export const addMilestone = async (req: Request, res: Response) => {
+    try {
+        const collaboration = await collaborationService.addMilestone(
+            req.params.id as string, 
+            req.user?._id?.toString() as string, 
+            req.body
+        );
+        return success(res, 'Milestone added successfully', collaboration);
+    } catch (err: any) {
+        return error(res, err.message, 400);
+    }
+};
+
+/**
+ * @desc    Submit a deliverable for a milestone
+ * @route   POST /api/v1/collaborations/:id/milestones/:milestoneId/submit
+ */
+export const submitDeliverable = async (req: Request, res: Response) => {
+    try {
+        const collaboration = await collaborationService.submitDeliverable(
+            req.params.id as string, 
+            req.user?._id?.toString() as string, 
+            req.params.milestoneId as string, 
+            req.body
+        );
+        return success(res, 'Deliverable submitted successfully', collaboration);
+    } catch (err: any) {
+        return error(res, err.message, 400);
+    }
+};
+
+/**
+ * @desc    Review a submission
+ * @route   PUT /api/v1/collaborations/:id/milestones/:milestoneId/submissions/:submissionId/review
+ */
+export const reviewSubmission = async (req: Request, res: Response) => {
+    try {
+        const collaboration = await collaborationService.reviewSubmission(
+            req.params.id as string, 
+            req.user?._id?.toString() as string, 
+            req.params.milestoneId as string, 
+            req.params.submissionId as string, 
+            req.body
+        );
+        return success(res, 'Submission reviewed successfully', collaboration);
+    } catch (err: any) {
+        return error(res, err.message, 400);
+    }
+};

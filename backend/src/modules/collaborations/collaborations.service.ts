@@ -119,3 +119,95 @@ export const getCollaborationById = async (id: string): Promise<ICollaboration> 
 
     return collaboration;
 };
+
+/**
+ * Add a milestone to a collaboration
+ */
+export const addMilestone = async (
+    id: string, 
+    businessOwnerId: string, 
+    milestoneData: { title: string; description?: string; dueDate?: Date }
+): Promise<ICollaboration> => {
+    const collaboration = await Collaboration.findById(id);
+    if (!collaboration) throw new Error('Collaboration not found');
+    
+    if (collaboration.businessOwner.toString() !== businessOwnerId.toString()) {
+        throw new Error('Not authorized to add milestones');
+    }
+
+    collaboration.milestones.push(milestoneData as any);
+    await collaboration.save();
+    return collaboration;
+};
+
+/**
+ * Submit a deliverable for a milestone
+ */
+export const submitDeliverable = async (
+    id: string, 
+    advertiserId: string, 
+    milestoneId: string, 
+    submissionData: { fileUrl: string; fileName?: string; notes?: string }
+): Promise<ICollaboration> => {
+    const collaboration = await Collaboration.findById(id);
+    if (!collaboration) throw new Error('Collaboration not found');
+
+    if (collaboration.advertiser.toString() !== advertiserId.toString()) {
+        throw new Error('Not authorized to submit deliverables');
+    }
+
+    const milestone = (collaboration.milestones as any).id(milestoneId);
+    if (!milestone) throw new Error('Milestone not found');
+
+    milestone.submissions.push({
+        ...submissionData,
+        submittedAt: new Date(),
+        status: 'pending'
+    } as any);
+
+    milestone.status = 'submitted';
+    await collaboration.save();
+    return collaboration;
+};
+
+/**
+ * Review a submission (Approve/Reject)
+ */
+export const reviewSubmission = async (
+    id: string, 
+    businessOwnerId: string, 
+    milestoneId: string, 
+    submissionId: string, 
+    reviewData: { status: 'approved' | 'revision_requested' | 'rejected'; feedback?: string }
+): Promise<ICollaboration> => {
+    const collaboration = await Collaboration.findById(id);
+    if (!collaboration) throw new Error('Collaboration not found');
+
+    if (collaboration.businessOwner.toString() !== businessOwnerId.toString()) {
+        throw new Error('Not authorized to review submissions');
+    }
+
+    const milestone = (collaboration.milestones as any).id(milestoneId);
+    if (!milestone) throw new Error('Milestone not found');
+
+    const submission = (milestone.submissions as any).id(submissionId);
+    if (!submission) throw new Error('Submission not found');
+
+    submission.status = reviewData.status;
+    submission.feedbackFromOwner = reviewData.feedback;
+    submission.reviewedAt = new Date();
+
+    // Update milestone status based on submission status
+    if (reviewData.status === 'approved') {
+        milestone.status = 'approved';
+        
+        // Update overall progress
+        const approvedCount = collaboration.milestones.filter(m => m.status === 'approved').length;
+        collaboration.overallProgress = Math.round((approvedCount / collaboration.milestones.length) * 100);
+    } else {
+        milestone.status = 'rejected';
+    }
+
+    await collaboration.save();
+    return collaboration;
+};

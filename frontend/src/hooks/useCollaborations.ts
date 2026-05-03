@@ -53,3 +53,45 @@ export const useCompleteCollaboration = () => {
         },
     });
 };
+
+/** Add a milestone to a collaboration */
+export const useAddMilestone = () => {
+    const api = useApiClient();
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: ({ id, data }: { id: string; data: { title: string; description?: string; dueDate?: string } }) =>
+            collaborationApi.addMilestone(api, id, data).then(r => r.data),
+        onSuccess: (_, { id }) => {
+            queryClient.invalidateQueries({ queryKey: ['collaborations', id] });
+        },
+    });
+};
+
+/** Submit a deliverable for a milestone */
+export const useSubmitDeliverable = () => {
+    const api = useApiClient();
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: ({ id, milestoneId, data }: { id: string; milestoneId: string; data: { fileUrl: string; fileName?: string; notes?: string } }) =>
+            collaborationApi.submitDeliverable(api, id, milestoneId, data).then(r => r.data),
+        onSuccess: (_, { id }) => {
+            queryClient.invalidateQueries({ queryKey: ['collaborations', id] });
+        },
+    });
+};
+
+/** Review a submission */
+export const useReviewSubmission = () => {
+    const api = useApiClient();
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: ({ id, milestoneId, submissionId, data }: { id: string; milestoneId: string; submissionId: string; data: { status: 'approved' | 'revision_requested' | 'rejected'; feedback?: string } }) =>
+            collaborationApi.reviewSubmission(api, id, milestoneId, submissionId, data).then(r => r.data),
+        onSuccess: (_, { id }) => {
+            queryClient.invalidateQueries({ queryKey: ['collaborations', id] });
+        },
+    });
+};

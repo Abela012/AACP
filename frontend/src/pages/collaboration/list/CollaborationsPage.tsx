@@ -131,7 +131,7 @@ export default function CollaborationsPage() {
             </div>
           ) : filteredCollaborations.length > 0 ? (
             filteredCollaborations.map((c: Collaboration) => {
-              const partner = userRole === 'business' ? c.advertiser : c.businessOwner;
+              const partner = userRole === 'business_owner' ? c.advertiser : c.businessOwner;
               const partnerName = partner?.fullName || partner?.firstName ? `${partner.firstName} ${partner.lastName}` : 'Partner';
               
               return (
@@ -207,7 +207,7 @@ export default function CollaborationsPage() {
                     </div>
 
                     <div className="p-8 lg:w-1/3 bg-gray-50/30 dark:bg-white/[0.01] flex flex-col justify-center gap-3">
-                      {c.status === 'active' && userRole === 'business' && (
+                      {c.status === 'active' && userRole === 'business_owner' && (
                         <button 
                           onClick={() => handleComplete(c._id, partnerName)}
                           className="w-full h-12 bg-emerald-600 text-white font-black rounded-xl hover:bg-emerald-500 transition-all shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2"
@@ -232,7 +232,10 @@ export default function CollaborationsPage() {
                         <MessageSquare size={18} /> Send Message
                       </button>
                       
-                      <button className="text-[10px] font-black text-gray-400 hover:text-emerald-600 uppercase tracking-widest transition-colors flex items-center justify-center gap-1 mt-2">
+                      <button 
+                        onClick={() => navigate(`/collaborations/${c._id}`)}
+                        className="text-[10px] font-black text-gray-400 hover:text-emerald-600 uppercase tracking-widest transition-colors flex items-center justify-center gap-1 mt-2"
+                      >
                         View Project Details <ExternalLink size={10} />
                       </button>
                     </div>

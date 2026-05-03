@@ -144,4 +144,9 @@ router.get('/user/:userId', collaborationsController.getCollaborationsByUser);
  */
 router.get('/:id', collaborationsController.getCollaborationById);
 
+// Milestone & Submission management
+router.post('/:id/milestones', collaborationsController.addMilestone);
+router.post('/:id/milestones/:milestoneId/submit', collaborationsController.submitDeliverable);
+router.put('/:id/milestones/:milestoneId/submissions/:submissionId/review', collaborationsController.reviewSubmission);
+
 export default router;
