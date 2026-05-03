@@ -175,7 +175,7 @@ export default function CampaignApplicantsPage() {
                       <Tooltip 
                         cursor={{ fill: 'rgba(16, 185, 129, 0.1)' }}
                         contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                        formatter={(value: number) => [`${value}%`, 'ROI']}
+                        formatter={(value: any) => [`${value}%`, 'ROI']}
                       />
                       <Bar dataKey="profitPercentage" radius={[4, 4, 4, 4]}>
                         {analysisData.analysis.map((entry, index) => (
