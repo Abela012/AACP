@@ -114,7 +114,6 @@ export default function RoleDashboardRedirectPage() {
     (data as any)?.profileData?.bio;
 
 
-
   const isApproved = status === 'active' || status === 'approved';
 
   // Let the dashboards handle the status internally so they keep the sidebar/layout
