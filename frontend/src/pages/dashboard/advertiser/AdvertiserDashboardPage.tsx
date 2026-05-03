@@ -27,7 +27,7 @@ import PendingApprovalState from '@/src/shared/components/PendingApprovalState';
 import { useUserSync } from '@/src/hooks/useUserSync';
 import { useMyApplications } from '@/src/hooks/useApplications';
 import { useWalletBalance } from '@/src/hooks/useWallet';
-import { useRecommendations } from '@/src/hooks/useRecommendations';
+import { useOpportunities } from '@/src/hooks/useOpportunities';
 
 export default function AdvertiserDashboardPage() {
   const navigate = useNavigate();
@@ -42,19 +42,20 @@ export default function AdvertiserDashboardPage() {
   // Real data hooks
   const { data: appsData, isLoading: isLoadingApps } = useMyApplications(myId);
   const { data: walletData, isLoading: isLoadingWallet } = useWalletBalance();
-  const { data: recsData, isLoading: isLoadingRecs } = useRecommendations();
+  const { data: oppsData, isLoading: isLoadingOpps } = useOpportunities();
 
   const applications = appsData?.applications ?? [];
   const activeCount = applications.filter((a: any) => a.status === 'accepted').length;
   const pendingCount = applications.filter((a: any) => a.status === 'pending').length;
-  const recommendations = recsData?.recommendations ?? [];
-  const topRec = recommendations[0];
+
+  const opportunities = oppsData?.opportunities ?? [];
+  const matchCount = opportunities.length;
 
   const stats = [
     { label: 'Trust Score', value: 'N/A', subValue: '', trend: 'New Account', trendType: 'neutral', icon: ShieldCheck, color: 'text-emerald-500' },
     { label: 'Total Balance', value: isLoadingWallet ? '...' : `${walletData?.balance?.toLocaleString() ?? 0} AACP`, trend: 'Available to withdraw', trendType: 'neutral', icon: DollarSign, color: 'text-blue-500' },
     { label: 'Active Campaigns', value: isLoadingApps ? '...' : activeCount.toString(), trend: `${pendingCount} pending`, trendType: 'neutral', icon: Zap, color: 'text-indigo-500' },
-    { label: 'AI Matches', value: isLoadingRecs ? '...' : recommendations.length.toString(), trend: topRec ? `Top: ${topRec.score}% match` : 'Complete profile for matches', trendType: recommendations.length > 0 ? 'up' : 'neutral', icon: Sparkles, color: 'text-cyan-500' },
+    { label: 'AI Matches', value: isLoadingOpps ? '...' : matchCount.toString(), trend: matchCount > 0 ? 'New matches found' : 'No matches yet', trendType: matchCount > 0 ? 'up' : 'neutral', icon: Sparkles, color: 'text-cyan-500' },
   ];
 
   const handleStatClick = (label: string) => {
@@ -322,6 +323,7 @@ export default function AdvertiserDashboardPage() {
                     </div>
                     <button onClick={() => navigate('/advertiser/matches')} className="text-xs font-bold text-emerald-500 hover:underline">View all</button>
                   </div>
+<<<<<<< HEAD
                   <div className="space-y-4">
                     {isLoadingRecs ? (
                       <div className="flex justify-center py-8">
@@ -358,6 +360,38 @@ export default function AdvertiserDashboardPage() {
                         </div>
                       ))
                     )}
+=======
+                  <div className="space-y-6 mb-8">
+                    <div>
+                      <div className="flex justify-between text-xs font-bold mb-2">
+                        <span className="text-gray-400 dark:text-gray-500">Audience Alignment</span>
+                        <span className="text-emerald-500">{matchCount > 0 ? '92%' : '45%'}</span>
+                      </div>
+                      <div className="h-1.5 w-full bg-gray-100 dark:bg-white/5 rounded-full overflow-hidden">
+                        <div className={`h-full bg-emerald-500 transition-all duration-1000 ${matchCount > 0 ? 'w-[92%]' : 'w-[45%]'}`}></div>
+                      </div>
+                    </div>
+                    <div>
+                      <div className="flex justify-between text-xs font-bold mb-2">
+                        <span className="text-gray-400 dark:text-gray-500">Competitive Edge</span>
+                        <span className="text-cyan-500">{matchCount > 0 ? '78%' : '30%'}</span>
+                      </div>
+                      <div className="h-1.5 w-full bg-gray-100 dark:bg-white/5 rounded-full overflow-hidden">
+                        <div className={`h-full bg-cyan-500 transition-all duration-1000 ${matchCount > 0 ? 'w-[78%]' : 'w-[30%]'}`}></div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="bg-gray-50 dark:bg-white/5 p-5 rounded-2xl border border-gray-100 dark:border-white/5">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Sparkles className="text-cyan-500 w-4 h-4" /><span className="text-[10px] font-bold text-cyan-500 uppercase tracking-widest">Recommendation</span>
+                    </div>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
+                      {matchCount > 0 
+                        ? `Our AI has matched you with ${matchCount} active campaigns that align perfectly with your content niches. We recommend applying to the latest ones immediately to secure your spot.`
+                        : `We are currently analyzing active campaigns to find the best match for your specific demographics. Keep your profile updated to improve alignment.`
+                      }
+                    </p>
+>>>>>>> 233d854 (fix: replace mock AI Match data with dynamic database entries)
                   </div>
                 </div>
 

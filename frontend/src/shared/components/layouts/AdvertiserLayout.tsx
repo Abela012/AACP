@@ -25,6 +25,7 @@ import ThemeToggle from '@/src/shared/components/ThemeToggle';
 import { useUser } from '@/src/shared/context/UserContext';
 import { useProfile } from '@/src/shared/context/ProfileContext';
 import { useNotifications } from '@/src/hooks/useNotifications';
+import { useOpportunities } from '@/src/hooks/useOpportunities';
 
 interface AdvertiserLayoutProps {
   children: ReactNode;
@@ -39,6 +40,9 @@ export default function AdvertiserLayout({ children }: AdvertiserLayoutProps) {
   const isApproved = onboardingStatus === 'approved';
 
   const { notifications, unreadCount, markAllAsRead } = useNotifications();
+  const { data: oppsData } = useOpportunities();
+  const matchCount = oppsData?.opportunities?.length ?? 0;
+
   const [searchQuery, setSearchQuery] = useState('');
   const [showNotifications, setShowNotifications] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
@@ -64,7 +68,7 @@ export default function AdvertiserLayout({ children }: AdvertiserLayoutProps) {
   const navigation = [
     { name: 'Overview', icon: LayoutDashboard, path: '/dashboard/advertiser' },
     { name: 'Campaigns', icon: Megaphone, path: '/advertiser/campaigns' },
-    { name: 'AI Matches', icon: Sparkles, path: '/advertiser/matches', badge: '12' },
+    { name: 'AI Matches', icon: Sparkles, path: '/advertiser/matches', badge: matchCount > 0 ? matchCount.toString() : undefined },
     { name: 'Reports', icon: BarChart3, path: '/advertiser/analytics' },
     { name: 'Messages', icon: MessageSquare, path: '/messages' },
   ];
