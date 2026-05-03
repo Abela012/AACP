@@ -1,6 +1,8 @@
+import mongoose from 'mongoose';
 import Collaboration, { ICollaboration } from '../../database/models/Collaboration';
 import Application from '../../database/models/Application';
 import { IOpportunity } from '../../database/models/Opportunity';
+import User from '../../database/models/User';
 
 /**
  * Collaboration Service
@@ -87,15 +89,26 @@ export const completeCollaboration = async (id: string, businessOwnerId: string)
  * @returns List of collaborations
  */
 export const getCollaborationsByUser = async (userId: string): Promise<ICollaboration[]> => {
+    let mongoUserId = userId;
+
+    // Handle Clerk ID if provided instead of MongoDB ObjectId
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+        const user = await User.findOne({ clerkId: userId });
+        if (!user) {
+            return []; // No user found, return empty collaborations
+        }
+        mongoUserId = (user._id as any).toString();
+    }
+
     const collaborations = await Collaboration.find({
         $or: [
-            { businessOwner: userId },
-            { advertiser: userId }
+            { businessOwner: mongoUserId },
+            { advertiser: mongoUserId }
         ]
     })
         .populate('opportunity', 'title budget')
-        .populate('businessOwner', 'fullName email')
-        .populate('advertiser', 'fullName email')
+        .populate('businessOwner', 'fullName email firstName lastName profilePicture')
+        .populate('advertiser', 'fullName email firstName lastName profilePicture')
         .sort({ createdAt: -1 });
 
     return collaborations;
@@ -110,8 +123,8 @@ export const getCollaborationById = async (id: string): Promise<ICollaboration> 
     const collaboration = await Collaboration.findById(id)
         .populate('opportunity')
         .populate('application')
-        .populate('businessOwner', 'fullName email')
-        .populate('advertiser', 'fullName email');
+        .populate('businessOwner', 'fullName email firstName lastName profilePicture')
+        .populate('advertiser', 'fullName email firstName lastName profilePicture');
 
     if (!collaboration) {
         throw new Error('Collaboration not found');
