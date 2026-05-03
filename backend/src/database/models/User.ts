@@ -9,6 +9,8 @@ export interface IUser extends Document {
     profilePicture?: string;
     coverImage?: string;
     location?: string;
+    tradeLicenseUrl?: string;
+    idVerificationUrl?: string;
     following: mongoose.Types.ObjectId[];
     role: 'business_owner' | 'advertiser' | 'admin' | 'super_admin'
     status: 'incomplete' | 'pending' | 'active' | 'approved' | 'banned' | 'suspended';
@@ -51,6 +53,14 @@ const userSchema: Schema = new Schema(
             default: "",
         },
         coverImage: {
+            type: String,
+            default: "",
+        },
+        tradeLicenseUrl: {
+            type: String,
+            default: "",
+        },
+        idVerificationUrl: {
             type: String,
             default: "",
         },

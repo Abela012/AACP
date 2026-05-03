@@ -35,11 +35,11 @@ export const userApi = {
     getCurrentUser: (api: AxiosInstance) => api.get("/users/me"),
     updateProfile: (api: AxiosInstance, data: Record<string, unknown>) =>
         api.put("/users/profile", data),
-    uploadProfilePicture: (api: AxiosInstance, file: File) => {
+    uploadProfilePicture: (api: AxiosInstance, file: File, type: 'profile' | 'cover' | 'license' = 'profile') => {
         const formData = new FormData();
         formData.append("image", file);
 
-        return api.post("/users/profile/picture", formData, {
+        return api.post(`/users/profile/picture?type=${type}`, formData, {
             headers: {
                 "Content-Type": "multipart/form-data",
             },

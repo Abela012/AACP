@@ -139,24 +139,34 @@ export default function UserApprovalPage() {
                 </div>
               </div>
 
-              {/* ID Preview */}
+              {/* ID or Trade License Preview */}
               <div className="relative group cursor-pointer mb-8">
                 <div className="aspect-[4/3] rounded-[2rem] overflow-hidden border border-[#EFEFEF] dark:border-white/5 bg-[#F4F4F4] dark:bg-white/10 relative">
                   <img 
-                    src="https://images.unsplash.com/photo-1554224155-1696413575b8?auto=format&fit=crop&q=80&w=800" 
-                    alt="ID Card Mockup" 
-                    className="w-full h-full object-cover grayscale opacity-50 contrast-125"
+                    src={user.tradeLicenseUrl || "https://images.unsplash.com/photo-1554224155-1696413575b8?auto=format&fit=crop&q=80&w=800"} 
+                    alt="Verification Document" 
+                    className="w-full h-full object-cover grayscale opacity-50 contrast-125 hover:opacity-100 transition-opacity"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
-                  <div className="absolute bottom-6 left-6 text-white">
-                    <p className="text-[10px] font-black uppercase tracking-widest opacity-60 mb-1">Government ID</p>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent pointer-events-none" />
+                  <div className="absolute bottom-6 left-6 text-white pointer-events-none">
+                    <p className="text-[10px] font-black uppercase tracking-widest opacity-60 mb-1">{isBusiness ? 'Trade License' : 'Government ID'}</p>
                     <div className="text-sm font-bold flex items-center gap-2">
-                      Passport_AnyaS.pdf
+                      {user.tradeLicenseUrl ? 'License_File.view' : 'Document_Pending.pdf'}
                       <div className="w-4 h-4 bg-white rounded-full flex items-center justify-center">
                         <ShieldCheck size={10} className="text-black fill-current" />
                       </div>
                     </div>
                   </div>
+                  {user.tradeLicenseUrl && (
+                    <a 
+                      href={user.tradeLicenseUrl} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <Download className="text-white" size={32} />
+                    </a>
+                  )}
                 </div>
               </div>
               
