@@ -20,8 +20,9 @@ import {
 import { useParams, useNavigate } from 'react-router-dom';
 import BusinessLayout from '@/src/shared/components/layouts/BusinessLayout';
 import { useOpportunityApplications, useAcceptApplication, useRejectApplication } from '@/src/hooks/useApplications';
-import { useOpportunity } from '@/src/hooks/useOpportunities';
+import { useMarketingAnalysis } from '@/src/hooks/useMarketingAnalysis';
 import { cn } from '@/src/shared/utils/cn';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 
 export default function CampaignApplicantsPage() {
   const { id } = useParams();
@@ -29,6 +30,7 @@ export default function CampaignApplicantsPage() {
   
   const { data: applications, isLoading: appsLoading } = useOpportunityApplications(id || '');
   const { data: oppData, isLoading: oppLoading } = useOpportunity(id || '');
+  const { data: analysisData, isLoading: analysisLoading } = useMarketingAnalysis(id || '');
   
   const acceptMutation = useAcceptApplication();
   const rejectMutation = useRejectApplication();
@@ -137,6 +139,50 @@ export default function CampaignApplicantsPage() {
 
         {/* BOTTOM SECTION: Applied Advertisers */}
         <section className="space-y-8">
+          
+          {/* AI Marketing Analysis Summary & Chart */}
+          {!analysisLoading && analysisData?.summary && (
+            <div className="bg-gradient-to-br from-emerald-50 to-white dark:from-emerald-900/10 dark:to-white/5 rounded-[2.5rem] border border-emerald-100 dark:border-emerald-500/20 shadow-lg p-8 relative overflow-hidden flex flex-col lg:flex-row gap-8">
+              <div className="absolute top-0 right-0 p-8 opacity-20 pointer-events-none">
+                <Sparkles className="w-32 h-32 text-emerald-500" />
+              </div>
+              
+              <div className="relative z-10 lg:w-1/2">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 bg-emerald-100 dark:bg-emerald-500/20 rounded-xl flex items-center justify-center text-emerald-600">
+                    <Sparkles size={20} />
+                  </div>
+                  <h3 className="text-xl font-black text-gray-900 dark:text-white">AI Profitability Analysis</h3>
+                </div>
+                <div className="prose prose-sm dark:prose-invert max-w-none text-gray-700 dark:text-gray-300 font-medium whitespace-pre-line leading-relaxed">
+                  {analysisData.summary}
+                </div>
+              </div>
+
+              {analysisData?.analysis && analysisData.analysis.length > 0 && (
+                <div className="relative z-10 lg:w-1/2 h-64 bg-white/50 dark:bg-black/20 rounded-3xl p-4 border border-emerald-100/50 dark:border-emerald-500/10">
+                  <h4 className="text-sm font-bold text-gray-700 dark:text-gray-300 mb-4 text-center">Projected ROI by Applicant</h4>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={analysisData.analysis} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                      <XAxis dataKey="advertiserName" tick={{ fontSize: 10, fill: '#888' }} axisLine={false} tickLine={false} />
+                      <YAxis tick={{ fontSize: 10, fill: '#888' }} axisLine={false} tickLine={false} tickFormatter={(val) => `${val}%`} />
+                      <Tooltip 
+                        cursor={{ fill: 'rgba(16, 185, 129, 0.1)' }}
+                        contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                        formatter={(value: number) => [`${value}%`, 'ROI']}
+                      />
+                      <Bar dataKey="profitPercentage" radius={[4, 4, 4, 4]}>
+                        {analysisData.analysis.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.profitPercentage > 0 ? '#10b981' : '#f59e0b'} />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              )}
+            </div>
+          )}
+
           <div className="flex items-center justify-between">
             <h3 className="text-2xl font-black text-gray-900 dark:text-white flex items-center gap-3">
               Applied Advertisers 
@@ -204,14 +250,48 @@ export default function CampaignApplicantsPage() {
                           {app.proposedRate?.amount ? `${app.proposedRate.amount} ${app.proposedRate.currency || 'ETB'}` : 'N/A'}
                         </p>
                       </div>
-                      <div className="text-center p-4 bg-gray-50/50 dark:bg-white/[0.02] rounded-2xl">
-                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Match Score</p>
-                        <p className="text-sm font-black text-emerald-500">{app.aiMatchScore ? `${Math.round(app.aiMatchScore)}%` : '92%'}</p>
-                      </div>
-                      <div className="text-center p-4 bg-gray-50/50 dark:bg-white/[0.02] rounded-2xl">
-                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Timeline</p>
-                        <p className="text-sm font-black text-gray-900 dark:text-white">{app.proposedTimeline || 'Not specified'}</p>
-                      </div>
+                      
+                      {(() => {
+                        const applicantAnalysis = analysisData?.analysis?.find(
+                          (a) => a.advertiserId === (app.advertiser?._id || app.advertiser)
+                        );
+                        
+                        if (applicantAnalysis) {
+                          return (
+                            <>
+                              <div className="text-center p-4 bg-gray-50/50 dark:bg-white/[0.02] rounded-2xl">
+                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Est. Revenue</p>
+                                <p className="text-sm font-black text-gray-900 dark:text-white">
+                                  {applicantAnalysis.estimatedRevenue.toLocaleString()} {applicantAnalysis.currency}
+                                </p>
+                              </div>
+                              <div className="text-center p-4 bg-gray-50/50 dark:bg-white/[0.02] rounded-2xl">
+                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Est. ROI</p>
+                                <p className={cn(
+                                  "text-sm font-black",
+                                  applicantAnalysis.profitable ? "text-emerald-500" : "text-amber-500"
+                                )}>
+                                  {applicantAnalysis.profitPercentage > 0 ? '+' : ''}{applicantAnalysis.profitPercentage}%
+                                </p>
+                              </div>
+                            </>
+                          );
+                        }
+                        
+                        return (
+                          <>
+                            <div className="text-center p-4 bg-gray-50/50 dark:bg-white/[0.02] rounded-2xl">
+                              <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Match Score</p>
+                              <p className="text-sm font-black text-emerald-500">{app.aiMatchScore ? `${Math.round(app.aiMatchScore)}%` : '92%'}</p>
+                            </div>
+                            <div className="text-center p-4 bg-gray-50/50 dark:bg-white/[0.02] rounded-2xl">
+                              <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Timeline</p>
+                              <p className="text-sm font-black text-gray-900 dark:text-white">{app.proposedTimeline || 'Not specified'}</p>
+                            </div>
+                          </>
+                        );
+                      })()}
+
                       <div className="text-center p-4 bg-gray-50/50 dark:bg-white/[0.02] rounded-2xl">
                         <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Delivery</p>
                         <p className="text-sm font-black text-gray-900 dark:text-white">Standard</p>
