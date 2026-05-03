@@ -5,7 +5,7 @@ import { useAuth } from "@clerk/clerk-react";
 
 interface RoleGuardProps {
     children: ReactNode;
-    allowedRoles: Array<'business' | 'business_owner' | 'advertiser' | 'admin' | 'super_admin'>;
+    allowedRoles: Array<'business_owner' | 'advertiser' | 'admin' | 'super_admin'>;
 }
 
 export default function RoleGuard({ children, allowedRoles }: RoleGuardProps) {

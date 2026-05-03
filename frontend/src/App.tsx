@@ -259,7 +259,7 @@ function App() {
         path="/collaborations"
         element={
           <SignedIn>
-            <RoleGuard allowedRoles={['business']}>
+            <RoleGuard allowedRoles={['business_owner']}>
               <CollaborationsPage />
             </RoleGuard>
           </SignedIn>
