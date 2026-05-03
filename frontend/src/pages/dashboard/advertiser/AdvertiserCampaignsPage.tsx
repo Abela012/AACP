@@ -85,7 +85,10 @@ export default function AdvertiserCampaignsPage() {
             <p className="text-3xl font-black text-gray-900 dark:text-white">
               {applications.filter((a: any) => a.status === 'accepted').length}
             </p>
-            <p className="text-xs font-bold text-gray-400 mt-1">Active collaborations in progress</p>
+            <div className="flex items-center justify-between mt-1">
+              <p className="text-xs font-bold text-gray-400">Active collaborations</p>
+              <Link to="/advertiser/collaborations" className="text-[10px] font-black text-emerald-500 uppercase hover:underline">Manage All</Link>
+            </div>
           </div>
 
           <div className="bg-white dark:bg-white/5 p-6 rounded-[2rem] border border-gray-100 dark:border-white/5 shadow-sm">

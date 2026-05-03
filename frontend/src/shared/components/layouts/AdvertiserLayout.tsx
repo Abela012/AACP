@@ -16,7 +16,8 @@ import {
   ShieldCheck,
   Users,
   LogOut,
-  MessageSquare
+  MessageSquare,
+  Briefcase
 } from 'lucide-react';
 import { useClerk } from '@clerk/clerk-react';
 import { Link, useLocation } from 'react-router-dom';
@@ -64,6 +65,7 @@ export default function AdvertiserLayout({ children }: AdvertiserLayoutProps) {
   const navigation = [
     { name: 'Overview', icon: LayoutDashboard, path: '/dashboard/advertiser' },
     { name: 'Campaigns', icon: Megaphone, path: '/advertiser/campaigns' },
+    { name: 'Collaborations', icon: Briefcase, path: '/advertiser/collaborations' },
     { name: 'AI Matches', icon: Sparkles, path: '/advertiser/matches', badge: '12' },
     { name: 'Reports', icon: BarChart3, path: '/advertiser/analytics' },
     { name: 'Messages', icon: MessageSquare, path: '/messages' },
@@ -77,6 +79,7 @@ export default function AdvertiserLayout({ children }: AdvertiserLayoutProps) {
   const headerNav = [
     { name: 'Dashboard', path: '/dashboard/advertiser' },
     { name: 'Opportunities', path: '/advertiser/matches' },
+    { name: 'Collaborations', path: '/advertiser/collaborations' },
     { name: 'Analytics', path: '/advertiser/analytics' },
     { name: 'Campaigns', path: '/advertiser/campaigns' },
   ];

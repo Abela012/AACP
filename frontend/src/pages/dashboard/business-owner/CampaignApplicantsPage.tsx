@@ -21,6 +21,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import BusinessLayout from '@/src/shared/components/layouts/BusinessLayout';
 import { useOpportunityApplications, useAcceptApplication, useRejectApplication } from '@/src/hooks/useApplications';
 import { useMarketingAnalysis } from '@/src/hooks/useMarketingAnalysis';
+import { useOpportunity } from '@/src/hooks/useOpportunities';
+import { useStartCollaboration } from '@/src/hooks/useCollaborations';
 import { cn } from '@/src/shared/utils/cn';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 
@@ -34,13 +36,17 @@ export default function CampaignApplicantsPage() {
   
   const acceptMutation = useAcceptApplication();
   const rejectMutation = useRejectApplication();
+  const startCollaborationMutation = useStartCollaboration();
 
 
   const handleAccept = async (appId: string) => {
     if (!window.confirm('Are you sure you want to accept this creator? This will initiate the collaboration.')) return;
     try {
       await acceptMutation.mutateAsync(appId);
+      // Automatically start collaboration
+      await startCollaborationMutation.mutateAsync(appId);
       alert('Application accepted! A new collaboration has been created.');
+      navigate('/collaborations');
     } catch (err: any) {
       alert(err.message || 'Failed to accept application');
     }
