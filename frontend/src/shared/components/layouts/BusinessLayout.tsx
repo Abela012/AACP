@@ -66,7 +66,7 @@ export default function BusinessLayout({ children }: BusinessLayoutProps) {
     { name: 'Dashboard', icon: LayoutDashboard, path: '/dashboard/business-owner' },
     { name: 'Campaigns', icon: Megaphone, path: '/campaigns' },
     { name: 'Collaborations', icon: Briefcase, path: '/collaborations' },
-    { name: 'Matches', icon: Users, path: '/matches' },
+    { name: 'Matches', icon: Sparkles, path: '/collaborations' }, // Renamed from Applications
     { name: 'Analytics', icon: BarChart3, path: '/analytics' },
     { name: 'Messages', icon: MessageSquare, path: '/messages' },
   ];
