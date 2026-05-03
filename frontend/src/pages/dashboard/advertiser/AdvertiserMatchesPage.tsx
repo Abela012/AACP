@@ -109,15 +109,31 @@ export default function AdvertiserMatchesPage() {
                   </button>
                   <div className="absolute bottom-6 left-8">
                     <h2 className="text-3xl font-black text-white mb-1">{selectedJob.title}</h2>
-                    <p className="text-emerald-400 font-bold flex items-center gap-2"><Building2 size={16} />{selectedJob.owner?.firstName || 'Business Owner'}</p>
+                    <p className="text-emerald-400 font-bold flex items-center gap-2">
+                      <Building2 size={16} />
+                      {selectedJob.businessOwner?.fullName || 'Business Owner'}
+                    </p>
                   </div>
                 </div>
                 
                 <div className="p-8 overflow-y-auto">
                   <div className="flex flex-wrap gap-4 mb-8">
-                    <span className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold px-4 py-2 rounded-xl text-sm flex items-center gap-2"><DollarSign size={16} />${(typeof selectedJob.budget === 'object' ? selectedJob.budget.amount : (selectedJob.budget || 0)).toLocaleString()}</span>
-                    <span className="bg-blue-500/10 text-blue-600 dark:text-blue-400 font-bold px-4 py-2 rounded-xl text-sm flex items-center gap-2"><Zap size={16} />{selectedJob.category || 'Any'}</span>
-                    <span className="bg-gray-100 dark:bg-white/5 text-gray-700 dark:text-gray-300 font-bold px-4 py-2 rounded-xl text-sm flex items-center gap-2"><MapPin size={16} />Remote</span>
+                    <span className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold px-4 py-2 rounded-xl text-sm flex items-center gap-2">
+                      <DollarSign size={16} />
+                      ${(typeof selectedJob.budget === 'object' ? (selectedJob.budget.amount || 0) : (selectedJob.budget || 0)).toLocaleString()}
+                    </span>
+                    <span className="bg-blue-500/10 text-blue-600 dark:text-blue-400 font-bold px-4 py-2 rounded-xl text-sm flex items-center gap-2">
+                      <Zap size={16} />
+                      {selectedJob.category || 'Any'}
+                    </span>
+                    <span className="bg-amber-500/10 text-amber-600 dark:text-amber-400 font-bold px-4 py-2 rounded-xl text-sm flex items-center gap-2">
+                      <Clock size={16} />
+                      Due {selectedJob.deadline ? new Date(selectedJob.deadline).toLocaleDateString() : 'No Deadline'}
+                    </span>
+                    <span className="bg-gray-100 dark:bg-white/5 text-gray-700 dark:text-gray-300 font-bold px-4 py-2 rounded-xl text-sm flex items-center gap-2">
+                      <MapPin size={16} />
+                      Remote
+                    </span>
                   </div>
 
                   <div className="space-y-6 text-gray-600 dark:text-gray-300 text-sm leading-relaxed mb-8">
@@ -232,17 +248,26 @@ export default function AdvertiserMatchesPage() {
                 className="bg-white dark:bg-white/5 rounded-[2.5rem] border border-gray-100 dark:border-white/5 shadow-sm dark:shadow-none overflow-hidden group cursor-pointer"
               >
                 <div className="h-48 relative">
-                  <div className="w-full h-full bg-gray-200 dark:bg-white/5 flex items-center justify-center text-gray-400">
-                    <Building2 size={48} />
-                  </div>
+                  {o.businessOwner?.profilePicture ? (
+                    <img 
+                      src={o.businessOwner.profilePicture} 
+                      alt={o.businessOwner.fullName} 
+                      className="w-full h-full object-cover transition-transform group-hover:scale-110 duration-700" 
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gray-200 dark:bg-white/5 flex items-center justify-center text-gray-400">
+                      <Building2 size={48} />
+                    </div>
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60"></div>
                   <div className="absolute top-4 right-4 bg-emerald-500/90 backdrop-blur-md text-black text-[10px] font-bold px-3 py-1.5 rounded-full uppercase tracking-widest shadow-lg">
-                    95% Match
+                    {o.aiRecommendationScore ? `${o.aiRecommendationScore}% Match` : '95% Match'}
                   </div>
                 </div>
                 <div className="p-8">
                   <div className="flex justify-between items-start mb-6">
                     <div>
-                      <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-1 line-clamp-1">{o.owner?.firstName || 'Business'}</h3>
+                      <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-1 line-clamp-1">{o.businessOwner?.fullName || 'Business'}</h3>
                       <p className="text-xs text-emerald-600 dark:text-emerald-500 font-bold uppercase tracking-widest line-clamp-1">{o.title}</p>
                     </div>
                     <div className="flex items-center gap-1 text-amber-400">
@@ -251,14 +276,16 @@ export default function AdvertiserMatchesPage() {
                     </div>
                   </div>
 
-                  <div className="space-y-4 mb-8">
+                  <div className="grid grid-cols-2 gap-4 mb-8">
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 bg-emerald-50 dark:bg-emerald-500/10 rounded-lg flex items-center justify-center text-emerald-600 dark:text-emerald-500">
                         <DollarSign size={16} />
                       </div>
                       <div>
                         <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Budget</p>
-                        <p className="text-sm font-bold text-gray-900 dark:text-white">${(typeof o.budget === 'object' ? o.budget.amount : (o.budget || 0)).toLocaleString()}</p>
+                        <p className="text-sm font-bold text-gray-900 dark:text-white">
+                          ${(typeof o.budget === 'object' ? (o.budget.amount || 0) : (o.budget || 0)).toLocaleString()}
+                        </p>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
@@ -268,6 +295,17 @@ export default function AdvertiserMatchesPage() {
                       <div>
                         <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Platform</p>
                         <p className="text-sm font-bold text-gray-900 dark:text-white">{o.category || 'Any'}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3 col-span-2 mt-2">
+                      <div className="w-8 h-8 bg-amber-50 dark:bg-amber-500/10 rounded-lg flex items-center justify-center text-amber-600 dark:text-amber-500">
+                        <Clock size={16} />
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Due Date</p>
+                        <p className="text-sm font-bold text-gray-900 dark:text-white">
+                          {o.deadline ? new Date(o.deadline).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) : 'No Deadline'}
+                        </p>
                       </div>
                     </div>
                   </div>
