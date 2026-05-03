@@ -1,5 +1,6 @@
 import Review, { IReview } from '../../database/models/Review';
 import Collaboration from '../../database/models/Collaboration';
+import User from '../../database/models/User';
 
 /**
  * Review Service
@@ -39,6 +40,18 @@ export const createReview = async (data: Partial<IReview>): Promise<IReview> => 
     // The Mongoose unique index on { collaboration, reviewer } will catch duplicate reviews
     try {
         const review = await Review.create(data);
+
+        // 5. Update target user average rating and total reviews
+        const revieweeId = data.reviewee;
+        const reviews = await Review.find({ reviewee: revieweeId });
+
+        const avg = reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length;
+
+        await User.findByIdAndUpdate(revieweeId, {
+            averageRating: Number(avg.toFixed(2)),
+            totalReviews: reviews.length
+        });
+
         return review;
     } catch (err: any) {
         if (err.code === 11000) {

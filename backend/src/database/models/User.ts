@@ -16,6 +16,8 @@ export interface IUser extends Document {
     profileData?: any;
     pendingProfileData?: any;
     totalPosts: number;
+    averageRating: number;
+    totalReviews: number;
     lastLogin: Date;
     createdAt: Date;
     updatedAt: Date;
@@ -83,6 +85,14 @@ const userSchema: Schema = new Schema(
             default: null,
         },
         totalPosts: {
+            type: Number,
+            default: 0,
+        },
+        averageRating: {
+            type: Number,
+            default: 0,
+        },
+        totalReviews: {
             type: Number,
             default: 0,
         },
