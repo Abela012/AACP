@@ -22,7 +22,6 @@ import BusinessLayout from '@/src/shared/components/layouts/BusinessLayout';
 import { useOpportunityApplications, useAcceptApplication, useRejectApplication } from '@/src/hooks/useApplications';
 import { useOpportunity } from '@/src/hooks/useOpportunities';
 import { useMarketingAnalysis } from '@/src/hooks/useMarketingAnalysis';
-import { useOpportunity } from '@/src/hooks/useOpportunities';
 import { useStartCollaboration } from '@/src/hooks/useCollaborations';
 import { cn } from '@/src/shared/utils/cn';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
