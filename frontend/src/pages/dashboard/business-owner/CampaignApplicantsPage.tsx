@@ -41,6 +41,7 @@ export default function CampaignApplicantsPage() {
     try {
       await acceptMutation.mutateAsync(appId);
       alert('Application accepted! A new collaboration has been created.');
+      navigate('/messages');
     } catch (err: any) {
       alert(err.message || 'Failed to accept application');
     }
@@ -234,12 +235,83 @@ export default function CampaignApplicantsPage() {
                           <span className="flex items-center gap-1.5"><MapPin size={14} className="text-emerald-500" /> {app.advertiser?.location || 'Remote'}</span>
                           <span className="flex items-center gap-1.5"><Mail size={14} className="text-emerald-500" /> {app.advertiser?.email}</span>
                         </div>
-                        <div className="bg-gray-50 dark:bg-white/5 p-6 rounded-3xl relative">
+                        <div className="bg-gray-50 dark:bg-white/5 p-6 rounded-3xl relative mb-4">
                            <Sparkles size={16} className="absolute -top-2 -left-2 text-amber-500" />
                            <p className="text-sm font-medium text-gray-700 dark:text-gray-300 leading-relaxed italic">
                              "{app.coverLetter || 'I am very interested in this opportunity and believe my content style matches your brand vision.'}"
                            </p>
                         </div>
+                        
+                        {app.applicationData ? (
+                          <div className="mb-4 space-y-4">
+                            <div className="bg-white dark:bg-white/5 border border-gray-100 dark:border-white/10 p-4 rounded-2xl">
+                              <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Professional Snapshot</p>
+                              <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                  <p className="text-xs text-gray-500">Current Role</p>
+                                  <p className="text-sm font-bold text-gray-900 dark:text-white">{app.applicationData.currentTitle || 'N/A'} at {app.applicationData.currentCompany || 'N/A'}</p>
+                                </div>
+                                <div>
+                                  <p className="text-xs text-gray-500">Experience</p>
+                                  <p className="text-sm font-bold text-gray-900 dark:text-white">{app.applicationData.experienceYears || 'N/A'} Years</p>
+                                </div>
+                                <div>
+                                  <p className="text-xs text-gray-500">Education Level</p>
+                                  <p className="text-sm font-bold text-gray-900 dark:text-white">{app.applicationData.educationLevel || 'N/A'}</p>
+                                </div>
+                                <div>
+                                  <p className="text-xs text-gray-500">Work Preference</p>
+                                  <p className="text-sm font-bold text-gray-900 dark:text-white">{app.applicationData.workPreference || 'Remote'}</p>
+                                </div>
+                              </div>
+                            </div>
+
+                            {app.applicationData.skills && app.applicationData.skills.length > 0 && (
+                              <div>
+                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Submitted Skills ({app.applicationData.proficiency || 'Intermediate'})</p>
+                                <div className="flex flex-wrap gap-2">
+                                  {app.applicationData.skills.map((skill: string, i: number) => (
+                                    <span key={`skill-${i}`} className="bg-blue-50 dark:bg-blue-500/10 text-blue-600 px-3 py-1 rounded-lg text-xs font-bold border border-blue-100 dark:border-blue-500/20">{skill}</span>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+
+                            {app.applicationData.resumeUrl && (
+                              <div>
+                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Attached Document</p>
+                                <div className="inline-flex items-center gap-2 text-sm font-bold text-emerald-500 hover:text-emerald-400 transition-colors bg-emerald-50 dark:bg-emerald-500/10 px-4 py-2 rounded-xl cursor-pointer">
+                                  <FileText size={16} /> {app.applicationData.resumeUrl}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        ) : (
+                          <>
+                            {(app.advertiser?.profileData?.niches?.length > 0 || app.advertiser?.profileData?.skills?.length > 0) && (
+                              <div className="mb-4">
+                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Professional Skills & Niches</p>
+                                <div className="flex flex-wrap gap-2">
+                                  {app.advertiser?.profileData?.skills?.map((skill: string, i: number) => (
+                                    <span key={`skill-${i}`} className="bg-blue-50 dark:bg-blue-500/10 text-blue-600 px-3 py-1 rounded-lg text-xs font-bold border border-blue-100 dark:border-blue-500/20">{skill}</span>
+                                  ))}
+                                  {app.advertiser?.profileData?.niches?.map((niche: string, i: number) => (
+                                    <span key={`niche-${i}`} className="bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 px-3 py-1 rounded-lg text-xs font-bold border border-emerald-100 dark:border-emerald-500/20">{niche}</span>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                            
+                            {app.advertiser?.profileData?.website && (
+                              <div>
+                                 <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Portfolio / Resume</p>
+                                 <a href={app.advertiser.profileData.website.startsWith('http') ? app.advertiser.profileData.website : `https://${app.advertiser.profileData.website}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-sm font-bold text-emerald-500 hover:text-emerald-400 transition-colors bg-emerald-50 dark:bg-emerald-500/10 px-4 py-2 rounded-xl">
+                                   <FileText size={16} /> View Professional Portfolio <ExternalLink size={14} />
+                                 </a>
+                              </div>
+                            )}
+                          </>
+                        )}
                       </div>
                     </div>
 

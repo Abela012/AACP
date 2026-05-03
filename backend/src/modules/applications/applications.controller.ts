@@ -52,6 +52,7 @@ export const applyToOpportunity = async (req: Request, res: Response) => {
                 currency: req.body.currency || 'ETB',
             },
             proposedTimeline: req.body.proposedTimeline || 'Not specified',
+            applicationData: req.body.applicationData || {},
         };
 
         if (!data.opportunity) {

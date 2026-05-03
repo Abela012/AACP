@@ -22,6 +22,7 @@ export interface IApplication extends Document {
     status: 'pending' | 'shortlisted' | 'accepted' | 'rejected' | 'withdrawn' | 'completed';
     coinsSpent: number;
     rejectionReason?: string;
+    applicationData?: any;
     reviewedAt?: Date;
     reviewedBy?: mongoose.Types.ObjectId;
     aiMatchScore?: number;
@@ -71,6 +72,7 @@ const applicationSchema: Schema<IApplication> = new Schema(
         },
         coinsSpent: { type: Number, default: 0 },
         rejectionReason: { type: String },
+        applicationData: { type: Schema.Types.Mixed, default: {} },
         reviewedAt: { type: Date },
         reviewedBy: {
             type: Schema.Types.ObjectId,

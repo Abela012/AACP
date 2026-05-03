@@ -149,7 +149,11 @@ export default function AdvertiserApplyMatchPage() {
     try {
       await applyMutation.mutateAsync({
         opportunity: id || '',
-        coverLetter: formData.coverLetter
+        coverLetter: formData.coverLetter,
+        applicationData: {
+          ...formData,
+          resumeUrl: resume ? resume.name : null
+        }
       });
       setIsSuccess(true);
     } catch (error: any) {
