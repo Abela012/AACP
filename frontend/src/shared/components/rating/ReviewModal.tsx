@@ -106,28 +106,39 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
 
                 {/* Comment Section */}
                 <div className="space-y-3">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 dark:text-gray-500 flex items-center gap-2">
-                    <MessageSquare size={12} className="text-emerald-500" />
-                    Comment (Optional)
-                  </label>
+                  <div className="flex justify-between items-center">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 dark:text-gray-500 flex items-center gap-2">
+                      <MessageSquare size={12} className="text-emerald-500" />
+                      Detailed Feedback
+                    </label>
+                    <span className={cn(
+                      "text-[10px] font-bold uppercase",
+                      comment.length < 5 ? "text-amber-500" : "text-emerald-500"
+                    )}>
+                      {comment.length}/2000
+                    </span>
+                  </div>
                   <textarea
                     value={comment}
                     onChange={(e) => setComment(e.target.value)}
-                    placeholder="Share your experience working together..."
+                    placeholder="Describe your experience working together (min. 5 characters)..."
                     className="w-full h-32 p-4 rounded-3xl bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 outline-none focus:border-emerald-500 transition-all resize-none text-sm font-medium text-gray-900 dark:text-white"
                   />
+                  <p className="text-[9px] font-bold text-gray-400 uppercase tracking-tight">Minimum 5 characters required for submission.</p>
                 </div>
 
                 {error && (
-                  <p className="text-red-500 text-xs font-bold text-center">{error}</p>
+                  <div className="p-4 bg-red-50 dark:bg-red-500/10 border border-red-100 dark:border-red-500/20 rounded-2xl">
+                    <p className="text-red-500 text-xs font-bold text-center">{error}</p>
+                  </div>
                 )}
 
                 <button
                   type="submit"
-                  disabled={isSubmitting || rating === 0}
+                  disabled={isSubmitting || rating === 0 || comment.length < 5}
                   className={cn(
                     "w-full h-14 rounded-2xl font-black text-sm flex items-center justify-center gap-2 transition-all shadow-xl",
-                    rating > 0 
+                    (rating > 0 && comment.length >= 5)
                       ? "bg-emerald-600 text-white hover:bg-emerald-500 shadow-emerald-500/20" 
                       : "bg-gray-100 dark:bg-white/5 text-gray-400 dark:text-gray-500 cursor-not-allowed shadow-none"
                   )}
