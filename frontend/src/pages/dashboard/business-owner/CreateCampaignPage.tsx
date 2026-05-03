@@ -32,6 +32,7 @@ export default function CreateCampaignPage() {
   const [category, setCategory] = useState(CATEGORIES[0]);
   const [budgetAmount, setBudgetAmount] = useState('');
   const [minFollowers, setMinFollowers] = useState('');
+  const [deadline, setDeadline] = useState('');
   
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
   const [deliverables, setDeliverables] = useState<string[]>([]);
@@ -82,6 +83,7 @@ export default function CreateCampaignPage() {
           amount: Number(budgetAmount),
           currency: 'USD'
         },
+        deadline: deadline ? new Date(deadline).toISOString() : undefined,
         requirements: {
           minFollowers: Number(minFollowers) || 0,
           preferredNiches: [category]
@@ -136,16 +138,28 @@ export default function CreateCampaignPage() {
             </h2>
             
             <div className="space-y-6">
-              <div>
-                <label className="block text-sm font-bold text-gray-900 dark:text-white mb-2">Campaign Title *</label>
-                <input 
-                  type="text"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  placeholder="e.g. Summer Skincare Launch Video"
-                  className="w-full bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-emerald-500 transition-all"
-                  required
-                />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-bold text-gray-900 dark:text-white mb-2">Campaign Title *</label>
+                  <input 
+                    type="text"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    placeholder="e.g. Summer Skincare Launch Video"
+                    className="w-full bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-emerald-500 transition-all"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-900 dark:text-white mb-2">Category *</label>
+                  <select
+                    value={category}
+                    onChange={(e) => setCategory(e.target.value)}
+                    className="w-full bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm text-gray-900 dark:text-white focus:outline-none focus:border-emerald-500 transition-all"
+                  >
+                    {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+                  </select>
+                </div>
               </div>
 
               <div>
@@ -163,16 +177,6 @@ export default function CreateCampaignPage() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-bold text-gray-900 dark:text-white mb-2">Category *</label>
-                  <select
-                    value={category}
-                    onChange={(e) => setCategory(e.target.value)}
-                    className="w-full bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm text-gray-900 dark:text-white focus:outline-none focus:border-emerald-500 transition-all"
-                  >
-                    {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
-                  </select>
-                </div>
-                <div>
                   <label className="block text-sm font-bold text-gray-900 dark:text-white mb-2">Budget (USD) *</label>
                   <div className="relative">
                     <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
@@ -183,6 +187,20 @@ export default function CreateCampaignPage() {
                       onChange={(e) => setBudgetAmount(e.target.value)}
                       placeholder="e.g. 500"
                       className="w-full bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl pl-10 pr-4 py-3 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-emerald-500 transition-all"
+                      required
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-900 dark:text-white mb-2">Due Date *</label>
+                  <div className="relative">
+                    <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+                    <input 
+                      type="date"
+                      value={deadline}
+                      onChange={(e) => setDeadline(e.target.value)}
+                      min={new Date().toISOString().split('T')[0]}
+                      className="w-full bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl pl-10 pr-4 py-3 text-sm text-gray-900 dark:text-white focus:outline-none focus:border-emerald-500 transition-all"
                       required
                     />
                   </div>
