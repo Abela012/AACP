@@ -24,7 +24,7 @@ export const createOpportunity = async (data: Partial<IOpportunity>): Promise<IO
  */
 export const getAllOpportunities = async (): Promise<IOpportunity[]> => {
     const opportunities = await Opportunity.find()
-        .populate('businessOwner', 'fullName email')
+        .populate('businessOwner', 'fullName email profilePicture')
         .sort({ createdAt: -1 });
     return opportunities;
 };
@@ -36,7 +36,7 @@ export const getAllOpportunities = async (): Promise<IOpportunity[]> => {
  */
 export const getOpportunityById = async (id: string): Promise<IOpportunity | null> => {
     const opportunity = await Opportunity.findById(id)
-        .populate('businessOwner', 'name email');
+        .populate('businessOwner', 'fullName email profilePicture');
     return opportunity;
 };
 
@@ -50,7 +50,7 @@ export const updateOpportunity = async (id: string, data: Partial<IOpportunity>)
     const opportunity = await Opportunity.findByIdAndUpdate(id, data, {
         new: true,
         runValidators: true,
-    }).populate('businessOwner', 'name email');
+    }).populate('businessOwner', 'fullName email profilePicture');
     return opportunity;
 };
 
@@ -79,7 +79,7 @@ export const getOpportunitiesByUser = async (userId: string): Promise<IOpportuni
     }
 
     const opportunities = await Opportunity.find({ businessOwner: mongoUserId })
-        .populate('businessOwner', 'fullName email')
+        .populate('businessOwner', 'fullName email profilePicture')
         .sort({ createdAt: -1 });
     return opportunities;
 };
