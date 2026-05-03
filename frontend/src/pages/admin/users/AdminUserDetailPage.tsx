@@ -106,7 +106,7 @@ export default function AdminUserDetailPage() {
                   <span className="text-4xl font-bold text-gray-400">{user.firstName?.[0] || user.username?.[0]}</span>
                 )}
               </div>
-              {user.status === 'active' && (
+              {(user.status === 'active' || user.role === 'admin' || user.role === 'super_admin') && (
                 <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-emerald-500 rounded-full border-4 border-white dark:border-[#111111] flex items-center justify-center">
                   <CheckCircle2 size={14} className="text-white" />
                 </div>
@@ -119,11 +119,11 @@ export default function AdminUserDetailPage() {
                 <div className="flex gap-2">
                   <span className="text-[10px] font-black uppercase tracking-widest px-2 py-1 bg-gray-100 dark:bg-white/10 text-gray-500 rounded">{user.role.replace('_', ' ')}</span>
                   <span className={`text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded ${
-                    user.status === 'active' ? 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600' :
+                    (user.role === 'admin' || user.role === 'super_admin' || user.status === 'active') ? 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600' :
                     user.status === 'suspended' ? 'bg-red-100 dark:bg-red-500/20 text-red-600' :
                     'bg-amber-100 dark:bg-amber-500/20 text-amber-600'
                   }`}>
-                    {user.status}
+                    {(user.role === 'admin' || user.role === 'super_admin') ? 'active' : user.status}
                   </span>
                 </div>
               </div>
@@ -149,65 +149,67 @@ export default function AdminUserDetailPage() {
           </div>
 
           {/* Action Boxes */}
-          <div className="lg:col-span-4 flex flex-col gap-6">
-            <button 
-              onClick={handleEditPermissions}
-              className="flex-1 bg-[#14a800] hover:bg-[#108a00] text-white rounded-[2.5rem] p-8 flex flex-col items-center justify-center gap-4 shadow-lg shadow-green-100 dark:shadow-none transition-all group"
-            >
-              <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center">
-                <Settings2 size={24} />
-              </div>
-              <span className="font-bold">Edit Permissions</span>
-            </button>
-            <div className="grid grid-cols-2 gap-6 flex-1">
+          {user.role !== 'admin' && user.role !== 'super_admin' && (
+            <div className="lg:col-span-4 flex flex-col gap-6">
               <button 
-                onClick={handleResetPassword}
-                className="bg-[#F0F0FA] dark:bg-white/5 hover:bg-[#E5E5F5] dark:hover:bg-white/10 rounded-[2.5rem] flex flex-col items-center justify-center gap-2 transition-all p-4"
+                onClick={handleEditPermissions}
+                className="flex-1 bg-[#14a800] hover:bg-[#108a00] text-white rounded-[2.5rem] p-8 flex flex-col items-center justify-center gap-4 shadow-lg shadow-green-100 dark:shadow-none transition-all group"
               >
-                <History size={20} className="text-[#14a800]" />
-                <span className="text-xs font-bold text-[#1A1D1F] dark:text-white">Reset PW</span>
+                <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center">
+                  <Settings2 size={24} />
+                </div>
+                <span className="font-bold">Edit Permissions</span>
               </button>
+              <div className="grid grid-cols-2 gap-6 flex-1">
+                <button 
+                  onClick={handleResetPassword}
+                  className="bg-[#F0F0FA] dark:bg-white/5 hover:bg-[#E5E5F5] dark:hover:bg-white/10 rounded-[2.5rem] flex flex-col items-center justify-center gap-2 transition-all p-4"
+                >
+                  <History size={20} className="text-[#14a800]" />
+                  <span className="text-xs font-bold text-[#1A1D1F] dark:text-white">Reset PW</span>
+                </button>
 
-              {user.status === 'pending' ? (
+                {user.status === 'pending' ? (
+                  <button 
+                    onClick={() => handleStatusChange('active')}
+                    disabled={updateStatus.isPending}
+                    className="bg-emerald-50 dark:bg-emerald-500/10 hover:bg-emerald-100 dark:hover:bg-emerald-500/20 rounded-[2.5rem] flex flex-col items-center justify-center gap-2 transition-all p-4 border border-emerald-100 dark:border-emerald-500/20 disabled:opacity-50"
+                  >
+                    <CheckCircle2 size={20} className="text-emerald-500" />
+                    <span className="text-xs font-bold text-emerald-600">Approve</span>
+                  </button>
+                ) : user.status === 'suspended' || user.status === 'banned' ? (
+                  <button 
+                    onClick={() => handleStatusChange('active')}
+                    disabled={updateStatus.isPending}
+                    className="bg-emerald-50 dark:bg-emerald-500/10 hover:bg-emerald-100 dark:hover:bg-emerald-500/20 rounded-[2.5rem] flex flex-col items-center justify-center gap-2 transition-all p-4 border border-emerald-100 dark:border-emerald-500/20 disabled:opacity-50"
+                  >
+                    <ShieldCheck size={20} className="text-emerald-500" />
+                    <span className="text-xs font-bold text-emerald-600">Reinstate</span>
+                  </button>
+                ) : (
+                  <button 
+                    onClick={() => handleStatusChange('suspended')}
+                    disabled={updateStatus.isPending}
+                    className="bg-[#FFF0F0] dark:bg-red-500/10 hover:bg-[#FFE5E5] dark:hover:bg-red-500/20 rounded-[2.5rem] flex flex-col items-center justify-center gap-2 transition-all p-4 disabled:opacity-50"
+                  >
+                    <Ban size={20} className="text-red-500" />
+                    <span className="text-xs font-bold text-red-500">Suspend</span>
+                  </button>
+                )}
+              </div>
+              
+              {user.status === 'pending' && (
                 <button 
-                  onClick={() => handleStatusChange('active')}
+                  onClick={() => handleStatusChange('banned')}
                   disabled={updateStatus.isPending}
-                  className="bg-emerald-50 dark:bg-emerald-500/10 hover:bg-emerald-100 dark:hover:bg-emerald-500/20 rounded-[2.5rem] flex flex-col items-center justify-center gap-2 transition-all p-4 border border-emerald-100 dark:border-emerald-500/20 disabled:opacity-50"
+                  className="w-full py-4 bg-red-50 dark:bg-red-500/5 hover:bg-red-100 dark:hover:bg-red-500/10 text-red-500 rounded-2xl text-xs font-bold transition-all border border-red-100 dark:border-red-500/20 flex items-center justify-center gap-2 disabled:opacity-50"
                 >
-                  <CheckCircle2 size={20} className="text-emerald-500" />
-                  <span className="text-xs font-bold text-emerald-600">Approve</span>
-                </button>
-              ) : user.status === 'suspended' || user.status === 'banned' ? (
-                <button 
-                  onClick={() => handleStatusChange('active')}
-                  disabled={updateStatus.isPending}
-                  className="bg-emerald-50 dark:bg-emerald-500/10 hover:bg-emerald-100 dark:hover:bg-emerald-500/20 rounded-[2.5rem] flex flex-col items-center justify-center gap-2 transition-all p-4 border border-emerald-100 dark:border-emerald-500/20 disabled:opacity-50"
-                >
-                  <ShieldCheck size={20} className="text-emerald-500" />
-                  <span className="text-xs font-bold text-emerald-600">Reinstate</span>
-                </button>
-              ) : (
-                <button 
-                  onClick={() => handleStatusChange('suspended')}
-                  disabled={updateStatus.isPending}
-                  className="bg-[#FFF0F0] dark:bg-red-500/10 hover:bg-[#FFE5E5] dark:hover:bg-red-500/20 rounded-[2.5rem] flex flex-col items-center justify-center gap-2 transition-all p-4 disabled:opacity-50"
-                >
-                  <Ban size={20} className="text-red-500" />
-                  <span className="text-xs font-bold text-red-500">Suspend</span>
+                  <XCircle size={16} /> Reject Application
                 </button>
               )}
             </div>
-            
-            {user.status === 'pending' && (
-              <button 
-                onClick={() => handleStatusChange('banned')}
-                disabled={updateStatus.isPending}
-                className="w-full py-4 bg-red-50 dark:bg-red-500/5 hover:bg-red-100 dark:hover:bg-red-500/10 text-red-500 rounded-2xl text-xs font-bold transition-all border border-red-100 dark:border-red-500/20 flex items-center justify-center gap-2 disabled:opacity-50"
-              >
-                <XCircle size={16} /> Reject Application
-              </button>
-            )}
-          </div>
+          )}
         </div>
 
         {/* Detailed Profile Data Section */}

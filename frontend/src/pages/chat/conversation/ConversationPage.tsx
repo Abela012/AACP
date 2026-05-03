@@ -37,7 +37,7 @@ export default function ConversationPage() {
 
   // Layout selection
   let Layout: React.ComponentType<{ children: React.ReactNode }> = AdvertiserLayout;
-  if (userRole === 'business') Layout = BusinessLayout;
+  if (userRole === 'business_owner') Layout = BusinessLayout;
   if (userRole === 'admin') Layout = AdminLayout;
 
   const { data: conversations, isLoading: collabsLoading } = useConversations();
@@ -94,7 +94,7 @@ export default function ConversationPage() {
     // Check if the latest message is from me, to show a "Delivered" notification
     if (messages.length > 0) {
       const lastMsg = messages[messages.length - 1];
-      const isMine = lastMsg.sender._id === myId || lastMsg.sender._id.startsWith(myId.slice(0, 8));
+      const isMine = lastMsg.sender.clerkId === myId;
       
       // If it's a new message and it's mine, show delivered status
       if (isMine) {
@@ -250,7 +250,7 @@ export default function ConversationPage() {
               )}
 
               {messages.map((msg) => {
-                const isMine = msg.sender._id === myId || msg.sender._id.startsWith(myId.slice(0, 8));
+                const isMine = msg.sender.clerkId === myId;
                 return (
                   <div key={msg._id} className={cn("flex w-full", isMine ? "justify-end" : "justify-start")}>
                     {!isMine && (

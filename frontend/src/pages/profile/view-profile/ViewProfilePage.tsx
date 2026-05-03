@@ -25,7 +25,7 @@ export default function ViewProfilePage() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const isBusiness = location.pathname.includes('/business') || userRole === 'business';
+  const isBusiness = location.pathname.includes('/business') || userRole === 'business_owner';
   const Layout = isBusiness ? BusinessLayout : AdvertiserLayout;
 
   const isApproved = onboardingStatus === 'approved';

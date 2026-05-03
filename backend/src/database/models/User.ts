@@ -114,4 +114,12 @@ const userSchema: Schema = new Schema(
     { timestamps: true }
 );
 
+userSchema.pre('save', function(next) {
+    const user = this as any;
+    if (user.role === 'admin' || user.role === 'super_admin') {
+        user.status = 'active';
+    }
+    next();
+});
+
 export default mongoose.model<IUser>("User", userSchema);

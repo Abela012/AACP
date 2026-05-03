@@ -21,10 +21,14 @@ export interface ProfileData {
   selectedPlatforms?: string[];
   youtubeHandle?: string;
   tiktokHandle?: string;
+  instagramHandle?: string;
+  xHandle?: string;
+  facebookHandle?: string;
   followers?: string;
   avgViews?: string;
   engagementRate?: string;
   geoTags?: string[];
+  niches?: string[];
   ageRanges?: string[];
   primaryLanguage?: string;
   baseRate?: string;

@@ -5,7 +5,7 @@ export interface User {
     firstName: string;
     lastName: string;
     username: string;
-    role: 'business' | 'advertiser' | 'admin';
+    role: 'business_owner' | 'advertiser' | 'admin' | 'super_admin';
     onboardingStatus: boolean;
     profilePicture?: string;
     coinsTotal: number;

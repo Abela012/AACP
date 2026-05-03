@@ -219,8 +219,10 @@ export default function AdminUsersPage() {
                         </span>
                       </td>
                       <td className="py-6 px-8">
-                        <span className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest ${statusStyle(user.status)}`}>
-                          {user.status}
+                        <span className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest ${
+                          (user.role === 'admin' || user.role === 'super_admin') ? statusStyle('active') : statusStyle(user.status)
+                        }`}>
+                          {(user.role === 'admin' || user.role === 'super_admin') ? 'active' : user.status}
                         </span>
                       </td>
                       <td className="py-6 px-8">
@@ -229,50 +231,52 @@ export default function AdminUsersPage() {
                         </span>
                       </td>
                       <td className="py-6 px-8 text-right">
-                        <div className="flex justify-end gap-2">
-                          <Link
-                            to={`/admin/users/${user._id}`}
-                            className="p-2 hover:bg-white dark:hover:bg-white/10 rounded-xl transition-all text-[#9A9FA5] hover:text-[#14a800]"
-                            title="View Profile"
-                          >
-                            <Eye size={18} />
-                          </Link>
-                          {!user.isVerified && (
+                        {user.role !== 'admin' && user.role !== 'super_admin' && (
+                          <div className="flex justify-end gap-2">
                             <Link
-                              to={`/admin/verification/${user._id}`}
+                              to={`/admin/users/${user._id}`}
                               className="p-2 hover:bg-white dark:hover:bg-white/10 rounded-xl transition-all text-[#9A9FA5] hover:text-[#14a800]"
-                              title="Review Verification"
+                              title="View Profile"
                             >
-                              <ShieldCheck size={18} />
+                              <Eye size={18} />
                             </Link>
-                          )}
-                          {user.status === 'pending' && (
-                            <button
-                              onClick={() => handleApprove(user)}
-                              disabled={updateStatus.isPending}
-                              className="p-2 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 rounded-xl transition-all text-emerald-500"
-                              title="Approve User"
-                            >
-                              <ShieldCheck size={18} />
-                            </button>
-                          )}
-                          <button
-                            onClick={() => handleSuspend(user)}
-                            disabled={updateStatus.isPending}
-                            className={`p-2 hover:bg-white dark:hover:bg-white/10 rounded-xl transition-all disabled:opacity-50 ${
-                              user.status === 'banned' ? 'text-emerald-500' : 'text-[#9A9FA5] hover:text-red-500'
-                            }`}
-                            title={user.status === 'banned' ? 'Reinstate User' : 'Suspend User'}
-                          >
-                            {updateStatus.isPending ? (
-                              <Loader2 size={18} className="animate-spin" />
-                            ) : user.status === 'banned' ? (
-                              <CheckCircle2 size={18} />
-                            ) : (
-                              <Ban size={18} />
+                            {!user.isVerified && (
+                              <Link
+                                to={`/admin/verification/${user._id}`}
+                                className="p-2 hover:bg-white dark:hover:bg-white/10 rounded-xl transition-all text-[#9A9FA5] hover:text-[#14a800]"
+                                title="Review Verification"
+                              >
+                                <ShieldCheck size={18} />
+                              </Link>
                             )}
-                          </button>
-                        </div>
+                            {user.status === 'pending' && (
+                              <button
+                                onClick={() => handleApprove(user)}
+                                disabled={updateStatus.isPending}
+                                className="p-2 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 rounded-xl transition-all text-emerald-500"
+                                title="Approve User"
+                              >
+                                <ShieldCheck size={18} />
+                              </button>
+                            )}
+                            <button
+                              onClick={() => handleSuspend(user)}
+                              disabled={updateStatus.isPending}
+                              className={`p-2 hover:bg-white dark:hover:bg-white/10 rounded-xl transition-all disabled:opacity-50 ${
+                                user.status === 'banned' ? 'text-emerald-500' : 'text-[#9A9FA5] hover:text-red-500'
+                              }`}
+                              title={user.status === 'banned' ? 'Reinstate User' : 'Suspend User'}
+                            >
+                              {updateStatus.isPending ? (
+                                <Loader2 size={18} className="animate-spin" />
+                              ) : user.status === 'banned' ? (
+                                <CheckCircle2 size={18} />
+                              ) : (
+                                <Ban size={18} />
+                              )}
+                            </button>
+                          </div>
+                        )}
                       </td>
                     </motion.tr>
                   ))

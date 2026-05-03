@@ -1,5 +1,7 @@
+import mongoose from 'mongoose';
 import Collaboration, { ICollaboration } from '../../database/models/Collaboration';
 import Application from '../../database/models/Application';
+import User from '../../database/models/User';
 import { IOpportunity } from '../../database/models/Opportunity';
 
 /**
@@ -83,19 +85,32 @@ export const completeCollaboration = async (id: string, businessOwnerId: string)
 
 /**
  * Get all collaborations for a user (Business Owner or Advertiser)
- * @param userId - User ID
+ * @param userId - User ID (MongoDB ID or Clerk ID)
  * @returns List of collaborations
  */
 export const getCollaborationsByUser = async (userId: string): Promise<ICollaboration[]> => {
+    let mongoId = userId;
+
+    // Resolve Clerk ID to MongoDB ID if necessary
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+        const user = await User.findOne({ clerkId: userId });
+        if (user) {
+            mongoId = user._id.toString();
+        } else {
+            // If it's not a valid ObjectId and not a found Clerk ID, return empty
+            return [];
+        }
+    }
+
     const collaborations = await Collaboration.find({
         $or: [
-            { businessOwner: userId },
-            { advertiser: userId }
+            { businessOwner: mongoId },
+            { advertiser: mongoId }
         ]
     })
         .populate('opportunity', 'title budget')
-        .populate('businessOwner', 'fullName email')
-        .populate('advertiser', 'fullName email')
+        .populate('businessOwner', 'firstName lastName email username')
+        .populate('advertiser', 'firstName lastName email username')
         .sort({ createdAt: -1 });
 
     return collaborations;

@@ -1,14 +1,14 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  ArrowLeft, 
-  FileText, 
-  Download, 
-  CheckCircle2, 
-  XCircle, 
-  Star, 
-  Mail, 
-  MapPin, 
+import {
+  ArrowLeft,
+  FileText,
+  Download,
+  CheckCircle2,
+  XCircle,
+  Star,
+  Mail,
+  MapPin,
   Briefcase,
   ExternalLink,
   ShieldCheck,
@@ -29,11 +29,11 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 
 export default function CampaignApplicantsPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  
+
   const { data: applications, isLoading: appsLoading } = useOpportunityApplications(id || '');
   const { data: oppData, isLoading: oppLoading } = useOpportunity(id || '');
   const { data: analysisData, isLoading: analysisLoading } = useMarketingAnalysis(id || '');
-  
+
   const acceptMutation = useAcceptApplication();
   const rejectMutation = useRejectApplication();
   const startCollaborationMutation = useStartCollaboration();
@@ -81,7 +81,7 @@ export default function CampaignApplicantsPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-10">
         {/* Header & Back Button */}
         <div className="flex items-center gap-4">
-          <button 
+          <button
             onClick={() => navigate('/campaigns')}
             className="w-10 h-10 rounded-xl bg-white dark:bg-white/5 flex items-center justify-center hover:bg-gray-100 transition-all border border-gray-100 dark:border-white/5"
           >
@@ -113,7 +113,7 @@ export default function CampaignApplicantsPage() {
                   {opportunity?.description || 'No description provided for this campaign.'}
                 </p>
               </div>
-              
+
               <div className="grid grid-cols-2 md:grid-cols-1 gap-4 w-full md:w-auto">
                 <div className="bg-white dark:bg-white/5 p-4 rounded-2xl border border-gray-100 dark:border-white/10">
                   <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Total Budget</p>
@@ -126,8 +126,8 @@ export default function CampaignApplicantsPage() {
               </div>
             </div>
           </div>
-          
-          <div className="px-8 md:px-12 py-6 bg-gray-50/50 dark:bg-white/[0.02] flex flex-wrap gap-8">
+
+          <div className="px-8 md:px-12 py-6 bg-gray-50/50 dark:bg-white/2 flex flex-wrap gap-8">
             <div className="flex items-center gap-2">
               <TrendingUp size={16} className="text-emerald-500" />
               <span className="text-xs font-bold text-gray-500">Platform: <span className="text-gray-900 dark:text-white">{opportunity?.platforms?.join(', ') || 'Multi-platform'}</span></span>
@@ -145,53 +145,111 @@ export default function CampaignApplicantsPage() {
 
         {/* BOTTOM SECTION: Applied Advertisers */}
         <section className="space-y-8">
-          
+
           {/* AI Marketing Analysis Summary & Chart */}
           {!analysisLoading && analysisData?.summary && (
-            <div className="bg-gradient-to-br from-emerald-50 to-white dark:from-emerald-900/10 dark:to-white/5 rounded-[2.5rem] border border-emerald-100 dark:border-emerald-500/20 shadow-lg p-8 relative overflow-hidden flex flex-col lg:flex-row gap-8">
-              <div className="absolute top-0 right-0 p-8 opacity-20 pointer-events-none">
-                <Sparkles className="w-32 h-32 text-emerald-500" />
-              </div>
-              
-              <div className="relative z-10 lg:w-1/2">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 bg-emerald-100 dark:bg-emerald-500/20 rounded-xl flex items-center justify-center text-emerald-600">
-                    <Sparkles size={20} />
-                  </div>
-                  <h3 className="text-xl font-black text-gray-900 dark:text-white">AI Profitability Analysis</h3>
+            <div className="space-y-6">
+              <div className="bg-linear-to-br from-emerald-50 to-white dark:from-emerald-900/10 dark:to-white/5 rounded-[2.5rem] border border-emerald-100 dark:border-emerald-500/20 shadow-lg p-8 relative overflow-hidden flex flex-col lg:flex-row gap-8">
+                <div className="absolute top-0 right-0 p-8 opacity-20 pointer-events-none">
+                  <Sparkles className="w-32 h-32 text-emerald-500" />
                 </div>
-                <div className="prose prose-sm dark:prose-invert max-w-none text-gray-700 dark:text-gray-300 font-medium whitespace-pre-line leading-relaxed">
-                  {analysisData.summary}
-                </div>
-              </div>
 
-              {analysisData?.analysis && analysisData.analysis.length > 0 && (
-                <div className="relative z-10 lg:w-1/2 h-64 bg-white/50 dark:bg-black/20 rounded-3xl p-4 border border-emerald-100/50 dark:border-emerald-500/10">
-                  <h4 className="text-sm font-bold text-gray-700 dark:text-gray-300 mb-4 text-center">Projected ROI by Applicant</h4>
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={analysisData.analysis} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                      <XAxis dataKey="advertiserName" tick={{ fontSize: 10, fill: '#888' }} axisLine={false} tickLine={false} />
-                      <YAxis tick={{ fontSize: 10, fill: '#888' }} axisLine={false} tickLine={false} tickFormatter={(val) => `${val}%`} />
-                      <Tooltip 
-                        cursor={{ fill: 'rgba(16, 185, 129, 0.1)' }}
-                        contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                        formatter={(value: number) => [`${value}%`, 'ROI']}
-                      />
-                      <Bar dataKey="profitPercentage" radius={[4, 4, 4, 4]}>
-                        {analysisData.analysis.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={entry.profitPercentage > 0 ? '#10b981' : '#f59e0b'} />
-                        ))}
-                      </Bar>
-                    </BarChart>
-                  </ResponsiveContainer>
+                <div className="relative z-10 lg:w-1/2 flex flex-col">
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="w-12 h-12 bg-emerald-100 dark:bg-emerald-500/20 rounded-2xl flex items-center justify-center text-emerald-600">
+                      <Sparkles size={24} />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-black text-gray-900 dark:text-white">Gemini Intelligence</h3>
+                      <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Market Fit Analysis</p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                    <div className="bg-white/50 dark:bg-white/5 p-4 rounded-2xl border border-emerald-100/50 dark:border-emerald-500/10">
+                      <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Pool Quality</p>
+                      <p className="text-sm font-bold text-gray-900 dark:text-white">{analysisData.aiInsights?.poolQuality || 'Processing...'}</p>
+                    </div>
+                    <div className="bg-white/50 dark:bg-white/5 p-4 rounded-2xl border border-emerald-100/50 dark:border-emerald-500/10">
+                      <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Market Fit Score</p>
+                      <div className="flex items-center gap-2">
+                        <p className="text-xl font-black text-emerald-600">{analysisData.aiInsights?.marketFitScore || 0}%</p>
+                        <div className="flex-1 h-1.5 bg-gray-100 dark:bg-white/10 rounded-full overflow-hidden">
+                          <div className="h-full bg-emerald-500" style={{ width: `${analysisData.aiInsights?.marketFitScore || 0}%` }} />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="prose prose-sm dark:prose-invert max-w-none text-gray-700 dark:text-gray-300 font-medium whitespace-pre-line leading-relaxed mb-6">
+                    {analysisData.summary}
+                  </div>
+
+                  {analysisData.aiInsights?.suggestedNextSteps && (
+                    <div className="mt-auto p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl">
+                      <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-1">Recommended Action</p>
+                      <p className="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                        <CheckCircle2 size={16} /> {analysisData.aiInsights.suggestedNextSteps}
+                      </p>
+                    </div>
+                  )}
                 </div>
-              )}
+
+                <div className="relative z-10 lg:w-1/2 flex flex-col gap-6">
+                  <div className="flex-1 min-h-[250px] bg-white/50 dark:bg-black/20 rounded-2xl p-6 border border-emerald-100/50 dark:border-emerald-500/10">
+                    <h4 className="text-sm font-bold text-gray-700 dark:text-gray-300 mb-6 flex items-center gap-2">
+                      <TrendingUp size={16} /> Projected ROI comparison
+                    </h4>
+                    <div className="h-48 w-full">
+                      <ResponsiveContainer width="100%" height={192}>
+                        <BarChart data={analysisData.analysis} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                          <XAxis dataKey="advertiserName" tick={{ fontSize: 10, fill: '#888' }} axisLine={false} tickLine={false} />
+                          <YAxis tick={{ fontSize: 10, fill: '#888' }} axisLine={false} tickLine={false} tickFormatter={(val) => `${val}%`} />
+                          <Tooltip
+                            cursor={{ fill: 'rgba(16, 185, 129, 0.1)' }}
+                            contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                            formatter={(value: any) => [`${value}%`, 'ROI']}
+                          />
+                          <Bar dataKey="profitPercentage" radius={[4, 4, 4, 4]}>
+                            {analysisData.analysis.map((entry, index) => (
+                              <Cell key={`cell-${index}`} fill={entry.profitPercentage > 0 ? '#10b981' : '#f59e0b'} />
+                            ))}
+                          </Bar>
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="bg-amber-500/5 p-4 rounded-2xl border border-amber-500/10">
+                      <p className="text-[10px] font-black text-amber-600 uppercase tracking-widest mb-2 flex items-center gap-1">
+                        <AlertCircle size={12} /> Key Risks
+                      </p>
+                      <ul className="space-y-1">
+                        {analysisData.aiInsights?.risks.map((risk: string, i: number) => (
+                          <li key={i} className="text-[11px] font-bold text-gray-600 dark:text-gray-400 flex items-start gap-2">
+                            <span className="w-1 h-1 rounded-full bg-amber-500 mt-1.5 shrink-0" /> {risk}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                    <div className="bg-blue-500/5 p-4 rounded-2xl border border-blue-500/10">
+                      <p className="text-[10px] font-black text-blue-600 uppercase tracking-widest mb-1 flex items-center gap-1">
+                        <Sparkles size={12} /> Strategic Advice
+                      </p>
+                      <p className="text-[11px] font-bold text-gray-600 dark:text-gray-400 leading-relaxed">
+                        {analysisData.aiInsights?.strategicAdvice}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           )}
 
           <div className="flex items-center justify-between">
             <h3 className="text-2xl font-black text-gray-900 dark:text-white flex items-center gap-3">
-              Applied Advertisers 
+              Applied Advertisers
               <span className="text-sm font-bold bg-gray-100 dark:bg-white/10 px-3 py-1 rounded-full text-gray-500">
                 {applications?.length || 0}
               </span>
@@ -205,7 +263,7 @@ export default function CampaignApplicantsPage() {
 
           <div className="grid grid-cols-1 gap-8">
             {applications?.map((app: any) => (
-              <motion.div 
+              <motion.div
                 key={app._id}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -217,18 +275,18 @@ export default function CampaignApplicantsPage() {
                   <div className="p-8 md:p-10 lg:w-2/3 border-r border-gray-50 dark:border-white/5">
                     <div className="flex flex-col md:flex-row gap-8 items-start mb-10">
                       <div className="relative">
-                        <div className="w-24 h-24 rounded-[2rem] overflow-hidden border-4 border-white dark:border-[#111] shadow-lg bg-gray-100">
-                          <img 
-                            src={app.advertiser?.profilePicture || `https://ui-avatars.com/api/?name=${app.advertiser?.firstName}+${app.advertiser?.lastName}&background=10b981&color=fff`} 
-                            alt="" 
-                            className="w-full h-full object-cover" 
+                        <div className="w-24 h-24 rounded-4xl overflow-hidden border-4 border-white dark:border-[#111] shadow-lg bg-gray-100">
+                          <img
+                            src={app.advertiser?.profilePicture || `https://ui-avatars.com/api/?name=${app.advertiser?.firstName}+${app.advertiser?.lastName}&background=10b981&color=fff`}
+                            alt=""
+                            className="w-full h-full object-cover"
                           />
                         </div>
                         <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-emerald-500 rounded-full border-4 border-white dark:border-[#111] flex items-center justify-center">
                           <ShieldCheck size={14} className="text-white" />
                         </div>
                       </div>
-                      
+
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-1">
                           <h4 className="text-2xl font-black text-gray-900 dark:text-white">
@@ -241,12 +299,30 @@ export default function CampaignApplicantsPage() {
                           <span className="flex items-center gap-1.5"><Mail size={14} className="text-emerald-500" /> {app.advertiser?.email}</span>
                         </div>
                         <div className="bg-gray-50 dark:bg-white/5 p-6 rounded-3xl relative mb-4">
-                           <Sparkles size={16} className="absolute -top-2 -left-2 text-amber-500" />
-                           <p className="text-sm font-medium text-gray-700 dark:text-gray-300 leading-relaxed italic">
-                             "{app.coverLetter || 'I am very interested in this opportunity and believe my content style matches your brand vision.'}"
-                           </p>
+                          <Sparkles size={16} className="absolute -top-2 -left-2 text-amber-500" />
+                          <p className="text-sm font-medium text-gray-700 dark:text-gray-300 leading-relaxed italic mb-3">
+                            "{app.coverLetter || 'I am very interested in this opportunity and believe my content style matches your brand vision.'}"
+                          </p>
+                          {(() => {
+                            const applicantAnalysis = analysisData?.analysis?.find(
+                              (a: any) => a.advertiserId === (app.advertiser?._id || app.advertiser)
+                            );
+                            if (applicantAnalysis?.aiInsight) {
+                              return (
+                                <div className="pt-3 border-t border-gray-200 dark:border-white/10">
+                                  <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-1 flex items-center gap-1">
+                                    <Sparkles size={10} /> Gemini Insight
+                                  </p>
+                                  <p className="text-xs font-bold text-gray-500 dark:text-gray-400">
+                                    {applicantAnalysis.aiInsight}
+                                  </p>
+                                </div>
+                              );
+                            }
+                            return null;
+                          })()}
                         </div>
-                        
+
                         {app.applicationData ? (
                           <div className="mb-4 space-y-4">
                             <div className="bg-white dark:bg-white/5 border border-gray-100 dark:border-white/10 p-4 rounded-2xl">
@@ -306,13 +382,13 @@ export default function CampaignApplicantsPage() {
                                 </div>
                               </div>
                             )}
-                            
+
                             {app.advertiser?.profileData?.website && (
                               <div>
-                                 <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Portfolio / Resume</p>
-                                 <a href={app.advertiser.profileData.website.startsWith('http') ? app.advertiser.profileData.website : `https://${app.advertiser.profileData.website}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-sm font-bold text-emerald-500 hover:text-emerald-400 transition-colors bg-emerald-50 dark:bg-emerald-500/10 px-4 py-2 rounded-xl">
-                                   <FileText size={16} /> View Professional Portfolio <ExternalLink size={14} />
-                                 </a>
+                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Portfolio / Resume</p>
+                                <a href={app.advertiser.profileData.website.startsWith('http') ? app.advertiser.profileData.website : `https://${app.advertiser.profileData.website}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-sm font-bold text-emerald-500 hover:text-emerald-400 transition-colors bg-emerald-50 dark:bg-emerald-500/10 px-4 py-2 rounded-xl">
+                                  <FileText size={16} /> View Professional Portfolio <ExternalLink size={14} />
+                                </a>
                               </div>
                             )}
                           </>
@@ -321,28 +397,28 @@ export default function CampaignApplicantsPage() {
                     </div>
 
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                      <div className="text-center p-4 bg-gray-50/50 dark:bg-white/[0.02] rounded-2xl">
+                      <div className="text-center p-4 bg-gray-50/50 dark:bg-white/2 rounded-2xl">
                         <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Proposed Rate</p>
                         <p className="text-sm font-black text-gray-900 dark:text-white">
                           {app.proposedRate?.amount ? `${app.proposedRate.amount} ${app.proposedRate.currency || 'ETB'}` : 'N/A'}
                         </p>
                       </div>
-                      
+
                       {(() => {
                         const applicantAnalysis = analysisData?.analysis?.find(
-                          (a) => a.advertiserId === (app.advertiser?._id || app.advertiser)
+                          (a: any) => a.advertiserId === (app.advertiser?._id || app.advertiser)
                         );
-                        
+
                         if (applicantAnalysis) {
                           return (
                             <>
-                              <div className="text-center p-4 bg-gray-50/50 dark:bg-white/[0.02] rounded-2xl">
-                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Est. Revenue</p>
-                                <p className="text-sm font-black text-gray-900 dark:text-white">
-                                  {applicantAnalysis.estimatedRevenue.toLocaleString()} {applicantAnalysis.currency}
+                              <div className="text-center p-4 bg-gray-50/50 dark:bg-white/2 rounded-2xl">
+                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Match Score</p>
+                                <p className="text-sm font-black text-emerald-500">
+                                  {applicantAnalysis.aiMatchScore ? `${applicantAnalysis.aiMatchScore}%` : '92%'}
                                 </p>
                               </div>
-                              <div className="text-center p-4 bg-gray-50/50 dark:bg-white/[0.02] rounded-2xl">
+                              <div className="text-center p-4 bg-gray-50/50 dark:bg-white/2 rounded-2xl">
                                 <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Est. ROI</p>
                                 <p className={cn(
                                   "text-sm font-black",
@@ -354,14 +430,14 @@ export default function CampaignApplicantsPage() {
                             </>
                           );
                         }
-                        
+
                         return (
                           <>
-                            <div className="text-center p-4 bg-gray-50/50 dark:bg-white/[0.02] rounded-2xl">
+                            <div className="text-center p-4 bg-gray-50/50 dark:bg-white/2 rounded-2xl">
                               <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Match Score</p>
                               <p className="text-sm font-black text-emerald-500">{app.aiMatchScore ? `${Math.round(app.aiMatchScore)}%` : '92%'}</p>
                             </div>
-                            <div className="text-center p-4 bg-gray-50/50 dark:bg-white/[0.02] rounded-2xl">
+                            <div className="text-center p-4 bg-gray-50/50 dark:bg-white/2 rounded-2xl">
                               <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Timeline</p>
                               <p className="text-sm font-black text-gray-900 dark:text-white">{app.proposedTimeline || 'Not specified'}</p>
                             </div>
@@ -369,7 +445,7 @@ export default function CampaignApplicantsPage() {
                         );
                       })()}
 
-                      <div className="text-center p-4 bg-gray-50/50 dark:bg-white/[0.02] rounded-2xl">
+                      <div className="text-center p-4 bg-gray-50/50 dark:bg-white/2 rounded-2xl">
                         <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Delivery</p>
                         <p className="text-sm font-black text-gray-900 dark:text-white">Standard</p>
                       </div>
@@ -377,14 +453,14 @@ export default function CampaignApplicantsPage() {
                   </div>
 
                   {/* Right: Actions Section */}
-                  <div className="p-8 lg:w-1/3 bg-gray-50/30 dark:bg-white/[0.01] flex flex-col justify-center items-center gap-6">
+                  <div className="p-8 lg:w-1/3 bg-gray-50/30 dark:bg-white/1 flex flex-col justify-center items-center gap-6">
                     <div className="text-center mb-4">
                       <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Application Status</p>
                       <div className={cn(
                         "inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-black uppercase tracking-widest",
                         app.status === 'pending' ? "bg-amber-100 dark:bg-amber-500/20 text-amber-600" :
-                        app.status === 'accepted' ? "bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600" :
-                        "bg-red-100 dark:bg-red-500/20 text-red-600"
+                          app.status === 'accepted' ? "bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600" :
+                            "bg-red-100 dark:bg-red-500/20 text-red-600"
                       )}>
                         {app.status === 'pending' ? 'Awaiting Review' : app.status}
                       </div>
@@ -393,13 +469,13 @@ export default function CampaignApplicantsPage() {
                     <div className="w-full space-y-3">
                       {app.status === 'pending' ? (
                         <>
-                          <button 
+                          <button
                             onClick={() => handleAccept(app._id)}
                             className="w-full h-14 bg-emerald-500 hover:bg-emerald-400 text-black font-black rounded-2xl shadow-lg shadow-emerald-500/20 transition-all flex items-center justify-center gap-2"
                           >
                             <CheckCircle2 size={18} /> Accept Proposal
                           </button>
-                          <button 
+                          <button
                             onClick={() => handleReject(app._id)}
                             className="w-full h-14 bg-white dark:bg-white/5 border border-red-100 dark:border-red-500/20 text-red-500 font-bold rounded-2xl hover:bg-red-50 transition-all flex items-center justify-center gap-2"
                           >

@@ -16,6 +16,8 @@ export interface ApplicantAnalysis {
     profit: number;
     profitPercentage: number;
     profitable: boolean;
+    aiInsight?: string;
+    aiMatchScore?: number;
 }
 
 export interface MarketingAnalysisResult {
@@ -23,6 +25,14 @@ export interface MarketingAnalysisResult {
     totalApplicants: number;
     bestChoice: ApplicantAnalysis | null;
     analysis: ApplicantAnalysis[];
+    aiInsights: {
+        poolQuality: string;
+        selectionReasoning: string;
+        risks: string[];
+        strategicAdvice: string;
+        suggestedNextSteps: string;
+        marketFitScore: number;
+    } | null;
     opportunityTitle: string;
     opportunityCategory: string;
     opportunityBudget: number;

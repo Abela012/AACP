@@ -38,13 +38,23 @@ export interface ApplicantAnalysis {
     profit: number;
     profitPercentage: number;
     profitable: boolean;
+    aiInsight?: string;
+    aiMatchScore?: number;
 }
 
 export interface MarketingAnalysisResult {
-    summary: string;
+    summary: string; // The full AI text response
     totalApplicants: number;
     bestChoice: ApplicantAnalysis | null;
     analysis: ApplicantAnalysis[];
+    aiInsights: {
+        poolQuality: string;
+        selectionReasoning: string;
+        risks: string[];
+        strategicAdvice: string;
+        suggestedNextSteps: string;
+        marketFitScore: number; // 0-100
+    } | null;
     opportunityTitle: string;
     opportunityCategory: string;
     opportunityBudget: number;
@@ -126,8 +136,23 @@ export const runMarketingAnalysis = async (
 
     // 5. Generate Gemini AI summary
     let summary = '';
+    let aiInsights: any = null;
+
     try {
-        summary = await generateAISummary(opp, results);
+        const aiResponse = await generateAISummary(opp, results);
+        summary = aiResponse.summary;
+        aiInsights = aiResponse.insights;
+        
+        // Merge per-applicant AI insights back into the results
+        if (aiResponse.applicantInsights) {
+            results.forEach(res => {
+                const insight = aiResponse.applicantInsights.find((ai: any) => ai.advertiserId === res.advertiserId);
+                if (insight) {
+                    res.aiInsight = insight.insight;
+                    res.aiMatchScore = insight.matchScore;
+                }
+            });
+        }
     } catch (err: any) {
         logger.warn(`[MarketingAnalysis] Gemini summary failed: ${err.message}`);
         summary = generateFallbackSummary(results);
@@ -142,6 +167,7 @@ export const runMarketingAnalysis = async (
         totalApplicants: results.length,
         bestChoice: results[0] || null,
         analysis: results,
+        aiInsights,
         opportunityTitle: opp.title,
         opportunityCategory: opp.category,
         opportunityBudget: opp.budget?.amount || 0,
@@ -151,43 +177,67 @@ export const runMarketingAnalysis = async (
 
 // ─── Gemini AI Summary ──────────────────────────────────────────────────────
 
-async function generateAISummary(opp: any, results: ApplicantAnalysis[]): Promise<string> {
+async function generateAISummary(opp: any, results: ApplicantAnalysis[]): Promise<{ summary: string; insights: any; applicantInsights: any[] }> {
     const model = getGeminiModel();
     if (!model) {
-        return generateFallbackSummary(results);
+        return { summary: generateFallbackSummary(results), insights: null, applicantInsights: [] };
     }
 
-    const top3 = results.slice(0, 3);
     const profitableCount = results.filter(r => r.profitable).length;
+    // Limit to top 10 for AI analysis to avoid huge prompts
+    const forAnalysis = results.slice(0, 10);
 
     const prompt = `
-You are a marketing analyst for an advertising collaboration platform. 
-Analyze these advertiser applicants for a campaign and provide a clear, concise business recommendation.
+You are a senior marketing strategist. Analyze these advertiser applicants for a campaign.
 
 Campaign Details:
 - Title: ${opp.title}
 - Category: ${opp.category}
 - Budget: ${opp.budget?.amount || 'N/A'} ${opp.budget?.currency || 'ETB'}
 
-Applicant Summary:
-- Total applicants: ${results.length}
-- Profitable applicants: ${profitableCount} out of ${results.length}
+Applicant List:
+${forAnalysis.map((r, i) => `${i + 1}. ID: ${r.advertiserId}, Name: ${r.advertiserName}, Followers: ${r.followers}, Engagement: ${r.engagementRate}%, ROI: ${r.profitPercentage}%, Niche: ${r.niche}`).join('\n')}
 
-Top 3 Applicants by Profitability:
-${top3.map((r, i) => `${i + 1}. ${r.advertiserName} — ${r.followers.toLocaleString()} followers, ${r.engagementRate}% engagement, Cost: ${r.cost} ${r.currency}, Profit: ${r.profit.toFixed(2)} ${r.currency} (${r.profitPercentage.toFixed(1)}% ROI), Niche: ${r.niche}`).join('\n')}
-
-Please provide:
-1. A brief overview of the applicant pool quality
-2. Which advertiser(s) offer the best value and why
-3. Which advertiser should be selected and your reasoning
-4. Any risks or concerns
-
-Keep the response under 200 words. Be direct and business-focused.
+Return your response in strict JSON format:
+{
+  "summary": "A 150-word business summary of the applicant pool.",
+  "insights": {
+    "poolQuality": "Overview of quality",
+    "selectionReasoning": "Why the top choices stand out",
+    "risks": ["Risk 1", "Risk 2"],
+    "strategicAdvice": "Strategic direction",
+    "suggestedNextSteps": "Immediate actions",
+    "marketFitScore": 85
+  },
+  "applicantInsights": [
+    {
+      "advertiserId": "ID from list",
+      "matchScore": 95,
+      "insight": "One sentence about why this creator is a good or bad fit."
+    }
+  ]
+}
 `;
 
-    const result = await model.generateContent(prompt);
-    const text = result.response.text();
-    return text;
+    const result = await model.generateContent({
+        contents: [{ role: 'user', parts: [{ text: prompt }] }],
+        generationConfig: {
+            responseMimeType: "application/json",
+        }
+    });
+
+    try {
+        const text = result.response.text();
+        const parsed = JSON.parse(text);
+        return {
+            summary: parsed.summary || generateFallbackSummary(results),
+            insights: parsed.insights || null,
+            applicantInsights: parsed.applicantInsights || []
+        };
+    } catch (e) {
+        logger.error(`[MarketingAnalysis] Failed to parse AI JSON: ${e}`);
+        return { summary: generateFallbackSummary(results), insights: null, applicantInsights: [] };
+    }
 }
 
 function generateFallbackSummary(results: ApplicantAnalysis[]): string {

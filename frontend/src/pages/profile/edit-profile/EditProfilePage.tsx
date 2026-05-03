@@ -34,7 +34,7 @@ export default function EditProfilePage() {
   const api = useApiClient();
   const location = useLocation();
 
-  const isBusiness = location.pathname.includes('/business') || userRole === 'business';
+  const isBusiness = location.pathname.includes('/business') || userRole === 'business_owner';
   const Layout = isBusiness ? BusinessLayout : AdvertiserLayout;
 
   const [activeTab, setActiveTab] = useState('general');
@@ -423,8 +423,8 @@ export default function EditProfilePage() {
                         <input
                           type="email"
                           value={email}
-                          onChange={(e) => setEmail(e.target.value)}
-                          className={inputCls}
+                          readOnly
+                          className={cn(inputCls, "cursor-not-allowed opacity-60 bg-gray-100 dark:bg-white/5 select-none")}
                         />
                       </div>
                     </div>

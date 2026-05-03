@@ -19,6 +19,7 @@ export interface ChatMessage {
     text: string;
     sender: {
         _id: string;
+        clerkId: string;
         firstName: string;
         lastName: string;
         profilePicture?: string;
