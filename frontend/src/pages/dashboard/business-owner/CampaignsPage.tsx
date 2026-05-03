@@ -105,7 +105,7 @@ export default function CampaignsPage() {
                   <th className="px-8 py-6 text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Platform</th>
                   <th className="px-8 py-6 text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Matches</th>
                   <th className="px-8 py-6 text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Total Spent</th>
-                  <th className="px-8 py-6 text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Date Created</th>
+                  <th className="px-8 py-6 text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Due Date</th>
                   <th className="px-8 py-6 text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest"></th>
                 </tr>
               </thead>
@@ -144,12 +144,14 @@ export default function CampaignsPage() {
                       </td>
                       <td className="px-8 py-6">
                         <p className="text-sm font-bold text-gray-900 dark:text-white">
-                          ${(typeof c.budget === 'object' ? c.budget.amount : (c.budget || 0)).toLocaleString()}
+                          ${(typeof c.budget === 'object' ? (c.budget.amount || 0) : (c.budget || 0)).toLocaleString()}
                         </p>
                       </td>
 
                       <td className="px-8 py-6">
-                        <p className="text-sm text-gray-500 dark:text-gray-400">{new Date(c.createdAt).toLocaleDateString()}</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 font-bold">
+                          {c.deadline ? new Date(c.deadline).toLocaleDateString() : 'N/A'}
+                        </p>
                       </td>
                       <td className="px-8 py-6 text-right">
                         <button className="p-2 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
