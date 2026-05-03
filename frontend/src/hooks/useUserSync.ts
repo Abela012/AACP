@@ -34,9 +34,9 @@ export const useUserSync = () => {
             localStorage.removeItem('pendingUserRole');
 
             // Determine onboarding status:
-            // - 'active'  → approved by admin
-            // - 'pending' AND has profileData → submitted profile, waiting for review
-            // - 'pending' AND no profileData  → brand new user, must complete profile first
+            // - 'active' or 'approved' → dashboard unlocked
+            // - 'pending' → profile submitted, showing review screen
+            // - 'incomplete' (default) → new user, showing complete profile screen
             const status = response.data?.user?.status;
             const profileData = response.data?.user?.profileData;
             const pendingProfileData = response.data?.user?.pendingProfileData;
@@ -46,10 +46,10 @@ export const useUserSync = () => {
 
             if (status === 'active' || status === 'approved') {
                 setOnboardingStatus('approved');
-            } else if (status === 'pending' && hasSubmittedProfile) {
+            } else if (status === 'pending') {
                 setOnboardingStatus('pending');
             } else {
-                // New user who hasn't filled their profile yet
+                // Default to incomplete for new users
                 setOnboardingStatus('incomplete');
             }
 
@@ -66,10 +66,10 @@ export const useUserSync = () => {
     // auto-sync user when signed in
     useEffect(() => {
         // if user is signed in and user is not synced yet, sync user
-        if (isSignedIn && !syncUserMutation.isSuccess && !syncUserMutation.isPending) {
+        if (isSignedIn && !syncUserMutation.isSuccess && !syncUserMutation.isPending && !syncUserMutation.isError) {
             syncUserMutation.mutate();
         }
-    }, [isSignedIn, syncUserMutation.isSuccess, syncUserMutation.isPending]);
+    }, [isSignedIn, syncUserMutation.isSuccess, syncUserMutation.isPending, syncUserMutation.isError]);
 
     return {
         sync: () => syncUserMutation.mutate(),

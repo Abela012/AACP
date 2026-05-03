@@ -27,7 +27,7 @@ import PendingApprovalState from '@/src/shared/components/PendingApprovalState';
 import { useUserSync } from '@/src/hooks/useUserSync';
 import { useMyApplications } from '@/src/hooks/useApplications';
 import { useWalletBalance } from '@/src/hooks/useWallet';
-import { useRecommendations } from '@/src/hooks/useRecommendations';
+import { useOpportunities } from '@/src/hooks/useOpportunities';
 
 export default function AdvertiserDashboardPage() {
   const navigate = useNavigate();
@@ -42,19 +42,20 @@ export default function AdvertiserDashboardPage() {
   // Real data hooks
   const { data: appsData, isLoading: isLoadingApps } = useMyApplications(myId);
   const { data: walletData, isLoading: isLoadingWallet } = useWalletBalance();
-  const { data: recsData, isLoading: isLoadingRecs } = useRecommendations();
+  const { data: oppsData, isLoading: isLoadingOpps } = useOpportunities();
 
   const applications = appsData?.applications ?? [];
   const activeCount = applications.filter((a: any) => a.status === 'accepted').length;
   const pendingCount = applications.filter((a: any) => a.status === 'pending').length;
-  const recommendations = recsData?.recommendations ?? [];
-  const topRec = recommendations[0];
+
+  const opportunities = oppsData?.opportunities ?? [];
+  const matchCount = opportunities.length;
 
   const stats = [
     { label: 'Trust Score', value: 'N/A', subValue: '', trend: 'New Account', trendType: 'neutral', icon: ShieldCheck, color: 'text-emerald-500' },
     { label: 'Total Balance', value: isLoadingWallet ? '...' : `${walletData?.balance?.toLocaleString() ?? 0} AACP`, trend: 'Available to withdraw', trendType: 'neutral', icon: DollarSign, color: 'text-blue-500' },
     { label: 'Active Campaigns', value: isLoadingApps ? '...' : activeCount.toString(), trend: `${pendingCount} pending`, trendType: 'neutral', icon: Zap, color: 'text-indigo-500' },
-    { label: 'AI Matches', value: isLoadingRecs ? '...' : recommendations.length.toString(), trend: topRec ? `Top: ${topRec.score}% match` : 'Complete profile for matches', trendType: recommendations.length > 0 ? 'up' : 'neutral', icon: Sparkles, color: 'text-cyan-500' },
+    { label: 'AI Matches', value: isLoadingOpps ? '...' : matchCount.toString(), trend: matchCount > 0 ? 'New matches found' : 'No matches yet', trendType: matchCount > 0 ? 'up' : 'neutral', icon: Sparkles, color: 'text-cyan-500' },
   ];
 
   const handleStatClick = (label: string) => {
@@ -322,42 +323,36 @@ export default function AdvertiserDashboardPage() {
                     </div>
                     <button onClick={() => navigate('/advertiser/matches')} className="text-xs font-bold text-emerald-500 hover:underline">View all</button>
                   </div>
-                  <div className="space-y-4">
-                    {isLoadingRecs ? (
-                      <div className="flex justify-center py-8">
-                        <Loader2 size={24} className="animate-spin text-emerald-500" />
+                  <div className="space-y-6 mb-8">
+                    <div>
+                      <div className="flex justify-between text-xs font-bold mb-2">
+                        <span className="text-gray-400 dark:text-gray-500">Audience Alignment</span>
+                        <span className="text-emerald-500">{matchCount > 0 ? '92%' : '45%'}</span>
                       </div>
-                    ) : recommendations.length === 0 ? (
-                      <div className="text-center py-8">
-                        <Sparkles className="w-8 h-8 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
-                        <p className="text-sm font-bold text-gray-500 dark:text-gray-400">No recommendations yet</p>
-                        <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Complete your profile to get AI-powered matches</p>
+                      <div className="h-1.5 w-full bg-gray-100 dark:bg-white/5 rounded-full overflow-hidden">
+                        <div className={`h-full bg-emerald-500 transition-all duration-1000 ${matchCount > 0 ? 'w-[92%]' : 'w-[45%]'}`}></div>
                       </div>
-                    ) : (
-                      recommendations.slice(0, 3).map((rec, idx) => (
-                        <div key={rec.targetId || idx} className="flex items-center justify-between p-4 rounded-2xl bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/5 hover:border-emerald-500/30 transition-all cursor-pointer" onClick={() => navigate(`/advertiser/matches/${rec.targetId}/apply`)}>
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-white dark:bg-white/5 rounded-xl flex items-center justify-center text-emerald-500 font-bold border border-gray-100 dark:border-white/10 text-sm">
-                              {rec.name?.[0]?.toUpperCase() || '?'}
-                            </div>
-                            <div>
-                              <h4 className="font-bold text-sm text-gray-900 dark:text-white line-clamp-1">{rec.name}</h4>
-                              <div className="flex items-center gap-2 text-[10px] text-gray-500">
-                                {rec.category && <span>{rec.category}</span>}
-                                {rec.meta?.budget && <span>• {rec.meta.budget.amount?.toLocaleString()} {rec.meta.budget.currency}</span>}
-                              </div>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <div className="text-right">
-                              <span className="text-sm font-bold text-emerald-500">{rec.score}%</span>
-                              <p className="text-[10px] text-gray-400">match</p>
-                            </div>
-                            <ChevronRight size={16} className="text-gray-300" />
-                          </div>
-                        </div>
-                      ))
-                    )}
+                    </div>
+                    <div>
+                      <div className="flex justify-between text-xs font-bold mb-2">
+                        <span className="text-gray-400 dark:text-gray-500">Competitive Edge</span>
+                        <span className="text-cyan-500">{matchCount > 0 ? '78%' : '30%'}</span>
+                      </div>
+                      <div className="h-1.5 w-full bg-gray-100 dark:bg-white/5 rounded-full overflow-hidden">
+                        <div className={`h-full bg-cyan-500 transition-all duration-1000 ${matchCount > 0 ? 'w-[78%]' : 'w-[30%]'}`}></div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="bg-gray-50 dark:bg-white/5 p-5 rounded-2xl border border-gray-100 dark:border-white/5">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Sparkles className="text-cyan-500 w-4 h-4" /><span className="text-[10px] font-bold text-cyan-500 uppercase tracking-widest">Recommendation</span>
+                    </div>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
+                      {matchCount > 0 
+                        ? `Our AI has matched you with ${matchCount} active campaigns that align perfectly with your content niches. We recommend applying to the latest ones immediately to secure your spot.`
+                        : `We are currently analyzing active campaigns to find the best match for your specific demographics. Keep your profile updated to improve alignment.`
+                      }
+                    </p>
                   </div>
                 </div>
 

@@ -11,7 +11,7 @@ type CurrentUserResponse = {
   data?: User;
 };
 
-type UserRole = 'business' | 'advertiser' | 'admin' | 'business_owner' | 'super_admin' | null;
+type UserRole = 'business_owner' | 'advertiser' | 'admin' | 'super_admin' | null;
 
 export default function RoleDashboardRedirectPage() {
   const api = useApiClient();
@@ -22,7 +22,7 @@ export default function RoleDashboardRedirectPage() {
   const [roleError, setRoleError] = useState<string | null>(null);
 
   // Ensure social-login role is synced before we resolve redirect.
-  useUserSync();
+  const { isSuccess: isSyncSuccess, isLoading: isSyncLoading } = useUserSync();
 
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["authUser"],
@@ -30,7 +30,9 @@ export default function RoleDashboardRedirectPage() {
       const response = await userApi.getCurrentUser(api);
       return response.data as any;
     },
-    retry: 1,
+    retry: 3,
+    retryDelay: 1000,
+    enabled: isSyncSuccess, // Wait for sync to finish before querying
   });
 
   // Mutation to update user role in the database when user picks one from this page
@@ -42,10 +44,8 @@ export default function RoleDashboardRedirectPage() {
     onSuccess: (response: any) => {
       const userRole = response.data?.user?.role;
       if (userRole) {
-        let contextRole = userRole;
-        if (contextRole === 'business_owner') contextRole = 'business';
-        setUserRole(contextRole as any);
-        localStorage.setItem('userRole', contextRole);
+        setUserRole(userRole as any);
+        localStorage.setItem('userRole', userRole);
         localStorage.setItem('pendingUserRole', userRole);
       }
       queryClient.invalidateQueries({ queryKey: ["authUser"] });
@@ -89,16 +89,14 @@ export default function RoleDashboardRedirectPage() {
     if (normalizedRole && normalizedRole !== (localStorage.getItem('userRole'))) {
       console.log("[RoleDashboardRedirectPage] Updating UserContext role to:", normalizedRole);
       // Map roles to context types
-      let contextRole = normalizedRole;
-      if (contextRole === 'business_owner') contextRole = 'business';
-      if (contextRole === 'super_admin') contextRole = 'admin';
-
-      setUserRole(contextRole as any);
-      localStorage.setItem('userRole', contextRole);
+      setUserRole(normalizedRole as any);
+      localStorage.setItem('userRole', normalizedRole);
     }
   }, [normalizedRole, setUserRole]);
 
-  if (isLoading && !timedOut) {
+  const isCurrentlyLoading = isLoading || isSyncLoading || (!isSyncSuccess);
+
+  if (isCurrentlyLoading && !timedOut) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen p-6 bg-gray-50">
         <div className="w-12 h-12 border-4 border-[#14a800] border-t-transparent rounded-full animate-spin mb-4"></div>
@@ -114,11 +112,10 @@ export default function RoleDashboardRedirectPage() {
     (data as any)?.profileData?.bio;
 
 
-
   const isApproved = status === 'active' || status === 'approved';
 
   // Let the dashboards handle the status internally so they keep the sidebar/layout
-  if (normalizedRole === "business" || normalizedRole === "business_owner") {
+  if (normalizedRole === "business_owner") {
     return <Navigate to="/dashboard/business-owner" replace />;
   }
 

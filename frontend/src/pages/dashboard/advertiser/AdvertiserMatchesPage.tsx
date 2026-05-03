@@ -128,8 +128,18 @@ export default function AdvertiserMatchesPage() {
                     <div>
                       <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">Requirements</h3>
                       <ul className="space-y-2">
-                        <li className="flex items-center gap-2"><CheckCircle2 className="text-emerald-500 shrink-0" size={16} /> High engagement rate</li>
-                        <li className="flex items-center gap-2"><CheckCircle2 className="text-emerald-500 shrink-0" size={16} /> Content alignment</li>
+                        {selectedJob.requirements && selectedJob.requirements.length > 0 ? (
+                          selectedJob.requirements.map((req: string, idx: number) => (
+                            <li key={idx} className="flex items-center gap-2">
+                              <CheckCircle2 className="text-emerald-500 shrink-0" size={16} /> {req}
+                            </li>
+                          ))
+                        ) : (
+                          <>
+                            <li className="flex items-center gap-2"><CheckCircle2 className="text-emerald-500 shrink-0" size={16} /> High engagement rate</li>
+                            <li className="flex items-center gap-2"><CheckCircle2 className="text-emerald-500 shrink-0" size={16} /> Content alignment</li>
+                          </>
+                        )}
                       </ul>
                     </div>
                   </div>

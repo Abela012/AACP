@@ -68,11 +68,7 @@ export default function AdminUserDetailPage() {
   const handleEditPermissions = () => {
     showToast('Permission editor coming soon!');
   };
-  const transactions = [
-    { id: '#TX-99210-BC', type: 'Coin Deposit', amount: '+ 2,500 AACP', date: 'Oct 26, 2023', status: 'COMPLETED', typeColor: 'text-emerald-500', statusBg: 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600' },
-    { id: '#TX-99188-BC', type: 'Platform Fee', amount: '- 120 AACP', date: 'Oct 24, 2023', status: 'COMPLETED', typeColor: 'text-red-500', statusBg: 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600' },
-    { id: '#TX-99052-BC', type: 'Ad Buyback', amount: '+ 800 AACP', date: 'Oct 20, 2023', status: 'PROCESSING', typeColor: 'text-blue-500', statusBg: 'bg-green-100 dark:bg-green-500/20 text-green-600' },
-  ];
+
 
   return (
     <AdminLayout>
@@ -241,25 +237,42 @@ export default function AdminUserDetailPage() {
                     <p className="text-sm font-bold">{user.profileData?.businessName || 'Not provided'}</p>
                   </div>
                   <div className="space-y-1">
+                    <label className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest block">Business Type</label>
+                    <p className="text-sm font-bold">{user.profileData?.businessType || 'Not provided'}</p>
+                  </div>
+                  <div className="space-y-1">
                     <label className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest block">Industry</label>
                     <p className="text-sm font-bold">{user.profileData?.industry || 'Not provided'}</p>
                   </div>
                   <div className="space-y-1">
-                    <label className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest block">Company Size</label>
-                    <p className="text-sm font-bold">{user.profileData?.companySize || 'Not provided'}</p>
+                    <label className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest block">Opening Hours</label>
+                    <p className="text-sm font-bold">{user.profileData?.openingHours || 'Not provided'}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest block">Price Range</label>
+                    <p className="text-sm font-bold">{user.profileData?.priceRange || 'Not provided'}</p>
                   </div>
                   <div className="space-y-1">
                     <label className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest block">Monthly Budget</label>
-                    <p className="text-sm font-bold text-emerald-500">{user.profileData?.monthlyBudget || 'Not provided'}</p>
+                    <p className="text-sm font-bold text-emerald-500">${user.profileData?.monthlyBudget || '0'}</p>
                   </div>
                   <div className="lg:col-span-3">
-                    <label className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest block mb-2">Target Audience Tags</label>
+                    <label className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest block mb-2">Services Offered</label>
+                    <p className="text-sm font-medium">{user.profileData?.servicesOffered || 'None'}</p>
+                  </div>
+                  <div className="lg:col-span-3">
+                    <label className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest block mb-2">Target Audience / Promotion Goals</label>
                     <div className="flex flex-wrap gap-2">
                       {user.profileData?.targetAudienceTags?.map((tag: string, i: number) => (
                         <span key={i} className="px-3 py-1 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 rounded-lg text-[10px] font-bold border border-indigo-100 dark:border-indigo-500/20">
                           {tag}
                         </span>
-                      )) || <span className="text-xs text-gray-400">None</span>}
+                      ))}
+                      {user.profileData?.promotionGoals?.map((tag: string, i: number) => (
+                        <span key={`pg-${i}`} className="px-3 py-1 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 rounded-lg text-[10px] font-bold border border-emerald-100 dark:border-emerald-500/20">
+                          {tag}
+                        </span>
+                      ))}
                     </div>
                   </div>
                 </>
@@ -274,23 +287,34 @@ export default function AdminUserDetailPage() {
                     <p className="text-sm font-bold">{user.profileData?.avgViews || '0'}</p>
                   </div>
                   <div className="space-y-1">
+                    <label className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest block">Engagement %</label>
+                    <p className="text-sm font-bold">{user.profileData?.engagementRate || '0'}</p>
+                  </div>
+                  <div className="space-y-1">
                     <label className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest block">Base Rate</label>
                     <p className="text-sm font-bold text-emerald-500">${user.profileData?.baseRate || '0'}</p>
                   </div>
                   <div className="space-y-1">
-                    <label className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest block">Youtube Handle</label>
-                    <p className="text-sm font-bold text-red-500">{user.profileData?.youtubeHandle || 'N/A'}</p>
+                    <label className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest block">Social Handles</label>
+                    <p className="text-sm font-bold text-gray-700 dark:text-gray-300">
+                      {user.profileData?.youtubeHandle && <span className="text-red-500 mr-2">YT: {user.profileData?.youtubeHandle}</span>}
+                      {user.profileData?.tiktokHandle && <span className="text-pink-500 mr-2">TT: {user.profileData?.tiktokHandle}</span>}
+                      {user.profileData?.instagramHandle && <span className="text-purple-500 mr-2">IG: {user.profileData?.instagramHandle}</span>}
+                      {user.profileData?.xHandle && <span className="text-blue-400">X: {user.profileData?.xHandle}</span>}
+                    </p>
                   </div>
                   <div className="space-y-1">
-                    <label className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest block">TikTok Handle</label>
-                    <p className="text-sm font-bold text-pink-500">{user.profileData?.tiktokHandle || 'N/A'}</p>
+                    <label className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest block">Payment & Availability</label>
+                    <p className="text-sm font-bold">
+                      {user.profileData?.paymentPreference || 'N/A'} • {user.profileData?.availability || 'N/A'}
+                    </p>
                   </div>
                   <div className="lg:col-span-3">
-                    <label className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest block mb-2">Content Styles</label>
+                    <label className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest block mb-2">Niches / Categories</label>
                     <div className="flex flex-wrap gap-2">
-                      {user.profileData?.selectedStyles?.map((style: string, i: number) => (
+                      {user.profileData?.niches?.map((niche: string, i: number) => (
                         <span key={i} className="px-3 py-1 bg-green-50 dark:bg-green-500/10 text-[#14a800] rounded-lg text-[10px] font-bold border border-green-100 dark:border-green-500/20">
-                          {style}
+                          {niche}
                         </span>
                       )) || <span className="text-xs text-gray-400">None</span>}
                     </div>
@@ -315,7 +339,7 @@ export default function AdminUserDetailPage() {
             <div className="mb-10 text-center bg-[#F8F8FD] dark:bg-white/5 p-6 rounded-3xl">
               <p className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest mb-2">Available Coins</p>
               <div className="flex items-center justify-center gap-2">
-                <span className="text-4xl font-black">12,450</span>
+                <span className="text-4xl font-black">{user.wallet?.availableCoins?.toLocaleString() || '0'}</span>
                 <span className="text-sm font-bold text-[#14a800] uppercase">AACP</span>
               </div>
             </div>
@@ -323,11 +347,11 @@ export default function AdminUserDetailPage() {
             <div className="space-y-4 mb-8">
               <div className="flex justify-between items-center">
                 <span className="text-sm font-medium text-[#6F767E] dark:text-gray-400">Total Spent</span>
-                <span className="text-sm font-bold">$4,210.00</span>
+                <span className="text-sm font-bold">{user.stats?.totalSpent?.toLocaleString() || '0'} AACP</span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-sm font-medium text-[#6F767E] dark:text-gray-400">Active Requests</span>
-                <span className="text-sm font-bold text-amber-600">3 Pending</span>
+                <span className="text-sm font-bold text-amber-600">{user.stats?.activeRequests || '0'} Pending</span>
               </div>
             </div>
 
@@ -362,11 +386,11 @@ export default function AdminUserDetailPage() {
 
             <div className="grid grid-cols-2 gap-4 mb-8">
               <div className="p-6 bg-white dark:bg-white/5 border border-[#EFEFEF] dark:border-white/10 rounded-2xl text-center">
-                <span className="text-2xl font-black block mb-1">42</span>
+                <span className="text-2xl font-black block mb-1">{user.stats?.activeAds || '0'}</span>
                 <span className="text-[10px] font-bold text-[#9A9FA5] uppercase">Active Ads</span>
               </div>
               <div className="p-6 bg-white dark:bg-white/5 border border-[#EFEFEF] dark:border-white/10 rounded-2xl text-center">
-                <span className="text-2xl font-black block mb-1">156</span>
+                <span className="text-2xl font-black block mb-1">{user.stats?.collaborators || '0'}</span>
                 <span className="text-[10px] font-bold text-[#9A9FA5] uppercase">Collaborators</span>
               </div>
             </div>
@@ -387,27 +411,21 @@ export default function AdminUserDetailPage() {
             </div>
 
             <div className="space-y-8 mb-8">
-              <div className="flex gap-4">
-                <div className="w-2 h-2 rounded-full bg-green-500 mt-1.5 shrink-0" />
-                <div>
-                  <p className="text-sm font-bold leading-tight mb-0.5">Updated Campaign "Summer_AI"</p>
-                  <p className="text-[10px] font-medium text-[#9A9FA5]">Today, 14:22 PM</p>
-                </div>
-              </div>
-              <div className="flex gap-4">
-                <div className="w-2 h-2 rounded-full bg-blue-500 mt-1.5 shrink-0" />
-                <div>
-                  <p className="text-sm font-bold leading-tight mb-0.5">Login from IP 192.168.1.1</p>
-                  <p className="text-[10px] font-medium text-[#9A9FA5]">Yesterday, 09:15 AM</p>
-                </div>
-              </div>
-              <div className="flex gap-4">
-                <div className="w-2 h-2 rounded-full bg-amber-500 mt-1.5 shrink-0" />
-                <div>
-                  <p className="text-sm font-bold leading-tight mb-0.5">Withdrew 500 AACP Coins</p>
-                  <p className="text-[10px] font-medium text-[#9A9FA5]">Oct 24, 2023</p>
-                </div>
-              </div>
+              {user.logs && user.logs.length > 0 ? (
+                user.logs.map((log: any, i: number) => (
+                  <div key={i} className="flex gap-4">
+                    <div className={`w-2 h-2 rounded-full ${i % 2 === 0 ? 'bg-green-500' : 'bg-blue-500'} mt-1.5 shrink-0`} />
+                    <div>
+                      <p className="text-sm font-bold leading-tight mb-0.5">{log.message}</p>
+                      <p className="text-[10px] font-medium text-[#9A9FA5]">
+                        {new Date(log.createdAt).toLocaleString()}
+                      </p>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <p className="text-sm text-gray-400">No recent activity.</p>
+              )}
             </div>
 
             <button className="w-full py-2 text-[#14a800] font-bold text-xs uppercase tracking-widest hover:underline">
@@ -442,31 +460,45 @@ export default function AdminUserDetailPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#F4F4F4] dark:divide-white/5">
-                {transactions.map((tx, idx) => (
-                  <tr key={idx} className="group hover:bg-[#F8F8FD] dark:hover:bg-white/5 transition-colors">
-                    <td className="py-6 px-4 text-xs font-black">{tx.id}</td>
-                    <td className="py-6 px-4">
-                      <div className="flex items-center gap-2">
-                        <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0`}>
-                           <ChevronRight size={10} className={tx.typeColor} />
+                {user.transactions && user.transactions.length > 0 ? (
+                  user.transactions.map((tx: any, idx: number) => (
+                    <tr key={idx} className="group hover:bg-[#F8F8FD] dark:hover:bg-white/5 transition-colors">
+                      <td className="py-6 px-4 text-xs font-black">#{tx._id.slice(-8).toUpperCase()}</td>
+                      <td className="py-6 px-4">
+                        <div className="flex items-center gap-2">
+                          <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0`}>
+                             <ChevronRight size={10} className={tx.type === 'credit' ? 'text-emerald-500' : 'text-red-500'} />
+                          </div>
+                          <span className="text-xs font-bold">{tx.type === 'credit' ? 'Deposit' : 'Withdrawal'}</span>
                         </div>
-                        <span className="text-xs font-bold">{tx.type}</span>
-                      </div>
-                    </td>
-                    <td className="py-6 px-4 text-xs font-black">{tx.amount}</td>
-                    <td className="py-6 px-4 text-xs font-medium text-[#6F767E] dark:text-gray-400">{tx.date}</td>
-                    <td className="py-6 px-4">
-                      <span className={`px-3 py-1 rounded-lg text-[10px] font-black ${tx.statusBg} uppercase tracking-widest`}>
-                        {tx.status}
-                      </span>
-                    </td>
-                    <td className="py-6 px-4 text-right">
-                      <button className="p-2 hover:bg-white dark:hover:bg-white/10 rounded-xl transition-all text-[#9A9FA5] group-hover:text-[#14a800]">
-                        <Eye size={18} />
-                      </button>
+                      </td>
+                      <td className="py-6 px-4 text-xs font-black">{tx.type === 'credit' ? '+' : '-'} {tx.amount} AACP</td>
+                      <td className="py-6 px-4 text-xs font-medium text-[#6F767E] dark:text-gray-400">
+                        {new Date(tx.createdAt).toLocaleDateString()}
+                      </td>
+                      <td className="py-6 px-4">
+                        <span className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest ${
+                          tx.status === 'completed' ? 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600' :
+                          tx.status === 'pending' ? 'bg-amber-100 dark:bg-amber-500/20 text-amber-600' :
+                          'bg-red-100 dark:bg-red-500/20 text-red-600'
+                        }`}>
+                          {tx.status}
+                        </span>
+                      </td>
+                      <td className="py-6 px-4 text-right">
+                        <button className="p-2 hover:bg-white dark:hover:bg-white/10 rounded-xl transition-all text-[#9A9FA5] group-hover:text-[#14a800]">
+                          <Eye size={18} />
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={6} className="py-8 text-center text-sm font-medium text-gray-500">
+                      No transactions found.
                     </td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </table>
           </div>

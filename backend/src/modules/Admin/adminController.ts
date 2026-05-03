@@ -69,14 +69,52 @@ export const getAllUsers = async (req: Request, res: Response, next: NextFunctio
     }
 };
 
+import Wallet from "../../database/models/Wallet";
+import AuditLog from "../../database/models/AuditLog";
+import Opportunity from "../../database/models/Opportunity";
+import Application from "../../database/models/Application";
+
 export const getUserById = async (req: Request, res: Response) => {
     try {
         const { userId } = req.params;
-        const user = await User.findById(userId).select("-clerkId");
+        const user = await User.findById(userId).select("-clerkId").lean();
         if (!user) {
             return res.status(404).json({ error: "User not found" });
         }
-        res.json(user);
+
+        const wallet = await Wallet.findOne({ user: userId }).lean();
+        const transactions = await Transaction.find({ user: userId }).sort({ createdAt: -1 }).limit(10).lean();
+        const logs = await AuditLog.find({ targetUserId: userId }).sort({ createdAt: -1 }).limit(5).lean();
+        
+        let activeAds = 0;
+        let collaborators = 0;
+        
+        if (user.role === 'business_owner') {
+            activeAds = await Opportunity.countDocuments({ businessOwner: userId, status: 'open' });
+            collaborators = await Application.countDocuments({ 
+                opportunity: { $in: await Opportunity.find({ businessOwner: userId }).distinct('_id') },
+                status: 'approved'
+            });
+        } else {
+            activeAds = await Application.countDocuments({ applicant: userId, status: 'approved' });
+            collaborators = activeAds; // for creators, collaborations equals approved applications
+        }
+
+        const totalSpent = transactions.filter(t => t.type === 'debit' && t.status === 'completed').reduce((acc, val) => acc + val.amount, 0);
+        const activeRequests = transactions.filter(t => t.status === 'pending').length;
+
+        res.json({
+            ...user,
+            wallet: wallet || { availableCoins: 0, totalCoins: 0 },
+            transactions,
+            logs,
+            stats: {
+                activeAds,
+                collaborators,
+                totalSpent,
+                activeRequests
+            }
+        });
     } catch (error) {
         res.status(500).json({ error: "Failed to fetch user details" });
     }

@@ -9,9 +9,11 @@ export interface IUser extends Document {
     profilePicture?: string;
     coverImage?: string;
     location?: string;
+    tradeLicenseUrl?: string;
+    idVerificationUrl?: string;
     following: mongoose.Types.ObjectId[];
     role: 'business_owner' | 'advertiser' | 'admin' | 'super_admin'
-    status: 'pending' | 'active' | 'approved' | 'banned' | 'suspended';
+    status: 'incomplete' | 'pending' | 'active' | 'approved' | 'banned' | 'suspended';
     isVerified: boolean;
     profileData?: any;
     pendingProfileData?: any;
@@ -56,6 +58,14 @@ const userSchema: Schema = new Schema(
             type: String,
             default: "",
         },
+        tradeLicenseUrl: {
+            type: String,
+            default: "",
+        },
+        idVerificationUrl: {
+            type: String,
+            default: "",
+        },
 
         location: {
             type: String,
@@ -69,8 +79,8 @@ const userSchema: Schema = new Schema(
         },
         status: {
             type: String,
-            enum: ['pending', 'active', 'approved', 'banned', 'suspended'],
-            default: 'pending',
+            enum: ['incomplete', 'pending', 'active', 'approved', 'banned', 'suspended'],
+            default: 'incomplete',
         },
         isVerified: {
             type: Boolean,

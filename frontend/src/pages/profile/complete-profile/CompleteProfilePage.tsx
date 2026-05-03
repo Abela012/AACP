@@ -23,6 +23,7 @@ import {
   Users,
   Target,
   Camera,
+  ShieldCheck,
 } from 'lucide-react';
 import { useUser as useClerkUser } from '@clerk/clerk-react';
 import { useUser } from '@/src/shared/context/UserContext';
@@ -252,7 +253,7 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
   }, [clerkUser]);
 
   const isBusiness =
-    location.pathname.includes('/business') || userRole === 'business';
+    location.pathname.includes('/business') || userRole === 'business_owner';
 
   /* ── Shared state ── */
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -284,7 +285,16 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
   const [primaryLanguage, setPrimaryLanguage] = useState('English (US)');
   const [baseRate, setBaseRate] = useState('');
   const [bioPitch, setBioPitch] = useState('');
-  const [selectedStyles, setSelectedStyles] = useState<string[]>([]);
+  const [nicheTags, setNicheTags] = useState<TagItem[]>([]);
+  const [newNiche, setNewNiche] = useState('');
+  const [showNicheInput, setShowNicheInput] = useState(false);
+  const [phone, setPhone] = useState('');
+  const [facebookConnected, setFacebookConnected] = useState(false);
+  const [facebookHandle, setFacebookHandle] = useState('');
+  const [paymentPreference, setPaymentPreference] = useState('Negotiable');
+  const [availability, setAvailability] = useState('Part-time');
+  const [preferredIndustries, setPreferredIndustries] = useState<string[]>([]);
+  const [campaignTypes, setCampaignTypes] = useState<string[]>([]);
 
   /* ── Business-specific state ── */
   const [businessName, setBusinessName] = useState('');
@@ -298,17 +308,24 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
   const [monthlyBudget, setMonthlyBudget] = useState(0);
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
   const [brandDescription, setBrandDescription] = useState('');
+  const [tradeLicenseUrl, setTradeLicenseUrl] = useState('');
+  const [isUploadingLicense, setIsUploadingLicense] = useState(false);
+  const [businessType, setBusinessType] = useState('Shop');
+  const [businessPhone, setBusinessPhone] = useState('');
+  const [openingHours, setOpeningHours] = useState('');
+  const [priceRange, setPriceRange] = useState('Medium');
+  const [servicesOffered, setServicesOffered] = useState('');
+  const [promotionGoals, setPromotionGoals] = useState<string[]>([]);
+  const [preferredPromotionTypes, setPreferredPromotionTypes] = useState<string[]>([]);
+  const [preferredPromoterTypes, setPreferredPromoterTypes] = useState<string[]>([]);
+  const [promotersNeededCount, setPromotersNeededCount] = useState('');
 
   /* ── Constants ── */
   const ageRanges = ['13-17', '18-24', '25-34', '35-44', '45+'];
-  const contentStyles = [
-    'Minimalist',
-    'Energetic',
-    'Educational',
-    'Cinematic',
-    'Lo-fi / Raw',
-    'Humorous',
+  const commonNiches = [
+    'Lifestyle', 'Tech', 'Fashion', 'Beauty', 'Gaming', 'Fitness', 'Food', 'Travel'
   ];
+  const preferredCampaigns = ['Shoutouts', 'Product Reviews', 'Long-term Ambassadorship', 'Event Attendance', 'Affiliate'];
   const companySizes = ['1-10', '11-50', '51-200', '200+'];
   const industries = [
     'Organic Agriculture',
@@ -334,6 +351,11 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
     'Other',
   ];
   const platformOptions = ['Instagram', 'TikTok', 'LinkedIn'];
+  const businessTypes = ['Shop', 'Restaurant', 'Service', 'Online Store', 'Hotel', 'Other'];
+  const priceRanges = ['Low', 'Medium', 'High'];
+  const businessGoals = ['More customers', 'Online visibility', 'Product promotion', 'Brand awareness'];
+  const promotionTypes = ['Social media posts', 'Flyers', 'Videos', 'Event coverage'];
+  const promoterTypes = ['Students', 'Local influencers', 'Professional Creators'];
 
   /* ── Computed ── */
   const profileCompletion = useMemo(() => {
@@ -387,11 +409,6 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
       prev.includes(range) ? prev.filter((r) => r !== range) : [...prev, range]
     );
 
-  const toggleStyle = (style: string) =>
-    setSelectedStyles((prev) =>
-      prev.includes(style) ? prev.filter((s) => s !== style) : [...prev, style]
-    );
-
   const togglePlatform = (platform: string) =>
     setSelectedPlatforms((prev) =>
       prev.includes(platform)
@@ -406,6 +423,14 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
       setShowGeoInput(false);
     }
   }, [newGeo]);
+
+  const addNicheTag = useCallback(() => {
+    if (newNiche.trim()) {
+      setNicheTags((prev) => [...prev, { label: newNiche.trim(), removable: true }]);
+      setNewNiche('');
+      setShowNicheInput(false);
+    }
+  }, [newNiche]);
 
   const addAudienceTag = useCallback(() => {
     if (newAudienceTag.trim()) {
@@ -425,14 +450,24 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
       if (isBusiness) {
         profileData = {
           businessName,
+          businessType,
           website: websiteUrl,
           industry,
           bio: brandDescription,
           businessLocation,
+          openingHours,
+          priceRange,
+          servicesOffered,
           companySize,
           targetAudienceTags: targetAudienceTags.map((t) => t.label),
           monthlyBudget,
           selectedPlatforms,
+          tradeLicenseUrl,
+          promotionGoals,
+          preferredPromotionTypes,
+          preferredPromoterTypes,
+          promotersNeededCount,
+          phone,
         };
       } else {
         profileData = {
@@ -442,14 +477,20 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
           tiktokHandle,
           instagramHandle,
           xHandle,
+          facebookHandle,
           followers,
           avgViews,
           engagementRate,
           geoTags: geoTags.map((t) => t.label),
+          niches: nicheTags.map((t) => t.label),
           ageRanges: selectedAgeRanges,
           primaryLanguage,
           baseRate,
-          selectedStyles,
+          phone,
+          paymentPreference,
+          availability,
+          preferredIndustries,
+          campaignTypes,
         };
       }
 
@@ -457,6 +498,7 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
         firstName,
         lastName,
         profilePicture,
+        tradeLicenseUrl,
         profileData,
       });
 
@@ -598,10 +640,11 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
               <p className="mt-3 text-xs font-bold text-gray-500 uppercase tracking-wider">Profile Picture</p>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-4 mb-4">
               <InputField label="First Name" value={firstName} onChange={setFirstName} placeholder="John" />
               <InputField label="Last Name" value={lastName} onChange={setLastName} placeholder="Doe" />
             </div>
+            <InputField label="Phone (Optional)" value={phone} onChange={setPhone} placeholder="+251 ..." icon={<CheckCircle2 size={16} className="opacity-0" />} />
           </SectionCard>
 
           {isBusiness ? (
@@ -626,11 +669,20 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <SelectField
-                      label="Industry"
+                      label="Business Type"
+                      value={businessType}
+                      onChange={setBusinessType}
+                      options={businessTypes}
+                    />
+                    <SelectField
+                      label="Category / Industry"
                       value={industry}
                       onChange={setIndustry}
                       options={industries}
                     />
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <InputField
                       label="Location"
                       placeholder="City, Country"
@@ -638,14 +690,35 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
                       onChange={setBusinessLocation}
                       icon={<MapPin size={16} />}
                     />
+                    <InputField
+                      label="Opening Hours"
+                      placeholder="e.g. Mon-Fri 9AM-5PM"
+                      value={openingHours}
+                      onChange={setOpeningHours}
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <InputField
+                      label="Website URL"
+                      placeholder="www.yourbrand.com"
+                      value={websiteUrl}
+                      onChange={setWebsiteUrl}
+                      prefix="https://"
+                    />
+                    <SelectField
+                      label="Price Range"
+                      value={priceRange}
+                      onChange={setPriceRange}
+                      options={priceRanges}
+                    />
                   </div>
 
                   <InputField
-                    label="Website URL"
-                    placeholder="www.yourbrand.com"
-                    value={websiteUrl}
-                    onChange={setWebsiteUrl}
-                    prefix="https://"
+                    label="Services or Products Offered"
+                    placeholder="e.g. Organic Coffee, Vegan Pastries"
+                    value={servicesOffered}
+                    onChange={setServicesOffered}
                   />
 
                   {/* Company Size */}
@@ -663,6 +736,160 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
                         />
                       ))}
                     </div>
+                  </div>
+                </div>
+              </SectionCard>
+ 
+              {/* Promotion Needs */}
+              <SectionCard
+                icon={<BarChart3 size={20} />}
+                title="Promotion Needs"
+              >
+                <div className="space-y-6">
+                  <div className="space-y-3">
+                    <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">
+                      Primary Goals
+                    </label>
+                    <div className="flex flex-wrap gap-2">
+                      {businessGoals.map((goal) => (
+                        <TagPill
+                          key={goal}
+                          label={goal}
+                          selected={promotionGoals.includes(goal)}
+                          onClick={() => 
+                            setPromotionGoals(prev => 
+                              prev.includes(goal) ? prev.filter(g => g !== goal) : [...prev, goal]
+                            )
+                          }
+                        />
+                      ))}
+                    </div>
+                  </div>
+ 
+                  <div className="space-y-3">
+                    <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">
+                      Preferred Promotion Types
+                    </label>
+                    <div className="flex flex-wrap gap-2">
+                      {promotionTypes.map((type) => (
+                        <TagPill
+                          key={type}
+                          label={type}
+                          selected={preferredPromotionTypes.includes(type)}
+                          onClick={() => 
+                            setPreferredPromotionTypes(prev => 
+                              prev.includes(type) ? prev.filter(t => t !== type) : [...prev, type]
+                            )
+                          }
+                        />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </SectionCard>
+ 
+              {/* Collaboration Preferences */}
+              <SectionCard
+                icon={<Target size={20} />}
+                title="Collaboration Preferences"
+              >
+                <div className="space-y-6">
+                  <div className="space-y-3">
+                    <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">
+                      Who are you looking for?
+                    </label>
+                    <div className="flex flex-wrap gap-2">
+                      {promoterTypes.map((type) => (
+                        <TagPill
+                          key={type}
+                          label={type}
+                          selected={preferredPromoterTypes.includes(type)}
+                          onClick={() => 
+                            setPreferredPromoterTypes(prev => 
+                              prev.includes(type) ? prev.filter(t => t !== type) : [...prev, type]
+                            )
+                          }
+                        />
+                      ))}
+                    </div>
+                  </div>
+ 
+                  <InputField
+                    label="Number of Promoters Needed"
+                    placeholder="e.g. 5-10"
+                    value={promotersNeededCount}
+                    onChange={setPromotersNeededCount}
+                  />
+                </div>
+              </SectionCard>
+ 
+              {/* Trade License Verification */}
+              <SectionCard
+                icon={<ShieldCheck size={20} />}
+                title="Trade License Verification"
+              >
+                <p className="text-xs text-gray-500 dark:text-gray-400 -mt-4 mb-6">
+                  Please upload a clear copy of your business trade license for verification purposes.
+                </p>
+                
+                <div className="space-y-4">
+                   <div 
+                    className={cn(
+                      "relative border-2 border-dashed rounded-2xl p-8 flex flex-col items-center justify-center transition-all cursor-pointer",
+                      tradeLicenseUrl 
+                        ? "border-emerald-500 bg-emerald-50/50 dark:bg-emerald-500/5" 
+                        : "border-gray-200 dark:border-white/10 hover:border-emerald-400 bg-gray-50 dark:bg-white/5"
+                    )}
+                  >
+                    <input
+                      type="file"
+                      className="absolute inset-0 opacity-0 cursor-pointer"
+                      accept="image/*,application/pdf"
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        setIsUploadingLicense(true);
+                        try {
+                          const formData = new FormData();
+                          formData.append('image', file);
+                          const res = await api.post('/users/profile/picture?type=license', formData, {
+                            headers: { 'Content-Type': 'multipart/form-data' }
+                          });
+                          setTradeLicenseUrl(res.data.user.tradeLicenseUrl);
+                        } catch (err) {
+                          console.error('License upload failed:', err);
+                        } finally {
+                          setIsUploadingLicense(false);
+                        }
+                      }}
+                    />
+                    
+                    {isUploadingLicense ? (
+                      <div className="flex flex-col items-center gap-3">
+                        <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
+                        <span className="text-xs font-bold text-emerald-600">Uploading License...</span>
+                      </div>
+                    ) : tradeLicenseUrl ? (
+                      <div className="flex flex-col items-center gap-3">
+                        <div className="w-12 h-12 bg-emerald-500 rounded-xl flex items-center justify-center text-white">
+                          <CheckCircle2 size={24} />
+                        </div>
+                        <div className="text-center">
+                          <p className="text-sm font-bold text-gray-900 dark:text-white">License Uploaded</p>
+                          <p className="text-[10px] text-emerald-600 font-medium">Click to replace file</p>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col items-center gap-3">
+                        <div className="w-12 h-12 bg-white dark:bg-white/5 rounded-xl border border-gray-200 dark:border-white/10 flex items-center justify-center text-gray-400">
+                          <Plus size={24} />
+                        </div>
+                        <div className="text-center">
+                          <p className="text-sm font-bold text-gray-900 dark:text-white">Click to upload Trade License</p>
+                          <p className="text-[10px] text-gray-500">Supports JPG, PNG or PDF (Max 5MB)</p>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               </SectionCard>
@@ -834,6 +1061,7 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
           ) : (
             /* ━━ ADVERTISER (CREATOR) PROFILE ━━ */
             <>
+
               {/* Social Media Details */}
               <SectionCard
                 icon={<Sparkles size={20} />}
@@ -920,6 +1148,24 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
                       value={xHandle}
                       onChange={(e) => setXHandle(e.target.value)}
                       placeholder="@x_handle"
+                      className="w-full bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-emerald-500 transition-all"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <PlatformButton
+                      icon={
+                        <svg viewBox="0 0 24 24" aria-hidden="true" className="w-[18px] h-[18px] fill-current text-blue-600 dark:text-blue-400">
+                          <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"></path>
+                        </svg>
+                      }
+                      label="Facebook"
+                      connected={facebookConnected}
+                      onClick={() => setFacebookConnected(!facebookConnected)}
+                    />
+                    <input
+                      value={facebookHandle}
+                      onChange={(e) => setFacebookHandle(e.target.value)}
+                      placeholder="facebook_username"
                       className="w-full bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-emerald-500 transition-all"
                     />
                   </div>
@@ -1022,9 +1268,10 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
                       ))}
                     </div>
                   </div>
+
                 </div>
               </SectionCard>
-
+ 
               {/* Work & Pricing */}
               <SectionCard
                 icon={<Briefcase size={20} />}
@@ -1032,15 +1279,13 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
               >
                 <div className="space-y-5">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                    <div className="space-y-2">
-                      <InputField
-                        label="Portfolio URL"
-                        placeholder="https://youtube.com/c/creator"
-                        value={portfolioUrl}
-                        onChange={setPortfolioUrl}
-                        icon={<Globe size={16} />}
-                      />
-                    </div>
+                    <InputField
+                      label="Portfolio URL"
+                      placeholder="https://youtube.com/c/creator"
+                      value={portfolioUrl}
+                      onChange={setPortfolioUrl}
+                      icon={<Globe size={16} />}
+                    />
                     <SelectField
                       label="Primary Language"
                       value={primaryLanguage}
@@ -1048,7 +1293,7 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
                       options={languages}
                     />
                   </div>
-
+ 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <InputField
                       label="Base Rate (USD)"
@@ -1065,25 +1310,140 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
                       onChange={setBioPitch}
                     />
                   </div>
-
-                  {/* Content Style / Vibe */}
+ 
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <SelectField
+                      label="Payment Preference"
+                      value={paymentPreference}
+                      onChange={setPaymentPreference}
+                      options={['Fixed', 'Negotiable', 'Both']}
+                    />
+                    <SelectField
+                      label="Availability"
+                      value={availability}
+                      onChange={setAvailability}
+                      options={['Full-time', 'Part-time', 'Freelance']}
+                    />
+                  </div>
+ 
+                  {/* Niche */}
                   <div className="space-y-2">
                     <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">
-                      Content Style / Vibe
+                      Niche / Categories
                     </label>
-                    <div className="flex gap-2 flex-wrap">
-                      {contentStyles.map((style) => (
+                    <div className="flex gap-2 flex-wrap items-center">
+                      {commonNiches.map((niche) => {
+                        const isSelected = nicheTags.some(t => t.label === niche);
+                        return (
+                          <TagPill
+                            key={niche}
+                            label={niche}
+                            selected={isSelected}
+                            onClick={() => {
+                              if (isSelected) {
+                                setNicheTags(prev => prev.filter(t => t.label !== niche));
+                              } else {
+                                setNicheTags(prev => [...prev, { label: niche, removable: true }]);
+                              }
+                            }}
+                          />
+                        );
+                      })}
+                      {nicheTags.filter(t => !commonNiches.includes(t.label)).map((tag) => (
+                        <RemovableTag
+                          key={tag.label}
+                          label={tag.label}
+                          onRemove={() =>
+                            setNicheTags((prev) =>
+                              prev.filter((t) => t.label !== tag.label)
+                            )
+                          }
+                        />
+                      ))}
+                      {showNicheInput ? (
+                        <div className="flex items-center gap-2">
+                          <input
+                            autoFocus
+                            value={newNiche}
+                            onChange={(e) => setNewNiche(e.target.value)}
+                            onKeyDown={(e) => e.key === 'Enter' && addNicheTag()}
+                            placeholder="Add niche"
+                            className="w-28 bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:border-emerald-500 text-gray-900 dark:text-white"
+                          />
+                          <button
+                            onClick={addNicheTag}
+                            className="text-emerald-500 hover:text-emerald-400 transition-colors"
+                          >
+                            <CheckCircle2 size={18} />
+                          </button>
+                          <button
+                            onClick={() => setShowNicheInput(false)}
+                            className="text-gray-400 hover:text-gray-600 transition-colors"
+                          >
+                            <X size={16} />
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => setShowNicheInput(true)}
+                          className="flex items-center gap-1 px-3 py-1.5 border border-dashed border-gray-300 dark:border-white/15 rounded-full text-xs font-semibold text-gray-500 dark:text-gray-400 hover:border-emerald-400 hover:text-emerald-500 transition-all"
+                        >
+                          <Plus size={14} /> Add Niche
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </SectionCard>
+ 
+              {/* Collaboration Preferences */}
+              <SectionCard
+                icon={<Target size={20} />}
+                title="Collaboration Preferences"
+              >
+                <div className="space-y-6">
+                  <div className="space-y-3">
+                    <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">
+                      Preferred Industries
+                    </label>
+                    <div className="flex flex-wrap gap-2">
+                      {industries.map((ind) => (
                         <TagPill
-                          key={style}
-                          label={style}
-                          selected={selectedStyles.includes(style)}
-                          onClick={() => toggleStyle(style)}
+                          key={ind}
+                          label={ind}
+                          selected={preferredIndustries.includes(ind)}
+                          onClick={() => 
+                            setPreferredIndustries(prev => 
+                              prev.includes(ind) ? prev.filter(i => i !== ind) : [...prev, ind]
+                            )
+                          }
+                        />
+                      ))}
+                    </div>
+                  </div>
+ 
+                  <div className="space-y-3">
+                    <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">
+                      Preferred Campaign Types
+                    </label>
+                    <div className="flex flex-wrap gap-2">
+                      {preferredCampaigns.map((type) => (
+                        <TagPill
+                          key={type}
+                          label={type}
+                          selected={campaignTypes.includes(type)}
+                          onClick={() => 
+                            setCampaignTypes(prev => 
+                              prev.includes(type) ? prev.filter(t => t !== type) : [...prev, type]
+                            )
+                          }
                         />
                       ))}
                     </div>
                   </div>
                 </div>
               </SectionCard>
+ 
             </>
           )}
 

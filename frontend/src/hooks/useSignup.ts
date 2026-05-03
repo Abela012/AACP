@@ -56,7 +56,34 @@ export const useSignup = () => {
         try {
             const signUpAttempt = await signUp.attemptEmailAddressVerification({ code });
             if (signUpAttempt.status === "complete") {
+                // 1. Activate the Clerk session
                 await setActive({ session: signUpAttempt.createdSessionId });
+
+                // 2. Sync the user to MongoDB immediately with the fresh session token.
+                //    We do this HERE instead of relying on useUserSync in the dashboard
+                //    to avoid a race condition where the dashboard fires queries before
+                //    the Clerk token is propagated, leaving the user missing from the DB.
+                try {
+                    const pendingRole = localStorage.getItem('pendingUserRole') || 'advertiser';
+                    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
+
+                    // Clerk sets the __session cookie on setActive — POST to sync
+                    // includes credentials so the cookie is sent automatically,
+                    // AND we attempt to get a short-lived token as Bearer header.
+                    // The backend's clerkMiddleware accepts either.
+                    await fetch(`${API_URL}/users/sync`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        credentials: 'include',
+                        body: JSON.stringify({ role: pendingRole }),
+                    });
+                    localStorage.removeItem('pendingUserRole');
+                } catch (syncErr) {
+                    // Non-fatal: useUserSync on the dashboard will retry
+                    console.warn('[useSignup] Initial sync failed, will retry on dashboard:', syncErr);
+                }
+
+                // 3. Navigate to dashboard — user is now in the DB
                 navigate("/dashboard", { replace: true });
             } else {
                 setError("Verification incomplete. Please try again.");

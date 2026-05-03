@@ -55,6 +55,14 @@ export default function EditProfilePage() {
   const [monthlyBudget, setMonthlyBudget] = useState(profile.monthlyBudget || 0);
   const [youtubeHandle, setYoutubeHandle] = useState(profile.youtubeHandle || '');
   const [tiktokHandle, setTiktokHandle] = useState(profile.tiktokHandle || '');
+  const [instagramHandle, setInstagramHandle] = useState(profile.instagramHandle || '');
+  const [xHandle, setXHandle] = useState(profile.xHandle || '');
+  const [facebookHandle, setFacebookHandle] = useState(profile.facebookHandle || '');
+  const [followers, setFollowers] = useState(profile.followers || '');
+  const [avgViews, setAvgViews] = useState(profile.avgViews || '');
+  const [engagementRate, setEngagementRate] = useState(profile.engagementRate || '');
+  const [baseRate, setBaseRate] = useState(profile.baseRate || '');
+  const [portfolioUrl, setPortfolioUrl] = useState(profile.website || '');
 
   // Sync local state when profile loads/refreshes
   useEffect(() => {
@@ -72,6 +80,14 @@ export default function EditProfilePage() {
       setMonthlyBudget(profile.monthlyBudget || 0);
       setYoutubeHandle(profile.youtubeHandle || '');
       setTiktokHandle(profile.tiktokHandle || '');
+      setInstagramHandle(profile.instagramHandle || '');
+      setXHandle(profile.xHandle || '');
+      setFacebookHandle(profile.facebookHandle || '');
+      setFollowers(profile.followers || '');
+      setAvgViews(profile.avgViews || '');
+      setEngagementRate(profile.engagementRate || '');
+      setBaseRate(profile.baseRate || '');
+      setPortfolioUrl(profile.website || '');
       setAvatarPreview(profile.avatarUrl || '');
       setCoverPreview(profile.coverImageUrl || '');
     }
@@ -175,14 +191,17 @@ export default function EditProfilePage() {
           monthlyBudget,
           youtubeHandle,
           tiktokHandle,
-          followers: profile.followers,
-          avgViews: profile.avgViews,
-          engagementRate: profile.engagementRate,
+          instagramHandle,
+          xHandle,
+          facebookHandle,
+          followers,
+          avgViews,
+          engagementRate,
+          baseRate,
           geoTags: profile.geoTags,
+          niches: profile.niches,
           ageRanges: profile.ageRanges,
           primaryLanguage: profile.primaryLanguage,
-          baseRate: profile.baseRate,
-          selectedStyles: profile.selectedStyles,
         };
         await userApi.submitProfile(api, {
           profileData,
@@ -529,6 +548,56 @@ export default function EditProfilePage() {
                     ) : (
                       <>
                         <div className="space-y-2">
+                          <label className={labelCls}>Portfolio URL</label>
+                          <input
+                            type="url"
+                            value={portfolioUrl}
+                            onChange={(e) => setPortfolioUrl(e.target.value)}
+                            className={inputCls.replace('pl-10', 'pl-4')}
+                            placeholder="https://"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className={labelCls}>Base Rate (USD)</label>
+                          <input
+                            type="number"
+                            value={baseRate}
+                            onChange={(e) => setBaseRate(e.target.value)}
+                            className={inputCls.replace('pl-10', 'pl-4')}
+                            placeholder="500"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className={labelCls}>Followers</label>
+                          <input
+                            type="text"
+                            value={followers}
+                            onChange={(e) => setFollowers(e.target.value)}
+                            className={inputCls.replace('pl-10', 'pl-4')}
+                            placeholder="e.g. 1.2M"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className={labelCls}>Avg Views</label>
+                          <input
+                            type="text"
+                            value={avgViews}
+                            onChange={(e) => setAvgViews(e.target.value)}
+                            className={inputCls.replace('pl-10', 'pl-4')}
+                            placeholder="e.g. 450k"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className={labelCls}>Engagement Rate (%)</label>
+                          <input
+                            type="text"
+                            value={engagementRate}
+                            onChange={(e) => setEngagementRate(e.target.value)}
+                            className={inputCls.replace('pl-10', 'pl-4')}
+                            placeholder="e.g. 4.2%"
+                          />
+                        </div>
+                        <div className="space-y-2">
                           <label className={labelCls}>YouTube Handle</label>
                           <input
                             type="text"
@@ -546,6 +615,36 @@ export default function EditProfilePage() {
                             onChange={(e) => setTiktokHandle(e.target.value)}
                             className={inputCls.replace('pl-10', 'pl-4')}
                             placeholder="@handle"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className={labelCls}>Instagram Handle</label>
+                          <input
+                            type="text"
+                            value={instagramHandle}
+                            onChange={(e) => setInstagramHandle(e.target.value)}
+                            className={inputCls.replace('pl-10', 'pl-4')}
+                            placeholder="@handle"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className={labelCls}>X (Twitter) Handle</label>
+                          <input
+                            type="text"
+                            value={xHandle}
+                            onChange={(e) => setXHandle(e.target.value)}
+                            className={inputCls.replace('pl-10', 'pl-4')}
+                            placeholder="@handle"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className={labelCls}>Facebook Handle</label>
+                          <input
+                            type="text"
+                            value={facebookHandle}
+                            onChange={(e) => setFacebookHandle(e.target.value)}
+                            className={inputCls.replace('pl-10', 'pl-4')}
+                            placeholder="username"
                           />
                         </div>
                       </>

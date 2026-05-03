@@ -138,7 +138,7 @@ function App() {
         path="/dashboard/business-owner"
         element={
           <SignedIn>
-            <RoleGuard allowedRoles={['business']}>
+            <RoleGuard allowedRoles={['business_owner']}>
               <BusinessDashboardPage />
             </RoleGuard>
           </SignedIn>
@@ -148,7 +148,7 @@ function App() {
         path="/campaigns"
         element={
           <SignedIn>
-            <RoleGuard allowedRoles={['business']}>
+            <RoleGuard allowedRoles={['business_owner']}>
               <CampaignsPage />
             </RoleGuard>
           </SignedIn>
@@ -158,7 +158,7 @@ function App() {
         path="/campaign/:id/applicants"
         element={
           <SignedIn>
-            <RoleGuard allowedRoles={['business']}>
+            <RoleGuard allowedRoles={['business_owner']}>
               <CampaignApplicantsPage />
             </RoleGuard>
           </SignedIn>
@@ -168,7 +168,7 @@ function App() {
         path="/campaign/new"
         element={
           <SignedIn>
-            <RoleGuard allowedRoles={['business']}>
+            <RoleGuard allowedRoles={['business_owner']}>
               <CreateCampaignPage />
             </RoleGuard>
           </SignedIn>
@@ -178,7 +178,7 @@ function App() {
         path="/matches"
         element={
           <SignedIn>
-            <RoleGuard allowedRoles={['business']}>
+            <RoleGuard allowedRoles={['business_owner']}>
               <MatchesPage />
             </RoleGuard>
           </SignedIn>
@@ -188,7 +188,7 @@ function App() {
         path="/analytics"
         element={
           <SignedIn>
-            <RoleGuard allowedRoles={['business']}>
+            <RoleGuard allowedRoles={['business_owner']}>
               <AnalyticsPage />
             </RoleGuard>
           </SignedIn>
@@ -198,7 +198,7 @@ function App() {
         path="/balance"
         element={
           <SignedIn>
-            <RoleGuard allowedRoles={['business']}>
+            <RoleGuard allowedRoles={['business_owner']}>
               <BalancePage />
             </RoleGuard>
           </SignedIn>
@@ -208,7 +208,7 @@ function App() {
         path="/business/buy-coins"
         element={
           <SignedIn>
-            <RoleGuard allowedRoles={['business']}>
+            <RoleGuard allowedRoles={['business_owner']}>
               <BusinessBuyCoinsPage />
             </RoleGuard>
           </SignedIn>
@@ -218,7 +218,7 @@ function App() {
         path="/business/manual-checkout"
         element={
           <SignedIn>
-            <RoleGuard allowedRoles={['business']}>
+            <RoleGuard allowedRoles={['business_owner']}>
               <BusinessManualCheckoutPage />
             </RoleGuard>
           </SignedIn>
@@ -228,7 +228,7 @@ function App() {
         path="/business/checkout"
         element={
           <SignedIn>
-            <RoleGuard allowedRoles={['business']}>
+            <RoleGuard allowedRoles={['business_owner']}>
               <BusinessCheckoutPage />
             </RoleGuard>
           </SignedIn>
@@ -238,7 +238,7 @@ function App() {
         path="/profile/view/business"
         element={
           <SignedIn>
-            <RoleGuard allowedRoles={['business']}>
+            <RoleGuard allowedRoles={['business_owner']}>
               <ViewProfilePage />
             </RoleGuard>
           </SignedIn>
@@ -248,7 +248,7 @@ function App() {
         path="/profile/edit/business"
         element={
           <SignedIn>
-            <RoleGuard allowedRoles={['business']}>
+            <RoleGuard allowedRoles={['business_owner']}>
               <EditProfilePage />
             </RoleGuard>
           </SignedIn>
@@ -392,11 +392,11 @@ function App() {
       {/* Profile Completion / Common Redirects */}
       <Route
         path="/profile/complete/business"
-        element={<Navigate to="/dashboard" replace />}
+        element={<CompleteProfilePage />}
       />
       <Route
         path="/profile/complete/advertiser"
-        element={<Navigate to="/dashboard" replace />}
+        element={<CompleteProfilePage />}
       />
       <Route
         path="/pending-approval"
@@ -420,13 +420,13 @@ function App() {
       <Route path="/admin/help" element={<SignedIn><RoleGuard allowedRoles={['admin']}><AdminHelpPage /></RoleGuard></SignedIn>} />
 
       {/* Super Admin Specific Routes */}
-      <Route path="/dashboard/super-admin" element={<SignedIn><RoleGuard allowedRoles={['admin']}><SuperAdminDashboardPage /></RoleGuard></SignedIn>} />
-      <Route path="/super-admin/admin-management" element={<SignedIn><RoleGuard allowedRoles={['admin']}><SuperAdminAdminManagementPage /></RoleGuard></SignedIn>} />
-      <Route path="/super-admin/audit-trail" element={<SignedIn><RoleGuard allowedRoles={['admin']}><SuperAdminAuditTrailPage /></RoleGuard></SignedIn>} />
-      <Route path="/super-admin/platform" element={<SignedIn><RoleGuard allowedRoles={['admin']}><SuperAdminPlatformPage /></RoleGuard></SignedIn>} />
-      <Route path="/super-admin/security" element={<SignedIn><RoleGuard allowedRoles={['admin']}><SuperAdminSecurityPage /></RoleGuard></SignedIn>} />
-      <Route path="/super-admin/notifications" element={<SignedIn><RoleGuard allowedRoles={['admin']}><SuperAdminNotificationsPage /></RoleGuard></SignedIn>} />
-      <Route path="/super-admin/profile" element={<SignedIn><RoleGuard allowedRoles={['admin']}><SuperAdminProfilePage /></RoleGuard></SignedIn>} />
+      <Route path="/dashboard/super-admin" element={<SignedIn><RoleGuard allowedRoles={['super_admin']}><SuperAdminDashboardPage /></RoleGuard></SignedIn>} />
+      <Route path="/super-admin/admin-management" element={<SignedIn><RoleGuard allowedRoles={['super_admin']}><SuperAdminAdminManagementPage /></RoleGuard></SignedIn>} />
+      <Route path="/super-admin/audit-trail" element={<SignedIn><RoleGuard allowedRoles={['super_admin']}><SuperAdminAuditTrailPage /></RoleGuard></SignedIn>} />
+      <Route path="/super-admin/platform" element={<SignedIn><RoleGuard allowedRoles={['super_admin']}><SuperAdminPlatformPage /></RoleGuard></SignedIn>} />
+      <Route path="/super-admin/security" element={<SignedIn><RoleGuard allowedRoles={['super_admin']}><SuperAdminSecurityPage /></RoleGuard></SignedIn>} />
+      <Route path="/super-admin/notifications" element={<SignedIn><RoleGuard allowedRoles={['super_admin']}><SuperAdminNotificationsPage /></RoleGuard></SignedIn>} />
+      <Route path="/super-admin/profile" element={<SignedIn><RoleGuard allowedRoles={['super_admin']}><SuperAdminProfilePage /></RoleGuard></SignedIn>} />
 
       {/* Chat / Common Auth Routes */}
       <Route
