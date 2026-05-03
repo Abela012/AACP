@@ -117,7 +117,9 @@ export default function CampaignApplicantsPage() {
               <div className="grid grid-cols-2 md:grid-cols-1 gap-4 w-full md:w-auto">
                 <div className="bg-white dark:bg-white/5 p-4 rounded-2xl border border-gray-100 dark:border-white/10">
                   <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Total Budget</p>
-                  <p className="text-xl font-black text-emerald-600">${(typeof opportunity?.budget === 'object' ? opportunity?.budget.amount : (opportunity?.budget || 0)).toLocaleString()}</p>
+                  <p className="text-xl font-black text-emerald-600">
+                    ${(typeof opportunity?.budget === 'object' ? (opportunity.budget.amount || 0) : (opportunity?.budget || 0)).toLocaleString()}
+                  </p>
                 </div>
                 <div className="bg-white dark:bg-white/5 p-4 rounded-2xl border border-gray-100 dark:border-white/10">
                   <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Category</p>
@@ -339,7 +341,7 @@ export default function CampaignApplicantsPage() {
                               <div className="text-center p-4 bg-gray-50/50 dark:bg-white/[0.02] rounded-2xl">
                                 <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Est. Revenue</p>
                                 <p className="text-sm font-black text-gray-900 dark:text-white">
-                                  {applicantAnalysis.estimatedRevenue.toLocaleString()} {applicantAnalysis.currency}
+                                  {applicantAnalysis.estimatedRevenue?.toLocaleString() || '0'} {applicantAnalysis.currency || 'USD'}
                                 </p>
                               </div>
                               <div className="text-center p-4 bg-gray-50/50 dark:bg-white/[0.02] rounded-2xl">
