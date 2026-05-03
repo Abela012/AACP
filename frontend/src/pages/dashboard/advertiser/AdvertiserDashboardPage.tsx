@@ -323,44 +323,6 @@ export default function AdvertiserDashboardPage() {
                     </div>
                     <button onClick={() => navigate('/advertiser/matches')} className="text-xs font-bold text-emerald-500 hover:underline">View all</button>
                   </div>
-<<<<<<< HEAD
-                  <div className="space-y-4">
-                    {isLoadingRecs ? (
-                      <div className="flex justify-center py-8">
-                        <Loader2 size={24} className="animate-spin text-emerald-500" />
-                      </div>
-                    ) : recommendations.length === 0 ? (
-                      <div className="text-center py-8">
-                        <Sparkles className="w-8 h-8 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
-                        <p className="text-sm font-bold text-gray-500 dark:text-gray-400">No recommendations yet</p>
-                        <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Complete your profile to get AI-powered matches</p>
-                      </div>
-                    ) : (
-                      recommendations.slice(0, 3).map((rec, idx) => (
-                        <div key={rec.targetId || idx} className="flex items-center justify-between p-4 rounded-2xl bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/5 hover:border-emerald-500/30 transition-all cursor-pointer" onClick={() => navigate(`/advertiser/matches/${rec.targetId}/apply`)}>
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-white dark:bg-white/5 rounded-xl flex items-center justify-center text-emerald-500 font-bold border border-gray-100 dark:border-white/10 text-sm">
-                              {rec.name?.[0]?.toUpperCase() || '?'}
-                            </div>
-                            <div>
-                              <h4 className="font-bold text-sm text-gray-900 dark:text-white line-clamp-1">{rec.name}</h4>
-                              <div className="flex items-center gap-2 text-[10px] text-gray-500">
-                                {rec.category && <span>{rec.category}</span>}
-                                {rec.meta?.budget && <span>• {rec.meta.budget.amount?.toLocaleString()} {rec.meta.budget.currency}</span>}
-                              </div>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <div className="text-right">
-                              <span className="text-sm font-bold text-emerald-500">{rec.score}%</span>
-                              <p className="text-[10px] text-gray-400">match</p>
-                            </div>
-                            <ChevronRight size={16} className="text-gray-300" />
-                          </div>
-                        </div>
-                      ))
-                    )}
-=======
                   <div className="space-y-6 mb-8">
                     <div>
                       <div className="flex justify-between text-xs font-bold mb-2">
@@ -391,7 +353,6 @@ export default function AdvertiserDashboardPage() {
                         : `We are currently analyzing active campaigns to find the best match for your specific demographics. Keep your profile updated to improve alignment.`
                       }
                     </p>
->>>>>>> 233d854 (fix: replace mock AI Match data with dynamic database entries)
                   </div>
                 </div>
 
