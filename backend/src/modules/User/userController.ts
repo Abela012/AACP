@@ -42,7 +42,10 @@ export const uploadProfilePicture = async (
     };
 
     const result: any = await uploadFromBuffer(req.file.buffer);
-    const type = req.query.type === 'cover' ? 'coverImage' : 'profilePicture';
+    let type = 'profilePicture';
+    if (req.query.type === 'cover') type = 'coverImage';
+    if (req.query.type === 'license') type = 'tradeLicenseUrl';
+    if (req.query.type === 'id_verification') type = 'idVerificationUrl';
 
     const user = await User.findOneAndUpdate(
       { clerkId: userId },
@@ -78,6 +81,8 @@ export const updateUserProfile = async (
     "profilePicture",
     "coverImage",
     "location",
+    "tradeLicenseUrl",
+    "idVerificationUrl",
     "profileData"
   ];
 
@@ -185,6 +190,8 @@ export const submitProfileForReview = async (
     "username",
     "profilePicture",
     "location",
+    "tradeLicenseUrl",
+    "idVerificationUrl",
     "profileData",
   ];
 
