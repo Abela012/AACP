@@ -54,7 +54,7 @@ import SuperAdminNotificationsPage from './pages/super-admin/notifications/Notif
 import SuperAdminProfilePage from './pages/super-admin/profile/ProfilePage'
 import RoleGuard from './core/guards/RoleGuard'
 import CollaborationsPage from './pages/collaboration/list/CollaborationsPage'
-import CollaborationDetailsPage from './pages/collaboration/details/CollaborationDetailsPage'
+// import CollaborationDetailsPage from './pages/collaboration/details/CollaborationDetailsPage'
 import './App.css'
 
 function App() {
@@ -269,14 +269,14 @@ function App() {
             </SignedIn>
           }
         />
-        <Route
+        {/* <Route
           path="/collaborations/:id"
           element={
             <SignedIn>
               <CollaborationDetailsPage />
             </SignedIn>
           }
-        />
+        /> */}
 
         {/* Advertiser Routes */}
         <Route
