@@ -54,6 +54,7 @@ import SuperAdminNotificationsPage from './pages/super-admin/notifications/Notif
 import SuperAdminProfilePage from './pages/super-admin/profile/ProfilePage'
 import RoleGuard from './core/guards/RoleGuard'
 import CollaborationsPage from './pages/collaboration/list/CollaborationsPage'
+import CollaborationDetailsPage from './pages/collaboration/details/CollaborationDetailsPage'
 import './App.css'
 
 function App() {
@@ -265,6 +266,14 @@ function App() {
               <RoleGuard allowedRoles={['business_owner']}>
                 <CollaborationsPage />
               </RoleGuard>
+            </SignedIn>
+          }
+        />
+        <Route
+          path="/collaborations/:id"
+          element={
+            <SignedIn>
+              <CollaborationDetailsPage />
             </SignedIn>
           }
         />
