@@ -71,14 +71,17 @@ export const getAllOpportunities = async (req: Request, res: Response) => {
  */
 export const getOpportunityById = async (req: Request, res: Response) => {
     try {
+        console.log(`[OpportunityController] Fetching opportunity with ID: ${req.params.id}`);
         const opportunity = await opportunityService.getOpportunityById(req.params.id as string);
 
         if (!opportunity) {
+            console.log(`[OpportunityController] Opportunity not found for ID: ${req.params.id}`);
             return error(res, 'Opportunity not found', 404);
         }
 
         return success(res, 'Opportunity retrieved successfully', opportunity);
     } catch (err: any) {
+        console.error(`[OpportunityController] Error fetching opportunity: ${err.message}`);
         return error(res, err.message || 'Failed to retrieve opportunity', 500);
     }
 };
