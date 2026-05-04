@@ -176,6 +176,24 @@ export const banUser = async (req: Request, res: Response) => {
             }
         }
         await user.save();
+        
+        // Emit socket event for real-time update
+        const io = (req.app as any).io;
+        if (io) {
+            io.to(`user:${user._id}`).emit('user:status_update', { 
+                status: user.status,
+                isVerified: user.isVerified 
+            });
+            
+            // Also send a formal notification
+            io.to(`user:${user._id}`).emit('notification:new', {
+                type: 'system',
+                title: 'Account Status Updated',
+                message: `Your account status has been updated to: ${status}`,
+                createdAt: new Date().toISOString()
+            });
+        }
+
         if (actor?._id && actor?.role) {
             await createAuditLog({
                 action: 'USER_STATUS_UPDATED',

@@ -1,5 +1,8 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
-import { useUser as useClerkUser } from '@clerk/clerk-react';
+import { useUser as useClerkUser, useAuth } from '@clerk/clerk-react';
+import { connectSocket, getSocket } from '@/src/api/socketService';
+import { toast } from 'react-hot-toast';
+import { useQueryClient } from '@tanstack/react-query';
 
 type UserRole = 'business_owner' | 'advertiser' | 'admin' | 'super_admin' | null;
 type OnboardingStatus = 'incomplete' | 'pending' | 'approved';
@@ -16,6 +19,8 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export function UserProvider({ children }: { children: ReactNode }) {
   const { user: clerkUser, isLoaded } = useClerkUser();
+  const { getToken, isSignedIn } = useAuth();
+  const queryClient = useQueryClient();
 
   // Initialize from localStorage to persist state across refreshes
   const [userRole, setUserRoleState] = useState<UserRole>(() => {
@@ -50,6 +55,57 @@ export function UserProvider({ children }: { children: ReactNode }) {
       localStorage.setItem('currentClerkId', clerkUser.id);
     }
   }, [clerkUser, isLoaded, currentUserId]);
+
+  // Real-time Status Updates via Socket.IO
+  useEffect(() => {
+    if (!isSignedIn) return;
+
+    let mounted = true;
+
+    const initSocket = async () => {
+      const token = await getToken();
+      if (!token || !mounted) return;
+
+      const socket = connectSocket(token);
+
+      socket.on('user:status_update', (data: { status: string }) => {
+        if (!mounted) return;
+        
+        console.log('[UserContext] Real-time status update received:', data.status);
+        
+        // Map backend status to frontend OnboardingStatus
+        let newStatus: OnboardingStatus = 'incomplete';
+        if (data.status === 'pending') newStatus = 'pending';
+        if (data.status === 'active' || data.status === 'approved') newStatus = 'approved';
+
+        if (newStatus !== onboardingStatus) {
+          setOnboardingStatus(newStatus);
+          
+          // Invalidate all queries to refresh data across the dashboard
+          queryClient.invalidateQueries();
+
+          // Visual Feedback
+          if (newStatus === 'approved') {
+            toast.success('Your account has been approved! Dashboard unlocked.', {
+              duration: 6000,
+              icon: '🎉',
+              style: { borderRadius: '16px', background: '#10b981', color: '#fff' }
+            });
+          }
+        }
+      });
+    };
+
+    initSocket();
+
+    return () => {
+      mounted = false;
+      const socket = getSocket();
+      if (socket) {
+        socket.off('user:status_update');
+      }
+    };
+  }, [isSignedIn, getToken, onboardingStatus, queryClient]);
 
   const setUserRole = (role: UserRole) => {
     setUserRoleState(role);

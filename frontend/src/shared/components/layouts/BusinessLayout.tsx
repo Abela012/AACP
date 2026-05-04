@@ -65,8 +65,8 @@ export default function BusinessLayout({ children }: BusinessLayoutProps) {
   const navigation = [
     { name: 'Dashboard', icon: LayoutDashboard, path: '/dashboard/business-owner' },
     { name: 'Campaigns', icon: Megaphone, path: '/campaigns' },
-    { name: 'Collaborations', icon: Briefcase, path: '/collaborations' },
-    { name: 'Matches', icon: Users, path: '/matches' },
+    { name: 'Discover', icon: Sparkles, path: '/matches' },
+    { name: 'Partnerships', icon: Briefcase, path: '/collaborations' },
     { name: 'Analytics', icon: BarChart3, path: '/analytics' },
     { name: 'Messages', icon: MessageSquare, path: '/messages' },
   ];

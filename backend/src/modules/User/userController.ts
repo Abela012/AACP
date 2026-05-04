@@ -2,6 +2,7 @@ import User from "../../database/models/User";
 import { Request, Response } from "express";
 import { getAuth, clerkClient } from "@clerk/express";
 import cloudinary from "../../config/cloudinary";
+import * as walletService from '../wallet/wallet.service';
 
 interface MulterRequest extends Request {
   file?: Express.Multer.File;
@@ -336,6 +337,20 @@ export const syncUser = async (req: Request, res: Response): Promise<void> => {
     try {
       const user = await User.create(userData);
       console.log("User successfully created in MongoDB:", user._id);
+
+      // Credit starting coins to allow them to post campaigns immediately
+      try {
+        await walletService.creditCoins({
+          userId: user._id.toString(),
+          amount: 500,
+          description: 'Initial balance for new account',
+        });
+        console.log(`[syncUser] Credited 500 starting coins to ${user.email}`);
+      } catch (walletError) {
+        console.error(`[syncUser] Failed to credit coins for ${user.email}:`, walletError);
+        // Don't fail the whole user creation if wallet credit fails
+      }
+
       res.status(201).json({ user, message: "User created Successfully" });
     } catch (createError: any) {
       if (createError.code === 11000) {

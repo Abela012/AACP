@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@clerk/clerk-react';
 import { getSocket, connectSocket } from '../api/socketService';
+import { toast } from 'react-hot-toast';
 
 export interface Notification {
   id: string;
@@ -44,7 +45,21 @@ export const useNotifications = () => {
         setNotifications(prev => [newNotif, ...prev]);
         setUnreadCount(prev => prev + 1);
 
-        // Optional: Trigger a browser notification or a sound
+        // Visual Toast Notification
+        toast(newNotif.message, {
+          duration: 4000,
+          position: 'top-right',
+          icon: newNotif.type === 'message' ? '💬' : '🚀',
+          style: {
+            borderRadius: '16px',
+            background: '#333',
+            color: '#fff',
+            fontSize: '14px',
+            fontWeight: 'bold',
+          },
+        });
+
+        // Browser Native Notification
         if (Notification.permission === 'granted') {
           new Notification(newNotif.title, { body: newNotif.message });
         }
