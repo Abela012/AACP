@@ -72,7 +72,7 @@ export default function BusinessLayout({ children }: BusinessLayoutProps) {
   ];
 
   const systemNavigation = [
-    { name: 'Balance', icon: CreditCard, path: '/balance' },
+    { name: 'Wallet', icon: CreditCard, path: '/wallet' },
     { name: 'Settings', icon: Settings, path: '/profile/edit/business' },
   ];
 

@@ -210,7 +210,7 @@ function App() {
           }
         />
         <Route
-          path="/balance"
+          path="/wallet"
           element={
             <SignedIn>
               <RoleGuard allowedRoles={['business_owner']}>
@@ -341,7 +341,7 @@ function App() {
           }
         />
         <Route
-          path="/advertiser/balance"
+          path="/advertiser/wallet"
           element={
             <SignedIn>
               <RoleGuard allowedRoles={['advertiser']}>

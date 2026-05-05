@@ -75,7 +75,7 @@ export default function AdvertiserLayout({ children }: AdvertiserLayoutProps) {
   ];
 
   const systemNavigation = [
-    { name: 'Billing', icon: CreditCard, path: '/advertiser/balance' },
+    { name: 'Wallet', icon: CreditCard, path: '/advertiser/wallet' },
     { name: 'Settings', icon: Settings, path: '/profile/edit/advertiser' },
   ];
 
