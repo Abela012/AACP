@@ -12,6 +12,7 @@ import chatRoutes from '../modules/chat/chat.routes';
 
 import recommendationRoutes from '../modules/recommendations/recommendation.routes';
 import marketingAnalysisRoutes from '../modules/marketing-analysis/marketing-analysis.routes';
+import socialRoutes from '../modules/social/social.routes';
 
 /**
  * @swagger
@@ -40,6 +41,8 @@ import marketingAnalysisRoutes from '../modules/marketing-analysis/marketing-ana
  *     description: Super admin governance, audit, and configuration
  *   - name: Facebook
  *     description: Facebook Ads integration and AI insights
+ *   - name: Social
+ *     description: Social media platform connections and OAuth
  */
 
 /**
@@ -348,6 +351,7 @@ router.use('/chat', chatRoutes);
 
 router.use('/recommendations', recommendationRoutes);
 router.use('/marketing-analysis', marketingAnalysisRoutes);
+router.use('/social', socialRoutes);
 
 /**
  * @swagger

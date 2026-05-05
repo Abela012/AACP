@@ -1,0 +1,162 @@
+import { Request, Response } from 'express';
+import { getAuth } from '@clerk/express';
+import User from '../../database/models/User';
+import SocialConnection from '../../database/models/SocialConnection';
+import { SocialAuthService } from './socialAuth.service';
+import logger from '../../utils/logger';
+
+/**
+ * Initiate OAuth flow for a platform
+ */
+export const initiateAuth = async (req: Request, res: Response) => {
+    const { platform } = req.params;
+    const { redirect_uri } = req.query;
+
+    if (!['facebook', 'instagram', 'tiktok'].includes(platform)) {
+        return res.status(400).json({ success: false, message: 'Invalid platform' });
+    }
+
+    const backendUrl = process.env.BACKEND_URL || `http://localhost:${process.env.PORT || 5000}`;
+    const callbackUrl = `${backendUrl}/api/v1/social/callback/${platform}`;
+
+    // Include redirect_to in state to return user to correct page after callback
+    const stateData = {
+        nonce: Math.random().toString(36).substring(7),
+        redirect_to: (redirect_uri as string) || '/social/connections'
+    };
+    const state = Buffer.from(JSON.stringify(stateData)).toString('base64');
+
+    let authUrl = '';
+    if (platform === 'facebook' || platform === 'instagram') {
+        authUrl = SocialAuthService.getFacebookAuthUrl(callbackUrl, state);
+    } else if (platform === 'tiktok') {
+        authUrl = SocialAuthService.getTikTokAuthUrl(callbackUrl, state);
+    }
+
+    res.json({ success: true, authUrl });
+};
+
+/**
+ * Handle OAuth callback
+ */
+export const handleCallback = async (req: Request, res: Response) => {
+    const { platform } = req.params;
+    const { code, state } = req.query;
+    const { userId: clerkId } = getAuth(req);
+
+    if (!clerkId) {
+        return res.status(401).json({ success: false, message: 'Unauthorized' });
+    }
+
+    if (!code) {
+        return res.status(400).json({ success: false, message: 'Authorization code missing' });
+    }
+
+    try {
+        const user = await User.findOne({ clerkId });
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'User not found' });
+        }
+
+        const backendUrl = process.env.BACKEND_URL || `http://localhost:${process.env.PORT || 5000}`;
+        const callbackUrl = `${backendUrl}/api/v1/social/callback/${platform}`;
+        
+        let tokenData;
+
+        if (platform === 'facebook' || platform === 'instagram') {
+            tokenData = await SocialAuthService.exchangeFacebookCode(code as string, callbackUrl);
+        } else if (platform === 'tiktok') {
+            tokenData = await SocialAuthService.exchangeTikTokCode(code as string, callbackUrl);
+        }
+
+        if (!tokenData || !tokenData.access_token) {
+            throw new Error('Failed to obtain access token');
+        }
+
+        const profile = await SocialAuthService.getPlatformUserProfile(platform as any, tokenData.access_token);
+
+        // Store or update connection
+        const connection = await SocialConnection.findOneAndUpdate(
+            { userId: user._id, platform },
+            {
+                platformUserId: profile?.id || 'unknown',
+                accessToken: tokenData.access_token,
+                refreshToken: tokenData.refresh_token,
+                expiresAt: tokenData.expires_in ? new Date(Date.now() + tokenData.expires_in * 1000) : undefined,
+                isConnected: true,
+                metadata: profile,
+                status: 'pending',
+                lastSyncedAt: new Date(),
+            },
+            { upsert: true, new: true }
+        );
+
+        let finalRedirect = '/social/connections';
+        if (state) {
+            try {
+                const stateData = JSON.parse(Buffer.from(state as string, 'base64').toString());
+                finalRedirect = stateData.redirect_to || finalRedirect;
+            } catch (e) {
+                logger.warn('Failed to parse OAuth state');
+            }
+        }
+
+        const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+        const separator = finalRedirect.includes('?') ? '&' : '?';
+        res.redirect(`${frontendUrl}${finalRedirect}${separator}status=success&platform=${platform}`);
+    } catch (error: any) {
+        logger.error(`Social auth callback error [${platform}]: ${error.message}`);
+        
+        let errorRedirect = '/social/connections';
+        if (state) {
+            try {
+                const stateData = JSON.parse(Buffer.from(state as string, 'base64').toString());
+                errorRedirect = stateData.redirect_to || errorRedirect;
+            } catch (e) {}
+        }
+
+        const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+        const separator = errorRedirect.includes('?') ? '&' : '?';
+        res.redirect(`${frontendUrl}${errorRedirect}${separator}status=error&message=${encodeURIComponent(error.message)}`);
+    }
+};
+
+/**
+ * Get all social connections for the current user
+ */
+export const getConnections = async (req: Request, res: Response) => {
+    const { userId: clerkId } = getAuth(req);
+    if (!clerkId) return res.status(401).json({ success: false, message: 'Unauthorized' });
+
+    try {
+        const user = await User.findOne({ clerkId });
+        if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+
+        const connections = await SocialConnection.find({ userId: user._id })
+            .select('platform isConnected status expiresAt metadata lastSyncedAt createdAt');
+
+        res.json({ success: true, data: connections });
+    } catch (error: any) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+/**
+ * Disconnect a platform
+ */
+export const disconnectPlatform = async (req: Request, res: Response) => {
+    const { platform } = req.params;
+    const { userId: clerkId } = getAuth(req);
+    if (!clerkId) return res.status(401).json({ success: false, message: 'Unauthorized' });
+
+    try {
+        const user = await User.findOne({ clerkId });
+        if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+
+        await SocialConnection.findOneAndDelete({ userId: user._id, platform });
+
+        res.json({ success: true, message: `Successfully disconnected ${platform}` });
+    } catch (error: any) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};

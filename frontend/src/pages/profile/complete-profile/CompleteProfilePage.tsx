@@ -1,6 +1,6 @@
 import { useState, useCallback, useMemo, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { FaYoutube, FaInstagram, FaLinkedin } from 'react-icons/fa6';
+import { FaYoutube, FaInstagram, FaLinkedin, FaFacebook, FaTiktok } from 'react-icons/fa6';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Shield,
@@ -9,6 +9,7 @@ import {
   CheckCircle2,
   Music2,
   Globe,
+  Loader2,
   MapPin,
   ChevronDown,
   Lightbulb,
@@ -31,6 +32,9 @@ import { useProfile } from '@/src/shared/context/ProfileContext';
 import { cn } from '@/src/shared/utils/cn';
 import { useApiClient } from '@/src/api/apiClient';
 import { userApi } from '@/src/api/userApi';
+import { socialApi } from '../../../api/socialApi';
+import type { SocialConnection } from '../../../api/socialApi';
+import { toast } from 'react-hot-toast';
 
 /* ─── Types ─── */
 interface TagItem {
@@ -231,9 +235,6 @@ function PlatformButton({
   );
 }
 
-/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-   ██  MAIN COMPONENT
-   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 
 export default function CompleteProfilePage({ isInsideDashboard = false }: { isInsideDashboard?: boolean }) {
   console.log("[CompleteProfilePage] Initializing component state...");
@@ -251,6 +252,42 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
       setProfilePicture(clerkUser.imageUrl || '');
     }
   }, [clerkUser]);
+
+  const [socialConnections, setSocialConnections] = useState<SocialConnection[]>([]);
+  const [isSocialLoading, setIsSocialLoading] = useState(true);
+
+  const fetchSocialConnections = async () => {
+    try {
+      const res = await socialApi.getConnections(api);
+      if (res.success) {
+        setSocialConnections(res.data);
+      }
+    } catch (err) {
+      console.error('Failed to fetch social connections:', err);
+    } finally {
+      setIsSocialLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchSocialConnections();
+
+    // Handle OAuth callback status
+    const params = new URLSearchParams(location.search);
+    const status = params.get('status');
+    const platform = params.get('platform');
+    const message = params.get('message');
+
+    if (status === 'success') {
+      toast.success(`Successfully connected to ${platform}`);
+      // Clean up URL
+      navigate(location.pathname, { replace: true });
+      fetchSocialConnections();
+    } else if (status === 'error') {
+      toast.error(message || 'Failed to connect');
+      navigate(location.pathname, { replace: true });
+    }
+  }, [location.search]);
 
   const isBusiness =
     location.pathname.includes('/business') || userRole === 'business_owner';
@@ -516,9 +553,6 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
     }
   };
 
-  /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-     ██  RENDER
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 
   // ── Success overlay ──
   if (submitted) {
@@ -594,840 +628,900 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
 
       {/* ── Main Form ── */}
       <div className="max-w-[620px] mx-auto px-4 pb-32 space-y-6">
-          {/* ━━ SHARED: PERSONAL INFORMATION ━━ */}
-          <SectionCard icon={<Users size={20} />} title="Personal Information">
-            <div className="flex flex-col items-center mb-8">
-              <div className="relative group">
-                <div className="w-24 h-24 rounded-full border-4 border-emerald-500/20 overflow-hidden bg-gray-100 dark:bg-white/5 shadow-xl">
-                  <img
-                    src={profilePicture || `https://ui-avatars.com/api/?name=${firstName}+${lastName}&background=10b981&color=fff`}
-                    alt="Profile"
-                    className="w-full h-full object-cover"
+        {/* ━━ SHARED: PERSONAL INFORMATION ━━ */}
+        <SectionCard icon={<Users size={20} />} title="Personal Information">
+          <div className="flex flex-col items-center mb-8">
+            <div className="relative group">
+              <div className="w-24 h-24 rounded-full border-4 border-emerald-500/20 overflow-hidden bg-gray-100 dark:bg-white/5 shadow-xl">
+                <img
+                  src={profilePicture || `https://ui-avatars.com/api/?name=${firstName}+${lastName}&background=10b981&color=fff`}
+                  alt="Profile"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <label className="absolute inset-0 flex items-center justify-center bg-black/40 text-white rounded-full opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity">
+                <Camera size={24} />
+                <input
+                  type="file"
+                  className="hidden"
+                  accept="image/*"
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    setIsUploading(true);
+                    try {
+                      const formData = new FormData();
+                      formData.append('image', file);
+                      const res = await api.post('/users/profile/picture?type=avatar', formData, {
+                        headers: { 'Content-Type': 'multipart/form-data' }
+                      });
+                      setProfilePicture(res.data.user.profilePicture);
+                    } catch (err) {
+                      console.error('Upload failed:', err);
+                    } finally {
+                      setIsUploading(false);
+                    }
+                  }}
+                />
+              </label>
+              {isUploading && (
+                <div className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full">
+                  <div className="w-8 h-8 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                </div>
+              )}
+            </div>
+            <p className="mt-3 text-xs font-bold text-gray-500 uppercase tracking-wider">Profile Picture</p>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4 mb-4">
+            <InputField label="First Name" value={firstName} onChange={setFirstName} placeholder="John" />
+            <InputField label="Last Name" value={lastName} onChange={setLastName} placeholder="Doe" />
+          </div>
+          <InputField label="Phone (Optional)" value={phone} onChange={setPhone} placeholder="+251 ..." icon={<CheckCircle2 size={16} className="opacity-0" />} />
+        </SectionCard>
+
+        {/* Social Connections Section */}
+        <SectionCard icon={<Sparkles size={20} />} title="Social Connections">
+          <p className="text-xs text-gray-500 dark:text-gray-400 -mt-4 mb-6">
+            Connect your social media accounts to sync metrics and verify your presence.
+          </p>
+          <div className="space-y-4">
+            {[
+              { id: 'tiktok', name: 'TikTok', icon: <FaTiktok />, color: 'text-black dark:text-white' },
+              { id: 'instagram', name: 'Instagram', icon: <FaInstagram />, color: 'text-pink-600' },
+              { id: 'facebook', name: 'Facebook', icon: <FaFacebook />, color: 'text-blue-600' },
+            ].map((platform) => {
+              const conn = socialConnections.find(c => c.platform === platform.id);
+              const isConnected = !!conn;
+              const status = conn?.status || 'none';
+
+              return (
+                <div key={platform.id} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-white/5 rounded-2xl border border-gray-100 dark:border-white/5">
+                  <div className="flex items-center gap-3">
+                    <div className={cn("p-2.5 rounded-xl bg-white dark:bg-white/5 shadow-sm", platform.color)}>
+                      {platform.icon}
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold text-gray-900 dark:text-white">{platform.name}</p>
+                      <p className="text-[10px] text-gray-500 uppercase tracking-wider font-bold">
+                        {status === 'none' ? 'Not Connected' : status === 'pending' ? 'Pending Approval' : 'Verified'}
+                      </p>
+                    </div>
+                  </div>
+                  {status === 'approved' ? (
+                    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 text-xs font-bold">
+                      <CheckCircle2 size={14} /> Approved
+                    </div>
+                  ) : status === 'pending' ? (
+                    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-50 dark:bg-amber-500/10 text-amber-600 text-xs font-bold">
+                      <Loader2 size={14} className="animate-spin" /> Pending
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        try {
+                          const res = await socialApi.initiateAuth(api, platform.id, location.pathname);
+                          if (res.success && res.data?.authUrl) {
+                            window.location.href = res.data.authUrl;
+                          }
+                        } catch (err) {
+                          toast.error(`Failed to connect ${platform.name}`);
+                        }
+                      }}
+                      className="px-4 py-2 rounded-xl bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-xs font-bold hover:opacity-90 transition-opacity"
+                    >
+                      Connect
+                    </button>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </SectionCard>
+
+        {isBusiness ? (
+          /* ━━ BUSINESS PROFILE ━━ */
+          <>
+            {/* Business Information */}
+            <SectionCard
+              icon={<Building2 size={20} />}
+              title="Business Information"
+            >
+              <p className="text-xs text-gray-500 dark:text-gray-400 -mt-4 mb-6">
+                The core details that define your brand identity.
+              </p>
+
+              <div className="space-y-5">
+                <InputField
+                  label="Business Name"
+                  placeholder="e.g. Verdant Ventures"
+                  value={businessName}
+                  onChange={setBusinessName}
+                />
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                  <SelectField
+                    label="Business Type"
+                    value={businessType}
+                    onChange={setBusinessType}
+                    options={businessTypes}
+                  />
+                  <SelectField
+                    label="Category / Industry"
+                    value={industry}
+                    onChange={setIndustry}
+                    options={industries}
                   />
                 </div>
-                <label className="absolute inset-0 flex items-center justify-center bg-black/40 text-white rounded-full opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity">
-                  <Camera size={24} />
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                  <InputField
+                    label="Location"
+                    placeholder="City, Country"
+                    value={businessLocation}
+                    onChange={setBusinessLocation}
+                    icon={<MapPin size={16} />}
+                  />
+                  <InputField
+                    label="Opening Hours"
+                    placeholder="e.g. Mon-Fri 9AM-5PM"
+                    value={openingHours}
+                    onChange={setOpeningHours}
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                  <InputField
+                    label="Website URL"
+                    placeholder="www.yourbrand.com"
+                    value={websiteUrl}
+                    onChange={setWebsiteUrl}
+                    prefix="https://"
+                  />
+                  <SelectField
+                    label="Price Range"
+                    value={priceRange}
+                    onChange={setPriceRange}
+                    options={priceRanges}
+                  />
+                </div>
+
+                <InputField
+                  label="Services or Products Offered"
+                  placeholder="e.g. Organic Coffee, Vegan Pastries"
+                  value={servicesOffered}
+                  onChange={setServicesOffered}
+                />
+
+                {/* Company Size */}
+                <div className="space-y-2">
+                  <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">
+                    Company Size
+                  </label>
+                  <div className="flex gap-2 flex-wrap">
+                    {companySizes.map((size) => (
+                      <TagPill
+                        key={size}
+                        label={size}
+                        selected={companySize === size}
+                        onClick={() => setCompanySize(size)}
+                      />
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </SectionCard>
+
+            {/* Promotion Needs */}
+            <SectionCard
+              icon={<BarChart3 size={20} />}
+              title="Promotion Needs"
+            >
+              <div className="space-y-6">
+                <div className="space-y-3">
+                  <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">
+                    Primary Goals
+                  </label>
+                  <div className="flex flex-wrap gap-2">
+                    {businessGoals.map((goal) => (
+                      <TagPill
+                        key={goal}
+                        label={goal}
+                        selected={promotionGoals.includes(goal)}
+                        onClick={() =>
+                          setPromotionGoals(prev =>
+                            prev.includes(goal) ? prev.filter(g => g !== goal) : [...prev, goal]
+                          )
+                        }
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">
+                    Preferred Promotion Types
+                  </label>
+                  <div className="flex flex-wrap gap-2">
+                    {promotionTypes.map((type) => (
+                      <TagPill
+                        key={type}
+                        label={type}
+                        selected={preferredPromotionTypes.includes(type)}
+                        onClick={() =>
+                          setPreferredPromotionTypes(prev =>
+                            prev.includes(type) ? prev.filter(t => t !== type) : [...prev, type]
+                          )
+                        }
+                      />
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </SectionCard>
+
+            {/* Collaboration Preferences */}
+            <SectionCard
+              icon={<Target size={20} />}
+              title="Collaboration Preferences"
+            >
+              <div className="space-y-6">
+                <div className="space-y-3">
+                  <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">
+                    Who are you looking for?
+                  </label>
+                  <div className="flex flex-wrap gap-2">
+                    {promoterTypes.map((type) => (
+                      <TagPill
+                        key={type}
+                        label={type}
+                        selected={preferredPromoterTypes.includes(type)}
+                        onClick={() =>
+                          setPreferredPromoterTypes(prev =>
+                            prev.includes(type) ? prev.filter(t => t !== type) : [...prev, type]
+                          )
+                        }
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                <InputField
+                  label="Number of Promoters Needed"
+                  placeholder="e.g. 5-10"
+                  value={promotersNeededCount}
+                  onChange={setPromotersNeededCount}
+                />
+              </div>
+            </SectionCard>
+
+            {/* Trade License Verification */}
+            <SectionCard
+              icon={<ShieldCheck size={20} />}
+              title="Trade License Verification"
+            >
+              <p className="text-xs text-gray-500 dark:text-gray-400 -mt-4 mb-6">
+                Please upload a clear copy of your business trade license for verification purposes.
+              </p>
+
+              <div className="space-y-4">
+                <div
+                  className={cn(
+                    "relative border-2 border-dashed rounded-2xl p-8 flex flex-col items-center justify-center transition-all cursor-pointer",
+                    tradeLicenseUrl
+                      ? "border-emerald-500 bg-emerald-50/50 dark:bg-emerald-500/5"
+                      : "border-gray-200 dark:border-white/10 hover:border-emerald-400 bg-gray-50 dark:bg-white/5"
+                  )}
+                >
                   <input
                     type="file"
-                    className="hidden"
-                    accept="image/*"
+                    className="absolute inset-0 opacity-0 cursor-pointer"
+                    accept="image/*,application/pdf"
                     onChange={async (e) => {
                       const file = e.target.files?.[0];
                       if (!file) return;
-                      setIsUploading(true);
+                      setIsUploadingLicense(true);
                       try {
                         const formData = new FormData();
                         formData.append('image', file);
-                        const res = await api.post('/users/profile/picture?type=avatar', formData, {
+                        const res = await api.post('/users/profile/picture?type=license', formData, {
                           headers: { 'Content-Type': 'multipart/form-data' }
                         });
-                        setProfilePicture(res.data.user.profilePicture);
+                        setTradeLicenseUrl(res.data.user.tradeLicenseUrl);
                       } catch (err) {
-                        console.error('Upload failed:', err);
+                        console.error('License upload failed:', err);
                       } finally {
-                        setIsUploading(false);
+                        setIsUploadingLicense(false);
                       }
                     }}
                   />
-                </label>
-                {isUploading && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full">
-                    <div className="w-8 h-8 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  </div>
-                )}
+
+                  {isUploadingLicense ? (
+                    <div className="flex flex-col items-center gap-3">
+                      <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
+                      <span className="text-xs font-bold text-emerald-600">Uploading License...</span>
+                    </div>
+                  ) : tradeLicenseUrl ? (
+                    <div className="flex flex-col items-center gap-3">
+                      <div className="w-12 h-12 bg-emerald-500 rounded-xl flex items-center justify-center text-white">
+                        <CheckCircle2 size={24} />
+                      </div>
+                      <div className="text-center">
+                        <p className="text-sm font-bold text-gray-900 dark:text-white">License Uploaded</p>
+                        <p className="text-[10px] text-emerald-600 font-medium">Click to replace file</p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center gap-3">
+                      <div className="w-12 h-12 bg-white dark:bg-white/5 rounded-xl border border-gray-200 dark:border-white/10 flex items-center justify-center text-gray-400">
+                        <Plus size={24} />
+                      </div>
+                      <div className="text-center">
+                        <p className="text-sm font-bold text-gray-900 dark:text-white">Click to upload Trade License</p>
+                        <p className="text-[10px] text-gray-500">Supports JPG, PNG or PDF (Max 5MB)</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
-              <p className="mt-3 text-xs font-bold text-gray-500 uppercase tracking-wider">Profile Picture</p>
-            </div>
+            </SectionCard>
 
-            <div className="grid grid-cols-2 gap-4 mb-4">
-              <InputField label="First Name" value={firstName} onChange={setFirstName} placeholder="John" />
-              <InputField label="Last Name" value={lastName} onChange={setLastName} placeholder="Doe" />
-            </div>
-            <InputField label="Phone (Optional)" value={phone} onChange={setPhone} placeholder="+251 ..." icon={<CheckCircle2 size={16} className="opacity-0" />} />
-          </SectionCard>
+            {/* Campaign Preferences */}
+            <SectionCard
+              icon={<Target size={20} />}
+              title="Campaign Preferences"
+            >
+              <p className="text-xs text-gray-500 dark:text-gray-400 -mt-4 mb-6">
+                Define your target audience and engagement channels.
+              </p>
 
-          {isBusiness ? (
-            /* ━━ BUSINESS PROFILE ━━ */
-            <>
-              {/* Business Information */}
-              <SectionCard
-                icon={<Building2 size={20} />}
-                title="Business Information"
-              >
-                <p className="text-xs text-gray-500 dark:text-gray-400 -mt-4 mb-6">
-                  The core details that define your brand identity.
-                </p>
-
-                <div className="space-y-5">
-                  <InputField
-                    label="Business Name"
-                    placeholder="e.g. Verdant Ventures"
-                    value={businessName}
-                    onChange={setBusinessName}
-                  />
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                    <SelectField
-                      label="Business Type"
-                      value={businessType}
-                      onChange={setBusinessType}
-                      options={businessTypes}
-                    />
-                    <SelectField
-                      label="Category / Industry"
-                      value={industry}
-                      onChange={setIndustry}
-                      options={industries}
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                    <InputField
-                      label="Location"
-                      placeholder="City, Country"
-                      value={businessLocation}
-                      onChange={setBusinessLocation}
-                      icon={<MapPin size={16} />}
-                    />
-                    <InputField
-                      label="Opening Hours"
-                      placeholder="e.g. Mon-Fri 9AM-5PM"
-                      value={openingHours}
-                      onChange={setOpeningHours}
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                    <InputField
-                      label="Website URL"
-                      placeholder="www.yourbrand.com"
-                      value={websiteUrl}
-                      onChange={setWebsiteUrl}
-                      prefix="https://"
-                    />
-                    <SelectField
-                      label="Price Range"
-                      value={priceRange}
-                      onChange={setPriceRange}
-                      options={priceRanges}
-                    />
-                  </div>
-
-                  <InputField
-                    label="Services or Products Offered"
-                    placeholder="e.g. Organic Coffee, Vegan Pastries"
-                    value={servicesOffered}
-                    onChange={setServicesOffered}
-                  />
-
-                  {/* Company Size */}
-                  <div className="space-y-2">
-                    <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">
-                      Company Size
-                    </label>
-                    <div className="flex gap-2 flex-wrap">
-                      {companySizes.map((size) => (
-                        <TagPill
-                          key={size}
-                          label={size}
-                          selected={companySize === size}
-                          onClick={() => setCompanySize(size)}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </SectionCard>
- 
-              {/* Promotion Needs */}
-              <SectionCard
-                icon={<BarChart3 size={20} />}
-                title="Promotion Needs"
-              >
-                <div className="space-y-6">
-                  <div className="space-y-3">
-                    <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">
-                      Primary Goals
-                    </label>
-                    <div className="flex flex-wrap gap-2">
-                      {businessGoals.map((goal) => (
-                        <TagPill
-                          key={goal}
-                          label={goal}
-                          selected={promotionGoals.includes(goal)}
-                          onClick={() => 
-                            setPromotionGoals(prev => 
-                              prev.includes(goal) ? prev.filter(g => g !== goal) : [...prev, goal]
-                            )
-                          }
-                        />
-                      ))}
-                    </div>
-                  </div>
- 
-                  <div className="space-y-3">
-                    <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">
-                      Preferred Promotion Types
-                    </label>
-                    <div className="flex flex-wrap gap-2">
-                      {promotionTypes.map((type) => (
-                        <TagPill
-                          key={type}
-                          label={type}
-                          selected={preferredPromotionTypes.includes(type)}
-                          onClick={() => 
-                            setPreferredPromotionTypes(prev => 
-                              prev.includes(type) ? prev.filter(t => t !== type) : [...prev, type]
-                            )
-                          }
-                        />
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </SectionCard>
- 
-              {/* Collaboration Preferences */}
-              <SectionCard
-                icon={<Target size={20} />}
-                title="Collaboration Preferences"
-              >
-                <div className="space-y-6">
-                  <div className="space-y-3">
-                    <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">
-                      Who are you looking for?
-                    </label>
-                    <div className="flex flex-wrap gap-2">
-                      {promoterTypes.map((type) => (
-                        <TagPill
-                          key={type}
-                          label={type}
-                          selected={preferredPromoterTypes.includes(type)}
-                          onClick={() => 
-                            setPreferredPromoterTypes(prev => 
-                              prev.includes(type) ? prev.filter(t => t !== type) : [...prev, type]
-                            )
-                          }
-                        />
-                      ))}
-                    </div>
-                  </div>
- 
-                  <InputField
-                    label="Number of Promoters Needed"
-                    placeholder="e.g. 5-10"
-                    value={promotersNeededCount}
-                    onChange={setPromotersNeededCount}
-                  />
-                </div>
-              </SectionCard>
- 
-              {/* Trade License Verification */}
-              <SectionCard
-                icon={<ShieldCheck size={20} />}
-                title="Trade License Verification"
-              >
-                <p className="text-xs text-gray-500 dark:text-gray-400 -mt-4 mb-6">
-                  Please upload a clear copy of your business trade license for verification purposes.
-                </p>
-                
-                <div className="space-y-4">
-                   <div 
-                    className={cn(
-                      "relative border-2 border-dashed rounded-2xl p-8 flex flex-col items-center justify-center transition-all cursor-pointer",
-                      tradeLicenseUrl 
-                        ? "border-emerald-500 bg-emerald-50/50 dark:bg-emerald-500/5" 
-                        : "border-gray-200 dark:border-white/10 hover:border-emerald-400 bg-gray-50 dark:bg-white/5"
-                    )}
-                  >
-                    <input
-                      type="file"
-                      className="absolute inset-0 opacity-0 cursor-pointer"
-                      accept="image/*,application/pdf"
-                      onChange={async (e) => {
-                        const file = e.target.files?.[0];
-                        if (!file) return;
-                        setIsUploadingLicense(true);
-                        try {
-                          const formData = new FormData();
-                          formData.append('image', file);
-                          const res = await api.post('/users/profile/picture?type=license', formData, {
-                            headers: { 'Content-Type': 'multipart/form-data' }
-                          });
-                          setTradeLicenseUrl(res.data.user.tradeLicenseUrl);
-                        } catch (err) {
-                          console.error('License upload failed:', err);
-                        } finally {
-                          setIsUploadingLicense(false);
-                        }
-                      }}
-                    />
-                    
-                    {isUploadingLicense ? (
-                      <div className="flex flex-col items-center gap-3">
-                        <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
-                        <span className="text-xs font-bold text-emerald-600">Uploading License...</span>
-                      </div>
-                    ) : tradeLicenseUrl ? (
-                      <div className="flex flex-col items-center gap-3">
-                        <div className="w-12 h-12 bg-emerald-500 rounded-xl flex items-center justify-center text-white">
-                          <CheckCircle2 size={24} />
-                        </div>
-                        <div className="text-center">
-                          <p className="text-sm font-bold text-gray-900 dark:text-white">License Uploaded</p>
-                          <p className="text-[10px] text-emerald-600 font-medium">Click to replace file</p>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="flex flex-col items-center gap-3">
-                        <div className="w-12 h-12 bg-white dark:bg-white/5 rounded-xl border border-gray-200 dark:border-white/10 flex items-center justify-center text-gray-400">
-                          <Plus size={24} />
-                        </div>
-                        <div className="text-center">
-                          <p className="text-sm font-bold text-gray-900 dark:text-white">Click to upload Trade License</p>
-                          <p className="text-[10px] text-gray-500">Supports JPG, PNG or PDF (Max 5MB)</p>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </SectionCard>
-
-              {/* Campaign Preferences */}
-              <SectionCard
-                icon={<Target size={20} />}
-                title="Campaign Preferences"
-              >
-                <p className="text-xs text-gray-500 dark:text-gray-400 -mt-4 mb-6">
-                  Define your target audience and engagement channels.
-                </p>
-
-                <div className="space-y-6">
-                  {/* Target Audience Tags */}
-                  <div className="space-y-2">
-                    <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">
-                      Target Audience
-                    </label>
-                    <div className="flex flex-wrap gap-2 items-center">
-                      {targetAudienceTags.map((tag) => (
-                        <RemovableTag
-                          key={tag.label}
-                          label={tag.label}
-                          onRemove={() =>
-                            setTargetAudienceTags((prev) =>
-                              prev.filter((t) => t.label !== tag.label)
-                            )
-                          }
-                        />
-                      ))}
-                      {showAudienceInput ? (
-                        <div className="flex items-center gap-2">
-                          <input
-                            autoFocus
-                            value={newAudienceTag}
-                            onChange={(e) => setNewAudienceTag(e.target.value)}
-                            onKeyDown={(e) =>
-                              e.key === 'Enter' && addAudienceTag()
-                            }
-                            placeholder="Add tag"
-                            className="w-28 bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:border-emerald-500 text-gray-900 dark:text-white"
-                          />
-                          <button
-                            onClick={addAudienceTag}
-                            className="text-emerald-500 hover:text-emerald-400 transition-colors"
-                          >
-                            <CheckCircle2 size={18} />
-                          </button>
-                          <button
-                            onClick={() => setShowAudienceInput(false)}
-                            className="text-gray-400 hover:text-gray-600 transition-colors"
-                          >
-                            <X size={16} />
-                          </button>
-                        </div>
-                      ) : (
-                        <button
-                          onClick={() => setShowAudienceInput(true)}
-                          className="flex items-center gap-1 px-3 py-1.5 border border-dashed border-gray-300 dark:border-white/15 rounded-full text-xs font-semibold text-gray-500 dark:text-gray-400 hover:border-emerald-400 hover:text-emerald-500 transition-all"
-                        >
-                          <Plus size={14} /> Add Tag
-                        </button>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Monthly Budget Slider */}
-                  <div className="bg-gray-50 dark:bg-black/30 rounded-2xl p-5 border border-gray-100 dark:border-white/5">
-                    <div className="flex items-center justify-between mb-4">
-                      <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">
-                        Monthly Budget
-                      </label>
-                      <span className="text-2xl font-black text-emerald-600 dark:text-emerald-400">
-                        ${monthlyBudget.toLocaleString()}
-                      </span>
-                    </div>
-                    <input
-                      type="range"
-                      min={100}
-                      max={20000}
-                      step={100}
-                      value={monthlyBudget}
-                      onChange={(e) =>
-                        setMonthlyBudget(Number(e.target.value))
-                      }
-                      className="w-full h-2 bg-gray-200 dark:bg-white/10 rounded-full appearance-none cursor-pointer accent-emerald-500 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-emerald-500 [&::-webkit-slider-thumb]:shadow-lg [&::-webkit-slider-thumb]:shadow-emerald-500/30 [&::-webkit-slider-thumb]:cursor-pointer"
-                    />
-                    <div className="flex justify-between mt-2 text-[10px] text-gray-400">
-                      <span>$100</span>
-                      <span>$20,000</span>
-                    </div>
-                  </div>
-
-                  {/* Primary Platforms */}
-                  <div className="space-y-3">
-                    <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">
-                      Primary Platforms
-                    </label>
-                    <div className="grid grid-cols-3 gap-3">
-                      {platformOptions.map((platform) => {
-                        const isSelected =
-                          selectedPlatforms.includes(platform);
-                        const Icon =
-                          platform === 'Instagram'
-                            ? FaInstagram
-                            : platform === 'TikTok'
-                              ? Music2
-                              : FaLinkedin;
-                        return (
-                          <button
-                            key={platform}
-                            type="button"
-                            onClick={() => togglePlatform(platform)}
-                            className={cn(
-                              'flex items-center gap-2 px-4 py-3 rounded-xl border text-sm font-semibold transition-all',
-                              isSelected
-                                ? 'bg-emerald-50 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/30 text-gray-900 dark:text-white'
-                                : 'bg-white dark:bg-black/40 border-gray-200 dark:border-white/10 text-gray-500 dark:text-gray-400 hover:border-emerald-300'
-                            )}
-                          >
-                            {isSelected && (
-                              <CheckCircle2
-                                size={16}
-                                className="text-emerald-500"
-                              />
-                            )}
-                            {!isSelected && (
-                              <div className="w-4 h-4 rounded-full border-2 border-gray-300 dark:border-white/20" />
-                            )}
-                            <Icon size={16} />
-                            {platform}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                </div>
-              </SectionCard>
-
-              {/* About the Brand */}
-              <SectionCard
-                icon={<Palette size={20} />}
-                title="About the Brand"
-              >
-                <p className="text-xs text-gray-500 dark:text-gray-400 -mt-4 mb-6">
-                  Share your mission and brand narrative.
-                </p>
+              <div className="space-y-6">
+                {/* Target Audience Tags */}
                 <div className="space-y-2">
                   <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">
-                    Brand Description
+                    Target Audience
                   </label>
-                  <div className="relative">
-                    <textarea
-                      rows={5}
-                      value={brandDescription}
-                      onChange={(e) => setBrandDescription(e.target.value)}
-                      placeholder="Tell us your story..."
-                      maxLength={500}
-                      className="w-full bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl p-4 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30 transition-all resize-none"
-                    />
-                    <span className="absolute bottom-3 right-3 text-[10px] text-gray-400">
-                      {brandDescription.length} / 500 characters
+                  <div className="flex flex-wrap gap-2 items-center">
+                    {targetAudienceTags.map((tag) => (
+                      <RemovableTag
+                        key={tag.label}
+                        label={tag.label}
+                        onRemove={() =>
+                          setTargetAudienceTags((prev) =>
+                            prev.filter((t) => t.label !== tag.label)
+                          )
+                        }
+                      />
+                    ))}
+                    {showAudienceInput ? (
+                      <div className="flex items-center gap-2">
+                        <input
+                          autoFocus
+                          value={newAudienceTag}
+                          onChange={(e) => setNewAudienceTag(e.target.value)}
+                          onKeyDown={(e) =>
+                            e.key === 'Enter' && addAudienceTag()
+                          }
+                          placeholder="Add tag"
+                          className="w-28 bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:border-emerald-500 text-gray-900 dark:text-white"
+                        />
+                        <button
+                          onClick={addAudienceTag}
+                          className="text-emerald-500 hover:text-emerald-400 transition-colors"
+                        >
+                          <CheckCircle2 size={18} />
+                        </button>
+                        <button
+                          onClick={() => setShowAudienceInput(false)}
+                          className="text-gray-400 hover:text-gray-600 transition-colors"
+                        >
+                          <X size={16} />
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => setShowAudienceInput(true)}
+                        className="flex items-center gap-1 px-3 py-1.5 border border-dashed border-gray-300 dark:border-white/15 rounded-full text-xs font-semibold text-gray-500 dark:text-gray-400 hover:border-emerald-400 hover:text-emerald-500 transition-all"
+                      >
+                        <Plus size={14} /> Add Tag
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                {/* Monthly Budget Slider */}
+                <div className="bg-gray-50 dark:bg-black/30 rounded-2xl p-5 border border-gray-100 dark:border-white/5">
+                  <div className="flex items-center justify-between mb-4">
+                    <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">
+                      Monthly Budget
+                    </label>
+                    <span className="text-2xl font-black text-emerald-600 dark:text-emerald-400">
+                      ${monthlyBudget.toLocaleString()}
                     </span>
                   </div>
+                  <input
+                    type="range"
+                    min={100}
+                    max={20000}
+                    step={100}
+                    value={monthlyBudget}
+                    onChange={(e) =>
+                      setMonthlyBudget(Number(e.target.value))
+                    }
+                    className="w-full h-2 bg-gray-200 dark:bg-white/10 rounded-full appearance-none cursor-pointer accent-emerald-500 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-emerald-500 [&::-webkit-slider-thumb]:shadow-lg [&::-webkit-slider-thumb]:shadow-emerald-500/30 [&::-webkit-slider-thumb]:cursor-pointer"
+                  />
+                  <div className="flex justify-between mt-2 text-[10px] text-gray-400">
+                    <span>$100</span>
+                    <span>$20,000</span>
+                  </div>
                 </div>
-              </SectionCard>
-            </>
-          ) : (
-            /* ━━ ADVERTISER (CREATOR) PROFILE ━━ */
-            <>
 
-              {/* Social Media Details */}
-              <SectionCard
-                icon={<Sparkles size={20} />}
-                title="Social Media Details"
-              >
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-                  <div className="space-y-2">
-                    <PlatformButton
-                      icon={
-                        <FaYoutube
-                          size={18}
-                          className="text-red-500"
-                        />
-                      }
-                      label="YouTube"
-                      connected={youtubeConnected}
-                      onClick={() =>
-                        setYoutubeConnected(!youtubeConnected)
-                      }
-                    />
-                    <input
-                      value={youtubeHandle}
-                      onChange={(e) => setYoutubeHandle(e.target.value)}
-                      placeholder="@youtube_handle"
-                      className="w-full bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-emerald-500 transition-all"
-                    />
+                {/* Primary Platforms */}
+                <div className="space-y-3">
+                  <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">
+                    Primary Platforms
+                  </label>
+                  <div className="grid grid-cols-3 gap-3">
+                    {platformOptions.map((platform) => {
+                      const isSelected =
+                        selectedPlatforms.includes(platform);
+                      const Icon =
+                        platform === 'Instagram'
+                          ? FaInstagram
+                          : platform === 'TikTok'
+                            ? Music2
+                            : FaLinkedin;
+                      return (
+                        <button
+                          key={platform}
+                          type="button"
+                          onClick={() => togglePlatform(platform)}
+                          className={cn(
+                            'flex items-center gap-2 px-4 py-3 rounded-xl border text-sm font-semibold transition-all',
+                            isSelected
+                              ? 'bg-emerald-50 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/30 text-gray-900 dark:text-white'
+                              : 'bg-white dark:bg-black/40 border-gray-200 dark:border-white/10 text-gray-500 dark:text-gray-400 hover:border-emerald-300'
+                          )}
+                        >
+                          {isSelected && (
+                            <CheckCircle2
+                              size={16}
+                              className="text-emerald-500"
+                            />
+                          )}
+                          {!isSelected && (
+                            <div className="w-4 h-4 rounded-full border-2 border-gray-300 dark:border-white/20" />
+                          )}
+                          <Icon size={16} />
+                          {platform}
+                        </button>
+                      );
+                    })}
                   </div>
-                  <div className="space-y-2">
-                    <PlatformButton
-                      icon={
-                        <Music2
-                          size={18}
-                          className="text-gray-900 dark:text-white"
-                        />
-                      }
-                      label="TikTok"
-                      connected={tiktokConnected}
-                      onClick={() =>
-                        setTiktokConnected(!tiktokConnected)
-                      }
-                    />
-                    <input
-                      value={tiktokHandle}
-                      onChange={(e) => setTiktokHandle(e.target.value)}
-                      placeholder="@tiktok_handle"
-                      className="w-full bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-emerald-500 transition-all"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <PlatformButton
-                      icon={
-                        <FaInstagram
-                          size={18}
-                          className="text-pink-500"
-                        />
-                      }
-                      label="Instagram"
-                      connected={instagramConnected}
-                      onClick={() =>
-                        setInstagramConnected(!instagramConnected)
-                      }
-                    />
-                    <input
-                      value={instagramHandle}
-                      onChange={(e) => setInstagramHandle(e.target.value)}
-                      placeholder="@instagram_handle"
-                      className="w-full bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-emerald-500 transition-all"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <PlatformButton
-                      icon={
-                        <svg viewBox="0 0 24 24" aria-hidden="true" className="w-[18px] h-[18px] fill-current text-gray-900 dark:text-white">
-                          <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path>
-                        </svg>
-                      }
-                      label="X (Twitter)"
-                      connected={xConnected}
-                      onClick={() =>
-                        setXConnected(!xConnected)
-                      }
-                    />
-                    <input
-                      value={xHandle}
-                      onChange={(e) => setXHandle(e.target.value)}
-                      placeholder="@x_handle"
-                      className="w-full bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-emerald-500 transition-all"
-                    />
-                  </div>
-
                 </div>
-              </SectionCard>
+              </div>
+            </SectionCard>
 
-              {/* Audience Metrics */}
-              <SectionCard
-                icon={<BarChart3 size={20} />}
-                title="Audience Metrics"
-              >
-                <div className="space-y-6">
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <InputField
-                      label="Followers"
-                      placeholder="e.g. 1.2M"
-                      value={followers}
-                      onChange={setFollowers}
-                    />
-                    <InputField
-                      label="Avg. Views"
-                      placeholder="e.g. 450k"
-                      value={avgViews}
-                      onChange={setAvgViews}
-                    />
-                    <InputField
-                      label="Engagement %"
-                      placeholder="e.g. 4.2%"
-                      value={engagementRate}
-                      onChange={setEngagementRate}
-                    />
-                  </div>
+            {/* About the Brand */}
+            <SectionCard
+              icon={<Palette size={20} />}
+              title="About the Brand"
+            >
+              <p className="text-xs text-gray-500 dark:text-gray-400 -mt-4 mb-6">
+                Share your mission and brand narrative.
+              </p>
+              <div className="space-y-2">
+                <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">
+                  Brand Description
+                </label>
+                <div className="relative">
+                  <textarea
+                    rows={5}
+                    value={brandDescription}
+                    onChange={(e) => setBrandDescription(e.target.value)}
+                    placeholder="Tell us your story..."
+                    maxLength={500}
+                    className="w-full bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl p-4 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30 transition-all resize-none"
+                  />
+                  <span className="absolute bottom-3 right-3 text-[10px] text-gray-400">
+                    {brandDescription.length} / 500 characters
+                  </span>
+                </div>
+              </div>
+            </SectionCard>
+          </>
+        ) : (
+          /* ━━ ADVERTISER (CREATOR) PROFILE ━━ */
+          <>
 
-                  {/* Geographies */}
-                  <div className="space-y-2">
-                    <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">
-                      Top Audience Geographies
-                    </label>
-                    <div className="flex flex-wrap gap-2 items-center">
-                      {geoTags.map((tag) => (
-                        <RemovableTag
-                          key={tag.label}
-                          label={tag.label}
-                          onRemove={() =>
-                            setGeoTags((prev) =>
-                              prev.filter((t) => t.label !== tag.label)
-                            )
+            {/* Social Media Details */}
+            <SectionCard
+              icon={<Sparkles size={20} />}
+              title="Social Media Details"
+            >
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                <div className="space-y-2">
+                  <PlatformButton
+                    icon={
+                      <FaYoutube
+                        size={18}
+                        className="text-red-500"
+                      />
+                    }
+                    label="YouTube"
+                    connected={youtubeConnected}
+                    onClick={() =>
+                      setYoutubeConnected(!youtubeConnected)
+                    }
+                  />
+                  <input
+                    value={youtubeHandle}
+                    onChange={(e) => setYoutubeHandle(e.target.value)}
+                    placeholder="@youtube_handle"
+                    className="w-full bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-emerald-500 transition-all"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <PlatformButton
+                    icon={
+                      <Music2
+                        size={18}
+                        className="text-gray-900 dark:text-white"
+                      />
+                    }
+                    label="TikTok"
+                    connected={tiktokConnected}
+                    onClick={() =>
+                      setTiktokConnected(!tiktokConnected)
+                    }
+                  />
+                  <input
+                    value={tiktokHandle}
+                    onChange={(e) => setTiktokHandle(e.target.value)}
+                    placeholder="@tiktok_handle"
+                    className="w-full bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-emerald-500 transition-all"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <PlatformButton
+                    icon={
+                      <FaInstagram
+                        size={18}
+                        className="text-pink-500"
+                      />
+                    }
+                    label="Instagram"
+                    connected={instagramConnected}
+                    onClick={() =>
+                      setInstagramConnected(!instagramConnected)
+                    }
+                  />
+                  <input
+                    value={instagramHandle}
+                    onChange={(e) => setInstagramHandle(e.target.value)}
+                    placeholder="@instagram_handle"
+                    className="w-full bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-emerald-500 transition-all"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <PlatformButton
+                    icon={
+                      <svg viewBox="0 0 24 24" aria-hidden="true" className="w-[18px] h-[18px] fill-current text-gray-900 dark:text-white">
+                        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path>
+                      </svg>
+                    }
+                    label="X (Twitter)"
+                    connected={xConnected}
+                    onClick={() =>
+                      setXConnected(!xConnected)
+                    }
+                  />
+                  <input
+                    value={xHandle}
+                    onChange={(e) => setXHandle(e.target.value)}
+                    placeholder="@x_handle"
+                    className="w-full bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-emerald-500 transition-all"
+                  />
+                </div>
+
+              </div>
+            </SectionCard>
+
+            {/* Audience Metrics */}
+            <SectionCard
+              icon={<BarChart3 size={20} />}
+              title="Audience Metrics"
+            >
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <InputField
+                    label="Followers"
+                    placeholder="e.g. 1.2M"
+                    value={followers}
+                    onChange={setFollowers}
+                  />
+                  <InputField
+                    label="Avg. Views"
+                    placeholder="e.g. 450k"
+                    value={avgViews}
+                    onChange={setAvgViews}
+                  />
+                  <InputField
+                    label="Engagement %"
+                    placeholder="e.g. 4.2%"
+                    value={engagementRate}
+                    onChange={setEngagementRate}
+                  />
+                </div>
+
+                {/* Geographies */}
+                <div className="space-y-2">
+                  <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">
+                    Top Audience Geographies
+                  </label>
+                  <div className="flex flex-wrap gap-2 items-center">
+                    {geoTags.map((tag) => (
+                      <RemovableTag
+                        key={tag.label}
+                        label={tag.label}
+                        onRemove={() =>
+                          setGeoTags((prev) =>
+                            prev.filter((t) => t.label !== tag.label)
+                          )
+                        }
+                      />
+                    ))}
+                    {showGeoInput ? (
+                      <div className="flex items-center gap-2">
+                        <input
+                          autoFocus
+                          value={newGeo}
+                          onChange={(e) => setNewGeo(e.target.value)}
+                          onKeyDown={(e) =>
+                            e.key === 'Enter' && addGeoTag()
                           }
+                          placeholder="Country"
+                          className="w-28 bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:border-emerald-500 text-gray-900 dark:text-white"
                         />
-                      ))}
-                      {showGeoInput ? (
-                        <div className="flex items-center gap-2">
-                          <input
-                            autoFocus
-                            value={newGeo}
-                            onChange={(e) => setNewGeo(e.target.value)}
-                            onKeyDown={(e) =>
-                              e.key === 'Enter' && addGeoTag()
+                        <button
+                          onClick={addGeoTag}
+                          className="text-emerald-500 hover:text-emerald-400 transition-colors"
+                        >
+                          <CheckCircle2 size={18} />
+                        </button>
+                        <button
+                          onClick={() => setShowGeoInput(false)}
+                          className="text-gray-400 hover:text-gray-600 transition-colors"
+                        >
+                          <X size={16} />
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => setShowGeoInput(true)}
+                        className="flex items-center gap-1 px-3 py-1.5 border border-dashed border-gray-300 dark:border-white/15 rounded-full text-xs font-semibold text-gray-500 dark:text-gray-400 hover:border-emerald-400 hover:text-emerald-500 transition-all"
+                      >
+                        <Plus size={14} /> Add Country
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                {/* Age Range */}
+                <div className="space-y-2">
+                  <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">
+                    Audience Age Range
+                  </label>
+                  <div className="flex gap-2 flex-wrap">
+                    {ageRanges.map((range) => (
+                      <TagPill
+                        key={range}
+                        label={range}
+                        selected={selectedAgeRanges.includes(range)}
+                        onClick={() => toggleAgeRange(range)}
+                      />
+                    ))}
+                  </div>
+                </div>
+
+              </div>
+            </SectionCard>
+
+            {/* Work & Pricing */}
+            <SectionCard
+              icon={<Briefcase size={20} />}
+              title="Work & Pricing"
+            >
+              <div className="space-y-5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                  <InputField
+                    label="Portfolio URL"
+                    placeholder="https://youtube.com/c/creator"
+                    value={portfolioUrl}
+                    onChange={setPortfolioUrl}
+                    icon={<Globe size={16} />}
+                  />
+                  <SelectField
+                    label="Primary Language"
+                    value={primaryLanguage}
+                    onChange={setPrimaryLanguage}
+                    options={languages}
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                  <InputField
+                    label="Base Rate (USD)"
+                    placeholder="500"
+                    value={baseRate}
+                    onChange={setBaseRate}
+                    icon={<DollarSign size={16} />}
+                    type="number"
+                  />
+                  <InputField
+                    label="Bio / Pitch"
+                    placeholder="Short intro..."
+                    value={bioPitch}
+                    onChange={setBioPitch}
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                  <SelectField
+                    label="Payment Preference"
+                    value={paymentPreference}
+                    onChange={setPaymentPreference}
+                    options={['Fixed', 'Negotiable', 'Both']}
+                  />
+                  <SelectField
+                    label="Availability"
+                    value={availability}
+                    onChange={setAvailability}
+                    options={['Full-time', 'Part-time', 'Freelance']}
+                  />
+                </div>
+
+                {/* Niche */}
+                <div className="space-y-2">
+                  <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">
+                    Niche / Categories
+                  </label>
+                  <div className="flex gap-2 flex-wrap items-center">
+                    {commonNiches.map((niche) => {
+                      const isSelected = nicheTags.some(t => t.label === niche);
+                      return (
+                        <TagPill
+                          key={niche}
+                          label={niche}
+                          selected={isSelected}
+                          onClick={() => {
+                            if (isSelected) {
+                              setNicheTags(prev => prev.filter(t => t.label !== niche));
+                            } else {
+                              setNicheTags(prev => [...prev, { label: niche, removable: true }]);
                             }
-                            placeholder="Country"
-                            className="w-28 bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:border-emerald-500 text-gray-900 dark:text-white"
-                          />
-                          <button
-                            onClick={addGeoTag}
-                            className="text-emerald-500 hover:text-emerald-400 transition-colors"
-                          >
-                            <CheckCircle2 size={18} />
-                          </button>
-                          <button
-                            onClick={() => setShowGeoInput(false)}
-                            className="text-gray-400 hover:text-gray-600 transition-colors"
-                          >
-                            <X size={16} />
-                          </button>
-                        </div>
-                      ) : (
+                          }}
+                        />
+                      );
+                    })}
+                    {nicheTags.filter(t => !commonNiches.includes(t.label)).map((tag) => (
+                      <RemovableTag
+                        key={tag.label}
+                        label={tag.label}
+                        onRemove={() =>
+                          setNicheTags((prev) =>
+                            prev.filter((t) => t.label !== tag.label)
+                          )
+                        }
+                      />
+                    ))}
+                    {showNicheInput ? (
+                      <div className="flex items-center gap-2">
+                        <input
+                          autoFocus
+                          value={newNiche}
+                          onChange={(e) => setNewNiche(e.target.value)}
+                          onKeyDown={(e) => e.key === 'Enter' && addNicheTag()}
+                          placeholder="Add niche"
+                          className="w-28 bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:border-emerald-500 text-gray-900 dark:text-white"
+                        />
                         <button
-                          onClick={() => setShowGeoInput(true)}
-                          className="flex items-center gap-1 px-3 py-1.5 border border-dashed border-gray-300 dark:border-white/15 rounded-full text-xs font-semibold text-gray-500 dark:text-gray-400 hover:border-emerald-400 hover:text-emerald-500 transition-all"
+                          onClick={addNicheTag}
+                          className="text-emerald-500 hover:text-emerald-400 transition-colors"
                         >
-                          <Plus size={14} /> Add Country
+                          <CheckCircle2 size={18} />
                         </button>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Age Range */}
-                  <div className="space-y-2">
-                    <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">
-                      Audience Age Range
-                    </label>
-                    <div className="flex gap-2 flex-wrap">
-                      {ageRanges.map((range) => (
-                        <TagPill
-                          key={range}
-                          label={range}
-                          selected={selectedAgeRanges.includes(range)}
-                          onClick={() => toggleAgeRange(range)}
-                        />
-                      ))}
-                    </div>
-                  </div>
-
-                </div>
-              </SectionCard>
- 
-              {/* Work & Pricing */}
-              <SectionCard
-                icon={<Briefcase size={20} />}
-                title="Work & Pricing"
-              >
-                <div className="space-y-5">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                    <InputField
-                      label="Portfolio URL"
-                      placeholder="https://youtube.com/c/creator"
-                      value={portfolioUrl}
-                      onChange={setPortfolioUrl}
-                      icon={<Globe size={16} />}
-                    />
-                    <SelectField
-                      label="Primary Language"
-                      value={primaryLanguage}
-                      onChange={setPrimaryLanguage}
-                      options={languages}
-                    />
-                  </div>
- 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                    <InputField
-                      label="Base Rate (USD)"
-                      placeholder="500"
-                      value={baseRate}
-                      onChange={setBaseRate}
-                      icon={<DollarSign size={16} />}
-                      type="number"
-                    />
-                    <InputField
-                      label="Bio / Pitch"
-                      placeholder="Short intro..."
-                      value={bioPitch}
-                      onChange={setBioPitch}
-                    />
-                  </div>
- 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                    <SelectField
-                      label="Payment Preference"
-                      value={paymentPreference}
-                      onChange={setPaymentPreference}
-                      options={['Fixed', 'Negotiable', 'Both']}
-                    />
-                    <SelectField
-                      label="Availability"
-                      value={availability}
-                      onChange={setAvailability}
-                      options={['Full-time', 'Part-time', 'Freelance']}
-                    />
-                  </div>
- 
-                  {/* Niche */}
-                  <div className="space-y-2">
-                    <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">
-                      Niche / Categories
-                    </label>
-                    <div className="flex gap-2 flex-wrap items-center">
-                      {commonNiches.map((niche) => {
-                        const isSelected = nicheTags.some(t => t.label === niche);
-                        return (
-                          <TagPill
-                            key={niche}
-                            label={niche}
-                            selected={isSelected}
-                            onClick={() => {
-                              if (isSelected) {
-                                setNicheTags(prev => prev.filter(t => t.label !== niche));
-                              } else {
-                                setNicheTags(prev => [...prev, { label: niche, removable: true }]);
-                              }
-                            }}
-                          />
-                        );
-                      })}
-                      {nicheTags.filter(t => !commonNiches.includes(t.label)).map((tag) => (
-                        <RemovableTag
-                          key={tag.label}
-                          label={tag.label}
-                          onRemove={() =>
-                            setNicheTags((prev) =>
-                              prev.filter((t) => t.label !== tag.label)
-                            )
-                          }
-                        />
-                      ))}
-                      {showNicheInput ? (
-                        <div className="flex items-center gap-2">
-                          <input
-                            autoFocus
-                            value={newNiche}
-                            onChange={(e) => setNewNiche(e.target.value)}
-                            onKeyDown={(e) => e.key === 'Enter' && addNicheTag()}
-                            placeholder="Add niche"
-                            className="w-28 bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:border-emerald-500 text-gray-900 dark:text-white"
-                          />
-                          <button
-                            onClick={addNicheTag}
-                            className="text-emerald-500 hover:text-emerald-400 transition-colors"
-                          >
-                            <CheckCircle2 size={18} />
-                          </button>
-                          <button
-                            onClick={() => setShowNicheInput(false)}
-                            className="text-gray-400 hover:text-gray-600 transition-colors"
-                          >
-                            <X size={16} />
-                          </button>
-                        </div>
-                      ) : (
                         <button
-                          onClick={() => setShowNicheInput(true)}
-                          className="flex items-center gap-1 px-3 py-1.5 border border-dashed border-gray-300 dark:border-white/15 rounded-full text-xs font-semibold text-gray-500 dark:text-gray-400 hover:border-emerald-400 hover:text-emerald-500 transition-all"
+                          onClick={() => setShowNicheInput(false)}
+                          className="text-gray-400 hover:text-gray-600 transition-colors"
                         >
-                          <Plus size={14} /> Add Niche
+                          <X size={16} />
                         </button>
-                      )}
-                    </div>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => setShowNicheInput(true)}
+                        className="flex items-center gap-1 px-3 py-1.5 border border-dashed border-gray-300 dark:border-white/15 rounded-full text-xs font-semibold text-gray-500 dark:text-gray-400 hover:border-emerald-400 hover:text-emerald-500 transition-all"
+                      >
+                        <Plus size={14} /> Add Niche
+                      </button>
+                    )}
                   </div>
                 </div>
-              </SectionCard>
- 
-              {/* Collaboration Preferences */}
-              <SectionCard
-                icon={<Target size={20} />}
-                title="Collaboration Preferences"
-              >
-                <div className="space-y-6">
-                  <div className="space-y-3">
-                    <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">
-                      Preferred Industries
-                    </label>
-                    <div className="flex flex-wrap gap-2">
-                      {industries.map((ind) => (
-                        <TagPill
-                          key={ind}
-                          label={ind}
-                          selected={preferredIndustries.includes(ind)}
-                          onClick={() => 
-                            setPreferredIndustries(prev => 
-                              prev.includes(ind) ? prev.filter(i => i !== ind) : [...prev, ind]
-                            )
-                          }
-                        />
-                      ))}
-                    </div>
-                  </div>
- 
-                  <div className="space-y-3">
-                    <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">
-                      Preferred Campaign Types
-                    </label>
-                    <div className="flex flex-wrap gap-2">
-                      {preferredCampaigns.map((type) => (
-                        <TagPill
-                          key={type}
-                          label={type}
-                          selected={campaignTypes.includes(type)}
-                          onClick={() => 
-                            setCampaignTypes(prev => 
-                              prev.includes(type) ? prev.filter(t => t !== type) : [...prev, type]
-                            )
-                          }
-                        />
-                      ))}
-                    </div>
+              </div>
+            </SectionCard>
+
+            {/* Collaboration Preferences */}
+            <SectionCard
+              icon={<Target size={20} />}
+              title="Collaboration Preferences"
+            >
+              <div className="space-y-6">
+                <div className="space-y-3">
+                  <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">
+                    Preferred Industries
+                  </label>
+                  <div className="flex flex-wrap gap-2">
+                    {industries.map((ind) => (
+                      <TagPill
+                        key={ind}
+                        label={ind}
+                        selected={preferredIndustries.includes(ind)}
+                        onClick={() =>
+                          setPreferredIndustries(prev =>
+                            prev.includes(ind) ? prev.filter(i => i !== ind) : [...prev, ind]
+                          )
+                        }
+                      />
+                    ))}
                   </div>
                 </div>
-              </SectionCard>
- 
-            </>
-          )}
+
+                <div className="space-y-3">
+                  <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">
+                    Preferred Campaign Types
+                  </label>
+                  <div className="flex flex-wrap gap-2">
+                    {preferredCampaigns.map((type) => (
+                      <TagPill
+                        key={type}
+                        label={type}
+                        selected={campaignTypes.includes(type)}
+                        onClick={() =>
+                          setCampaignTypes(prev =>
+                            prev.includes(type) ? prev.filter(t => t !== type) : [...prev, type]
+                          )
+                        }
+                      />
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </SectionCard>
+
+          </>
+        )}
 
         {/* ── Submit CTA (Advertiser) ── */}
         {!isBusiness && (

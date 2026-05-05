@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { 
-  ArrowLeft, 
-  CreditCard, 
-  Smartphone, 
-  ShieldCheck, 
-  Lock, 
+import {
+  ArrowLeft,
+  CreditCard,
+  Smartphone,
+  ShieldCheck,
+  Lock,
   Info,
   Package,
   ShieldAlert,
@@ -21,7 +21,7 @@ export default function AdvertiserCheckoutPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const api = useApiClient();
-  
+
   // Passed state from the Buy Coins modal or fallback
   const packDetails = location.state?.pack || {
     coins: 500,
@@ -76,7 +76,7 @@ export default function AdvertiserCheckoutPage() {
   const validateForm = () => {
     const { name, cardNumber, expiry, cvv } = formData;
     const newErrors: Record<string, string> = {};
-    
+
     // Check reliable data
     if (name.trim().length < 3) {
       newErrors.name = 'Please enter a valid cardholder name.';
@@ -114,7 +114,7 @@ export default function AdvertiserCheckoutPage() {
   const handlePay = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateForm()) return;
-    
+
     setIsProcessing(true);
     try {
       await walletApi.requestCoins(api, {
@@ -142,7 +142,7 @@ export default function AdvertiserCheckoutPage() {
             <p className="text-gray-500 dark:text-gray-400 mb-8 leading-relaxed text-sm">
               Your coin purchase request for <strong className="text-emerald-500">{packDetails.coins} coins</strong> has been submitted. An admin will verify the transaction and credit your wallet shortly.
             </p>
-            <button 
+            <button
               onClick={() => navigate('/advertiser/balance')}
               className="w-full bg-emerald-500 hover:bg-emerald-400 text-black font-bold py-4 rounded-xl shadow-lg shadow-emerald-500/20 active:scale-[0.98] transition-all"
             >
@@ -157,10 +157,10 @@ export default function AdvertiserCheckoutPage() {
   return (
     <AdvertiserLayout>
       <main className="max-w-[1200px] mx-auto px-4 sm:px-6 py-8 md:py-12 relative">
-        
+
         {/* Page Header */}
         <div className="flex items-center gap-4 mb-8">
-          <button 
+          <button
             onClick={() => navigate(-1)}
             className="w-10 h-10 rounded-full bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 flex items-center justify-center transition-colors text-gray-900 dark:text-gray-400 dark:hover:text-white"
           >
@@ -173,33 +173,33 @@ export default function AdvertiserCheckoutPage() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 lg:gap-12">
-          
+
           {/* Left Column: Payment Form */}
           <div className="lg:col-span-3 space-y-8">
             <div className="bg-white dark:bg-[#111] rounded-[2.5rem] p-6 md:p-10 shadow-sm border border-gray-100 dark:border-white/5">
               <h2 className="text-2xl font-bold mb-8 text-gray-900 dark:text-white">Payment Method</h2>
-              
+
               {/* Payment Type Toggle */}
               <div className="flex gap-4 mb-8 bg-gray-50 dark:bg-white/5 p-1.5 rounded-2xl">
-                <button 
+                <button
                   type="button"
                   onClick={() => setPaymentType('card')}
                   className={cn(
                     "flex-1 py-3.5 rounded-xl font-bold flex items-center justify-center gap-3 transition-all",
-                    paymentType === 'card' 
-                      ? "bg-white dark:bg-white/10 shadow-sm text-gray-900 dark:text-white" 
+                    paymentType === 'card'
+                      ? "bg-white dark:bg-white/10 shadow-sm text-gray-900 dark:text-white"
                       : "bg-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
                   )}
                 >
                   <CreditCard size={18} /> Card Payment
                 </button>
-                <button 
+                <button
                   type="button"
                   onClick={() => setPaymentType('telebirr')}
                   className={cn(
                     "flex-1 py-3.5 rounded-xl font-bold flex items-center justify-center gap-3 transition-all",
-                    paymentType === 'telebirr' 
-                      ? "bg-white dark:bg-white/10 shadow-sm text-gray-900 dark:text-white" 
+                    paymentType === 'telebirr'
+                      ? "bg-white dark:bg-white/10 shadow-sm text-gray-900 dark:text-white"
                       : "bg-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
                   )}
                 >
@@ -217,8 +217,8 @@ export default function AdvertiserCheckoutPage() {
                 </div>
                 <div className="flex items-center gap-2">
                   {/* Mock card icons matching design */}
-                  <div className="w-8 h-5 bg-gradient-to-br from-orange-200 to-orange-300 rounded-[3px] flex items-center justify-center"><div className="w-2 h-2 rounded-full bg-orange-500/80"></div></div>
-                  <div className="w-8 h-5 bg-gradient-to-br from-gray-100 to-gray-200 rounded-[3px] border border-gray-300 flex items-center justify-center"><div className="w-3 h-1.5 bg-blue-400 rounded-sm"></div></div>
+                  <div className="w-8 h-5 bg-linear-gradient-to-br from-orange-200 to-orange-300 rounded-[3px] flex items-center justify-center"><div className="w-2 h-2 rounded-full bg-orange-500/80"></div></div>
+                  <div className="w-8 h-5 bg-linear-to-br from-gray-100 to-gray-200 rounded-[3px] border border-gray-300 flex items-center justify-center"><div className="w-3 h-1.5 bg-blue-400 rounded-sm"></div></div>
                   <div className="w-8 h-5 bg-[#008080] rounded-[3px] flex items-center justify-center"><div className="w-3 h-0.5 bg-white rounded-full"></div></div>
                 </div>
               </div>
@@ -230,9 +230,9 @@ export default function AdvertiserCheckoutPage() {
                     <label className={cn("text-sm font-medium transition-colors", errors.name ? "text-red-500" : "text-gray-600 dark:text-gray-400")}>
                       Cardholder Name {errors.name && <span className="text-[10px] ml-2 italic font-bold">({errors.name})</span>}
                     </label>
-                    <input 
+                    <input
                       required
-                      type="text" 
+                      type="text"
                       name="name"
                       placeholder="Full Name on Card"
                       value={formData.name}
@@ -243,15 +243,15 @@ export default function AdvertiserCheckoutPage() {
                       )}
                     />
                   </div>
-                  
+
                   <div className="space-y-2">
                     <label className={cn("text-sm font-medium transition-colors", errors.cardNumber ? "text-red-500" : "text-gray-600 dark:text-gray-400")}>
                       Card Number {errors.cardNumber && <span className="text-[10px] ml-2 italic font-bold">({errors.cardNumber})</span>}
                     </label>
                     <div className="relative">
-                      <input 
+                      <input
                         required
-                        type="text" 
+                        type="text"
                         name="cardNumber"
                         placeholder="0000 0000 0000 0000"
                         maxLength={19}
@@ -271,9 +271,9 @@ export default function AdvertiserCheckoutPage() {
                       <label className={cn("text-sm font-medium transition-colors", errors.expiry ? "text-red-500" : "text-gray-600 dark:text-gray-400")}>
                         Expiry Date {errors.expiry && <span className="text-[10px] ml-2 italic font-bold">({errors.expiry})</span>}
                       </label>
-                      <input 
+                      <input
                         required
-                        type="text" 
+                        type="text"
                         name="expiry"
                         placeholder="MM/YY"
                         maxLength={5}
@@ -289,9 +289,9 @@ export default function AdvertiserCheckoutPage() {
                       <label className={cn("text-sm font-medium transition-colors", errors.cvv ? "text-red-500" : "text-gray-600 dark:text-gray-400")}>
                         CVV {errors.cvv && <span className="text-[10px] ml-2 italic font-bold">({errors.cvv})</span>}
                       </label>
-                      <input 
+                      <input
                         required
-                        type="password" 
+                        type="password"
                         name="cvv"
                         placeholder="123"
                         maxLength={4}
@@ -305,7 +305,7 @@ export default function AdvertiserCheckoutPage() {
                     </div>
                   </div>
 
-                  <button 
+                  <button
                     type="submit"
                     disabled={isProcessing}
                     className="w-full bg-emerald-500 hover:bg-emerald-400 text-black py-4 rounded-xl font-bold flex items-center justify-center gap-2 mt-8 transition-all shadow-lg shadow-emerald-500/30 disabled:opacity-70 disabled:cursor-not-allowed"
@@ -338,7 +338,7 @@ export default function AdvertiserCheckoutPage() {
           <div className="lg:col-span-2">
             <div className="bg-white dark:bg-[#111] rounded-[2.5rem] p-6 md:p-8 shadow-sm border border-gray-100 dark:border-white/5 lg:sticky lg:top-32">
               <h2 className="text-xl font-bold mb-8 text-gray-900 dark:text-white">Order Summary</h2>
-              
+
               <div className="bg-emerald-50/50 dark:bg-[#222] border border-emerald-100 dark:border-white/5 rounded-2xl p-4 flex gap-4 items-center mb-8">
                 <div className="w-14 h-14 bg-emerald-500 dark:bg-emerald-500/10 rounded-xl flex items-center justify-center shrink-0">
                   <Package className="text-black dark:text-emerald-400 w-7 h-7" />

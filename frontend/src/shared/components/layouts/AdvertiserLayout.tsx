@@ -1,12 +1,12 @@
 import { useState, useRef, useEffect, type ReactNode } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  LayoutDashboard, 
-  Megaphone, 
-  Sparkles, 
-  BarChart3, 
-  CreditCard, 
-  Settings, 
+import {
+  LayoutDashboard,
+  Megaphone,
+  Sparkles,
+  BarChart3,
+  CreditCard,
+  Settings,
   Target,
   Bell,
   Search,
@@ -91,7 +91,7 @@ export default function AdvertiserLayout({ children }: AdvertiserLayoutProps) {
     <div className="min-h-screen bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-white font-sans flex transition-colors duration-300">
       {/* Mobile Sidebar Overlay */}
       {isSidebarOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/50 z-50 lg:hidden"
           onClick={() => setIsSidebarOpen(false)}
         />
@@ -119,13 +119,13 @@ export default function AdvertiserLayout({ children }: AdvertiserLayoutProps) {
             <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest px-2 mb-4">Main Menu</p>
             <nav className="space-y-1">
               {navigation.map((item) => (
-                <Link 
+                <Link
                   key={item.name}
                   to={item.path}
                   className={cn(
                     "w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all group",
-                    location.pathname === item.path 
-                      ? "bg-emerald-500/10 text-emerald-500" 
+                    location.pathname === item.path
+                      ? "bg-emerald-500/10 text-emerald-500"
                       : "text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/5"
                   )}
                 >
@@ -147,7 +147,7 @@ export default function AdvertiserLayout({ children }: AdvertiserLayoutProps) {
             <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest px-2 mb-4">System</p>
             <nav className="space-y-1">
               {systemNavigation.map((item) => (
-                <Link 
+                <Link
                   key={item.name}
                   to={item.path}
                   className={cn(
@@ -161,7 +161,7 @@ export default function AdvertiserLayout({ children }: AdvertiserLayoutProps) {
                   {item.name}
                 </Link>
               ))}
-              <button 
+              <button
                 onClick={() => {
                   localLogout();
                   signOut();
@@ -187,13 +187,13 @@ export default function AdvertiserLayout({ children }: AdvertiserLayoutProps) {
             </button>
             <nav className="hidden md:flex items-center gap-8">
               {headerNav.map((item) => (
-                <Link 
+                <Link
                   key={item.name}
                   to={item.path}
                   className={cn(
                     "text-sm font-medium transition-colors pb-1",
-                    location.pathname === item.path 
-                      ? "text-emerald-500 border-b-2 border-emerald-500" 
+                    location.pathname === item.path
+                      ? "text-emerald-500 border-b-2 border-emerald-500"
                       : "text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
                   )}
                 >
@@ -207,11 +207,11 @@ export default function AdvertiserLayout({ children }: AdvertiserLayoutProps) {
             {/* Search */}
             <div className="relative hidden sm:block" ref={searchRef}>
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 w-4 h-4" />
-              <input 
-                type="text" 
+              <input
+                type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search insights..." 
+                placeholder="Search insights..."
                 className="bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-xl pl-10 pr-4 py-2 text-sm focus:outline-none focus:border-emerald-500 w-48 lg:w-64 transition-all text-gray-900 dark:text-white"
               />
               <AnimatePresence>
@@ -240,7 +240,7 @@ export default function AdvertiserLayout({ children }: AdvertiserLayoutProps) {
 
             {/* Notifications */}
             <div className="relative" ref={notifRef}>
-              <button 
+              <button
                 onClick={() => {
                   setShowNotifications(!showNotifications);
                   if (!showNotifications) markAllAsRead();
@@ -255,16 +255,16 @@ export default function AdvertiserLayout({ children }: AdvertiserLayoutProps) {
                   </>
                 )}
               </button>
-              
+
               <AnimatePresence>
                 {showNotifications && (
                   <motion.div
                     initial={{ opacity: 0, scale: 0.95, y: 10 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.95, y: 10 }}
-                    className="absolute top-14 right-0 w-80 bg-white dark:bg-[#1a1a1a] rounded-[2rem] shadow-2xl border border-gray-100 dark:border-white/10 overflow-hidden z-50 text-left"
+                    className="absolute top-14 right-0 w-80 bg-white dark:bg-[#1a1a1a] rounded-4xl shadow-2xl border border-gray-100 dark:border-white/10 overflow-hidden z-50 text-left"
                   >
-                    <div className="p-6 border-b border-gray-100 dark:border-white/5 flex justify-between items-center bg-gray-50/50 dark:bg-white/[0.02]">
+                    <div className="p-6 border-b border-gray-100 dark:border-white/5 flex justify-between items-center bg-gray-50/50 dark:bg-white/2">
                       <h3 className="font-bold text-gray-900 dark:text-white">Notifications</h3>
                       {unreadCount > 0 && (
                         <span className="bg-emerald-600/10 text-emerald-600 text-[10px] font-bold px-2 py-1 rounded-lg uppercase tracking-wider">{unreadCount} New</span>
@@ -301,11 +301,11 @@ export default function AdvertiserLayout({ children }: AdvertiserLayoutProps) {
 
             <ThemeToggle />
             <Link to="/profile/view/advertiser" className="w-10 h-10 rounded-xl overflow-hidden border border-gray-100 dark:border-white/10">
-              <img 
-                src={profile.avatarUrl || `https://ui-avatars.com/api/?name=${profile.firstName}+${profile.lastName}&background=10b981&color=fff`} 
-                alt="Profile" 
-                className="w-full h-full object-cover" 
-                referrerPolicy="no-referrer" 
+              <img
+                src={profile.avatarUrl || `https://ui-avatars.com/api/?name=${profile.firstName}+${profile.lastName}&background=10b981&color=fff`}
+                alt="Profile"
+                className="w-full h-full object-cover"
+                referrerPolicy="no-referrer"
               />
             </Link>
           </div>
@@ -313,7 +313,7 @@ export default function AdvertiserLayout({ children }: AdvertiserLayoutProps) {
 
         <main className="flex-1 relative">
           {showLockOverlay && (
-            <div className="absolute inset-0 z-[60] flex items-center justify-center bg-white/60 dark:bg-black/60 backdrop-blur-md">
+            <div className="absolute inset-0 z-60 flex items-center justify-center bg-white/60 dark:bg-black/60 backdrop-blur-md">
               <div className="max-w-md w-full mx-4 bg-white dark:bg-[#1a1a1a] p-8 rounded-[2.5rem] shadow-2xl border border-gray-100 dark:border-white/10 text-center">
                 <div className="w-20 h-20 bg-emerald-500/10 rounded-3xl flex items-center justify-center mx-auto mb-6">
                   <Lock className="text-emerald-500 w-10 h-10" />
@@ -323,7 +323,7 @@ export default function AdvertiserLayout({ children }: AdvertiserLayoutProps) {
                   Your advertiser profile is currently being reviewed. This page will be unlocked once your account is approved.
                 </p>
                 <div className="flex flex-col gap-3">
-                  <Link 
+                  <Link
                     to="/dashboard/advertiser"
                     className="w-full py-4 bg-emerald-500 text-black rounded-xl font-bold hover:bg-emerald-400 transition-all shadow-lg shadow-emerald-100 dark:shadow-none"
                   >
