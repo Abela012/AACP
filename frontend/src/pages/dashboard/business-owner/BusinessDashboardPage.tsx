@@ -254,13 +254,7 @@ export default function BusinessDashboardPage() {
             <p className="text-sm text-gray-500 mt-1">Manage your advertisement ecosystem and track performance real-time.</p>
           </div>
           <div className="flex items-center gap-3">
-            <button className="p-3 bg-gray-50 dark:bg-white/5 rounded-2xl text-gray-500 hover:bg-gray-100 dark:hover:bg-white/10 transition-all border border-gray-100 dark:border-white/5 relative">
-              <Bell size={20} />
-              <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white dark:border-black"></span>
-            </button>
-            <button className="p-3 bg-gray-50 dark:bg-white/5 rounded-2xl text-gray-500 hover:bg-gray-100 dark:hover:bg-white/10 transition-all border border-gray-100 dark:border-white/5">
-              <Settings size={20} />
-            </button>
+            {/* Icons removed per user request */}
           </div>
         </div>
 
