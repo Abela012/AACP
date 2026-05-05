@@ -15,7 +15,9 @@ import { useLocation } from 'react-router-dom';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface Contact {
-  userId: string;
+  userId: string; // The ID used for display/selection (historically Clerk ID)
+  mongoId: string; // Internal MongoDB ID
+  clerkId: string; // Clerk ID
   conversationId: string;
   name: string;
   avatar?: string;
@@ -54,6 +56,8 @@ export default function ConversationPage() {
 
       return {
         userId: partner.clerkId || partner._id,
+        mongoId: partner._id,
+        clerkId: partner.clerkId,
         conversationId: conv._id,
         name: `${partner.firstName} ${partner.lastName}`,
         avatar: partner.profilePicture || `https://ui-avatars.com/api/?name=${partner.firstName}+${partner.lastName}&background=10b981&color=fff`,
@@ -72,7 +76,13 @@ export default function ConversationPage() {
   useEffect(() => {
     if (contacts.length > 0) {
       if (targetUserId) {
-        const targetContact = contacts.find(c => c.userId === targetUserId);
+        // Robust matching: Check both MongoDB ID and Clerk ID
+        const targetContact = contacts.find(c => 
+          c.mongoId === targetUserId || 
+          c.clerkId === targetUserId ||
+          c.userId === targetUserId
+        );
+        
         if (targetContact) {
           setActiveContact(targetContact);
           return;
