@@ -44,6 +44,7 @@ import AdminChatPage from './pages/admin/messages/AdminChatPage'
 import AdminHelpPage from './pages/admin/help/AdminHelpPage'
 import AuditLogsPage from './pages/system/audit-logs/AuditLogsPage'
 import CreateCampaignPage from './pages/dashboard/business-owner/CreateCampaignPage'
+import EditCampaignPage from './pages/dashboard/business-owner/EditCampaignPage'
 import CampaignApplicantsPage from './pages/dashboard/business-owner/CampaignApplicantsPage'
 import PendingApprovalPage from './pages/auth/PendingApprovalPage'
 import SuperAdminAdminManagementPage from './pages/super-admin/admin-management/AdminManagementPage'
@@ -174,6 +175,16 @@ function App() {
             <SignedIn>
               <RoleGuard allowedRoles={['business_owner']}>
                 <CreateCampaignPage />
+              </RoleGuard>
+            </SignedIn>
+          }
+        />
+        <Route
+          path="/campaign/edit/:id"
+          element={
+            <SignedIn>
+              <RoleGuard allowedRoles={['business_owner']}>
+                <EditCampaignPage />
               </RoleGuard>
             </SignedIn>
           }
