@@ -16,25 +16,53 @@ import {
   AlertCircle
 } from 'lucide-react';
 import { useCollaborationDetails, useCompleteCollaboration } from '@/src/hooks/useCollaborations';
+import { useSubmitReview, useCollaborationReviews } from '@/src/hooks/useReviews';
 import { useUser } from '@/src/shared/context/UserContext';
 import BusinessLayout from '@/src/shared/components/layouts/BusinessLayout';
 import AdvertiserLayout from '@/src/shared/components/layouts/AdvertiserLayout';
+import { ReviewModal } from '@/src/shared/components/rating/ReviewModal';
 import { cn } from '@/src/shared/utils/cn';
+import { useState } from 'react';
+import { toast } from 'react-hot-toast';
 
 export default function CollaborationDetailsPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { userRole } = useUser();
+  const { user, userRole } = useUser();
   const { data: collab, isLoading, error } = useCollaborationDetails(id!);
+  const { data: reviews } = useCollaborationReviews(id!);
   const completeMutation = useCompleteCollaboration();
+  const submitReviewMutation = useSubmitReview();
+
+  const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
+
+  const hasReviewed = reviews?.some(r => r.reviewer === user?._id);
 
   const handleComplete = async () => {
     if (!window.confirm('Mark this collaboration as completed?')) return;
     try {
       await completeMutation.mutateAsync(id!);
-      alert('Collaboration marked as completed!');
+      toast.success('Collaboration marked as completed!');
+      // Automatically open review modal after completion
+      if (!hasReviewed) {
+        setIsReviewModalOpen(true);
+      }
     } catch (err: any) {
-      alert(err.message || 'Failed to complete collaboration');
+      toast.error(err.message || 'Failed to complete collaboration');
+    }
+  };
+
+  const handleReviewSubmit = async (rating: number, comment: string) => {
+    try {
+      await submitReviewMutation.mutateAsync({
+        collaborationId: id!,
+        rating,
+        comment
+      });
+      toast.success('Review submitted successfully!');
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to submit review');
+      throw err;
     }
   };
 
@@ -125,8 +153,24 @@ export default function CollaborationDetailsPage() {
                 Finalize Project
               </button>
             )}
+            {collab.status === 'completed' && !hasReviewed && (
+              <button 
+                onClick={() => setIsReviewModalOpen(true)}
+                className="px-8 py-3 bg-amber-500 text-white font-bold rounded-2xl hover:bg-amber-400 transition-all shadow-lg shadow-amber-500/20 flex items-center gap-2"
+              >
+                <Star size={18} />
+                Rate Experience
+              </button>
+            )}
           </div>
         </div>
+
+        <ReviewModal 
+          isOpen={isReviewModalOpen}
+          onClose={() => setIsReviewModalOpen(false)}
+          onSubmit={handleReviewSubmit}
+          targetName={partnerName}
+        />
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Info Column */}
