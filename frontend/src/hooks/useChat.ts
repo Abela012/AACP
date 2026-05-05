@@ -12,6 +12,7 @@ import {
 } from '../api/socketService';
 import { useApiClient } from '../api/apiClient';
 import { chatApi } from '../api/chatApi';
+import { useQueryClient } from '@tanstack/react-query';
 
 export interface ChatMessage {
     _id: string;
@@ -44,6 +45,7 @@ interface UseChat {
  */
 export const useChat = (roomId: string, recipientId?: string): UseChat => {
     const { getToken, isSignedIn } = useAuth();
+    const queryClient = useQueryClient();
     const api = useApiClient();
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [isConnected, setIsConnected] = useState(false);
@@ -70,6 +72,9 @@ export const useChat = (roomId: string, recipientId?: string): UseChat => {
                 if (recipientId) {
                     const convRes = await chatApi.startConversation(api, recipientId);
                     if (convRes.data?.success && convRes.data.data._id) {
+                        // If it was a brand new conversation, refresh the sidebar list
+                        queryClient.invalidateQueries({ queryKey: ['conversations'] });
+                        
                         if (mounted) setConversationId(convRes.data.data._id);
                         const historyRes = await chatApi.getMessages(api, convRes.data.data._id);
                         if (historyRes.data?.success && mounted) {

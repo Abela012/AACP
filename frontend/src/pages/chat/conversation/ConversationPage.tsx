@@ -11,6 +11,7 @@ import { useUser } from '@/src/shared/context/UserContext';
 import { useUser as useClerkUser } from '@clerk/clerk-react';
 import { useChat, useConversations } from '@/src/hooks/useChat';
 import { startTyping, stopTyping } from '@/src/api/socketService';
+import { useLocation } from 'react-router-dom';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface Contact {
@@ -65,12 +66,24 @@ export default function ConversationPage() {
   }, [conversations, myId]);
 
   const [activeContact, setActiveContact] = useState<Contact | null>(null);
+  const { state } = useLocation();
+  const targetUserId = (state as any)?.userId;
 
   useEffect(() => {
-    if (contacts.length > 0 && !activeContact) {
-      setActiveContact(contacts[0]);
+    if (contacts.length > 0) {
+      if (targetUserId) {
+        const targetContact = contacts.find(c => c.userId === targetUserId);
+        if (targetContact) {
+          setActiveContact(targetContact);
+          return;
+        }
+      }
+      
+      if (!activeContact) {
+        setActiveContact(contacts[0]);
+      }
     }
-  }, [contacts, activeContact]);
+  }, [contacts, activeContact, targetUserId]);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [inputText, setInputText] = useState('');

@@ -73,7 +73,7 @@ const io = initSocket(httpServer);
 (app as any).io = io;
 
 
-const server = httpServer.listen(Number(PORT), '0.0.0.0', () => {
+const server = httpServer.listen(Number(PORT), () => {
     logger.info(`Server running in ${env.NODE_ENV} mode on port ${PORT}`);
     logger.info(`Socket.IO ready on ws://localhost:${PORT}`);
 });
