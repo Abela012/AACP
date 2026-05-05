@@ -57,7 +57,7 @@ export const useChat = (roomId: string, recipientId?: string): UseChat => {
 
     // ── Connect socket and Load History ──
     useEffect(() => {
-        if (!isSignedIn || !roomId) return;
+        if (!isSignedIn || (!roomId && !recipientId)) return;
 
         let mounted = true;
         const effectiveRoomId = conversationId || roomId;
@@ -98,12 +98,15 @@ export const useChat = (roomId: string, recipientId?: string): UseChat => {
                 s.on('connect', () => mounted && setIsConnected(true));
                 s.on('disconnect', () => mounted && setIsConnected(false));
 
-                // Join the room
-                joinRoom(effectiveRoomId);
+                // 3. Join the room (use the newly resolved conversationId if it was a new chat)
+                const finalRoomId = convRes?.data?.data?._id || roomId;
+                if (!finalRoomId) return;
+
+                joinRoom(finalRoomId);
 
                 // ── Receive messages ──
                 s.on('message:receive', (msg: ChatMessage) => {
-                    if (!mounted || msg.roomId !== effectiveRoomId) return;
+                    if (!mounted || msg.roomId !== finalRoomId) return;
                     setMessages(prev => {
                         // Prevent duplicates if already in history
                         if (prev.some(m => m._id === msg._id)) return prev;
@@ -112,8 +115,8 @@ export const useChat = (roomId: string, recipientId?: string): UseChat => {
                 });
 
                 // ── Typing indicators ──
-                s.on('typing:start', ({ name }: { userId: string; name: string }) => {
-                    if (!mounted) return;
+                s.on('typing:start', ({ name, roomId: eventRoomId }: { userId: string; name: string; roomId: string }) => {
+                    if (!mounted || eventRoomId !== finalRoomId) return;
                     setTypingUsers(prev => prev.includes(name) ? prev : [...prev, name]);
 
                     // Clear after 3 seconds if no stop event
@@ -123,8 +126,8 @@ export const useChat = (roomId: string, recipientId?: string): UseChat => {
                     }, 3000);
                 });
 
-                s.on('typing:stop', ({ name }: { userId: string; name?: string }) => {
-                    if (!name || !mounted) return;
+                s.on('typing:stop', ({ name, roomId: eventRoomId }: { userId: string; name?: string; roomId: string }) => {
+                    if (!name || !mounted || eventRoomId !== finalRoomId) return;
                     setTypingUsers(prev => prev.filter(n => n !== name));
                     if (typingTimeouts.current[name]) clearTimeout(typingTimeouts.current[name]);
                 });
@@ -148,7 +151,10 @@ export const useChat = (roomId: string, recipientId?: string): UseChat => {
 
         return () => {
             mounted = false;
-            leaveRoom(effectiveRoomId);
+            const roomToLeave = conversationId || roomId;
+            if (roomToLeave) {
+                leaveRoom(roomToLeave);
+            }
             const s = getSocket();
             if (s) {
                 s.off('message:receive');
