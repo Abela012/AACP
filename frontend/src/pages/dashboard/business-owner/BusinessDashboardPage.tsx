@@ -27,8 +27,9 @@ import PendingApprovalState from '@/src/shared/components/PendingApprovalState';
 import { useUserSync } from '@/src/hooks/useUserSync';
 import { useMyOpportunities } from '@/src/hooks/useOpportunities';
 import { useWalletBalance } from '@/src/hooks/useWallet';
-import { useRecommendations } from '@/src/hooks/useRecommendations';
+import { useUserCollaborations } from '@/src/hooks/useCollaborations';
 import { type Opportunity } from '@/src/api/opportunityApi';
+import { type Collaboration } from '@/src/api/collaborationApi';
 
 export default function BusinessDashboardPage() {
   const navigate = useNavigate();
@@ -43,8 +44,10 @@ export default function BusinessDashboardPage() {
   const { data: oppsData, isLoading: isLoadingOpps } = useMyOpportunities(myId);
   const { data: walletData, isLoading: isLoadingWallet } = useWalletBalance();
   const { data: recsData, isLoading: isLoadingRecs } = useRecommendations();
-
+  const { data: collabsData, isLoading: isLoadingCollabs } = useUserCollaborations(myId);
+  
   const opportunities = oppsData?.opportunities ?? [];
+  const collaborations = collabsData ?? [];
   const activeCount = opportunities.filter((o: Opportunity) => o.status === 'open').length;
 
   const totalApplicants = opportunities.reduce((acc: number, opp: Opportunity) => acc + (opp.applicants?.length ?? 0), 0);
@@ -175,32 +178,54 @@ export default function BusinessDashboardPage() {
                     <Link to="/collaborations" className="text-xs font-bold text-emerald-600 hover:underline">View all</Link>
                   </div>
                   <div className="space-y-4">
-                    {isLoadingOpps ? (
+                    {isLoadingCollabs ? (
                       <div className="flex justify-center py-8">
                         <Loader2 size={24} className="animate-spin text-emerald-600" />
                       </div>
-                    ) : opportunities.length === 0 ? (
+                    ) : collaborations.length === 0 ? (
                       <div className="text-center py-8">
-                        <p className="text-sm font-bold text-gray-500 dark:text-gray-400">No campaigns yet</p>
+                        <p className="text-sm font-bold text-gray-500 dark:text-gray-400">No active collaborations yet</p>
                       </div>
                     ) : (
-                      opportunities.slice(0, 3).map((collab: Opportunity, idx: number) => {
+                      collaborations.slice(0, 3).map((collab: Collaboration, idx: number) => {
                         const statusColors: Record<string, string> = {
-                          open: 'text-emerald-500 bg-emerald-500/10',
-                          in_progress: 'text-amber-500 bg-amber-500/10',
-                          closed: 'text-gray-400 bg-gray-400/10'
+                          active: 'text-emerald-500 bg-emerald-500/10',
+                          completed: 'text-blue-500 bg-blue-500/10',
+                          cancelled: 'text-red-400 bg-red-400/10'
                         };
-                        const progress = collab.status === 'closed' ? 100 : collab.status === 'in_progress' ? 50 : 10;
+                        const partner = collab.advertiser;
+                        const partnerName = partner ? `${partner.firstName || ''} ${partner.lastName || ''}`.trim() || partner.username : 'Creator';
+                        
                         return (
-                          <div key={collab._id || idx} className="bg-gray-50 dark:bg-white/5 p-5 rounded-2xl border border-gray-100 dark:border-white/5 hover:border-gray-200 dark:hover:border-white/10 transition-all">
+                          <div 
+                            key={collab._id || idx} 
+                            onClick={() => navigate(`/collaborations/${collab._id}`)}
+                            className="bg-gray-50 dark:bg-white/5 p-5 rounded-2xl border border-gray-100 dark:border-white/5 hover:border-emerald-600/30 transition-all cursor-pointer group"
+                          >
                             <div className="flex justify-between items-start mb-4">
                               <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 bg-white dark:bg-white/5 rounded-xl flex items-center justify-center text-emerald-600 font-bold border border-gray-100 dark:border-white/10">{collab.title[0]}</div>
-                                <div><h4 className="font-bold text-sm text-gray-900 dark:text-white line-clamp-1">{collab.title}</h4><p className="text-[10px] text-gray-500 line-clamp-1">{collab.description}</p></div>
+                                {partner?.profilePicture ? (
+                                  <img src={partner.profilePicture} alt="" className="w-12 h-12 rounded-xl object-cover" />
+                                ) : (
+                                  <div className="w-12 h-12 bg-emerald-600/10 rounded-xl flex items-center justify-center text-emerald-600 font-bold border border-gray-100 dark:border-white/10">
+                                    {partnerName[0]}
+                                  </div>
+                                )}
+                                <div>
+                                  <h4 className="font-bold text-sm text-gray-900 dark:text-white line-clamp-1">{partnerName}</h4>
+                                  <p className="text-[10px] text-gray-500 line-clamp-1">{collab.opportunity?.title || 'Project'}</p>
+                                </div>
                               </div>
-                              <span className={cn("px-3 py-1 rounded-lg text-[10px] font-bold tracking-wider uppercase", statusColors[collab.status] || statusColors.open)}>{collab.status.replace('_', ' ')}</span>
+                              <span className={cn("px-3 py-1 rounded-lg text-[10px] font-bold tracking-wider uppercase", statusColors[collab.status] || statusColors.active)}>
+                                {collab.status}
+                              </span>
                             </div>
-                            <div className="flex items-center gap-4"><div className="flex-1 h-1.5 bg-gray-200 dark:bg-white/5 rounded-full overflow-hidden"><div className="h-full bg-emerald-600" style={{ width: `${progress}%` }}></div></div><span className="text-[10px] font-bold text-gray-400">{progress}%</span></div>
+                            <div className="flex items-center gap-4">
+                              <div className="flex-1 h-1.5 bg-gray-200 dark:bg-white/5 rounded-full overflow-hidden">
+                                <div className="h-full bg-emerald-600" style={{ width: `${collab.overallProgress || 0}%` }}></div>
+                              </div>
+                              <span className="text-[10px] font-bold text-gray-400">{collab.overallProgress || 0}%</span>
+                            </div>
                           </div>
                         );
                       })
