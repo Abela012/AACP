@@ -463,12 +463,19 @@ function App() {
           }
         />
 
+        {/* Legacy Balance Redirects */}
+        <Route path="/balance" element={<Navigate to="/wallet" replace />} />
+        <Route path="/advertiser/balance" element={<Navigate to="/advertiser/wallet" replace />} />
+
         {/* Landing Page */}
         <Route path="/" element={<LandingPage />} />
 
         {/* Legal Pages */}
         <Route path="/terms-of-service" element={<TermsOfService />} />
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+
+        {/* Catch-all Redirect */}
+        <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>
     </>
   )
