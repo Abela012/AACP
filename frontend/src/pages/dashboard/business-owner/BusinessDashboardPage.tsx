@@ -119,7 +119,7 @@ export default function BusinessDashboardPage() {
   // ─── DYNAMIC DATA DERIVATION ─────────────────────────────────────────────
 
   // Generate real chart data from opportunities
-  const chartData = opportunities.slice(0, 7).map((opp: any) => {
+  const derivedChartData = opportunities.slice(0, 7).map((opp: any) => {
     const factor = timeFilter === '7D' ? 1 : timeFilter === '30D' ? 4.2 : 12;
     return {
       name: opp.title.split(' ')[0],
@@ -128,6 +128,12 @@ export default function BusinessDashboardPage() {
       conversions: Math.round((opp.viewsCount || 0) * 0.02 * factor)
     };
   }).reverse();
+
+  const performanceData = derivedChartData.length > 0 ? derivedChartData : [
+    { name: 'Mon', views: 0, engagement: 0, conversions: 0 },
+    { name: 'Tue', views: 0, engagement: 0, conversions: 0 },
+    { name: 'Wed', views: 0, engagement: 0, conversions: 0 },
+  ];
 
   // Derive Tasks from pending data
   const pendingApps = applications.filter((a: any) => a.status === 'pending');
