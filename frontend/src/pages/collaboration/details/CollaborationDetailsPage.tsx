@@ -13,11 +13,13 @@ import {
   MoreVertical,
   Flag,
   FileText,
-  AlertCircle
+  AlertCircle,
+  Star
 } from 'lucide-react';
 import { useCollaborationDetails, useCompleteCollaboration } from '@/src/hooks/useCollaborations';
 import { useSubmitReview, useCollaborationReviews } from '@/src/hooks/useReviews';
 import { useUser } from '@/src/shared/context/UserContext';
+import { useProfile } from '@/src/shared/context/ProfileContext';
 import BusinessLayout from '@/src/shared/components/layouts/BusinessLayout';
 import AdvertiserLayout from '@/src/shared/components/layouts/AdvertiserLayout';
 import { ReviewModal } from '@/src/shared/components/rating/ReviewModal';
@@ -28,7 +30,8 @@ import { toast } from 'react-hot-toast';
 export default function CollaborationDetailsPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { user, userRole } = useUser();
+  const { userRole } = useUser();
+  const { profile } = useProfile();
   const { data: collab, isLoading, error } = useCollaborationDetails(id!);
   const { data: reviews } = useCollaborationReviews(id!);
   const completeMutation = useCompleteCollaboration();
@@ -36,7 +39,10 @@ export default function CollaborationDetailsPage() {
 
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
 
-  const hasReviewed = reviews?.some(r => r.reviewer === user?._id);
+  // Check if the current user (via profile email or ID) has reviewed
+  const hasReviewed = reviews?.some(r => 
+    r.reviewer === (profile as any)._id || r.reviewerEmail === profile.email
+  );
 
   const handleComplete = async () => {
     if (!window.confirm('Mark this collaboration as completed?')) return;
