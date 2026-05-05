@@ -342,10 +342,10 @@ export const syncUser = async (req: Request, res: Response): Promise<void> => {
       try {
         await walletService.creditCoins({
           userId: user._id.toString(),
-          amount: 500,
+          amount: 1000,
           description: 'Initial balance for new account',
         });
-        console.log(`[syncUser] Credited 500 starting coins to ${user.email}`);
+        console.log(`[syncUser] Credited 1000 starting coins to ${user.email}`);
       } catch (walletError) {
         console.error(`[syncUser] Failed to credit coins for ${user.email}:`, walletError);
         // Don't fail the whole user creation if wallet credit fails
