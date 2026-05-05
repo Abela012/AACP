@@ -39,10 +39,8 @@ export default function CollaborationDetailsPage() {
 
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
 
-  // Check if the current user (via profile email or ID) has reviewed
-  const hasReviewed = reviews?.some(r => 
-    r.reviewer === (profile as any)._id || r.reviewerEmail === profile.email
-  );
+  // Check if the current user has reviewed
+  const hasReviewed = reviews?.some(r => r.reviewer === profile._id);
 
   const handleComplete = async () => {
     if (!window.confirm('Mark this collaboration as completed?')) return;
