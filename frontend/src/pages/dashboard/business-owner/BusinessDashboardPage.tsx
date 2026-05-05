@@ -51,34 +51,12 @@ import CompleteProfilePage from '../../profile/complete-profile/CompleteProfileP
 import PendingApprovalState from '@/src/shared/components/PendingApprovalState';
 import { useUserSync } from '@/src/hooks/useUserSync';
 import { useMyOpportunities } from '@/src/hooks/useOpportunities';
-import { useWalletBalance } from '@/src/hooks/useWallet';
+import { useWalletBalance, useWalletHistory } from '@/src/hooks/useWallet';
 import { useRecommendations } from '@/src/hooks/useRecommendations';
 import { useUserCollaborations } from '@/src/hooks/useCollaborations';
+import { useBusinessOwnerApplications } from '@/src/hooks/useApplications';
+import { useConversations } from '@/src/hooks/useChat';
 import { type Opportunity } from '@/src/api/opportunityApi';
-
-// ─── MOCK DATA FOR UI ENHANCEMENT ──────────────────────────────────────────
-
-const performanceData = [
-  { name: 'Mon', views: 4000, engagement: 2400, conversions: 400 },
-  { name: 'Tue', views: 3000, engagement: 1398, conversions: 210 },
-  { name: 'Wed', views: 2000, engagement: 9800, conversions: 2290 },
-  { name: 'Thu', views: 2780, engagement: 3908, conversions: 2000 },
-  { name: 'Fri', views: 1890, engagement: 4800, conversions: 181 },
-  { name: 'Sat', views: 2390, engagement: 3800, conversions: 250 },
-  { name: 'Sun', views: 3490, engagement: 4300, conversions: 2100 },
-];
-
-const recentActivity = [
-  { id: 1, type: 'creator', text: 'Sarah Jenkins submitted content for "Summer Vibes"', time: '2 hours ago', icon: MessageSquare, color: 'text-blue-500' },
-  { id: 2, type: 'payment', text: 'Payment of 2,500 AACP processed for Mike Ross', time: '5 hours ago', icon: DollarSign, color: 'text-emerald-500' },
-  { id: 3, type: 'campaign', text: 'Campaign "Winter Collection" status changed to Active', time: '1 day ago', icon: Play, color: 'text-indigo-500' },
-];
-
-const tasks = [
-  { id: 1, title: 'Review submitted content', subtitle: 'Summer Vibes Campaign', priority: 'high', action: 'Review' },
-  { id: 2, title: 'Approve creator requests', subtitle: '4 pending applications', priority: 'medium', action: 'Approve' },
-  { id: 3, title: 'Fund "New Year" campaign', subtitle: 'Insufficient balance', priority: 'high', action: 'Fund' },
-];
 
 // ─── SUB-COMPONENTS ────────────────────────────────────────────────────────
 
@@ -118,13 +96,75 @@ export default function BusinessDashboardPage() {
   // Data Hooks
   const { data: oppsData, isLoading: isLoadingOpps } = useMyOpportunities(myId);
   const { data: walletData, isLoading: isLoadingWallet } = useWalletBalance();
+  const { data: walletHistory, isLoading: isLoadingHistory } = useWalletHistory();
   const { data: recsData, isLoading: isLoadingRecs } = useRecommendations();
   const { data: collabsData, isLoading: isLoadingCollabs } = useUserCollaborations(myId);
+  const { data: appsData, isLoading: isLoadingApps } = useBusinessOwnerApplications();
+  const { data: convsData, isLoading: isLoadingConvs } = useConversations();
 
   const opportunities = oppsData?.opportunities ?? [];
   const collaborations = collabsData ?? [];
+  const applications = appsData ?? [];
+  const conversations = convsData ?? [];
   const activeOpps = opportunities.filter((o: Opportunity) => o.status === 'open');
   const totalApplicants = opportunities.reduce((acc: number, opp: Opportunity) => acc + (opp.applicants?.length ?? 0), 0);
+
+  // ─── DYNAMIC DATA DERIVATION ─────────────────────────────────────────────
+
+  // Generate real chart data from opportunities
+  const chartData = opportunities.slice(0, 7).map((opp: any) => ({
+    name: opp.title.split(' ')[0],
+    views: opp.viewsCount || 0,
+    engagement: Math.round((opp.viewsCount || 0) * 0.15), // Mocked ratio for engagement
+    conversions: Math.round((opp.viewsCount || 0) * 0.02) // Mocked ratio for conversions
+  })).reverse();
+
+  // If no opportunities, use empty placeholders for chart
+  const performanceData = chartData.length > 0 ? chartData : [
+    { name: 'Mon', views: 0, engagement: 0, conversions: 0 },
+    { name: 'Tue', views: 0, engagement: 0, conversions: 0 },
+  ];
+
+  // Derive Tasks from pending data
+  const pendingApps = applications.filter((a: any) => a.status === 'pending');
+  const needsFunding = opportunities.filter((o: any) => o.budget?.amount > (walletData?.balance ?? 0));
+  
+  const realTasks = [
+    ...pendingApps.slice(0, 2).map((a: any) => ({
+      id: `app-${a._id}`,
+      title: 'Review applicant request',
+      subtitle: `${a.advertiser?.firstName} for ${a.opportunity?.title}`,
+      priority: 'high',
+      action: 'Review',
+      link: '/matches'
+    })),
+    ...needsFunding.map((o: any) => ({
+      id: `fund-${o._id}`,
+      title: 'Fund campaign',
+      subtitle: `Low balance for ${o.title}`,
+      priority: 'high',
+      action: 'Fund',
+      link: '/wallet'
+    })),
+    ...(collaborations.filter((c: any) => c.status === 'active' && c.overallProgress >= 90).map((c: any) => ({
+      id: `review-${c._id}`,
+      title: 'Review final content',
+      subtitle: `Milestone 100% for ${c.advertiser?.firstName}`,
+      priority: 'medium',
+      action: 'Review',
+      link: `/collaborations/${c._id}`
+    })))
+  ];
+
+  // Derive Activity from wallet history
+  const realActivity = (walletHistory ?? []).slice(0, 5).map((tx: any) => ({
+    id: tx._id,
+    type: tx.type,
+    text: tx.description,
+    time: new Date(tx.createdAt).toLocaleDateString(),
+    icon: tx.type === 'credit' ? DollarSign : tx.type === 'debit' ? Wallet : Activity,
+    color: tx.type === 'credit' ? 'text-emerald-500' : 'text-blue-500'
+  }));
 
   // 1. Status / Alert Banner Logic
   const showBalanceWarning = (walletData?.balance ?? 0) < 100;
@@ -260,9 +300,15 @@ export default function BusinessDashboardPage() {
           <div className="lg:col-span-8 space-y-8">
             
             {/* 12. TASKS / TO-DO SECTION */}
-            <Card title="Required Actions" extra={<Badge variant="danger">{tasks.length} Pending</Badge>}>
+            <Card title="Required Actions" extra={<Badge variant="danger">{realTasks.length} Pending</Badge>}>
               <div className="space-y-4">
-                {tasks.map((task) => (
+                {realTasks.length === 0 ? (
+                  <div className="flex flex-col items-center py-6 text-center">
+                    <CheckCircle2 className="text-emerald-500 mb-2" size={32} />
+                    <p className="text-sm font-bold text-gray-900 dark:text-white">All caught up!</p>
+                    <p className="text-xs text-gray-400">No urgent tasks requiring your attention.</p>
+                  </div>
+                ) : realTasks.map((task) => (
                   <div key={task.id} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-white/5 rounded-2xl border border-gray-100 dark:border-white/5 group hover:border-emerald-500/30 transition-all">
                     <div className="flex items-center gap-4">
                       <div className={cn("w-2 h-2 rounded-full", task.priority === 'high' ? 'bg-red-500' : 'bg-amber-500')}></div>
@@ -271,7 +317,10 @@ export default function BusinessDashboardPage() {
                         <p className="text-[10px] text-gray-400">{task.subtitle}</p>
                       </div>
                     </div>
-                    <button className="px-4 py-2 bg-white dark:bg-white/10 text-gray-900 dark:text-white rounded-xl text-xs font-bold border border-gray-100 dark:border-white/10 group-hover:bg-emerald-600 group-hover:text-white transition-all">
+                    <button 
+                      onClick={() => navigate(task.link || '/')}
+                      className="px-4 py-2 bg-white dark:bg-white/10 text-gray-900 dark:text-white rounded-xl text-xs font-bold border border-gray-100 dark:border-white/10 group-hover:bg-emerald-600 group-hover:text-white transition-all"
+                    >
                       {task.action}
                     </button>
                   </div>
@@ -510,7 +559,11 @@ export default function BusinessDashboardPage() {
             {/* 8. RECENT ACTIVITY FEED */}
             <Card title="Recent Activity">
                <div className="space-y-6 relative before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-[2px] before:bg-gray-50 dark:before:bg-white/5">
-                 {recentActivity.map((activity) => (
+                 {isLoadingHistory ? (
+                   <div className="flex justify-center py-4"><Loader2 className="animate-spin text-emerald-600" /></div>
+                 ) : realActivity.length === 0 ? (
+                   <p className="text-center text-xs text-gray-400">No recent activity</p>
+                 ) : realActivity.map((activity) => (
                    <div key={activity.id} className="relative pl-8">
                      <div className={cn("absolute left-0 top-1 w-6 h-6 rounded-lg flex items-center justify-center bg-white dark:bg-[#1a1a1a] border border-gray-100 dark:border-white/10 z-10 shadow-sm", activity.color)}>
                         <activity.icon size={12} />
@@ -525,19 +578,37 @@ export default function BusinessDashboardPage() {
             {/* 9. NOTIFICATIONS PREVIEW */}
             <Card title="Notifications" extra={<button className="text-[10px] font-bold text-emerald-600">Mark all read</button>}>
                <div className="space-y-4">
-                  {[1, 2, 3].map(i => (
-                    <div key={i} className="flex gap-3 pb-3 border-b border-gray-50 dark:border-white/5 last:border-0 last:pb-0">
-                       <div className="w-8 h-8 bg-blue-500/10 rounded-full flex items-center justify-center text-blue-500 flex-shrink-0">
-                          <Bell size={14} />
-                       </div>
-                       <div>
-                          <p className="text-xs text-gray-700 dark:text-gray-300"><span className="font-bold">System:</span> Your campaign "Summer Vibes" has reached 10,000 views!</p>
-                          <p className="text-[9px] text-gray-400 mt-1">10 minutes ago</p>
-                       </div>
-                    </div>
-                  ))}
+                  {isLoadingConvs ? (
+                     <div className="flex justify-center py-4"><Loader2 className="animate-spin text-emerald-600" /></div>
+                  ) : conversations.length === 0 ? (
+                    <p className="text-center text-xs text-gray-400">No new messages</p>
+                  ) : conversations.slice(0, 5).map((conv: any) => {
+                    const lastMsg = conv.lastMessage;
+                    const partner = conv.participants?.find((p: any) => p.clerkId !== myId);
+                    return (
+                      <div 
+                        key={conv._id} 
+                        onClick={() => navigate(`/messages?conv=${conv._id}`)}
+                        className="flex gap-3 pb-3 border-b border-gray-50 dark:border-white/5 last:border-0 last:pb-0 cursor-pointer hover:opacity-80 transition-opacity"
+                      >
+                         <div className="w-8 h-8 bg-blue-500/10 rounded-full flex items-center justify-center text-blue-500 flex-shrink-0">
+                            {partner?.profilePicture ? (
+                              <img src={partner.profilePicture} className="w-full h-full rounded-full object-cover" alt="" />
+                            ) : (
+                              <Bell size={14} />
+                            )}
+                         </div>
+                         <div>
+                            <p className="text-xs text-gray-700 dark:text-gray-300">
+                              <span className="font-bold">{partner?.firstName || 'User'}:</span> {lastMsg?.text || 'Sent an attachment'}
+                            </p>
+                            <p className="text-[9px] text-gray-400 mt-1">{new Date(lastMsg?.createdAt || conv.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                         </div>
+                      </div>
+                    );
+                  })}
                </div>
-               <button className="w-full mt-6 py-2 text-gray-400 text-xs font-bold hover:text-emerald-600 transition-colors">View All Notifications</button>
+               <button onClick={() => navigate('/messages')} className="w-full mt-6 py-2 text-gray-400 text-xs font-bold hover:text-emerald-600 transition-colors">View All Messages</button>
             </Card>
 
           </div>
