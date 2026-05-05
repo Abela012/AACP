@@ -64,24 +64,25 @@ export const useChat = (roomId: string, recipientId?: string): UseChat => {
 
         const init = async () => {
             setIsLoading(true);
+            let conversationRes: any = null;
             try {
                 const token = await getToken();
                 if (!token || !mounted) return;
 
                 // 1. Initialize conversation and fetch history
                 if (recipientId) {
-                    const convRes = await chatApi.startConversation(api, recipientId);
-                    if (convRes.data?.success && convRes.data.data._id) {
+                    conversationRes = await chatApi.startConversation(api, recipientId);
+                    if (conversationRes.data?.success && conversationRes.data.data._id) {
                         // If it was a brand new conversation, refresh the sidebar list
                         queryClient.invalidateQueries({ queryKey: ['conversations'] });
                         
-                        if (mounted) setConversationId(convRes.data.data._id);
-                        const historyRes = await chatApi.getMessages(api, convRes.data.data._id);
+                        if (mounted) setConversationId(conversationRes.data.data._id);
+                        const historyRes = await chatApi.getMessages(api, conversationRes.data.data._id);
                         if (historyRes.data?.success && mounted) {
                             // Map backend messages to hook format
                             const history = historyRes.data.data.map(m => ({
                                 _id: m._id,
-                                roomId: convRes.data.data._id, // use conversation id for socket room
+                                roomId: conversationRes.data.data._id, // use conversation id for socket room
                                 text: m.text,
                                 sender: m.sender,
                                 createdAt: m.createdAt
@@ -99,7 +100,7 @@ export const useChat = (roomId: string, recipientId?: string): UseChat => {
                 s.on('disconnect', () => mounted && setIsConnected(false));
 
                 // 3. Join the room (use the newly resolved conversationId if it was a new chat)
-                const finalRoomId = convRes?.data?.data?._id || roomId;
+                const finalRoomId = conversationRes?.data?.data?._id || roomId;
                 if (!finalRoomId) return;
 
                 joinRoom(finalRoomId);
