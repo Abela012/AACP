@@ -73,7 +73,7 @@ export default function AdvertiserDashboardPage() {
       return;
     }
     if (label.includes('Balance') || label.includes('Earnings')) {
-      navigate('/advertiser/balance');
+      navigate('/advertiser/wallet');
       return;
     }
     navigate('/advertiser/analytics');
