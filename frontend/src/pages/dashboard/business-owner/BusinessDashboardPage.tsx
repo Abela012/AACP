@@ -27,6 +27,7 @@ import PendingApprovalState from '@/src/shared/components/PendingApprovalState';
 import { useUserSync } from '@/src/hooks/useUserSync';
 import { useMyOpportunities } from '@/src/hooks/useOpportunities';
 import { useWalletBalance } from '@/src/hooks/useWallet';
+import { useRecommendations } from '@/src/hooks/useRecommendations';
 import { useUserCollaborations } from '@/src/hooks/useCollaborations';
 import { type Opportunity } from '@/src/api/opportunityApi';
 import { type Collaboration } from '@/src/api/collaborationApi';
