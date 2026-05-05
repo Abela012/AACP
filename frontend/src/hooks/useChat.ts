@@ -12,7 +12,7 @@ import {
 } from '../api/socketService';
 import { useApiClient } from '../api/apiClient';
 import { chatApi } from '../api/chatApi';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 export interface ChatMessage {
     _id: string;
@@ -197,7 +197,7 @@ export const useSocketDisconnect = () => {
     }, [isSignedIn]);
 };
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+
 
 export const useConversations = () => {
     const api = useApiClient();
