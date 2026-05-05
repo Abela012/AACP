@@ -123,7 +123,7 @@ export const getRecommendationsForUser = async (userId: string): Promise<Recomme
     if (user.role === 'business_owner') {
         const advertisers = await User.find({
             role: 'advertiser',
-            status: 'approved',
+            status: { $in: ['active', 'approved'] },
             _id: { $ne: user._id },
         }).lean();
 
@@ -208,7 +208,7 @@ export const getRecommendationsForUser = async (userId: string): Promise<Recomme
     results.sort((a, b) => b.score - a.score);
 
     return {
-        recommendations: results.slice(0, 20),
+        recommendations: results.slice(0, 100),
         userRole: user.role,
         generatedAt: new Date(),
     };
