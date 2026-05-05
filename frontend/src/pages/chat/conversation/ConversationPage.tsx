@@ -71,7 +71,8 @@ export default function ConversationPage() {
 
   const [activeContact, setActiveContact] = useState<Contact | null>(null);
   const { state } = useLocation();
-  const targetUserId = (state as any)?.userId;
+  const targetUserId = (state as any)?.userId || (state as any)?.creator?.targetId;
+  const targetCreator = (state as any)?.creator;
 
   useEffect(() => {
     if (contacts.length > 0) {
@@ -87,13 +88,44 @@ export default function ConversationPage() {
           setActiveContact(targetContact);
           return;
         }
+        
+        // If not found but we have creator info, create a virtual contact
+        if (targetCreator && !activeContact) {
+           setActiveContact({
+             userId: targetCreator.targetId,
+             mongoId: targetCreator.targetId,
+             clerkId: '', // unknown yet
+             conversationId: '', // will be created by useChat
+             name: targetCreator.name,
+             avatar: targetCreator.meta?.profilePicture,
+             lastMessage: 'Start a new conversation',
+             time: 'Now',
+             online: false,
+             unread: 0
+           });
+           return;
+        }
       }
       
       if (!activeContact) {
         setActiveContact(contacts[0]);
       }
+    } else if (targetCreator && !activeContact) {
+      // No contacts at all, but we have a target creator
+      setActiveContact({
+        userId: targetCreator.targetId,
+        mongoId: targetCreator.targetId,
+        clerkId: '',
+        conversationId: '',
+        name: targetCreator.name,
+        avatar: targetCreator.meta?.profilePicture,
+        lastMessage: 'Start a new conversation',
+        time: 'Now',
+        online: false,
+        unread: 0
+      });
     }
-  }, [contacts, activeContact, targetUserId]);
+  }, [contacts, activeContact, targetUserId, targetCreator]);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [inputText, setInputText] = useState('');

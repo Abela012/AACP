@@ -126,7 +126,7 @@ export default function MatchesPage() {
 
                   <div className="flex gap-4 pt-6 border-t border-gray-100 dark:border-white/10">
                      <button 
-                      onClick={() => navigate('/messages', { state: { userId: selectedCreator.targetId } })}
+                      onClick={() => navigate('/messages', { state: { creator: selectedCreator } })}
                       className="flex-1 py-4 bg-emerald-500 text-black rounded-2xl font-bold text-lg hover:bg-emerald-400 transition-all shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2"
                     >
                       Invite to Campaign
@@ -258,7 +258,7 @@ export default function MatchesPage() {
 
                   <div className="flex gap-3">
                     <button 
-                      onClick={(e) => { e.stopPropagation(); navigate('/messages', { state: { userId: c.targetId } }); }}
+                      onClick={(e) => { e.stopPropagation(); navigate('/messages', { state: { creator: c } }); }}
                       className="flex-1 py-4 bg-emerald-500 text-black rounded-2xl font-black text-sm hover:bg-emerald-400 transition-all shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2"
                     >
                       Invite Now
