@@ -57,7 +57,7 @@ export default function EditProfilePage() {
   const [tiktokHandle, setTiktokHandle] = useState(profile.tiktokHandle || '');
   const [instagramHandle, setInstagramHandle] = useState(profile.instagramHandle || '');
   const [xHandle, setXHandle] = useState(profile.xHandle || '');
-  const [facebookHandle, setFacebookHandle] = useState(profile.facebookHandle || '');
+
   const [followers, setFollowers] = useState(profile.followers || '');
   const [avgViews, setAvgViews] = useState(profile.avgViews || '');
   const [engagementRate, setEngagementRate] = useState(profile.engagementRate || '');
@@ -82,7 +82,7 @@ export default function EditProfilePage() {
       setTiktokHandle(profile.tiktokHandle || '');
       setInstagramHandle(profile.instagramHandle || '');
       setXHandle(profile.xHandle || '');
-      setFacebookHandle(profile.facebookHandle || '');
+
       setFollowers(profile.followers || '');
       setAvgViews(profile.avgViews || '');
       setEngagementRate(profile.engagementRate || '');
@@ -193,7 +193,7 @@ export default function EditProfilePage() {
           tiktokHandle,
           instagramHandle,
           xHandle,
-          facebookHandle,
+
           followers,
           avgViews,
           engagementRate,
@@ -635,16 +635,6 @@ export default function EditProfilePage() {
                             onChange={(e) => setXHandle(e.target.value)}
                             className={inputCls.replace('pl-10', 'pl-4')}
                             placeholder="@handle"
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <label className={labelCls}>Facebook Handle</label>
-                          <input
-                            type="text"
-                            value={facebookHandle}
-                            onChange={(e) => setFacebookHandle(e.target.value)}
-                            className={inputCls.replace('pl-10', 'pl-4')}
-                            placeholder="username"
                           />
                         </div>
                       </>

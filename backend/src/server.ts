@@ -14,13 +14,12 @@ import { clerkMiddleware } from "@clerk/express";
 import { connectDB, disConnect } from './config/database';
 import logger from './utils/logger';
 import { initSocket } from './socket/socket';
-import { initFacebookCronJobs } from './jobs/facebook-cron.job';
+
 
 // Connect to Database
 connectDB();
 
-// Initialize Facebook Cron Jobs
-initFacebookCronJobs();
+
 
 const app: Application = express();
 

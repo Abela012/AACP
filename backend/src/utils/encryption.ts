@@ -2,7 +2,7 @@ import crypto from 'crypto';
 
 /**
  * AES-256-GCM Encryption Utility
- * Used to encrypt/decrypt Facebook access tokens at rest in MongoDB.
+ * Used to encrypt/decrypt access tokens at rest in MongoDB.
  *
  * The encryption key is derived from the ENCRYPTION_SECRET env var.
  * Each encrypted value gets its own random IV, ensuring unique ciphertexts

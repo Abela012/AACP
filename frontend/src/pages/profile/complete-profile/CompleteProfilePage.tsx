@@ -289,8 +289,7 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
   const [newNiche, setNewNiche] = useState('');
   const [showNicheInput, setShowNicheInput] = useState(false);
   const [phone, setPhone] = useState('');
-  const [facebookConnected, setFacebookConnected] = useState(false);
-  const [facebookHandle, setFacebookHandle] = useState('');
+
   const [paymentPreference, setPaymentPreference] = useState('Negotiable');
   const [availability, setAvailability] = useState('Part-time');
   const [preferredIndustries, setPreferredIndustries] = useState<string[]>([]);
@@ -477,7 +476,7 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
           tiktokHandle,
           instagramHandle,
           xHandle,
-          facebookHandle,
+
           followers,
           avgViews,
           engagementRate,
@@ -1151,24 +1150,7 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
                       className="w-full bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-emerald-500 transition-all"
                     />
                   </div>
-                  <div className="space-y-2">
-                    <PlatformButton
-                      icon={
-                        <svg viewBox="0 0 24 24" aria-hidden="true" className="w-[18px] h-[18px] fill-current text-blue-600 dark:text-blue-400">
-                          <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"></path>
-                        </svg>
-                      }
-                      label="Facebook"
-                      connected={facebookConnected}
-                      onClick={() => setFacebookConnected(!facebookConnected)}
-                    />
-                    <input
-                      value={facebookHandle}
-                      onChange={(e) => setFacebookHandle(e.target.value)}
-                      placeholder="facebook_username"
-                      className="w-full bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-emerald-500 transition-all"
-                    />
-                  </div>
+
                 </div>
               </SectionCard>
 

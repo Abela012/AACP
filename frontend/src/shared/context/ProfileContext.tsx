@@ -23,7 +23,7 @@ export interface ProfileData {
   tiktokHandle?: string;
   instagramHandle?: string;
   xHandle?: string;
-  facebookHandle?: string;
+
   followers?: string;
   avgViews?: string;
   engagementRate?: string;
