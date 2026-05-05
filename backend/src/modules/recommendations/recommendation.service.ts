@@ -151,6 +151,8 @@ export const getRecommendationsForUser = async (userId: string): Promise<Recomme
                     niches: advProfile.niches || [advProfile.category || advProfile.niche],
                     bio: advProfile.bio,
                     platforms: advProfile.platforms,
+                    averageRating: adv.averageRating || 0,
+                    totalReviews: adv.totalReviews || 0,
                 },
             });
         }

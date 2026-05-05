@@ -100,8 +100,8 @@ export default function MatchesPage() {
                       {selectedCreator.meta?.followers?.toLocaleString() || '10K+'} Followers
                     </span>
                     <span className="bg-amber-500/10 text-amber-600 dark:text-amber-400 font-bold px-4 py-2 rounded-xl text-sm flex items-center gap-2">
-                      <Zap size={16} />
-                      {selectedCreator.meta?.engagementRate || '4.5'}% Engagement
+                      <Star size={16} fill="currentColor" />
+                      {selectedCreator.meta?.averageRating || '0.0'} ({selectedCreator.meta?.totalReviews || 0} reviews)
                     </span>
                     <span className="bg-gray-100 dark:bg-white/5 text-gray-700 dark:text-gray-300 font-bold px-4 py-2 rounded-xl text-sm flex items-center gap-2">
                       <MapPin size={16} />
@@ -231,7 +231,9 @@ export default function MatchesPage() {
                     </div>
                     <div className="flex items-center gap-1 text-amber-400">
                       <Star size={14} fill="currentColor" />
-                      <span className="text-xs font-black text-gray-900 dark:text-white">4.9</span>
+                      <span className="text-xs font-black text-gray-900 dark:text-white">
+                        {c.meta?.averageRating > 0 ? c.meta.averageRating.toFixed(1) : 'New'}
+                      </span>
                     </div>
                   </div>
 
