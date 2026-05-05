@@ -9,7 +9,8 @@ import {
   CheckCircle2, 
   X,
   Loader2,
-  FileText
+  FileText,
+  Calendar as CalendarIcon
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '@/src/shared/utils/cn';
@@ -32,6 +33,7 @@ export default function CreateCampaignPage() {
   const [category, setCategory] = useState(CATEGORIES[0]);
   const [budgetAmount, setBudgetAmount] = useState('');
   const [minFollowers, setMinFollowers] = useState('');
+  const [deadline, setDeadline] = useState('');
   
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
   const [deliverables, setDeliverables] = useState<string[]>([]);
@@ -82,6 +84,7 @@ export default function CreateCampaignPage() {
           amount: Number(budgetAmount),
           currency: 'USD'
         },
+        deadline: deadline ? new Date(deadline).toISOString() : undefined,
         requirements: {
           minFollowers: Number(minFollowers) || 0,
           preferredNiches: [category]
@@ -97,7 +100,7 @@ export default function CreateCampaignPage() {
         // Backend returns validation errors in data array
         setError(respData.data.map((e: any) => e.message).join(' | '));
       } else {
-        setError(respData?.error || err.message || 'Failed to create campaign');
+        setError(respData?.message || err.message || 'Failed to create campaign');
       }
     }
   };
@@ -183,6 +186,20 @@ export default function CreateCampaignPage() {
                       onChange={(e) => setBudgetAmount(e.target.value)}
                       placeholder="e.g. 500"
                       className="w-full bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl pl-10 pr-4 py-3 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-emerald-500 transition-all"
+                      required
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-900 dark:text-white mb-2">Due Date *</label>
+                  <div className="relative">
+                    <CalendarIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+                    <input 
+                      type="date"
+                      value={deadline}
+                      onChange={(e) => setDeadline(e.target.value)}
+                      min={new Date().toISOString().split('T')[0]}
+                      className="w-full bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl pl-10 pr-4 py-3 text-sm text-gray-900 dark:text-white focus:outline-none focus:border-emerald-500 transition-all"
                       required
                     />
                   </div>

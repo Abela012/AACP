@@ -51,11 +51,15 @@ const calculateMatchScore = (
 ): number => {
     let score = 0;
 
-    // ── Category Match (30 pts) ──
+    // ── Category/Niche Match (30 pts) ──
     const userCategory = userProfile.category || userProfile.niche || '';
-    const targetCategory = target.category || '';
-    if (userCategory && targetCategory && userCategory.toLowerCase() === targetCategory.toLowerCase()) {
-        score += 30;
+    const targetNiches = target.niches || (target.category ? [target.category] : []);
+    
+    if (userCategory && targetNiches.length > 0) {
+        const hasMatch = targetNiches.some((n: string) => n.toLowerCase() === userCategory.toLowerCase());
+        if (hasMatch) {
+            score += 30;
+        }
     }
 
     // ── Engagement Rate (25 pts) ──
@@ -128,7 +132,7 @@ export const getRecommendationsForUser = async (userId: string): Promise<Recomme
             const score = calculateMatchScore(
                 userProfile,
                 user.location,
-                { ...advProfile, category: advProfile.category || advProfile.niche },
+                { ...advProfile, niches: advProfile.niches || [advProfile.category || advProfile.niche] },
                 adv.location
             );
 
@@ -144,6 +148,9 @@ export const getRecommendationsForUser = async (userId: string): Promise<Recomme
                     followers: advProfile.followers,
                     engagementRate: advProfile.engagementRate,
                     username: adv.username,
+                    niches: advProfile.niches || [advProfile.category || advProfile.niche],
+                    bio: advProfile.bio,
+                    platforms: advProfile.platforms,
                 },
             });
         }
@@ -201,7 +208,7 @@ export const getRecommendationsForUser = async (userId: string): Promise<Recomme
     results.sort((a, b) => b.score - a.score);
 
     return {
-        recommendations: results.slice(0, 10),
+        recommendations: results.slice(0, 20),
         userRole: user.role,
         generatedAt: new Date(),
     };

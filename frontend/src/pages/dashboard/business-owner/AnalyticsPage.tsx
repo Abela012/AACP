@@ -116,7 +116,7 @@ export default function AnalyticsPage() {
               <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
                 <p className="text-sm font-bold text-gray-400 dark:text-gray-600">No data available for this period</p>
               </div>
-              <ResponsiveContainer width="100%" height={300}>
+              <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={100} debounce={50}>
                 <AreaChart data={data}>
                   <defs>
                     <linearGradient id="colorReach" x1="0" y1="0" x2="0" y2="1">
@@ -142,7 +142,7 @@ export default function AnalyticsPage() {
           <div className="bg-white dark:bg-white/5 p-8 rounded-[2.5rem] border border-gray-100 dark:border-white/5 shadow-sm dark:shadow-none">
             <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-8">Platform Distribution</h3>
             <div className="h-[250px] w-full mb-8">
-              <ResponsiveContainer width="100%" height={250}>
+              <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={100} debounce={50}>
                 <BarChart data={platformData} layout="vertical">
                   <XAxis type="number" hide />
                   <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{fontSize: 12, fontWeight: 600, fill: '#9ca3af'}} width={80} />

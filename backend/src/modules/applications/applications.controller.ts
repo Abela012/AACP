@@ -222,6 +222,21 @@ export const acceptApplication = async (req: Request, res: Response) => {
             req.user?._id?.toString() as string,
             'accepted'
         );
+        // Emit Notification to Advertiser
+        const io = (req.app as any).io;
+        if (io && application.advertiser) {
+            io.to(`user:${application.advertiser.toString()}`).emit('notification:new', {
+                type: 'application',
+                title: 'Application Accepted! 🎉',
+                message: `Your application for "${(application.opportunity as any).title}" has been accepted.`,
+                data: {
+                    applicationId: application._id,
+                    status: 'accepted'
+                },
+                createdAt: new Date().toISOString()
+            });
+        }
+
         return success(res, 'Application accepted successfully', application);
     } catch (err: any) {
         return error(res, err.message, 403);
@@ -242,6 +257,21 @@ export const rejectApplication = async (req: Request, res: Response) => {
             'rejected',
             rejectionReason
         );
+        // Emit Notification to Advertiser
+        const io = (req.app as any).io;
+        if (io && application.advertiser) {
+            io.to(`user:${application.advertiser.toString()}`).emit('notification:new', {
+                type: 'application',
+                title: 'Application Update',
+                message: `Your application for "${(application.opportunity as any).title}" was not accepted this time.`,
+                data: {
+                    applicationId: application._id,
+                    status: 'rejected'
+                },
+                createdAt: new Date().toISOString()
+            });
+        }
+
         return success(res, 'Application rejected successfully', application);
     } catch (err: any) {
         return error(res, err.message, 403);

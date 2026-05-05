@@ -22,9 +22,25 @@ export const createOpportunity = async (req: Request, res: Response) => {
         }
 
         // 1. Check if user has enough coins (50 coins per post)
-        const balanceInfo = await walletService.getBalance(userId.toString());
+        let balanceInfo = await walletService.getBalance(userId.toString());
+        
         if (balanceInfo.availableBalance < 50) {
-            return error(res, 'Insufficient coins. You need 50 coins to post a campaign.', 400);
+            // Check if this is their first time posting
+            const previousPosts = await opportunityService.getOpportunitiesByUser(userId.toString());
+            
+            if (previousPosts.length === 0) {
+                // First time posting! Give them starting coins
+                console.log(`[createOpportunity] First-time poster detected (${userId}). Crediting 1000 coins.`);
+                await walletService.creditCoins({
+                    userId: userId.toString(),
+                    amount: 1000,
+                    description: 'First-time poster welcome bonus',
+                });
+                // Re-fetch balance
+                balanceInfo = await walletService.getBalance(userId.toString());
+            } else {
+                return error(res, 'Insufficient coins. You need 50 coins to post a campaign.', 400);
+            }
         }
 
         const data = {

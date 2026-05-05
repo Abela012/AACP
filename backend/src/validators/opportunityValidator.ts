@@ -25,8 +25,12 @@ export const createOpportunityValidator = [
         .optional()
         .isISO8601().withMessage('Invalid date format for deadline')
         .custom((value: string) => {
-            if (new Date(value) <= new Date()) {
-                throw new Error('Deadline must be a future date');
+            const selectedDate = new Date(value);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0); // Start of today
+            
+            if (selectedDate < today) {
+                throw new Error('Deadline must be today or a future date');
             }
             return true;
         })

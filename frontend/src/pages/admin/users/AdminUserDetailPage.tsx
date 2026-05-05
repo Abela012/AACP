@@ -40,6 +40,11 @@ export default function AdminUserDetailPage() {
     enabled: !!id,
   });
 
+  const displayProfileData = user ? {
+    ...(user.profileData || {}),
+    ...(user.pendingProfileData || {})
+  } : null;
+
   const updateStatus = useMutation({
     mutationFn: (newStatus: string) => api.put(`/admin/users/${id}/status`, { status: newStatus }),
     onSuccess: (_, vars) => {
@@ -128,7 +133,7 @@ export default function AdminUserDetailPage() {
                 </div>
               </div>
               <p className="text-sm font-medium text-[#6F767E] dark:text-gray-400 mb-8 leading-relaxed max-w-xl">
-                {user.profileData?.bio || 'No bio provided for this user.'}
+                {displayProfileData?.bio || 'No bio provided for this user.'}
               </p>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -138,11 +143,11 @@ export default function AdminUserDetailPage() {
                 </div>
                 <div>
                   <label className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest mb-1 block">Phone Number</label>
-                  <p className="text-xs font-bold">{user.profileData?.phone || 'N/A'}</p>
+                  <p className="text-xs font-bold">{displayProfileData?.phone || 'N/A'}</p>
                 </div>
                 <div>
                   <label className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest mb-1 block">Location</label>
-                  <p className="text-xs font-bold">{user.profileData?.businessLocation || user.location || 'Remote'}</p>
+                  <p className="text-xs font-bold">{displayProfileData?.businessLocation || user.location || 'Remote'}</p>
                 </div>
               </div>
             </div>
@@ -228,7 +233,7 @@ export default function AdminUserDetailPage() {
                 <label className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest block">Website / Portfolio</label>
                 <p className="text-sm font-bold flex items-center gap-2">
                   <Globe size={14} className="text-indigo-500" />
-                  {user.profileData?.website || 'Not provided'}
+                  {displayProfileData?.website || 'Not provided'}
                 </p>
               </div>
 
@@ -236,41 +241,41 @@ export default function AdminUserDetailPage() {
                 <>
                   <div className="space-y-1">
                     <label className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest block">Business Name</label>
-                    <p className="text-sm font-bold">{user.profileData?.businessName || 'Not provided'}</p>
+                    <p className="text-sm font-bold">{displayProfileData?.businessName || 'Not provided'}</p>
                   </div>
                   <div className="space-y-1">
                     <label className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest block">Business Type</label>
-                    <p className="text-sm font-bold">{user.profileData?.businessType || 'Not provided'}</p>
+                    <p className="text-sm font-bold">{displayProfileData?.businessType || 'Not provided'}</p>
                   </div>
                   <div className="space-y-1">
                     <label className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest block">Industry</label>
-                    <p className="text-sm font-bold">{user.profileData?.industry || 'Not provided'}</p>
+                    <p className="text-sm font-bold">{displayProfileData?.industry || 'Not provided'}</p>
                   </div>
                   <div className="space-y-1">
                     <label className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest block">Opening Hours</label>
-                    <p className="text-sm font-bold">{user.profileData?.openingHours || 'Not provided'}</p>
+                    <p className="text-sm font-bold">{displayProfileData?.openingHours || 'Not provided'}</p>
                   </div>
                   <div className="space-y-1">
                     <label className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest block">Price Range</label>
-                    <p className="text-sm font-bold">{user.profileData?.priceRange || 'Not provided'}</p>
+                    <p className="text-sm font-bold">{displayProfileData?.priceRange || 'Not provided'}</p>
                   </div>
                   <div className="space-y-1">
                     <label className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest block">Monthly Budget</label>
-                    <p className="text-sm font-bold text-emerald-500">${user.profileData?.monthlyBudget || '0'}</p>
+                    <p className="text-sm font-bold text-emerald-500">${displayProfileData?.monthlyBudget || '0'}</p>
                   </div>
                   <div className="lg:col-span-3">
                     <label className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest block mb-2">Services Offered</label>
-                    <p className="text-sm font-medium">{user.profileData?.servicesOffered || 'None'}</p>
+                    <p className="text-sm font-medium">{displayProfileData?.servicesOffered || 'None'}</p>
                   </div>
                   <div className="lg:col-span-3">
                     <label className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest block mb-2">Target Audience / Promotion Goals</label>
                     <div className="flex flex-wrap gap-2">
-                      {user.profileData?.targetAudienceTags?.map((tag: string, i: number) => (
+                      {displayProfileData?.targetAudienceTags?.map((tag: string, i: number) => (
                         <span key={i} className="px-3 py-1 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 rounded-lg text-[10px] font-bold border border-indigo-100 dark:border-indigo-500/20">
                           {tag}
                         </span>
                       ))}
-                      {user.profileData?.promotionGoals?.map((tag: string, i: number) => (
+                      {displayProfileData?.promotionGoals?.map((tag: string, i: number) => (
                         <span key={`pg-${i}`} className="px-3 py-1 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 rounded-lg text-[10px] font-bold border border-emerald-100 dark:border-emerald-500/20">
                           {tag}
                         </span>
@@ -282,39 +287,40 @@ export default function AdminUserDetailPage() {
                 <>
                   <div className="space-y-1">
                     <label className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest block">Followers</label>
-                    <p className="text-sm font-bold">{user.profileData?.followers || '0'}</p>
+                    <p className="text-sm font-bold">{displayProfileData?.followers || '0'}</p>
                   </div>
                   <div className="space-y-1">
                     <label className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest block">Avg Views</label>
-                    <p className="text-sm font-bold">{user.profileData?.avgViews || '0'}</p>
+                    <p className="text-sm font-bold">{displayProfileData?.avgViews || '0'}</p>
                   </div>
                   <div className="space-y-1">
                     <label className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest block">Engagement %</label>
-                    <p className="text-sm font-bold">{user.profileData?.engagementRate || '0'}</p>
+                    <p className="text-sm font-bold">{displayProfileData?.engagementRate || '0'}</p>
                   </div>
                   <div className="space-y-1">
                     <label className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest block">Base Rate</label>
-                    <p className="text-sm font-bold text-emerald-500">${user.profileData?.baseRate || '0'}</p>
+                    <p className="text-sm font-bold text-emerald-500">${displayProfileData?.baseRate || '0'}</p>
                   </div>
                   <div className="space-y-1">
                     <label className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest block">Social Handles</label>
                     <p className="text-sm font-bold text-gray-700 dark:text-gray-300">
-                      {user.profileData?.youtubeHandle && <span className="text-red-500 mr-2">YT: {user.profileData?.youtubeHandle}</span>}
-                      {user.profileData?.tiktokHandle && <span className="text-pink-500 mr-2">TT: {user.profileData?.tiktokHandle}</span>}
-                      {user.profileData?.instagramHandle && <span className="text-purple-500 mr-2">IG: {user.profileData?.instagramHandle}</span>}
-                      {user.profileData?.xHandle && <span className="text-blue-400">X: {user.profileData?.xHandle}</span>}
+                      {displayProfileData?.youtubeHandle && <span className="text-red-500 mr-2">YT: {displayProfileData?.youtubeHandle}</span>}
+                      {displayProfileData?.tiktokHandle && <span className="text-pink-500 mr-2">TT: {displayProfileData?.tiktokHandle}</span>}
+                      {displayProfileData?.instagramHandle && <span className="text-purple-500 mr-2">IG: {displayProfileData?.instagramHandle}</span>}
+                      {displayProfileData?.xHandle && <span className="text-blue-400 mr-2">X: {displayProfileData?.xHandle}</span>}
+                      {displayProfileData?.facebookHandle && <span className="text-blue-600">FB: {displayProfileData?.facebookHandle}</span>}
                     </p>
                   </div>
                   <div className="space-y-1">
                     <label className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest block">Payment & Availability</label>
                     <p className="text-sm font-bold">
-                      {user.profileData?.paymentPreference || 'N/A'} • {user.profileData?.availability || 'N/A'}
+                      {displayProfileData?.paymentPreference || 'N/A'} • {displayProfileData?.availability || 'N/A'}
                     </p>
                   </div>
                   <div className="lg:col-span-3">
                     <label className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest block mb-2">Niches / Categories</label>
                     <div className="flex flex-wrap gap-2">
-                      {user.profileData?.niches?.map((niche: string, i: number) => (
+                      {displayProfileData?.niches?.map((niche: string, i: number) => (
                         <span key={i} className="px-3 py-1 bg-green-50 dark:bg-green-500/10 text-[#14a800] rounded-lg text-[10px] font-bold border border-green-100 dark:border-green-500/20">
                           {niche}
                         </span>
@@ -326,6 +332,104 @@ export default function AdminUserDetailPage() {
             </div>
           </div>
         </div>
+
+        {/* Verification Documents Section */}
+        {user.role === 'business_owner' && (
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-8">
+            <div className="lg:col-span-12 bg-white dark:bg-[#111111] p-8 rounded-[3rem] border border-[#EFEFEF] dark:border-white/5 shadow-sm">
+              <div className="flex justify-between items-center mb-8">
+                <h3 className="font-extrabold text-xl">Verification Documents</h3>
+                <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${
+                  user.isVerified ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600' : 'bg-amber-50 dark:bg-amber-500/10 text-amber-600'
+                }`}>
+                  {user.isVerified ? 'KYC Verified' : 'Pending Verification'}
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {/* Trade License */}
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <label className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest block">Trade License Image</label>
+                    {user.tradeLicenseUrl && (
+                      <a 
+                        href={user.tradeLicenseUrl} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-[10px] font-black text-emerald-500 uppercase tracking-widest hover:underline flex items-center gap-1"
+                      >
+                        <Download size={12} /> Download
+                      </a>
+                    )}
+                  </div>
+                  <div className="aspect-video rounded-3xl overflow-hidden bg-gray-50 dark:bg-white/5 border border-[#EFEFEF] dark:border-white/10 flex items-center justify-center group relative">
+                    {user.tradeLicenseUrl ? (
+                      <>
+                        <img 
+                          src={user.tradeLicenseUrl} 
+                          alt="Trade License" 
+                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        />
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                          <a href={user.tradeLicenseUrl} target="_blank" rel="noopener noreferrer" className="p-4 bg-white rounded-2xl text-black hover:bg-emerald-500 hover:text-white transition-all shadow-xl">
+                            <Eye size={24} />
+                          </a>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="text-center p-8">
+                        <div className="w-16 h-16 bg-gray-100 dark:bg-white/10 rounded-2xl flex items-center justify-center mx-auto mb-4 text-gray-400">
+                          <AlertCircle size={32} />
+                        </div>
+                        <p className="text-xs font-bold text-gray-500">No trade license uploaded</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* ID Verification */}
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <label className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest block">ID Verification Image</label>
+                    {user.idVerificationUrl && (
+                      <a 
+                        href={user.idVerificationUrl} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-[10px] font-black text-emerald-500 uppercase tracking-widest hover:underline flex items-center gap-1"
+                      >
+                        <Download size={12} /> Download
+                      </a>
+                    )}
+                  </div>
+                  <div className="aspect-video rounded-3xl overflow-hidden bg-gray-50 dark:bg-white/5 border border-[#EFEFEF] dark:border-white/10 flex items-center justify-center group relative">
+                    {user.idVerificationUrl ? (
+                      <>
+                        <img 
+                          src={user.idVerificationUrl} 
+                          alt="ID Verification" 
+                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        />
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                          <a href={user.idVerificationUrl} target="_blank" rel="noopener noreferrer" className="p-4 bg-white rounded-2xl text-black hover:bg-emerald-500 hover:text-white transition-all shadow-xl">
+                            <Eye size={24} />
+                          </a>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="text-center p-8">
+                        <div className="w-16 h-16 bg-gray-100 dark:bg-white/10 rounded-2xl flex items-center justify-center mx-auto mb-4 text-gray-400">
+                          <AlertCircle size={32} />
+                        </div>
+                        <p className="text-xs font-bold text-gray-500">No ID document uploaded</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8">
