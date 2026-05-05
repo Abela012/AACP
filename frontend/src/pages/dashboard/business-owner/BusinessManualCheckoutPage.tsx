@@ -111,7 +111,7 @@ export default function BusinessManualCheckoutPage() {
               Your manual payment request has been submitted successfully. Please wait 24-48 hours for admin approval. Once verified, {packDetails.coins} coins will be credited to your wallet.
             </p>
             <button 
-              onClick={() => navigate('/balance')}
+              onClick={() => navigate('/wallet')}
               className="w-full bg-emerald-500 hover:bg-emerald-400 text-black font-bold py-4 rounded-xl shadow-lg shadow-emerald-500/20 active:scale-[0.98] transition-all"
             >
               Back to Wallet

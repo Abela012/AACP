@@ -143,7 +143,7 @@ export default function BusinessCheckoutPage() {
               Your coin purchase request for <strong className="text-emerald-500">{packDetails.coins} coins</strong> has been submitted. An admin will verify the transaction and credit your wallet shortly.
             </p>
             <button 
-              onClick={() => navigate('/balance')}
+              onClick={() => navigate('/wallet')}
               className="w-full bg-emerald-500 hover:bg-emerald-400 text-black font-bold py-4 rounded-xl shadow-lg shadow-emerald-500/20 active:scale-[0.98] transition-all"
             >
               Back to Wallet
