@@ -5,17 +5,12 @@ import { useAuth, useUser as useClerkUser } from '@clerk/clerk-react';
 import { 
   Megaphone, 
   Users, 
-  BarChart3, 
   Plus, 
   CreditCard,
   Sparkles,
-  Zap,
   ShieldCheck,
-  Globe,
   Lock,
   ChevronRight,
-  Briefcase,
-  Target,
   Loader2
 } from 'lucide-react';
 import OnboardingBanner from '@/src/shared/components/OnboardingBanner';
@@ -28,9 +23,7 @@ import { useUserSync } from '@/src/hooks/useUserSync';
 import { useMyOpportunities } from '@/src/hooks/useOpportunities';
 import { useWalletBalance } from '@/src/hooks/useWallet';
 import { useRecommendations } from '@/src/hooks/useRecommendations';
-import { useUserCollaborations } from '@/src/hooks/useCollaborations';
 import { type Opportunity } from '@/src/api/opportunityApi';
-import { type Collaboration } from '@/src/api/collaborationApi';
 
 export default function BusinessDashboardPage() {
   const navigate = useNavigate();
@@ -45,10 +38,8 @@ export default function BusinessDashboardPage() {
   const { data: oppsData, isLoading: isLoadingOpps } = useMyOpportunities(myId);
   const { data: walletData, isLoading: isLoadingWallet } = useWalletBalance();
   const { data: recsData, isLoading: isLoadingRecs } = useRecommendations();
-  const { data: collabsData, isLoading: isLoadingCollabs } = useUserCollaborations(myId);
   
   const opportunities = oppsData?.opportunities ?? [];
-  const collaborations = collabsData ?? [];
   const activeCount = opportunities.filter((o: Opportunity) => o.status === 'open').length;
 
   const totalApplicants = opportunities.reduce((acc: number, opp: Opportunity) => acc + (opp.applicants?.length ?? 0), 0);
@@ -139,160 +130,95 @@ export default function BusinessDashboardPage() {
               ))}
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              <div className="lg:col-span-2 space-y-8">
-                <div className={cn("bg-white dark:bg-white/5 p-8 rounded-[2.5rem] border border-gray-100 dark:border-white/5 relative overflow-hidden shadow-sm dark:shadow-none", !isApproved && "opacity-50 pointer-events-none")}>
-                  {!isApproved && (
-                    <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/40 dark:bg-black/40 backdrop-blur-[2px]">
-                      <div className="bg-white dark:bg-[#1a1a1a] p-4 rounded-2xl shadow-xl border border-gray-100 dark:border-white/10 flex items-center gap-3">
-                        <Lock className="text-emerald-600 w-5 h-5" />
-                        <span className="text-sm font-bold text-gray-900 dark:text-white">Unlock after approval</span>
-                      </div>
+            <div className="grid grid-cols-1 gap-8">
+              <div className="bg-white dark:bg-white/5 p-8 rounded-[2.5rem] border border-gray-100 dark:border-white/5 shadow-sm dark:shadow-none">
+                <div className="flex justify-between items-center mb-8">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-emerald-600/10 rounded-lg flex items-center justify-center text-emerald-600">
+                      <Sparkles size={18} />
                     </div>
-                  )}
-                  <div className="flex justify-between items-center mb-10">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 bg-emerald-600/10 rounded-lg flex items-center justify-center text-emerald-600"><BarChart3 size={18} /></div>
-                      <h3 className="text-lg font-bold text-gray-900 dark:text-white">Campaign Performance</h3>
-                    </div>
-                    <button onClick={() => navigate('/analytics')} className="text-xs font-bold text-emerald-600 hover:underline">Open analytics</button>
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-white">Featured Content Creators</h3>
                   </div>
-                  <div className="h-64 flex items-end gap-2 relative">
-                    <svg className="w-full h-full overflow-visible" viewBox="0 0 800 200">
-                      <defs><linearGradient id="busChartGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#10b981" stopOpacity="0.3" /><stop offset="100%" stopColor="#10b981" stopOpacity="0" /></linearGradient></defs>
-                      <path d="M 0 120 Q 150 80 300 140 T 500 60 T 800 100" fill="none" stroke="#10b981" strokeWidth="4" />
-                      <path d="M 0 120 Q 150 80 300 140 T 500 60 T 800 100 L 800 200 L 0 200 Z" fill="url(#busChartGrad)" />
-                    </svg>
-                  </div>
+                  <Link to="/matches" className="text-sm font-bold text-emerald-600 hover:underline">View all matches</Link>
                 </div>
-                <div className={cn("bg-white dark:bg-white/5 p-8 rounded-[2.5rem] border border-gray-100 dark:border-white/5 relative shadow-sm dark:shadow-none", !isApproved && "opacity-50 pointer-events-none")}>
-                  {!isApproved && (
-                    <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/40 dark:bg-black/40 backdrop-blur-[2px] rounded-[2.5rem]">
-                      <div className="bg-white dark:bg-[#1a1a1a] p-4 rounded-2xl shadow-xl border border-gray-100 dark:border-white/10 flex items-center gap-3">
-                        <Lock className="text-emerald-600 w-5 h-5" />
-                        <span className="text-sm font-bold text-gray-900 dark:text-white">Unlock after approval</span>
-                      </div>
+
+                {isLoadingRecs ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {[1, 2, 3, 4, 5, 6].map(i => (
+                      <div key={i} className="h-64 bg-gray-50 dark:bg-white/5 rounded-3xl animate-pulse" />
+                    ))}
+                  </div>
+                ) : (recsData?.recommendations ?? []).length === 0 ? (
+                  <div className="text-center py-20">
+                    <div className="w-20 h-20 bg-gray-50 dark:bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6">
+                      <Users className="text-gray-300 w-10 h-10" />
                     </div>
-                  )}
-                  <div className="flex justify-between items-center mb-8">
-                    <h3 className="text-lg font-bold text-gray-900 dark:text-white">Active Collaborations</h3>
-                    <Link to="/collaborations" className="text-xs font-bold text-emerald-600 hover:underline">View all</Link>
+                    <h4 className="text-lg font-bold text-gray-900 dark:text-white mb-2">No creators found yet</h4>
+                    <p className="text-gray-500 max-w-sm mx-auto text-sm">
+                      We're currently matching creators to your profile. Check back shortly!
+                    </p>
                   </div>
-                  <div className="space-y-4">
-                    {isLoadingCollabs ? (
-                      <div className="flex justify-center py-8">
-                        <Loader2 size={24} className="animate-spin text-emerald-600" />
-                      </div>
-                    ) : collaborations.length === 0 ? (
-                      <div className="text-center py-8">
-                        <p className="text-sm font-bold text-gray-500 dark:text-gray-400">No active collaborations yet</p>
-                      </div>
-                    ) : (
-                      collaborations.slice(0, 3).map((collab: Collaboration, idx: number) => {
-                        const statusColors: Record<string, string> = {
-                          active: 'text-emerald-500 bg-emerald-500/10',
-                          completed: 'text-blue-500 bg-blue-500/10',
-                          cancelled: 'text-red-400 bg-red-400/10'
-                        };
-                        const partner = collab.advertiser;
-                        const partnerName = partner ? `${partner.firstName || ''} ${partner.lastName || ''}`.trim() || partner.username : 'Creator';
-                        
-                        return (
-                          <div 
-                            key={collab._id || idx} 
-                            onClick={() => navigate(`/collaborations/${collab._id}`)}
-                            className="bg-gray-50 dark:bg-white/5 p-5 rounded-2xl border border-gray-100 dark:border-white/5 hover:border-emerald-600/30 transition-all cursor-pointer group"
-                          >
-                            <div className="flex justify-between items-start mb-4">
-                              <div className="flex items-center gap-4">
-                                {partner?.profilePicture ? (
-                                  <img src={partner.profilePicture} alt="" className="w-12 h-12 rounded-xl object-cover" />
-                                ) : (
-                                  <div className="w-12 h-12 bg-emerald-600/10 rounded-xl flex items-center justify-center text-emerald-600 font-bold border border-gray-100 dark:border-white/10">
-                                    {partnerName[0]}
-                                  </div>
-                                )}
-                                <div>
-                                  <h4 className="font-bold text-sm text-gray-900 dark:text-white line-clamp-1">{partnerName}</h4>
-                                  <p className="text-[10px] text-gray-500 line-clamp-1">{collab.opportunity?.title || 'Project'}</p>
-                                </div>
-                              </div>
-                              <span className={cn("px-3 py-1 rounded-lg text-[10px] font-bold tracking-wider uppercase", statusColors[collab.status] || statusColors.active)}>
-                                {collab.status}
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-4">
-                              <div className="flex-1 h-1.5 bg-gray-200 dark:bg-white/5 rounded-full overflow-hidden">
-                                <div className="h-full bg-emerald-600" style={{ width: `${collab.overallProgress || 0}%` }}></div>
-                              </div>
-                              <span className="text-[10px] font-bold text-gray-400">{collab.overallProgress || 0}%</span>
-                            </div>
-                          </div>
-                        );
-                      })
-                    )}
-                  </div>
-                </div>
-              </div>
-              <div className="space-y-8">
-                <div className={cn("bg-white dark:bg-white/5 p-8 rounded-[2.5rem] border border-gray-100 dark:border-white/5 relative shadow-sm dark:shadow-none", !isApproved && "opacity-50 pointer-events-none")}>
-                  {!isApproved && (
-                    <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/40 dark:bg-black/40 backdrop-blur-[2px] rounded-[2.5rem]">
-                      <div className="bg-white dark:bg-[#1a1a1a] p-4 rounded-2xl shadow-xl border border-gray-100 dark:border-white/10 flex items-center gap-3">
-                        <Lock className="text-emerald-600 w-5 h-5" />
-                        <span className="text-sm font-bold text-gray-900 dark:text-white">Unlock after approval</span>
-                      </div>
-                    </div>
-                  )}
-                  <div className="flex items-center justify-between mb-8">
-                    <div className="flex items-center gap-3"><Sparkles className="text-cyan-500" /><h3 className="text-lg font-bold text-gray-900 dark:text-white">AI Recommendations</h3></div>
-                    <button onClick={() => navigate('/matches')} className="text-xs font-bold text-emerald-600 hover:underline">View all</button>
-                  </div>
-                  <div className="space-y-4">
-                    {isLoadingRecs ? (
-                      <div className="flex justify-center py-6">
-                        <Loader2 size={24} className="animate-spin text-emerald-600" />
-                      </div>
-                    ) : (recsData?.recommendations ?? []).length === 0 ? (
-                      <div className="text-center py-6">
-                        <Sparkles className="w-8 h-8 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
-                        <p className="text-xs text-gray-500 leading-relaxed">Complete your profile to get personalized advertiser matches and campaign insights.</p>
-                      </div>
-                    ) : (
-                      (recsData?.recommendations ?? []).slice(0, 3).map((rec, idx) => (
-                        <div key={rec.targetId || idx} className="flex items-center justify-between p-4 rounded-2xl bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/5 hover:border-emerald-600/30 transition-all cursor-pointer">
-                          <div className="flex items-center gap-3">
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {(recsData?.recommendations ?? []).map((rec, idx) => (
+                      <motion.div 
+                        key={rec.targetId || idx}
+                        whileHover={{ y: -5 }}
+                        onClick={() => navigate(`/matches?id=${rec.targetId}`)}
+                        className="bg-gray-50 dark:bg-[#0c0c0c] p-6 rounded-[2rem] border border-gray-100 dark:border-white/5 hover:border-emerald-600/30 transition-all cursor-pointer group"
+                      >
+                        <div className="flex items-center gap-4 mb-6">
+                          <div className="relative">
                             {rec.meta?.profilePicture ? (
-                              <img src={rec.meta.profilePicture} alt={rec.name} className="w-10 h-10 rounded-xl object-cover border border-gray-100 dark:border-white/10" />
+                              <img src={rec.meta.profilePicture} alt={rec.name} className="w-16 h-16 rounded-2xl object-cover border-2 border-white dark:border-gray-800 shadow-md" />
                             ) : (
-                              <div className="w-10 h-10 bg-emerald-600/10 rounded-xl flex items-center justify-center text-emerald-600 font-bold text-sm">
+                              <div className="w-16 h-16 bg-emerald-600/10 rounded-2xl flex items-center justify-center text-emerald-600 font-bold text-xl border-2 border-white dark:border-gray-800 shadow-md">
                                 {rec.name?.[0]?.toUpperCase() || '?'}
                               </div>
                             )}
-                            <div>
-                              <h4 className="font-bold text-sm text-gray-900 dark:text-white">{rec.name}</h4>
-                              <div className="flex items-center gap-2 text-[10px] text-gray-500">
-                                {rec.category && <span>{rec.category}</span>}
-                                {rec.location && <span>• {rec.location}</span>}
-                                {rec.meta?.followers && <span>• {Number(rec.meta.followers).toLocaleString()} followers</span>}
-                              </div>
+                            <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-emerald-500 rounded-full border-2 border-white dark:border-[#0c0c0c] flex items-center justify-center text-white">
+                              <ShieldCheck size={12} />
                             </div>
                           </div>
-                          <div className="flex items-center gap-2">
-                            <div className="text-right">
-                              <span className="text-sm font-bold text-emerald-600">{rec.score}%</span>
-                              <p className="text-[10px] text-gray-400">match</p>
+                          <div>
+                            <h4 className="font-black text-gray-900 dark:text-white group-hover:text-emerald-500 transition-colors">{rec.name}</h4>
+                            <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">{rec.category || 'Creator'}</p>
+                            <div className="flex items-center gap-2 mt-1">
+                              <span className="text-[10px] font-bold text-emerald-600 bg-emerald-500/10 px-2 py-0.5 rounded-full">{rec.score}% Match</span>
                             </div>
-                            <ChevronRight size={16} className="text-gray-300" />
                           </div>
                         </div>
-                      ))
-                    )}
+
+                        <div className="grid grid-cols-2 gap-4 mb-6">
+                          <div className="p-3 bg-white dark:bg-white/5 rounded-2xl border border-gray-100 dark:border-white/5">
+                            <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1">Followers</p>
+                            <p className="text-sm font-black text-gray-900 dark:text-white">
+                              {Number(rec.meta?.followers || 0).toLocaleString()}
+                            </p>
+                          </div>
+                          <div className="p-3 bg-white dark:bg-white/5 rounded-2xl border border-gray-100 dark:border-white/5">
+                            <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1">Engagement</p>
+                            <p className="text-sm font-black text-gray-900 dark:text-white">
+                              {rec.meta?.engagementRate || 0}%
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="flex flex-wrap gap-1.5 mb-6">
+                          {(rec.meta?.platforms || []).slice(0, 3).map((p: string) => (
+                            <span key={p} className="text-[9px] font-bold px-2 py-0.5 bg-white dark:bg-white/5 text-gray-500 rounded-lg border border-gray-100 dark:border-white/10 lowercase">
+                              #{p}
+                            </span>
+                          ))}
+                        </div>
+
+                        <button className="w-full py-3 bg-gray-900 dark:bg-white text-white dark:text-black font-bold rounded-2xl hover:opacity-90 transition-all text-xs">
+                          View Profile
+                        </button>
+                      </motion.div>
+                    ))}
                   </div>
-                </div>
-                <div className="bg-white dark:bg-white/5 p-6 rounded-[2rem] border border-gray-100 dark:border-white/5 relative overflow-hidden group shadow-sm dark:shadow-none">
-                  <div className="relative z-10"><div className="flex items-center gap-2 mb-4"><Globe className="text-emerald-500 w-4 h-4" /><span className="text-[10px] font-black uppercase tracking-widest text-emerald-500">Market Pulse</span></div><div className="flex items-center justify-between"><div><p className="text-xs text-gray-500 mb-1">Trending Hotspot:</p><p className="text-sm font-bold text-gray-900 dark:text-white">Global</p></div><ChevronRight className="text-gray-400 group-hover:text-emerald-600 transition-colors" /></div></div>
-                </div>
+                )}
               </div>
             </div>
           </>
