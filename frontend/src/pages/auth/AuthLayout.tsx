@@ -70,8 +70,8 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
                 <div className="relative z-10 flex items-center justify-between w-full pt-8 border-t border-white/10 text-xs text-gray-500 font-medium">
                     <span>© {new Date().getFullYear()} AACP Platform.</span>
                     <div className="flex gap-4">
-                        <span className="hover:text-white cursor-pointer transition-colors">Privacy</span>
-                        <span className="hover:text-white cursor-pointer transition-colors">Terms</span>
+                        <Link to="/privacy-policy" className="hover:text-white transition-colors">Privacy</Link>
+                        <Link to="/terms-of-service" className="hover:text-white transition-colors">Terms</Link>
                     </div>
                 </div>
             </div>

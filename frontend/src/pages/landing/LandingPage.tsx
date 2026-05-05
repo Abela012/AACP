@@ -13,6 +13,7 @@ import {
   X,
   Plus
 } from 'lucide-react';
+import { FaFacebook, FaTwitter, FaLinkedin } from 'react-icons/fa';
 import { Link, useNavigate } from 'react-router-dom';
 import { SignedIn, SignedOut, useUser } from '@clerk/clerk-react';
 
@@ -47,9 +48,9 @@ export default function LandingPage() {
               </Link>
 
               <div className="hidden lg:flex items-center gap-6 text-sm font-medium text-[#001e00]">
-                <a href="#" className="hover:text-[#14a800] transition-colors">Find Advertisers</a>
-                <a href="#" className="hover:text-[#14a800] transition-colors">Find Business</a>
-                <a href="#" className="hover:text-[#14a800] transition-colors">Why AACP</a>
+                <a href="/#browse-talent" className="hover:text-[#14a800] transition-colors">Find Advertisers</a>
+                <a href="/#post-campaign" className="hover:text-[#14a800] transition-colors">Find Business</a>
+                <a href="/#why-aacp" className="hover:text-[#14a800] transition-colors">Why AACP</a>
               </div>
             </div>
 
@@ -109,7 +110,7 @@ export default function LandingPage() {
             className="flex-1 text-center lg:text-left"
           >
             <motion.h1 variants={fadeInUp} className="text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight text-[#001e00] mb-6">
-              How work <br className="hidden lg:block" /> should work
+              Advertise and connect
             </motion.h1>
             <motion.p variants={fadeInUp} className="text-xl text-[#5e6d55] max-w-lg mb-8 mx-auto lg:mx-0">
               Forget the old rules. You can have the best advertisers and businesses working together in an authentic marketplace.
@@ -132,7 +133,10 @@ export default function LandingPage() {
                   Enter Dashboard
                 </button>
               </SignedIn>
-              <button className="w-full sm:w-auto px-8 py-3.5 rounded-full bg-white border border-[#14a800] text-lg font-bold text-[#14a800] hover:bg-gray-50 transition-all active:scale-95">
+              <button
+                onClick={() => document.getElementById('why-aacp')?.scrollIntoView({ behavior: 'smooth' })}
+                className="w-full sm:w-auto px-8 py-3.5 rounded-full bg-white border border-[#14a800] text-lg font-bold text-[#14a800] hover:bg-gray-50 transition-all active:scale-95"
+              >
                 Learn more
               </button>
             </motion.div>
@@ -178,7 +182,7 @@ export default function LandingPage() {
       </section>
 
       {/* ─── Browse Talent Section ─── */}
-      <section className="py-24 bg-white">
+      <section id="browse-talent" className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-4xl font-bold mb-10">Browse role by category</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -204,7 +208,7 @@ export default function LandingPage() {
       </section>
 
       {/* ─── Why AACP Section (Dark) ─── */}
-      <section className="bg-[#001e00] rounded-[40px] mx-4 sm:mx-8 my-10 overflow-hidden relative">
+      <section id="why-aacp" className="bg-[#001e00] rounded-[40px] mx-4 sm:mx-8 my-10 overflow-hidden relative">
         <div className="absolute top-0 right-0 w-1/3 h-full bg-[#14a800] opacity-5 box-decoration-slice"></div>
         <div className="max-w-7xl mx-auto px-8 py-20 lg:py-32 flex flex-col lg:flex-row items-center gap-16">
           <div className="flex-1">
@@ -254,7 +258,10 @@ export default function LandingPage() {
                 <span className="text-4xl font-bold text-white">Award</span>
                 <span className="text-xs text-gray-400 uppercase tracking-widest mt-2">Best Ads Tool 2025</span>
               </div>
-              <div className="bg-[#14a800] p-6 rounded-2xl h-48 flex flex-col justify-center items-center text-center shadow-lg shadow-[#14a800]/20 cursor-pointer hover:bg-[#108a00] transition-colors">
+              <div
+                onClick={() => navigate('/auth/register')}
+                className="bg-[#14a800] p-6 rounded-2xl h-48 flex flex-col justify-center items-center text-center shadow-lg shadow-[#14a800]/20 cursor-pointer hover:bg-[#108a00] transition-colors"
+              >
                 <Plus className="w-10 h-10 text-white mb-2" />
                 <span className="text-sm font-bold text-white leading-tight">Join the marketplace</span>
               </div>
@@ -264,7 +271,7 @@ export default function LandingPage() {
       </section>
 
       {/* ─── Post Opportunity CTA ─── */}
-      <section className="py-24 bg-white border-b border-gray-100">
+      <section id="post-campaign" className="py-24 bg-white border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="rounded-[32px] bg-[#f7faf7] p-8 lg:p-16 flex flex-col lg:flex-row items-center justify-between gap-10">
             <div className="max-w-xl">
@@ -303,54 +310,59 @@ export default function LandingPage() {
                 <span className="text-xl font-bold tracking-tight text-[#14a800]">AACP</span>
               </Link>
               <div className="flex gap-4">
-                <div className="w-8 h-8 rounded-full border border-white/20 flex items-center justify-center hover:bg-white/10 cursor-pointer">f</div>
-                <div className="w-8 h-8 rounded-full border border-white/20 flex items-center justify-center hover:bg-white/10 cursor-pointer">x</div>
-                <div className="w-8 h-8 rounded-full border border-white/20 flex items-center justify-center hover:bg-white/10 cursor-pointer">in</div>
+                <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="w-8 h-8 rounded-full border border-white/20 flex items-center justify-center hover:bg-white/10 transition-colors">
+                  <FaFacebook className="w-4 h-4" />
+                </a>
+                <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="w-8 h-8 rounded-full border border-white/20 flex items-center justify-center hover:bg-white/10 transition-colors">
+                  <FaTwitter className="w-4 h-4" />
+                </a>
+                <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="w-8 h-8 rounded-full border border-white/20 flex items-center justify-center hover:bg-white/10 transition-colors">
+                  <FaLinkedin className="w-4 h-4" />
+                </a>
               </div>
             </div>
             <div>
               <h5 className="font-bold mb-6 uppercase text-xs tracking-widest text-[#5e6d55]">For Clients</h5>
               <ul className="space-y-4 text-sm text-gray-400">
-                <li><a href="#" className="hover:text-white transition-colors">How to hire</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Marketplace</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Project Catalog</a></li>
+                <li><a href="/#post-campaign" className="hover:text-white transition-colors">How to hire</a></li>
+                <li><a href="/#browse-talent" className="hover:text-white transition-colors">Marketplace</a></li>
+                <li><a href="/#browse-talent" className="hover:text-white transition-colors">Project Catalog</a></li>
               </ul>
             </div>
             <div>
               <h5 className="font-bold mb-6 uppercase text-xs tracking-widest text-[#5e6d55]">For Advertisers</h5>
               <ul className="space-y-4 text-sm text-gray-400">
-                <li><a href="#" className="hover:text-white transition-colors">How to find work</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Direct Contracts</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Success stories</a></li>
+                <li><a href="/#browse-talent" className="hover:text-white transition-colors">How to find work</a></li>
+                <li><a href="/#post-campaign" className="hover:text-white transition-colors">Direct Contracts</a></li>
+                <li><a href="/#why-aacp" className="hover:text-white transition-colors">Success stories</a></li>
               </ul>
             </div>
             <div>
               <h5 className="font-bold mb-6 uppercase text-xs tracking-widest text-[#5e6d55]">Resources</h5>
               <ul className="space-y-4 text-sm text-gray-400">
-                <li><a href="#" className="hover:text-white transition-colors">Help & Support</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Ad School</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Community</a></li>
+                <li><a href="/#why-aacp" className="hover:text-white transition-colors">Help & Support</a></li>
+                <li><a href="/#why-aacp" className="hover:text-white transition-colors">Ad School</a></li>
+                <li><a href="/#why-aacp" className="hover:text-white transition-colors">Community</a></li>
               </ul>
             </div>
             <div className="hidden lg:block">
               <h5 className="font-bold mb-6 uppercase text-xs tracking-widest text-[#5e6d55]">Company</h5>
               <ul className="space-y-4 text-sm text-gray-400">
-                <li><a href="#" className="hover:text-white transition-colors">About us</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Leadership</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Trust & Safety</a></li>
+                <li><a href="/#why-aacp" className="hover:text-white transition-colors">About us</a></li>
+                <li><a href="/#why-aacp" className="hover:text-white transition-colors">Leadership</a></li>
+                <li><a href="/#why-aacp" className="hover:text-white transition-colors">Trust & Safety</a></li>
               </ul>
             </div>
           </div>
           <div className="pt-10 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-6 text-[10px] sm:text-xs text-gray-500 font-medium">
             <div className="flex gap-6">
               <span>© {new Date().getFullYear()} AACP Global Inc.</span>
-              <a href="#" className="hover:text-white transition-colors">Terms of Service</a>
-              <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
-              <a href="#" className="hover:text-white transition-colors">Cookie Policy</a>
+              <Link to="/terms-of-service" className="hover:text-white transition-colors">Terms of Service</Link>
+              <Link to="/privacy-policy" className="hover:text-white transition-colors">Privacy Policy</Link>
             </div>
             <div className="flex gap-4">
-              <span>Accessibility</span>
-              <span>Sitemap</span>
+              <Link to="/privacy-policy" className="hover:text-white transition-colors">Accessibility</Link>
+              <Link to="/privacy-policy" className="hover:text-white transition-colors">Sitemap</Link>
             </div>
           </div>
         </div>
@@ -360,9 +372,9 @@ export default function LandingPage() {
       {isMenuOpen && (
         <div className="lg:hidden fixed inset-0 z-40 bg-white pt-16 p-6">
           <ul className="space-y-6 text-xl font-bold">
-            <li><a href="#">Find Advertisers</a></li>
-            <li><a href="#">Find Business</a></li>
-            <li><a href="#">Why AACP</a></li>
+            <li><a href="/#browse-talent" onClick={() => setIsMenuOpen(false)}>Find Advertisers</a></li>
+            <li><a href="/#post-campaign" onClick={() => setIsMenuOpen(false)}>Find Business</a></li>
+            <li><a href="/#why-aacp" onClick={() => setIsMenuOpen(false)}>Why AACP</a></li>
             <li className="pt-6 border-t border-gray-100">
               <Link to="/auth/login" className="text-[#14a800]">Log in</Link>
             </li>

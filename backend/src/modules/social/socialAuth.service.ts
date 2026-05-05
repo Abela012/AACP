@@ -65,7 +65,7 @@ export class SocialAuthService {
      * Get Platform User Profile
      */
     static async getPlatformUserProfile(platform: 'facebook' | 'instagram' | 'tiktok', accessToken: string) {
-        if (platform === 'facebook') {
+        if (platform === 'facebook' || platform === 'instagram') {
             const response = await axios.get(`${this.FB_GRAPH_URL}/me`, {
                 params: {
                     fields: 'id,name,email,picture',

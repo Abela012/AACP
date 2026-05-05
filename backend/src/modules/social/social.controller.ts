@@ -33,7 +33,7 @@ export const initiateAuth = async (req: Request, res: Response) => {
         authUrl = SocialAuthService.getTikTokAuthUrl(callbackUrl, state);
     }
 
-    res.json({ success: true, authUrl });
+    res.json({ success: true, data: { authUrl } });
 };
 
 /**

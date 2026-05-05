@@ -170,7 +170,7 @@ export default function RegisterForm() {
                             required
                         />
                         <label htmlFor="terms" className="text-xs font-medium text-[#5e6d55] group-hover:text-[#001e00] transition-colors leading-relaxed">
-                            I agree to the <Link to="/terms" className="text-[#14a800] font-bold hover:underline">Terms of Service</Link> and <Link to="/privacy" className="text-[#14a800] font-bold hover:underline">Privacy Policy</Link>
+                            I agree to the <Link to="/terms-of-service" className="text-[#14a800] font-bold hover:underline">Terms of Service</Link> and <Link to="/privacy-policy" className="text-[#14a800] font-bold hover:underline">Privacy Policy</Link>
                         </label>
                     </div>
 

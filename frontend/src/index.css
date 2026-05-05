@@ -1,6 +1,8 @@
 @import "tailwindcss";
-@custom-variant dark (&:where(.dark, .dark *));
 
+html {
+  scroll-behavior: smooth;
+}
 
 :root {
   font-family: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
@@ -16,4 +18,3 @@ body {
 * {
   box-sizing: border-box;
 }
-

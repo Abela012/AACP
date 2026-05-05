@@ -54,6 +54,8 @@ import SuperAdminSecurityPage from './pages/super-admin/security/SecurityPage'
 import SuperAdminNotificationsPage from './pages/super-admin/notifications/NotificationsPage'
 import SuperAdminProfilePage from './pages/super-admin/profile/ProfilePage'
 import RoleGuard from './core/guards/RoleGuard'
+import TermsOfService from './pages/legal/TermsOfService'
+import PrivacyPolicy from './pages/legal/PrivacyPolicy'
 import CollaborationsPage from './pages/collaboration/list/CollaborationsPage'
 import CollaborationDetailsPage from './pages/collaboration/details/CollaborationDetailsPage'
 import './App.css'
@@ -137,7 +139,7 @@ function App() {
             </>
           }
         />
-        
+
         {/* Business Owner Routes */}
         <Route
           path="/dashboard/business-owner"
@@ -463,6 +465,10 @@ function App() {
 
         {/* Landing Page */}
         <Route path="/" element={<LandingPage />} />
+
+        {/* Legal Pages */}
+        <Route path="/terms-of-service" element={<TermsOfService />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
       </Routes>
     </>
   )

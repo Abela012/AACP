@@ -2,10 +2,10 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useAuth, useUser as useClerkUser } from '@clerk/clerk-react';
-import { 
-  Plus, 
-  TrendingUp, 
-  BarChart3, 
+import {
+  Plus,
+  TrendingUp,
+  BarChart3,
   Sparkles,
   Zap,
   DollarSign,
@@ -40,7 +40,7 @@ export default function AdvertiserDashboardPage() {
   const { user: clerkUser } = useClerkUser();
   const myId = clerkUser?.id ?? '';
   const { sync, isLoading: isSyncing } = useUserSync();
-  
+
   const [chartView, setChartView] = useState<'daily' | 'monthly'>('monthly');
   const isApproved = onboardingStatus === 'approved';
 
@@ -82,7 +82,7 @@ export default function AdvertiserDashboardPage() {
   return (
     <AdvertiserLayout>
       <main className="p-4 sm:p-8 max-w-[1400px] mx-auto w-full">
-        <div className="mb-8 p-4 bg-gray-50 dark:bg-white/5 rounded-2xl flex flex-wrap items-center gap-4 border border-gray-100 dark:border-white/10 hidden">
+        <div className="mb-8 p-4 bg-gray-50 dark:bg-white/5 rounded-2xl  flex-wrap items-center gap-4 border border-gray-100 dark:border-white/10 hidden">
         </div>
 
         {onboardingStatus === 'incomplete' ? (
@@ -90,15 +90,15 @@ export default function AdvertiserDashboardPage() {
             <CompleteProfilePage isInsideDashboard={true} />
           </div>
         ) : onboardingStatus === 'pending' ? (
-          <PendingApprovalState 
-            onRefresh={() => sync()} 
-            isRefreshing={isSyncing} 
+          <PendingApprovalState
+            onRefresh={() => sync()}
+            isRefreshing={isSyncing}
           />
         ) : (
           /* Show Regular Dashboard for Approved */
           <>
             <OnboardingBanner status={onboardingStatus} role="advertiser" />
-            
+
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-10 gap-4">
               <div>
                 <h1 className="text-3xl sm:text-4xl font-bold mb-2 text-gray-900 dark:text-white">Dashboard <span className="text-emerald-500">Overview</span></h1>
@@ -111,7 +111,7 @@ export default function AdvertiserDashboardPage() {
                 <button
                   key={idx}
                   onClick={() => handleStatClick(stat.label)}
-                  className="w-full text-left bg-white dark:bg-white/5 p-6 rounded-[2rem] border border-gray-100 dark:border-white/5 hover:border-emerald-500/30 transition-all group shadow-sm dark:shadow-none"
+                  className="w-full text-left bg-white dark:bg-white/5 p-6 rounded-4xl border border-gray-100 dark:border-white/5 hover:border-emerald-500/30 transition-all group shadow-sm dark:shadow-none"
                 >
                   <div className="flex justify-between items-start mb-4">
                     <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">{stat.label}</h3>
@@ -136,7 +136,7 @@ export default function AdvertiserDashboardPage() {
             <div className="relative">
               <div className="flex justify-between items-center mb-8">
                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Latest Opportunities</h2>
-                <button 
+                <button
                   onClick={() => navigate('/advertiser/matches')}
                   className="text-sm font-bold text-emerald-500 hover:underline flex items-center gap-1"
                 >
@@ -166,7 +166,7 @@ export default function AdvertiserDashboardPage() {
                   </div>
                 ) : opportunities.length > 0 ? (
                   opportunities.slice(0, 6).map((o: any) => (
-                    <motion.div 
+                    <motion.div
                       key={o._id}
                       whileHover={{ y: -5 }}
                       onClick={() => navigate(`/advertiser/matches`)}
@@ -174,17 +174,17 @@ export default function AdvertiserDashboardPage() {
                     >
                       <div className="h-48 relative">
                         {o.businessOwner?.profilePicture ? (
-                          <img 
-                            src={o.businessOwner.profilePicture} 
-                            alt={o.businessOwner.fullName} 
-                            className="w-full h-full object-cover transition-transform group-hover:scale-110 duration-700" 
+                          <img
+                            src={o.businessOwner.profilePicture}
+                            alt={o.businessOwner.fullName}
+                            className="w-full h-full object-cover transition-transform group-hover:scale-110 duration-700"
                           />
                         ) : (
                           <div className="w-full h-full bg-gray-200 dark:bg-white/5 flex items-center justify-center text-gray-400">
                             <Building2 size={48} />
                           </div>
                         )}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60"></div>
+                        <div className="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent opacity-60"></div>
                         <div className="absolute top-4 right-4 bg-emerald-500/90 backdrop-blur-md text-black text-[10px] font-bold px-3 py-1.5 rounded-full uppercase tracking-widest shadow-lg">
                           {o.category || 'Campaign'}
                         </div>
@@ -222,7 +222,7 @@ export default function AdvertiserDashboardPage() {
                           </div>
                         </div>
 
-                        <button 
+                        <button
                           className="w-full py-4 rounded-2xl bg-emerald-500 text-black hover:bg-emerald-400 font-bold text-sm transition-all shadow-lg shadow-emerald-500/10 flex items-center justify-center gap-2"
                         >
                           View Details <ArrowRight size={18} />
