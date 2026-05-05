@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import { useUser as useClerkUser } from '@clerk/clerk-react';
@@ -51,7 +52,7 @@ import BusinessLayout from '@/src/shared/components/layouts/BusinessLayout';
 import CompleteProfilePage from '../../profile/complete-profile/CompleteProfilePage';
 import PendingApprovalState from '@/src/shared/components/PendingApprovalState';
 import { useUserSync } from '@/src/hooks/useUserSync';
-import { useMyOpportunities } from '@/src/hooks/useOpportunities';
+import { useMyOpportunities, useUpdateOpportunity } from '@/src/hooks/useOpportunities';
 import { useWalletBalance, useWalletHistory } from '@/src/hooks/useWallet';
 import { useRecommendations } from '@/src/hooks/useRecommendations';
 import { useUserCollaborations } from '@/src/hooks/useCollaborations';
