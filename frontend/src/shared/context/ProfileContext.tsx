@@ -33,6 +33,8 @@ export interface ProfileData {
   primaryLanguage?: string;
   baseRate?: string;
   selectedStyles?: string[];
+  _id?: string;
+  clerkId?: string;
 }
 
 interface ProfileContextType {
@@ -78,6 +80,8 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
           email: userData.email || '',
           avatarUrl: userData.profilePicture || '',
           coverImageUrl: userData.coverImage || '',
+          _id: userData._id,
+          clerkId: userData.clerkId,
           ...userData.profileData,
         });
       }
