@@ -94,6 +94,8 @@ const opportunitySchema: Schema<IOpportunity> = new Schema(
 opportunitySchema.index({ status: 1, category: 1 });
 opportunitySchema.index({ businessOwner: 1 });
 opportunitySchema.index({ createdAt: -1 });
+// Text index for full-text search across title, description, category, tags
+opportunitySchema.index({ title: 'text', description: 'text', category: 'text', tags: 'text' });
 
 const Opportunity: Model<IOpportunity> = mongoose.model<IOpportunity>('Opportunity', opportunitySchema);
 export default Opportunity;

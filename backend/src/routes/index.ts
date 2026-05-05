@@ -13,6 +13,8 @@ import chatRoutes from '../modules/chat/chat.routes';
 import recommendationRoutes from '../modules/recommendations/recommendation.routes';
 import marketingAnalysisRoutes from '../modules/marketing-analysis/marketing-analysis.routes';
 import socialRoutes from '../modules/social/social.routes';
+import searchRoutes from '../modules/search/search.routes';
+
 
 /**
  * @swagger
@@ -352,6 +354,8 @@ router.use('/chat', chatRoutes);
 router.use('/recommendations', recommendationRoutes);
 router.use('/marketing-analysis', marketingAnalysisRoutes);
 router.use('/social', socialRoutes);
+router.use('/search', searchRoutes);
+
 
 /**
  * @swagger
