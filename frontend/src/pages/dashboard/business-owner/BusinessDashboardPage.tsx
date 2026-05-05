@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth, useUser as useClerkUser } from '@clerk/clerk-react';
+import { useUser as useClerkUser } from '@clerk/clerk-react';
 import { 
   Megaphone, 
   Users, 
@@ -11,8 +11,38 @@ import {
   ShieldCheck,
   Lock,
   ChevronRight,
-  Loader2
+  Loader2,
+  AlertCircle,
+  TrendingUp,
+  MessageSquare,
+  Search,
+  MoreVertical,
+  Pause,
+  Play,
+  Edit,
+  Clock,
+  CheckCircle2,
+  ArrowUpRight,
+  ArrowDownRight,
+  DollarSign,
+  Wallet,
+  Activity,
+  Bell,
+  Settings,
+  HelpCircle
 } from 'lucide-react';
+import { 
+  AreaChart, 
+  Area, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  Cell
+} from 'recharts';
 import OnboardingBanner from '@/src/shared/components/OnboardingBanner';
 import { cn } from '@/src/shared/utils/cn';
 import { useUser } from '@/src/shared/context/UserContext';
@@ -23,206 +53,495 @@ import { useUserSync } from '@/src/hooks/useUserSync';
 import { useMyOpportunities } from '@/src/hooks/useOpportunities';
 import { useWalletBalance } from '@/src/hooks/useWallet';
 import { useRecommendations } from '@/src/hooks/useRecommendations';
+import { useUserCollaborations } from '@/src/hooks/useCollaborations';
 import { type Opportunity } from '@/src/api/opportunityApi';
+
+// ─── MOCK DATA FOR UI ENHANCEMENT ──────────────────────────────────────────
+
+const performanceData = [
+  { name: 'Mon', views: 4000, engagement: 2400, conversions: 400 },
+  { name: 'Tue', views: 3000, engagement: 1398, conversions: 210 },
+  { name: 'Wed', views: 2000, engagement: 9800, conversions: 2290 },
+  { name: 'Thu', views: 2780, engagement: 3908, conversions: 2000 },
+  { name: 'Fri', views: 1890, engagement: 4800, conversions: 181 },
+  { name: 'Sat', views: 2390, engagement: 3800, conversions: 250 },
+  { name: 'Sun', views: 3490, engagement: 4300, conversions: 2100 },
+];
+
+const recentActivity = [
+  { id: 1, type: 'creator', text: 'Sarah Jenkins submitted content for "Summer Vibes"', time: '2 hours ago', icon: MessageSquare, color: 'text-blue-500' },
+  { id: 2, type: 'payment', text: 'Payment of 2,500 AACP processed for Mike Ross', time: '5 hours ago', icon: DollarSign, color: 'text-emerald-500' },
+  { id: 3, type: 'campaign', text: 'Campaign "Winter Collection" status changed to Active', time: '1 day ago', icon: Play, color: 'text-indigo-500' },
+];
+
+const tasks = [
+  { id: 1, title: 'Review submitted content', subtitle: 'Summer Vibes Campaign', priority: 'high', action: 'Review' },
+  { id: 2, title: 'Approve creator requests', subtitle: '4 pending applications', priority: 'medium', action: 'Approve' },
+  { id: 3, title: 'Fund "New Year" campaign', subtitle: 'Insufficient balance', priority: 'high', action: 'Fund' },
+];
+
+// ─── SUB-COMPONENTS ────────────────────────────────────────────────────────
+
+const Card = ({ children, className, title, extra }: any) => (
+  <div className={cn("bg-white dark:bg-[#111] rounded-3xl border border-gray-100 dark:border-white/5 shadow-sm overflow-hidden", className)}>
+    {(title || extra) && (
+      <div className="px-6 py-4 border-b border-gray-50 dark:border-white/5 flex justify-between items-center">
+        <h3 className="font-bold text-gray-900 dark:text-white flex items-center gap-2">{title}</h3>
+        {extra}
+      </div>
+    )}
+    <div className="p-6">{children}</div>
+  </div>
+);
+
+const Badge = ({ children, variant = 'neutral' }: any) => {
+  const variants: any = {
+    success: 'bg-emerald-500/10 text-emerald-600',
+    warning: 'bg-amber-500/10 text-amber-600',
+    danger: 'bg-red-500/10 text-red-600',
+    info: 'bg-blue-500/10 text-blue-600',
+    neutral: 'bg-gray-500/10 text-gray-600',
+  };
+  return <span className={cn("px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider", variants[variant])}>{children}</span>;
+};
+
+// ─── MAIN COMPONENT ───────────────────────────────────────────────────────
 
 export default function BusinessDashboardPage() {
   const navigate = useNavigate();
-  const { onboardingStatus, setOnboardingStatus } = useUser();
+  const { onboardingStatus } = useUser();
   const { user: clerkUser } = useClerkUser();
   const myId = clerkUser?.id ?? '';
   const { sync, isLoading: isSyncing } = useUserSync();
-  
   const isApproved = onboardingStatus === 'approved';
 
-  // Real data hooks
+  // Data Hooks
   const { data: oppsData, isLoading: isLoadingOpps } = useMyOpportunities(myId);
   const { data: walletData, isLoading: isLoadingWallet } = useWalletBalance();
   const { data: recsData, isLoading: isLoadingRecs } = useRecommendations();
-  
-  const opportunities = oppsData?.opportunities ?? [];
-  const activeCount = opportunities.filter((o: Opportunity) => o.status === 'open').length;
+  const { data: collabsData, isLoading: isLoadingCollabs } = useUserCollaborations(myId);
 
+  const opportunities = oppsData?.opportunities ?? [];
+  const collaborations = collabsData ?? [];
+  const activeOpps = opportunities.filter((o: Opportunity) => o.status === 'open');
   const totalApplicants = opportunities.reduce((acc: number, opp: Opportunity) => acc + (opp.applicants?.length ?? 0), 0);
 
-  const stats = [
-    { label: 'Total Campaigns', value: isLoadingOpps ? '...' : opportunities.length.toString(), trend: `${activeCount} active`, trendType: 'up', icon: Megaphone, color: 'text-emerald-500' },
-    { label: 'Active Matches', value: isLoadingOpps ? '...' : totalApplicants.toString(), trend: 'Pending review', trendType: 'neutral', icon: Users, color: 'text-blue-500' },
-    { label: 'Total Balance', value: isLoadingWallet ? '...' : `${walletData?.balance?.toLocaleString() ?? 0} AACP`, trend: 'Available to spend', trendType: 'neutral', icon: CreditCard, color: 'text-red-500' },
-    { label: 'Trust Score', value: 'N/A', subValue: '', trend: 'New Account', trendType: 'neutral', icon: ShieldCheck, color: 'text-cyan-500' },
-  ];
-
-  const handleStatClick = (label: string) => {
-    if (label.includes('Campaign')) {
-      navigate('/campaigns');
-      return;
-    }
-    if (label.includes('Match')) {
-      navigate('/matches');
-      return;
-    }
-    if (label.includes('Spent')) {
-      navigate('/balance');
-      return;
-    }
-    navigate('/analytics');
-  };
+  // 1. Status / Alert Banner Logic
+  const showBalanceWarning = (walletData?.balance ?? 0) < 100;
+  const showVerifyAlert = onboardingStatus === 'incomplete' || onboardingStatus === 'pending';
 
   return (
     <BusinessLayout>
-      <main className="p-8 max-w-[1400px] mx-auto w-full">
-        <div className="mb-8 p-4 bg-gray-50 dark:bg-white/5 rounded-2xl flex items-center gap-4 border border-gray-100 dark:border-white/10 hidden">
+      <main className="p-4 md:p-8 max-w-[1600px] mx-auto w-full space-y-8 pb-20">
+        
+        {/* 1. STATUS / ALERT BANNER */}
+        <AnimatePresence>
+          <div className="space-y-3">
+            {showVerifyAlert && (
+              <motion.div 
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="p-4 bg-amber-50 dark:bg-amber-500/5 border border-amber-200 dark:border-amber-500/20 rounded-2xl flex items-center justify-between"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-amber-100 dark:bg-amber-500/20 rounded-xl flex items-center justify-center text-amber-600">
+                    <AlertCircle size={20} />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-sm text-gray-900 dark:text-white">Account Under Review</h4>
+                    <p className="text-xs text-gray-500">Your profile is being verified. Some features might be limited until approved.</p>
+                  </div>
+                </div>
+                <button onClick={() => sync()} className="text-xs font-bold text-amber-600 hover:underline">Refresh Status</button>
+              </motion.div>
+            )}
+
+            {showBalanceWarning && isApproved && (
+              <motion.div 
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="p-4 bg-red-50 dark:bg-red-500/5 border border-red-200 dark:border-red-500/20 rounded-2xl flex items-center justify-between"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-red-100 dark:bg-red-500/20 rounded-xl flex items-center justify-center text-red-600">
+                    <Wallet size={20} />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-sm text-gray-900 dark:text-white">Low Wallet Balance</h4>
+                    <p className="text-xs text-gray-500">Your balance is below 100 AACP. Top up to ensure your campaigns keep running.</p>
+                  </div>
+                </div>
+                <button onClick={() => navigate('/wallet')} className="px-4 py-2 bg-red-600 text-white rounded-xl text-xs font-bold hover:bg-red-500 transition-colors">Add Funds</button>
+              </motion.div>
+            )}
+          </div>
+        </AnimatePresence>
+
+        {/* HEADER SECTION */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          <div>
+            <h1 className="text-3xl font-black text-gray-900 dark:text-white">Business <span className="text-emerald-500">Command Center</span></h1>
+            <p className="text-sm text-gray-500 mt-1">Manage your advertisement ecosystem and track performance real-time.</p>
+          </div>
+          <div className="flex items-center gap-3">
+            <button className="p-3 bg-gray-50 dark:bg-white/5 rounded-2xl text-gray-500 hover:bg-gray-100 dark:hover:bg-white/10 transition-all border border-gray-100 dark:border-white/5 relative">
+              <Bell size={20} />
+              <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white dark:border-black"></span>
+            </button>
+            <button className="p-3 bg-gray-50 dark:bg-white/5 rounded-2xl text-gray-500 hover:bg-gray-100 dark:hover:bg-white/10 transition-all border border-gray-100 dark:border-white/5">
+              <Settings size={20} />
+            </button>
+          </div>
         </div>
 
-        {onboardingStatus === 'incomplete' ? (
-          <div className="mt-8">
-            <CompleteProfilePage isInsideDashboard={true} />
-          </div>
-        ) : onboardingStatus === 'pending' ? (
-          <PendingApprovalState 
-            onRefresh={() => sync()} 
-            isRefreshing={isSyncing} 
-          />
-        ) : (
-          <>
-            <OnboardingBanner status={onboardingStatus} role="business" />
-            
-            <div className="flex justify-between items-center mb-10">
-              <div>
-                <h1 className="text-4xl font-bold mb-2 text-gray-900 dark:text-white">Performance <span className="text-emerald-500">Snapshot</span></h1>
-                <p className="text-gray-500 dark:text-gray-400 text-sm">Welcome back, {clerkUser?.firstName || 'User'}. Your AI agents found {totalApplicants} new high-value matches.</p>
+        {/* 2. KPI METRICS (CLICKABLE CARDS) */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {[
+            { label: 'Total Campaigns', value: isLoadingOpps ? '...' : opportunities.length, trend: '+2', trendType: 'up', subtext: 'Since last month', icon: Megaphone, color: 'text-blue-500', link: '/campaigns' },
+            { label: 'Active Creators', value: isLoadingCollabs ? '...' : collaborations.filter((c: any) => c.status === 'active').length, trend: '+12%', trendType: 'up', subtext: 'High engagement', icon: Users, color: 'text-emerald-500', link: '/collaborations' },
+            { label: 'Wallet Balance', value: isLoadingWallet ? '...' : `${walletData?.balance?.toLocaleString() ?? 0}`, trend: 'AACP', trendType: 'neutral', subtext: 'Available funds', icon: Wallet, color: 'text-amber-500', link: '/wallet' },
+            { label: 'Trust Score', value: '78/100', trend: '+4', trendType: 'up', subtext: 'Top 10% Business', icon: ShieldCheck, color: 'text-indigo-500', link: '/profile' },
+          ].map((stat, idx) => (
+            <motion.button
+              key={idx}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: idx * 0.1 }}
+              onClick={() => navigate(stat.link)}
+              className="bg-white dark:bg-[#111] p-6 rounded-[2rem] border border-gray-100 dark:border-white/5 shadow-sm hover:border-emerald-500/30 transition-all group text-left"
+            >
+              <div className="flex justify-between items-start mb-4">
+                <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center bg-gray-50 dark:bg-white/5", stat.color)}>
+                  <stat.icon size={24} />
+                </div>
+                <div className={cn("flex items-center gap-1 text-xs font-bold", stat.trendType === 'up' ? 'text-emerald-500' : 'text-gray-400')}>
+                  {stat.trendType === 'up' ? <ArrowUpRight size={14} /> : null}
+                  {stat.trend}
+                </div>
               </div>
-              <Link 
-                to={isApproved ? "/campaign/new" : "#"}
-                className={cn(
-                  "px-6 py-3 rounded-xl font-bold flex items-center gap-2 transition-all shadow-lg",
-                  isApproved 
-                    ? "bg-emerald-600 text-white hover:bg-emerald-500 shadow-emerald-100 dark:shadow-none" 
-                    : "bg-gray-100 dark:bg-white/5 text-gray-400 dark:text-gray-500 cursor-not-allowed shadow-none"
-                )}
-              >
-                {isApproved ? <Plus size={18} /> : <Lock size={18} />}
-                New Campaign
-              </Link>
-            </div>
+              <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">{stat.label}</p>
+              <h3 className="text-3xl font-black text-gray-900 dark:text-white mb-1">{stat.value}</h3>
+              <p className="text-[10px] text-gray-400">{stat.subtext}</p>
+            </motion.button>
+          ))}
+        </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-              {stats.map((stat, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => handleStatClick(stat.label)}
-                  className="w-full text-left bg-white dark:bg-white/5 p-6 rounded-[2rem] border border-gray-100 dark:border-white/5 hover:border-emerald-600/30 transition-all group shadow-sm dark:shadow-none"
+        {/* 3. QUICK ACTIONS BAR */}
+        <div className="flex flex-wrap gap-4 p-6 bg-emerald-600 rounded-3xl shadow-xl shadow-emerald-600/20 relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -mr-32 -mt-32"></div>
+          <div className="relative z-10 flex flex-col md:flex-row items-center gap-6 w-full">
+            <div className="flex-1">
+              <h3 className="text-xl font-bold text-white mb-1">Growth Shortcuts</h3>
+              <p className="text-white/70 text-sm">Jump into your most frequent tasks immediately.</p>
+            </div>
+            <div className="flex flex-wrap gap-3">
+              {[
+                { label: 'Create Campaign', icon: Plus, link: '/campaign/new' },
+                { label: 'Find Creators', icon: Search, link: '/matches' },
+                { label: 'Open Messages', icon: MessageSquare, link: '/messages' },
+                { label: 'AI Insights', icon: Sparkles, link: '/analytics' },
+              ].map((action, i) => (
+                <button 
+                  key={i}
+                  onClick={() => navigate(action.link)}
+                  className="px-6 py-3 bg-white/10 hover:bg-white/20 text-white rounded-2xl text-sm font-bold flex items-center gap-2 backdrop-blur-md transition-all border border-white/10"
                 >
-                  <div className="flex justify-between items-start mb-4">
-                    <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">{stat.label}</h3>
-                    <div className={cn("w-10 h-10 bg-gray-50 dark:bg-white/5 rounded-xl flex items-center justify-center", stat.color)}>
-                      <stat.icon size={20} />
-                    </div>
-                  </div>
-                  <div className="flex items-baseline gap-1 mb-2">
-                    <span className="text-3xl font-bold text-gray-900 dark:text-white">{stat.value}</span>
-                    {stat.subValue && <span className="text-sm text-gray-500 dark:text-gray-400">{stat.subValue}</span>}
-                  </div>
-                  <div className={cn(
-                    "text-xs font-medium",
-                    stat.trendType === 'up' ? "text-emerald-500" : stat.trendType === 'down' ? "text-red-500" : "text-gray-500"
-                  )}>{stat.trend}</div>
+                  <action.icon size={18} />
+                  {action.label}
                 </button>
               ))}
             </div>
+          </div>
+        </div>
 
-            <div className="grid grid-cols-1 gap-8">
-              <div className="bg-white dark:bg-white/5 p-8 rounded-[2.5rem] border border-gray-100 dark:border-white/5 shadow-sm dark:shadow-none">
-                <div className="flex justify-between items-center mb-8">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-emerald-600/10 rounded-lg flex items-center justify-center text-emerald-600">
-                      <Sparkles size={18} />
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          
+          {/* LEFT CONTENT AREA (8 COLUMNS) */}
+          <div className="lg:col-span-8 space-y-8">
+            
+            {/* 12. TASKS / TO-DO SECTION */}
+            <Card title="Required Actions" extra={<Badge variant="danger">{tasks.length} Pending</Badge>}>
+              <div className="space-y-4">
+                {tasks.map((task) => (
+                  <div key={task.id} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-white/5 rounded-2xl border border-gray-100 dark:border-white/5 group hover:border-emerald-500/30 transition-all">
+                    <div className="flex items-center gap-4">
+                      <div className={cn("w-2 h-2 rounded-full", task.priority === 'high' ? 'bg-red-500' : 'bg-amber-500')}></div>
+                      <div>
+                        <h4 className="text-sm font-bold text-gray-900 dark:text-white">{task.title}</h4>
+                        <p className="text-[10px] text-gray-400">{task.subtitle}</p>
+                      </div>
                     </div>
-                    <h3 className="text-xl font-bold text-gray-900 dark:text-white">Featured Content Creators</h3>
+                    <button className="px-4 py-2 bg-white dark:bg-white/10 text-gray-900 dark:text-white rounded-xl text-xs font-bold border border-gray-100 dark:border-white/10 group-hover:bg-emerald-600 group-hover:text-white transition-all">
+                      {task.action}
+                    </button>
                   </div>
-                  <Link to="/matches" className="text-sm font-bold text-emerald-600 hover:underline">View all matches</Link>
-                </div>
-
-                {isLoadingRecs ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {[1, 2, 3, 4, 5, 6].map(i => (
-                      <div key={i} className="h-64 bg-gray-50 dark:bg-white/5 rounded-3xl animate-pulse" />
-                    ))}
-                  </div>
-                ) : (recsData?.recommendations ?? []).length === 0 ? (
-                  <div className="text-center py-20">
-                    <div className="w-20 h-20 bg-gray-50 dark:bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6">
-                      <Users className="text-gray-300 w-10 h-10" />
-                    </div>
-                    <h4 className="text-lg font-bold text-gray-900 dark:text-white mb-2">No creators found yet</h4>
-                    <p className="text-gray-500 max-w-sm mx-auto text-sm">
-                      We're currently matching creators to your profile. Check back shortly!
-                    </p>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {(recsData?.recommendations ?? []).map((rec, idx) => (
-                      <motion.div 
-                        key={rec.targetId || idx}
-                        whileHover={{ y: -5 }}
-                        onClick={() => navigate(`/matches?id=${rec.targetId}`)}
-                        className="bg-gray-50 dark:bg-[#0c0c0c] p-6 rounded-[2rem] border border-gray-100 dark:border-white/5 hover:border-emerald-600/30 transition-all cursor-pointer group"
-                      >
-                        <div className="flex items-center gap-4 mb-6">
-                          <div className="relative">
-                            {rec.meta?.profilePicture ? (
-                              <img src={rec.meta.profilePicture} alt={rec.name} className="w-16 h-16 rounded-2xl object-cover border-2 border-white dark:border-gray-800 shadow-md" />
-                            ) : (
-                              <div className="w-16 h-16 bg-emerald-600/10 rounded-2xl flex items-center justify-center text-emerald-600 font-bold text-xl border-2 border-white dark:border-gray-800 shadow-md">
-                                {rec.name?.[0]?.toUpperCase() || '?'}
-                              </div>
-                            )}
-                            <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-emerald-500 rounded-full border-2 border-white dark:border-[#0c0c0c] flex items-center justify-center text-white">
-                              <ShieldCheck size={12} />
-                            </div>
-                          </div>
-                          <div>
-                            <h4 className="font-black text-gray-900 dark:text-white group-hover:text-emerald-500 transition-colors">{rec.name}</h4>
-                            <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">{rec.category || 'Creator'}</p>
-                            <div className="flex items-center gap-2 mt-1">
-                              <span className="text-[10px] font-bold text-emerald-600 bg-emerald-500/10 px-2 py-0.5 rounded-full">{rec.score}% Match</span>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-4 mb-6">
-                          <div className="p-3 bg-white dark:bg-white/5 rounded-2xl border border-gray-100 dark:border-white/5">
-                            <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1">Followers</p>
-                            <p className="text-sm font-black text-gray-900 dark:text-white">
-                              {Number(rec.meta?.followers || 0).toLocaleString()}
-                            </p>
-                          </div>
-                          <div className="p-3 bg-white dark:bg-white/5 rounded-2xl border border-gray-100 dark:border-white/5">
-                            <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1">Engagement</p>
-                            <p className="text-sm font-black text-gray-900 dark:text-white">
-                              {rec.meta?.engagementRate || 0}%
-                            </p>
-                          </div>
-                        </div>
-
-                        <div className="flex flex-wrap gap-1.5 mb-6">
-                          {(rec.meta?.platforms || []).slice(0, 3).map((p: string) => (
-                            <span key={p} className="text-[9px] font-bold px-2 py-0.5 bg-white dark:bg-white/5 text-gray-500 rounded-lg border border-gray-100 dark:border-white/10 lowercase">
-                              #{p}
-                            </span>
-                          ))}
-                        </div>
-
-                        <button className="w-full py-3 bg-gray-900 dark:bg-white text-white dark:text-black font-bold rounded-2xl hover:opacity-90 transition-all text-xs">
-                          View Profile
-                        </button>
-                      </motion.div>
-                    ))}
-                  </div>
-                )}
+                ))}
               </div>
-            </div>
-          </>
-        )}
+            </Card>
+
+            {/* 7. PERFORMANCE INSIGHTS */}
+            <Card title="Performance Analytics" extra={
+              <div className="flex gap-2 bg-gray-50 dark:bg-white/5 p-1 rounded-xl">
+                {['7D', '30D', 'All'].map(t => (
+                  <button key={t} className="px-3 py-1 rounded-lg text-[10px] font-bold text-gray-400 hover:text-emerald-500">
+                    {t}
+                  </button>
+                ))}
+              </div>
+            }>
+              <div className="h-80 w-full mt-4">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={performanceData}>
+                    <defs>
+                      <linearGradient id="colorViews" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
+                        <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#88888820" />
+                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#888' }} />
+                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#888' }} />
+                    <Tooltip 
+                      contentStyle={{ borderRadius: '20px', border: 'none', boxShadow: '0 10px 30px rgba(0,0,0,0.1)', background: '#fff' }}
+                      itemStyle={{ fontSize: '12px', fontWeight: 'bold' }}
+                    />
+                    <Area type="monotone" dataKey="views" stroke="#10b981" strokeWidth={3} fillOpacity={1} fill="url(#colorViews)" />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+              <div className="grid grid-cols-2 gap-4 mt-8">
+                <div className="p-4 bg-emerald-50 dark:bg-emerald-500/5 rounded-2xl border border-emerald-100 dark:border-emerald-500/20">
+                  <div className="flex items-center gap-2 text-emerald-600 mb-1">
+                    <TrendingUp size={16} />
+                    <span className="text-[10px] font-black uppercase tracking-widest">Top Campaign</span>
+                  </div>
+                  <h4 className="text-sm font-bold text-gray-900 dark:text-white">Winter Collection 2026</h4>
+                  <p className="text-xs text-gray-500">+24.5% ROI</p>
+                </div>
+                <div className="p-4 bg-red-50 dark:bg-red-500/5 rounded-2xl border border-red-100 dark:border-red-500/20 opacity-70">
+                  <div className="flex items-center gap-2 text-red-600 mb-1">
+                    <AlertCircle size={16} />
+                    <span className="text-[10px] font-black uppercase tracking-widest">Underperforming</span>
+                  </div>
+                  <h4 className="text-sm font-bold text-gray-900 dark:text-white">Summer Sale 2025</h4>
+                  <p className="text-xs text-gray-500">-2.1% Drop</p>
+                </div>
+              </div>
+            </Card>
+
+            {/* 4. CAMPAIGN OVERVIEW SECTION */}
+            <Card title="Your Campaigns" extra={<button className="text-xs font-bold text-emerald-600 hover:underline">View All</button>}>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left">
+                  <thead>
+                    <tr className="text-[10px] text-gray-400 uppercase tracking-widest border-b border-gray-50 dark:border-white/5">
+                      <th className="pb-4 font-bold">Campaign Name</th>
+                      <th className="pb-4 font-bold text-center">Status</th>
+                      <th className="pb-4 font-bold">Budget</th>
+                      <th className="pb-4 font-bold text-center">Performance</th>
+                      <th className="pb-4 font-bold text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-50 dark:divide-white/5">
+                    {isLoadingOpps ? (
+                      <tr><td colSpan={5} className="py-8 text-center"><Loader2 className="animate-spin mx-auto text-emerald-600" /></td></tr>
+                    ) : opportunities.length === 0 ? (
+                      <tr><td colSpan={5} className="py-8 text-center text-sm text-gray-500">No campaigns found.</td></tr>
+                    ) : opportunities.slice(0, 5).map((opp: any) => (
+                      <tr key={opp._id} className="group hover:bg-gray-50 dark:hover:bg-white/5 transition-all">
+                        <td className="py-5">
+                          <h4 className="text-sm font-bold text-gray-900 dark:text-white">{opp.title}</h4>
+                          <p className="text-[10px] text-gray-400">{opp.category}</p>
+                        </td>
+                        <td className="py-5 text-center">
+                          <Badge variant={opp.status === 'open' ? 'success' : 'neutral'}>{opp.status}</Badge>
+                        </td>
+                        <td className="py-5">
+                          <p className="text-sm font-bold text-gray-900 dark:text-white">${opp.budget?.amount || opp.budget}</p>
+                        </td>
+                        <td className="py-5">
+                          <div className="flex items-center justify-center gap-2">
+                            <span className="text-xs font-bold text-emerald-500">4.2%</span>
+                            <div className="w-16 h-1.5 bg-gray-100 dark:bg-white/10 rounded-full overflow-hidden">
+                              <div className="h-full bg-emerald-500" style={{ width: '42%' }}></div>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="py-5 text-right">
+                          <div className="flex justify-end gap-2">
+                            <button className="p-2 bg-white dark:bg-white/5 rounded-xl border border-gray-100 dark:border-white/10 text-gray-400 hover:text-emerald-500">
+                              <Edit size={16} />
+                            </button>
+                            <button className="p-2 bg-white dark:bg-white/5 rounded-xl border border-gray-100 dark:border-white/10 text-gray-400 hover:text-red-500">
+                              <Pause size={16} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </Card>
+
+            {/* 5. ACTIVE COLLABORATIONS */}
+            <Card title="Active Partnerships" extra={<button className="text-xs font-bold text-emerald-600 hover:underline">View Details</button>}>
+              <div className="space-y-6">
+                {isLoadingCollabs ? (
+                   <div className="flex justify-center py-8"><Loader2 className="animate-spin text-emerald-600" /></div>
+                ) : collaborations.length === 0 ? (
+                  <div className="text-center py-8 text-sm text-gray-500">No active collaborations.</div>
+                ) : collaborations.slice(0, 3).map((collab: any) => (
+                  <div key={collab._id} className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-5 bg-gray-50 dark:bg-white/5 rounded-3xl border border-gray-100 dark:border-white/5">
+                    <div className="flex items-center gap-4">
+                      {collab.advertiser?.profilePicture ? (
+                        <img src={collab.advertiser.profilePicture} alt="" className="w-12 h-12 rounded-xl object-cover" />
+                      ) : (
+                        <div className="w-12 h-12 bg-emerald-600/10 rounded-xl flex items-center justify-center text-emerald-600 font-bold">{collab.advertiser?.username?.[0] || 'A'}</div>
+                      )}
+                      <div>
+                        <h4 className="text-sm font-bold text-gray-900 dark:text-white">{collab.advertiser?.firstName} {collab.advertiser?.lastName}</h4>
+                        <p className="text-[10px] text-gray-400">{collab.opportunity?.title}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-8">
+                      <div className="text-center">
+                        <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1">Status</p>
+                        <Badge variant="info">{collab.status}</Badge>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1">Deadline</p>
+                        <p className="text-xs font-bold text-gray-900 dark:text-white">{new Date(collab.deadline || Date.now()).toLocaleDateString()}</p>
+                      </div>
+                      <div className="min-w-[100px]">
+                         <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1">Progress</p>
+                         <div className="flex items-center gap-2">
+                           <div className="flex-1 h-1.5 bg-gray-200 dark:bg-white/10 rounded-full overflow-hidden">
+                             <div className="h-full bg-blue-500" style={{ width: `${collab.overallProgress || 0}%` }}></div>
+                           </div>
+                           <span className="text-[10px] font-bold text-gray-400">{collab.overallProgress || 0}%</span>
+                         </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </Card>
+
+          </div>
+
+          {/* RIGHT SIDEBAR (4 COLUMNS) */}
+          <div className="lg:col-span-4 space-y-8">
+            
+            {/* 10. WALLET SUMMARY */}
+            <Card title="Wallet Summary">
+              <div className="p-6 bg-gray-900 dark:bg-white dark:text-black rounded-3xl text-white relative overflow-hidden mb-6">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/20 rounded-full blur-2xl -mr-16 -mt-16"></div>
+                <p className="text-white/60 dark:text-black/60 text-[10px] font-bold uppercase tracking-widest mb-1">Available Balance</p>
+                <h3 className="text-4xl font-black mb-6">{walletData?.balance?.toLocaleString() ?? 0} <span className="text-xs font-bold">AACP</span></h3>
+                <div className="flex justify-between items-end">
+                   <div className="space-y-1">
+                     <p className="text-white/40 dark:text-black/40 text-[9px] font-bold uppercase tracking-widest">Locked</p>
+                     <p className="text-sm font-bold">{walletData?.lockedBalance ?? 0} AACP</p>
+                   </div>
+                   <button onClick={() => navigate('/wallet')} className="px-4 py-2 bg-emerald-500 text-black rounded-xl text-xs font-bold hover:bg-emerald-400 transition-all">Top Up</button>
+                </div>
+              </div>
+              <div className="space-y-4">
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-gray-500">Total Spent</span>
+                  <span className="font-bold text-gray-900 dark:text-white">12,450 AACP</span>
+                </div>
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-gray-500">Pending Payments</span>
+                  <span className="font-bold text-gray-900 dark:text-white">3,100 AACP</span>
+                </div>
+              </div>
+            </Card>
+
+            {/* 11. TRUST SCORE / HEALTH */}
+            <Card title="Account Health">
+               <div className="flex flex-col items-center py-4">
+                 <div className="relative w-32 h-32 flex items-center justify-center">
+                    <svg className="w-full h-full transform -rotate-90">
+                      <circle cx="64" cy="64" r="58" stroke="currentColor" strokeWidth="12" fill="transparent" className="text-gray-100 dark:text-white/5" />
+                      <circle cx="64" cy="64" r="58" stroke="currentColor" strokeWidth="12" fill="transparent" strokeDasharray={364.42} strokeDashoffset={364.42 * (1 - 0.78)} className="text-emerald-500" strokeLinecap="round" />
+                    </svg>
+                    <div className="absolute flex flex-col items-center">
+                       <span className="text-3xl font-black text-gray-900 dark:text-white">78</span>
+                       <span className="text-[10px] font-bold text-gray-400 uppercase">Trust Score</span>
+                    </div>
+                 </div>
+                 <div className="mt-6 w-full space-y-4">
+                    <div className="p-3 bg-gray-50 dark:bg-white/5 rounded-2xl flex items-center gap-3">
+                       <ShieldCheck className="text-emerald-500" size={18} />
+                       <p className="text-xs text-gray-600 dark:text-gray-400">Profile 90% complete. Verify trade license to reach 100.</p>
+                    </div>
+                    <button className="w-full py-3 bg-emerald-600/10 text-emerald-600 font-bold rounded-2xl text-xs hover:bg-emerald-600/20 transition-all">Improve Score</button>
+                 </div>
+               </div>
+            </Card>
+
+            {/* 6. AI RECOMMENDATIONS PANEL */}
+            <Card title="AI Matches" extra={<Sparkles className="text-cyan-500" size={16} />}>
+               <div className="space-y-4">
+                 {isLoadingRecs ? (
+                   <div className="flex justify-center py-4"><Loader2 className="animate-spin text-emerald-600" /></div>
+                 ) : (recsData?.recommendations ?? []).length === 0 ? (
+                   <p className="text-center text-xs text-gray-400">Complete profile for matches</p>
+                 ) : (recsData?.recommendations ?? []).slice(0, 3).map((rec: any) => (
+                   <div key={rec.targetId} className="flex items-center justify-between p-3 rounded-2xl hover:bg-gray-50 dark:hover:bg-white/5 transition-all cursor-pointer">
+                     <div className="flex items-center gap-3">
+                        <img src={rec.meta?.profilePicture} className="w-10 h-10 rounded-xl object-cover" alt="" />
+                        <div>
+                          <h4 className="text-xs font-bold text-gray-900 dark:text-white">{rec.name}</h4>
+                          <p className="text-[10px] text-emerald-600 font-bold">{rec.score}% Match</p>
+                        </div>
+                     </div>
+                     <button className="p-2 bg-emerald-600/10 text-emerald-600 rounded-lg hover:bg-emerald-600 hover:text-white transition-all">
+                       <Plus size={16} />
+                     </button>
+                   </div>
+                 ))}
+               </div>
+               <button onClick={() => navigate('/matches')} className="w-full mt-6 py-3 border border-dashed border-gray-200 dark:border-white/10 text-gray-400 text-xs font-bold rounded-2xl hover:border-emerald-500 hover:text-emerald-500 transition-all">View All Matches</button>
+            </Card>
+
+            {/* 8. RECENT ACTIVITY FEED */}
+            <Card title="Recent Activity">
+               <div className="space-y-6 relative before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-[2px] before:bg-gray-50 dark:before:bg-white/5">
+                 {recentActivity.map((activity) => (
+                   <div key={activity.id} className="relative pl-8">
+                     <div className={cn("absolute left-0 top-1 w-6 h-6 rounded-lg flex items-center justify-center bg-white dark:bg-[#1a1a1a] border border-gray-100 dark:border-white/10 z-10 shadow-sm", activity.color)}>
+                        <activity.icon size={12} />
+                     </div>
+                     <p className="text-xs font-bold text-gray-900 dark:text-white leading-tight mb-1">{activity.text}</p>
+                     <p className="text-[10px] text-gray-400 font-medium">{activity.time}</p>
+                   </div>
+                 ))}
+               </div>
+            </Card>
+
+            {/* 9. NOTIFICATIONS PREVIEW */}
+            <Card title="Notifications" extra={<button className="text-[10px] font-bold text-emerald-600">Mark all read</button>}>
+               <div className="space-y-4">
+                  {[1, 2, 3].map(i => (
+                    <div key={i} className="flex gap-3 pb-3 border-b border-gray-50 dark:border-white/5 last:border-0 last:pb-0">
+                       <div className="w-8 h-8 bg-blue-500/10 rounded-full flex items-center justify-center text-blue-500 flex-shrink-0">
+                          <Bell size={14} />
+                       </div>
+                       <div>
+                          <p className="text-xs text-gray-700 dark:text-gray-300"><span className="font-bold">System:</span> Your campaign "Summer Vibes" has reached 10,000 views!</p>
+                          <p className="text-[9px] text-gray-400 mt-1">10 minutes ago</p>
+                       </div>
+                    </div>
+                  ))}
+               </div>
+               <button className="w-full mt-6 py-2 text-gray-400 text-xs font-bold hover:text-emerald-600 transition-colors">View All Notifications</button>
+            </Card>
+
+          </div>
+        </div>
       </main>
     </BusinessLayout>
   );
