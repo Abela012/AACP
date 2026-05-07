@@ -23,6 +23,8 @@ import BusinessLayout from '@/src/shared/components/layouts/BusinessLayout';
 import { useRecommendations } from '@/src/hooks/useRecommendations';
 import { useQueryClient } from '@tanstack/react-query';
 import { Loader2 } from 'lucide-react';
+import { usePredictiveAnalysis } from '@/src/hooks/useMarketingAnalysis';
+import ROIPredictionChart from '@/src/shared/components/charts/ROIPredictionChart';
 
 export default function MatchesPage() {
   const navigate = useNavigate();
@@ -34,6 +36,11 @@ export default function MatchesPage() {
 
   const { data: recoData, isLoading } = useRecommendations();
   const recommendations = (recoData as any)?.recommendations || [];
+
+  // Predictive Analysis Hook (must be top-level)
+  const { data: predictionData, isLoading: isLoadingPrediction } = usePredictiveAnalysis(
+    selectedCreator?.targetId || null
+  );
 
   const handleSync = async () => {
     setIsSyncing(true);
@@ -114,6 +121,51 @@ export default function MatchesPage() {
                       <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">About Content Creator</h3>
                       <p>{selectedCreator.meta?.bio || "A passionate content creator focused on delivering high-quality visual stories and engaging community experiences."}</p>
                     </div>
+
+                    {/* AI Match Insight & ROI Graph */}
+                    <div className="bg-emerald-50/50 dark:bg-emerald-500/5 p-6 rounded-3xl border border-emerald-100 dark:border-emerald-500/10">
+                      <div className="flex items-center gap-2 mb-4">
+                        <div className="w-8 h-8 bg-emerald-500/20 rounded-xl flex items-center justify-center text-emerald-600">
+                          <Sparkles size={16} />
+                        </div>
+                        <h4 className="text-sm font-black text-gray-900 dark:text-white uppercase tracking-widest">AI Match Insight</h4>
+                      </div>
+                      
+                      {isLoadingPrediction ? (
+                        <div className="flex items-center gap-3 text-emerald-600/60 py-4">
+                          <Loader2 size={16} className="animate-spin" />
+                          <span className="text-xs font-bold">AI is generating ROI projections...</span>
+                        </div>
+                      ) : (
+                        <>
+                          <p className="text-sm text-gray-700 dark:text-gray-300 font-medium italic mb-6">
+                            "{predictionData?.aiInsight || "This creator shows strong potential for your brand's growth."}"
+                          </p>
+                          
+                          <div className="mt-8">
+                            <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">6-Month ROI Projection</h4>
+                            {predictionData?.projections && (
+                              <ROIPredictionChart data={predictionData.projections} />
+                            )}
+                            <div className="grid grid-cols-3 gap-4 mt-6">
+                              <div className="bg-white dark:bg-white/5 p-3 rounded-2xl border border-gray-100 dark:border-white/5">
+                                <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1">Est. Reach</p>
+                                <p className="text-xs font-black text-emerald-600">{predictionData?.metrics?.reach?.toLocaleString()}</p>
+                              </div>
+                              <div className="bg-white dark:bg-white/5 p-3 rounded-2xl border border-gray-100 dark:border-white/5">
+                                <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1">Conv. Rate</p>
+                                <p className="text-xs font-black text-blue-600">{predictionData?.metrics?.conversionRate}</p>
+                              </div>
+                              <div className="bg-white dark:bg-white/5 p-3 rounded-2xl border border-gray-100 dark:border-white/5">
+                                <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1">Avg. Price</p>
+                                <p className="text-xs font-black text-amber-600">{predictionData?.metrics?.avgProductPrice} ETB</p>
+                              </div>
+                            </div>
+                          </div>
+                        </>
+                      )}
+                    </div>
+
                     <div>
                       <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">Primary Platforms</h3>
                       <div className="flex gap-2">

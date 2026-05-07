@@ -1,5 +1,5 @@
 import express from 'express';
-import { getMarketingAnalysis } from './marketing-analysis.controller';
+import { getMarketingAnalysis, getPredictiveAnalysis } from './marketing-analysis.controller';
 import { protect } from '../../middlewares/auth.middleware';
 
 /**
@@ -8,6 +8,9 @@ import { protect } from '../../middlewares/auth.middleware';
  */
 
 const router = express.Router();
+
+// GET /api/v1/marketing-analysis/predict/:advertiserId
+router.get('/predict/:advertiserId', protect, getPredictiveAnalysis);
 
 // GET /api/v1/marketing-analysis/:opportunityId
 router.get('/:opportunityId', protect, getMarketingAnalysis);
