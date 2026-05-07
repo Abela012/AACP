@@ -24,7 +24,7 @@ import { useMarketingAnalysis } from '@/src/hooks/useMarketingAnalysis';
 import { useOpportunity } from '@/src/hooks/useOpportunities';
 import { useStartCollaboration } from '@/src/hooks/useCollaborations';
 import { cn } from '@/src/shared/utils/cn';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 
 export default function CampaignApplicantsPage() {
   const { id } = useParams();
@@ -202,20 +202,29 @@ export default function CampaignApplicantsPage() {
                     </h4>
                     <div className="h-48 w-full">
                       <ResponsiveContainer width="100%" height={192}>
-                        <BarChart data={analysisData.analysis} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                          <XAxis dataKey="advertiserName" tick={{ fontSize: 10, fill: '#888' }} axisLine={false} tickLine={false} />
-                          <YAxis tick={{ fontSize: 10, fill: '#888' }} axisLine={false} tickLine={false} tickFormatter={(val) => `${val}%`} />
-                          <Tooltip
-                            cursor={{ fill: 'rgba(16, 185, 129, 0.1)' }}
-                            contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                            formatter={(value: any) => [`${value}%`, 'ROI']}
-                          />
-                          <Bar dataKey="profitPercentage" radius={[4, 4, 4, 4]}>
-                            {analysisData.analysis.map((entry, index) => (
-                              <Cell key={`cell-${index}`} fill={entry.profitPercentage > 0 ? '#10b981' : '#f59e0b'} />
+                        <PieChart>
+                          <Pie
+                            data={analysisData.analysis.slice(0, 5)}
+                            cx="50%"
+                            cy="50%"
+                            innerRadius={40}
+                            outerRadius={70}
+                            paddingAngle={5}
+                            dataKey="profitPercentage"
+                            nameKey="advertiserName"
+                          >
+                            {analysisData.analysis.slice(0, 5).map((entry, index) => (
+                              <Cell 
+                                key={`cell-${index}`} 
+                                fill={['#10b981', '#3b82f6', '#f59e0b', '#8b5cf6', '#ec4899'][index % 5]} 
+                              />
                             ))}
-                          </Bar>
-                        </BarChart>
+                          </Pie>
+                          <Tooltip
+                            contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                            formatter={(value: any) => [`${value}% ROI`, 'Projected Profit']}
+                          />
+                        </PieChart>
                       </ResponsiveContainer>
                     </div>
                   </div>

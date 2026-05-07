@@ -56,4 +56,16 @@ export const marketingAnalysisApi = {
             throw error;
         }
     },
+    
+    /** GET /marketing-analysis/predict/:advertiserId */
+    getPredictiveAnalysis: async (api: AxiosInstance, advertiserId: string) => {
+        try {
+            return await api.get<{ success: boolean; data: any }>(
+                `/marketing-analysis/predict/${advertiserId}`
+            );
+        } catch (error) {
+            console.warn('Predictive Analysis API call failed:', error);
+            throw error;
+        }
+    },
 };

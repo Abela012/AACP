@@ -258,3 +258,74 @@ function generateFallbackSummary(results: ApplicantAnalysis[]): string {
 
     return summary;
 }
+/**
+ * Predict potential ROI for a match between a Business Owner and an Advertiser.
+ * Used for the "Discover" page to show potential before hiring.
+ */
+export const predictAdvertiserROI = async (
+    businessOwnerId: string,
+    advertiserId: string
+): Promise<any> => {
+    // 1. Load profiles
+    const owner = await User.findById(businessOwnerId);
+    const adv = await User.findById(advertiserId);
+
+    if (!owner || !adv) throw new Error('User not found');
+
+    const advProfile = adv.profileData || {};
+    const ownerProfile = owner.profileData || {};
+
+    // 2. Base metrics
+    const followers = advProfile.followers || 10000;
+    const engagementRate = advProfile.engagementRate || 3;
+    const avgProductPrice = ownerProfile.monthlyBudget ? Math.round(ownerProfile.monthlyBudget / 50) : 50;
+
+    // 3. Generate 6-month projection data
+    const months = ['Month 1', 'Month 2', 'Month 3', 'Month 4', 'Month 5', 'Month 6'];
+    const projections = months.map((month, i) => {
+        const growthFactor = 1 + (i * 0.15); // Assume 15% monthly growth
+        const reach = followers * 0.3 * growthFactor;
+        const conversions = reach * (engagementRate / 100) * 0.02;
+        const revenue = conversions * avgProductPrice;
+
+        return {
+            month,
+            reach: Math.round(reach),
+            conversions: Math.round(conversions),
+            revenue: Math.round(revenue),
+        };
+    });
+
+    // 4. Generate AI Match Insight
+    let aiInsight = "Based on your niche, this creator offers strong growth potential.";
+    try {
+        const model = getGeminiModel();
+        if (model) {
+            const prompt = `
+                Analyze the potential match between Business Owner "${owner.firstName}" and Advertiser "${adv.firstName}".
+                Owner Industry: ${ownerProfile.industry || 'General'}
+                Advertiser Niche: ${advProfile.category || 'Lifestyle'}
+                Followers: ${followers}
+                Engagement: ${engagementRate}%
+                
+                Provide a 2-sentence "Match Insight" about why this collaboration is promising or what to watch out for.
+                Return only the text.
+            `;
+            const result = await model.generateContent(prompt);
+            aiInsight = result.response.text().trim();
+        }
+    } catch (err) {
+        logger.warn(`[MarketingAnalysis] Predictive AI insight failed: ${err}`);
+    }
+
+    return {
+        advertiserName: `${adv.firstName} ${adv.lastName}`.trim(),
+        aiInsight,
+        projections,
+        metrics: {
+            reach: Math.round(followers * 0.3),
+            conversionRate: '2%',
+            avgProductPrice,
+        }
+    };
+};
