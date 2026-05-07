@@ -101,7 +101,7 @@ export const handleCallback = async (req: Request, res: Response) => {
             }
         }
 
-        const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+        const frontendUrl = process.env.FRONTEND_URL || 'https://aacp-frontend-delta.vercel.app';
         const separator = finalRedirect.includes('?') ? '&' : '?';
         res.redirect(`${frontendUrl}${finalRedirect}${separator}status=success&platform=${platform}`);
     } catch (error: any) {
@@ -115,7 +115,7 @@ export const handleCallback = async (req: Request, res: Response) => {
             } catch (e) {}
         }
 
-        const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+        const frontendUrl = process.env.FRONTEND_URL || 'https://aacp-frontend-delta.vercel.app';
         const separator = errorRedirect.includes('?') ? '&' : '?';
         res.redirect(`${frontendUrl}${errorRedirect}${separator}status=error&message=${encodeURIComponent(error.message)}`);
     }
