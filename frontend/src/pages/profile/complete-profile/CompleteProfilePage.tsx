@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo, useEffect } from 'react';
+import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { FaYoutube, FaInstagram, FaLinkedin, FaFacebook, FaTiktok } from 'react-icons/fa6';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -237,7 +237,6 @@ function PlatformButton({
 
 
 export default function CompleteProfilePage({ isInsideDashboard = false }: { isInsideDashboard?: boolean }) {
-  console.log("[CompleteProfilePage] Initializing component state...");
   const { userRole, setOnboardingStatus } = useUser();
   const { user: clerkUser } = useClerkUser();
   const { updateProfile } = useProfile();
@@ -245,18 +244,25 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
   const navigate = useNavigate();
   const api = useApiClient();
 
+  // Initialization ref to prevent redundant logs/logic on mount
+  const hasInitialized = useRef(false);
+  if (!hasInitialized.current) {
+    console.log("[CompleteProfilePage] Initializing component state...");
+    hasInitialized.current = true;
+  }
+
   useEffect(() => {
     if (clerkUser) {
-      setFirstName(clerkUser.firstName || '');
-      setLastName(clerkUser.lastName || '');
-      setProfilePicture(clerkUser.imageUrl || '');
+      setFirstName(prev => prev || clerkUser.firstName || '');
+      setLastName(prev => prev || clerkUser.lastName || '');
+      setProfilePicture(prev => prev || clerkUser.imageUrl || '');
     }
   }, [clerkUser]);
 
   const [socialConnections, setSocialConnections] = useState<SocialConnection[]>([]);
   const [isSocialLoading, setIsSocialLoading] = useState(true);
 
-  const fetchSocialConnections = async () => {
+  const fetchSocialConnections = useCallback(async () => {
     try {
       const res = await socialApi.getConnections(api);
       if (res.success) {
@@ -267,27 +273,31 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
     } finally {
       setIsSocialLoading(false);
     }
-  };
+  }, [api]);
 
+  // Fetch initial connections
   useEffect(() => {
     fetchSocialConnections();
+  }, [fetchSocialConnections]);
 
-    // Handle OAuth callback status
+  // Handle OAuth callback status separately to avoid loops
+  useEffect(() => {
     const params = new URLSearchParams(location.search);
     const status = params.get('status');
     const platform = params.get('platform');
     const message = params.get('message');
 
-    if (status === 'success') {
-      toast.success(`Successfully connected to ${platform}`);
-      // Clean up URL
-      navigate(location.pathname, { replace: true });
-      fetchSocialConnections();
-    } else if (status === 'error') {
-      toast.error(message || 'Failed to connect');
+    if (status) {
+      if (status === 'success') {
+        toast.success(`Successfully connected to ${platform}`);
+        fetchSocialConnections();
+      } else if (status === 'error') {
+        toast.error(message || 'Failed to connect');
+      }
+      // Clean up URL and redirect to current path without params
       navigate(location.pathname, { replace: true });
     }
-  }, [location.search]);
+  }, [location.search, location.pathname, navigate, fetchSocialConnections]);
 
   const isBusiness =
     location.pathname.includes('/business') || userRole === 'business_owner';

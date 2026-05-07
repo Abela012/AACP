@@ -32,18 +32,27 @@ export const initSocket = (httpServer: HttpServer): SocketServer => {
 
             // Decode clerkId from JWT (simple decode)
             const parts = token.split('.');
-            if (parts.length < 2) return next(new Error('Invalid token format'));
+            if (parts.length < 2) {
+                logger.error('Invalid token format');
+                return next(new Error('Invalid token format'));
+            }
 
-            const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString());
+            // JWT uses base64url encoding
+            const base64Url = parts[1];
+            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            const payload = JSON.parse(Buffer.from(base64, 'base64').toString());
             const clerkId = payload.sub;
 
-            if (!clerkId) return next(new Error('Invalid token payload'));
+            if (!clerkId) {
+                logger.error('Invalid token payload: missing sub');
+                return next(new Error('Invalid token payload'));
+            }
 
             // Store clerkId on socket — we will fetch the full user from DB when messages are sent
             (socket as any).clerkId = clerkId;
             (socket as any).token = token;
             
-            logger.info(`Socket connected for clerkId: ${clerkId}`);
+            logger.info(`Socket handshake successful for clerkId: ${clerkId}`);
             return next();
         } catch (err: any) {
             logger.error(`Socket Auth Exception: ${err.message}`);
