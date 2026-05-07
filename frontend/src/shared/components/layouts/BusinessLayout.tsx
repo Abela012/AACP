@@ -326,7 +326,7 @@ export default function BusinessLayout({ children }: BusinessLayoutProps) {
                     initial={{ opacity: 0, scale: 0.95, y: 10 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.95, y: 10 }}
-                    className="absolute top-14 right-0 w-80 bg-white dark:bg-[#1a1a1a] rounded-[2rem] shadow-2xl border border-gray-100 dark:border-white/10 overflow-hidden z-50 text-left"
+                    className="absolute top-14 right-0 w-80 bg-white dark:bg-[#1a1a1a] rounded-4xl shadow-2xl border border-gray-100 dark:border-white/10 overflow-hidden z-50 text-left"
                   >
                     <div className="p-6 border-b border-gray-100 dark:border-white/5 flex justify-between items-center bg-gray-50/50 dark:bg-white/[0.02]">
                       <h3 className="font-bold text-gray-900 dark:text-white">Notifications</h3>

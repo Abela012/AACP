@@ -179,7 +179,7 @@ export default function AdminAnalyticsPage() {
           <div className="mb-8 p-4 bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 rounded-2xl flex items-center gap-3">
             <AlertCircle size={18} className="text-amber-500 shrink-0" />
             <p className="text-xs font-bold text-amber-700 dark:text-amber-400">
-              Could not fetch live data from the API. Ensure the backend is running at {import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1'}.
+              Could not fetch live data from the API. Ensure the backend is running at {import.meta.env.VITE_API_URL || 'https://aacp.onrender.com/api/v1'}.
             </p>
           </div>
         )}
@@ -192,7 +192,7 @@ export default function AdminAnalyticsPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: idx * 0.08 }}
-              className="bg-white dark:bg-[#111111] p-6 rounded-[2rem] border border-[#EFEFEF] dark:border-white/5 shadow-sm"
+              className="bg-white dark:bg-[#111111] p-6 rounded-4xl border border-[#EFEFEF] dark:border-white/5 shadow-sm"
             >
               <div className="flex justify-between items-start mb-6">
                 <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${stat.bg} ${stat.iconColor} border ${stat.border}`}>

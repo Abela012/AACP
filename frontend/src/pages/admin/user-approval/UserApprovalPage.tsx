@@ -141,7 +141,7 @@ export default function UserApprovalPage() {
 
               {/* ID or Trade License Preview */}
               <div className="relative group cursor-pointer mb-8">
-                <div className="aspect-[4/3] rounded-[2rem] overflow-hidden border border-[#EFEFEF] dark:border-white/5 bg-[#F4F4F4] dark:bg-white/10 relative">
+                <div className="aspect-[4/3] rounded-4xl overflow-hidden border border-[#EFEFEF] dark:border-white/5 bg-[#F4F4F4] dark:bg-white/10 relative">
                   <img 
                     src={user.tradeLicenseUrl || "https://images.unsplash.com/photo-1554224155-1696413575b8?auto=format&fit=crop&q=80&w=800"} 
                     alt="Verification Document" 
@@ -249,7 +249,7 @@ export default function UserApprovalPage() {
                 </button>
               </div>
 
-              <div className="mt-12 p-6 bg-white/30 dark:bg-black/20 rounded-[2rem] text-left flex gap-4">
+              <div className="mt-12 p-6 bg-white/30 dark:bg-black/20 rounded-4xl text-left flex gap-4">
                 <Info size={16} className="text-[#9A9FA5] shrink-0 mt-1" />
                 <p className="text-[10px] text-[#6F767E] dark:text-gray-400 font-bold uppercase leading-relaxed tracking-tight">
                   Approval will grant the advertiser access to all campaign tools and platform features.

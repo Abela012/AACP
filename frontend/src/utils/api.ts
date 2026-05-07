@@ -2,7 +2,7 @@ import { useAuth } from "@clerk/clerk-react";
 import axios, { type AxiosInstance } from "axios";
 
 // Using the backend port (5000) and the v1 prefix defined in app.ts
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api/v1";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://aacp.onrender.com/api/v1";
 
 // Create an authenticated API instance that includes the Clerk token
 export const createApiClient = (

@@ -31,7 +31,7 @@ export default function SuperAdminProfilePage() {
               <div className="lg:col-span-8 bg-white dark:bg-[#111111] p-8 rounded-[2.5rem] border border-[#EFEFEF] dark:border-white/5 shadow-sm">
                 <div className="flex items-start justify-between gap-6">
                   <div className="flex items-center gap-5">
-                    <div className="w-20 h-20 rounded-[2rem] overflow-hidden bg-green-100 dark:bg-green-500/20 flex items-center justify-center text-[#14a800] font-black text-2xl">
+                    <div className="w-20 h-20 rounded-4xl overflow-hidden bg-green-100 dark:bg-green-500/20 flex items-center justify-center text-[#14a800] font-black text-2xl">
                       {profile?.profilePicture ? (
                         <img src={profile.profilePicture} className="w-full h-full object-cover" />
                       ) : (
@@ -72,21 +72,21 @@ export default function SuperAdminProfilePage() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="bg-white dark:bg-[#111111] p-6 rounded-[2rem] border border-[#EFEFEF] dark:border-white/5 shadow-sm">
+              <div className="bg-white dark:bg-[#111111] p-6 rounded-4xl border border-[#EFEFEF] dark:border-white/5 shadow-sm">
                 <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-green-50 dark:bg-green-500/10 text-[#14a800] mb-5">
                   <Activity size={20} />
                 </div>
                 <p className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest mb-2">Audit Events</p>
                 <p className="text-2xl font-black">{data?.stats.auditEvents ?? 0}</p>
               </div>
-              <div className="bg-white dark:bg-[#111111] p-6 rounded-[2rem] border border-[#EFEFEF] dark:border-white/5 shadow-sm">
+              <div className="bg-white dark:bg-[#111111] p-6 rounded-4xl border border-[#EFEFEF] dark:border-white/5 shadow-sm">
                 <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-blue-50 dark:bg-blue-500/10 text-blue-600 mb-5">
                   <Users size={20} />
                 </div>
                 <p className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest mb-2">Governed Admins</p>
                 <p className="text-2xl font-black">{data?.stats.governedAdmins ?? 0}</p>
               </div>
-              <div className="bg-[#14a800] p-6 rounded-[2rem] shadow-xl text-white">
+              <div className="bg-[#14a800] p-6 rounded-4xl shadow-xl text-white">
                 <p className="text-[10px] font-black uppercase tracking-widest opacity-80 mb-2">Trust Score</p>
                 <p className="text-4xl font-black">98</p>
                 <p className="text-xs font-medium opacity-90 mt-2">Root-level governance and elevated access control enabled.</p>

@@ -196,7 +196,7 @@ export default function DisputesPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: idx * 0.08 }}
-              className={`${stat.bg} p-6 rounded-[2rem] border ${stat.border} flex items-center gap-5`}
+              className={`${stat.bg} p-6 rounded-4xl border ${stat.border} flex items-center gap-5`}
             >
               <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${stat.bg} ${stat.iconColor}`}>
                 <stat.icon size={24} />

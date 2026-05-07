@@ -356,7 +356,7 @@ export default function ConversationPage() {
 
             {/* Input */}
             <div className="p-8 border-t border-gray-100 dark:border-white/5">
-              <form onSubmit={handleSend} className="bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 p-2 rounded-[2rem] flex items-center gap-2 shadow-sm">
+              <form onSubmit={handleSend} className="bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 p-2 rounded-4xl flex items-center gap-2 shadow-sm">
                 <button type="button" className="p-3 text-gray-400 hover:text-emerald-500 transition-colors">
                   <Smile size={20} />
                 </button>

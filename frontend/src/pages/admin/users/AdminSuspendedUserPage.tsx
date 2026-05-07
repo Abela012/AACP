@@ -95,7 +95,7 @@ export default function AdminSuspendedUserPage() {
                 <h3 className="font-extrabold text-lg">Suspension Reason</h3>
               </div>
 
-              <div className="bg-red-50/50 dark:bg-red-500/5 p-6 rounded-[2rem] border border-red-100 dark:border-red-500/10 mb-10">
+              <div className="bg-red-50/50 dark:bg-red-500/5 p-6 rounded-4xl border border-red-100 dark:border-red-500/10 mb-10">
                 <p className="text-[10px] font-black text-red-600 uppercase tracking-widest mb-3">Policy Violation: Repeated Spam</p>
                 <p className="text-sm font-medium text-[#1A1D1F] dark:text-white/80 leading-relaxed">
                   Account flagged by automated safety filters 14 times within a 48-hour window. Content matches known phishing patterns and unsolicited commercial outreach in collaboration threads.
@@ -179,7 +179,7 @@ export default function AdminSuspendedUserPage() {
         </div>
 
         {/* Bottom Activity Row */}
-        <div className="mt-12 bg-gray-50 dark:bg-white/5 p-6 rounded-[2rem] border border-[#EFEFEF] dark:border-white/5">
+        <div className="mt-12 bg-gray-50 dark:bg-white/5 p-6 rounded-4xl border border-[#EFEFEF] dark:border-white/5">
           <div className="flex flex-wrap items-center gap-8 text-[10px] font-bold uppercase tracking-widest text-[#6F767E] dark:text-gray-400">
             <span className="text-[#1A1D1F] dark:text-white">Recent Activity</span>
             <div className="flex items-center gap-2">

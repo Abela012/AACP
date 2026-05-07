@@ -11,7 +11,7 @@ export const useApiClient = (): AxiosInstance => {
 
     const instance = useMemo(() => {
         const client = axios.create({
-            baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1',
+            baseURL: import.meta.env.VITE_API_URL || 'https://aacp.onrender.com/api/v1',
             headers: {
                 'Content-Type': 'application/json',
             },
@@ -70,7 +70,7 @@ export const useApiClient = (): AxiosInstance => {
  * Bare Axios instance for unauthenticated requests (public endpoints).
  */
 export const publicClient = axios.create({
-    baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1',
+    baseURL: import.meta.env.VITE_API_URL || 'https://aacp.onrender.com/api/v1',
     headers: {
         'Content-Type': 'application/json',
     },

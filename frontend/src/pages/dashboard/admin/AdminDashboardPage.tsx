@@ -107,7 +107,7 @@ export default function AdminDashboardPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: idx * 0.1 }}
               onClick={() => navigate(p.path)}
-              className="bg-white dark:bg-[#111111] p-6 rounded-[2rem] border border-[#EFEFEF] dark:border-white/5 shadow-sm flex flex-col justify-between cursor-pointer hover:border-[#14a800] transition-all group"
+              className="bg-white dark:bg-[#111111] p-6 rounded-4xl border border-[#EFEFEF] dark:border-white/5 shadow-sm flex flex-col justify-between cursor-pointer hover:border-[#14a800] transition-all group"
             >
               <div className="flex justify-between items-start mb-6">
                 <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${p.bg} ${p.color}`}>

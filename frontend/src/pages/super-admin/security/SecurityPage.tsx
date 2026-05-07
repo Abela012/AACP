@@ -76,7 +76,7 @@ export default function SuperAdminSecurityPage() {
                   initial={{ opacity: 0, y: 12 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: idx * 0.05 }}
-                  className="bg-white dark:bg-[#111111] p-6 rounded-[2rem] border border-[#EFEFEF] dark:border-white/5 shadow-sm"
+                  className="bg-white dark:bg-[#111111] p-6 rounded-4xl border border-[#EFEFEF] dark:border-white/5 shadow-sm"
                 >
                   <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${card.bg} ${card.color} border ${card.border} mb-6`}>
                     <card.icon size={20} />

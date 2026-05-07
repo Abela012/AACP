@@ -75,7 +75,7 @@ const io = initSocket(httpServer);
 
 const server = httpServer.listen(Number(PORT), () => {
     logger.info(`Server running in ${env.NODE_ENV} mode on port ${PORT}`);
-    logger.info(`Socket.IO ready on ws://localhost:${PORT}`);
+    logger.info(`Socket.IO ready on ${env.NODE_ENV === 'production' ? 'https://aacp.onrender.com' : 'ws://localhost:' + PORT}`);
 });
 
 // Handle unhandled promise rejections

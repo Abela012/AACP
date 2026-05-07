@@ -14,7 +14,7 @@ export default function PendingApprovalState({ onRefresh, isRefreshing }: Pendin
         animate={{ opacity: 1, scale: 1 }}
         className="w-full bg-white dark:bg-white/5 rounded-[3rem] p-12 border border-gray-100 dark:border-white/5 text-center shadow-2xl shadow-amber-500/5"
       >
-        <div className="w-24 h-24 bg-amber-500/10 rounded-[2rem] flex items-center justify-center mx-auto mb-8 relative">
+        <div className="w-24 h-24 bg-amber-500/10 rounded-4xl flex items-center justify-center mx-auto mb-8 relative">
           <Clock className="w-12 h-12 text-amber-500 animate-pulse" />
           <div className="absolute -top-2 -right-2 w-10 h-10 bg-white dark:bg-[#1a1a1a] rounded-full flex items-center justify-center shadow-lg border border-gray-100 dark:border-white/5">
             <ShieldCheck className="w-6 h-6 text-amber-500" />

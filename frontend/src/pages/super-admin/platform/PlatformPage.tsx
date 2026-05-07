@@ -190,7 +190,7 @@ export default function SuperAdminPlatformPage() {
                     initial={{ opacity: 0, y: 12 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: idx * 0.05 }}
-                    className="bg-[#FAFAFD] dark:bg-white/5 p-6 rounded-[2rem] border border-[#F0F0F5] dark:border-white/10"
+                    className="bg-[#FAFAFD] dark:bg-white/5 p-6 rounded-4xl border border-[#F0F0F5] dark:border-white/10"
                   >
                     <div className="w-10 h-10 bg-green-100 dark:bg-green-500/20 rounded-xl flex items-center justify-center text-[#14a800] mb-5">
                       <Settings2 size={18} />

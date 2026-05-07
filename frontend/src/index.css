@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+@theme {
+  --radius-4xl: 2rem;
+}
+
+
 html {
   scroll-behavior: smooth;
 }

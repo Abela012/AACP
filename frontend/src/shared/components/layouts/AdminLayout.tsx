@@ -274,7 +274,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                           key={type.id}
                           onClick={() => setSelectedReportType(type.id)}
                           className={cn(
-                            "flex flex-col items-center gap-3 p-6 rounded-[2rem] border transition-all group relative",
+                            "flex flex-col items-center gap-3 p-6 rounded-4xl border transition-all group relative",
                             selectedReportType === type.id 
                               ? "bg-white dark:bg-white/10 border-[#14a800] shadow-xl shadow-green-100 dark:shadow-none" 
                               : "bg-gray-50 dark:bg-white/5 border-transparent hover:border-[#14a800]/30 hover:bg-white dark:hover:bg-white/10"
@@ -317,7 +317,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                     onClick={handleGenerateReport}
                     disabled={isGenerating}
                     className={cn(
-                      "w-full py-5 rounded-[2rem] font-black text-xs uppercase tracking-[0.2em] transition-all mt-4 flex items-center justify-center gap-3",
+                      "w-full py-5 rounded-4xl font-black text-xs uppercase tracking-[0.2em] transition-all mt-4 flex items-center justify-center gap-3",
                       isGenerating 
                         ? "bg-gray-100 dark:bg-white/5 text-[#9A9FA5] cursor-not-allowed" 
                         : "bg-[#14a800] hover:bg-[#108a00] text-white shadow-xl shadow-green-100 dark:shadow-none"

@@ -59,7 +59,7 @@ export default function AdminNotificationsPage() {
               ))
             ) : (
               <div className="py-20 text-center">
-                <div className="w-20 h-20 bg-gray-50 dark:bg-white/5 rounded-[2rem] flex items-center justify-center mx-auto mb-6">
+                <div className="w-20 h-20 bg-gray-50 dark:bg-white/5 rounded-4xl flex items-center justify-center mx-auto mb-6">
                   <Bell size={32} className="text-[#9A9FA5]" />
                 </div>
                 <h3 className="text-lg font-black text-[#1A1D1F] dark:text-white mb-2">All Caught Up!</h3>

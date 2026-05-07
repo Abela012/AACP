@@ -117,7 +117,7 @@ export default function OpportunityListPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: idx * 0.05 }}
-                className="bg-white dark:bg-[#111111] border border-[#EFEFEF] dark:border-white/5 rounded-[2rem] p-6 hover:shadow-xl hover:-translate-y-1 transition-all group flex flex-col"
+                className="bg-white dark:bg-[#111111] border border-[#EFEFEF] dark:border-white/5 rounded-4xl p-6 hover:shadow-xl hover:-translate-y-1 transition-all group flex flex-col"
               >
                 {/* Status badge */}
                 <div className="flex justify-between items-start mb-4">

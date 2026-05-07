@@ -68,7 +68,7 @@ export default function SuperAdminDashboardPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: idx * 0.07 }}
               onClick={() => navigate(c.path)}
-              className="text-left bg-white dark:bg-[#111111] p-6 rounded-[2rem] border border-[#EFEFEF] dark:border-white/5 shadow-sm hover:shadow-md transition-all group"
+              className="text-left bg-white dark:bg-[#111111] p-6 rounded-4xl border border-[#EFEFEF] dark:border-white/5 shadow-sm hover:shadow-md transition-all group"
             >
               <div className="flex items-start justify-between mb-6">
                 <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${c.bg} ${c.color} border ${c.border}`}>

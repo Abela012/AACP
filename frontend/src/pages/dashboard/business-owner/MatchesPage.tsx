@@ -278,7 +278,7 @@ export default function MatchesPage() {
             ))
           ) : (
             <div className="col-span-full py-24 text-center">
-              <div className="w-20 h-20 bg-gray-50 dark:bg-white/5 rounded-[2rem] flex items-center justify-center mx-auto mb-6">
+              <div className="w-20 h-20 bg-gray-50 dark:bg-white/5 rounded-4xl flex items-center justify-center mx-auto mb-6">
                 <Search className="text-gray-300 dark:text-gray-600 w-10 h-10" />
               </div>
               <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">No creators found</h3>

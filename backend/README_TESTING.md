@@ -2,7 +2,7 @@
 
 You can use the following endpoints in Postman to test the backend.
 
-**Base URL:** `http://localhost:5000/api/v1`
+**Base URL:** `https://aacp.onrender.com/api/v1`
 
 | Method | Endpoint | Description |
 | :--- | :--- | :--- |

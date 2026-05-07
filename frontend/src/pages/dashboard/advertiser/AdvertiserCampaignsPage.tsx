@@ -62,7 +62,7 @@ export default function AdvertiserCampaignsPage() {
 
         {/* Summary Dashboard */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-          <div className="bg-white dark:bg-white/5 p-6 rounded-[2rem] border border-gray-100 dark:border-white/5 shadow-sm">
+          <div className="bg-white dark:bg-white/5 p-6 rounded-4xl border border-gray-100 dark:border-white/5 shadow-sm">
             <div className="flex justify-between items-center mb-4">
               <span className="text-[10px] font-black text-amber-500 uppercase tracking-widest">Pending Review</span>
               <div className="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-500">
@@ -75,7 +75,7 @@ export default function AdvertiserCampaignsPage() {
             <p className="text-xs font-bold text-gray-400 mt-1">Applications awaiting brand review</p>
           </div>
 
-          <div className="bg-white dark:bg-white/5 p-6 rounded-[2rem] border border-gray-100 dark:border-white/5 shadow-sm">
+          <div className="bg-white dark:bg-white/5 p-6 rounded-4xl border border-gray-100 dark:border-white/5 shadow-sm">
             <div className="flex justify-between items-center mb-4">
               <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest">Accepted</span>
               <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-500">
@@ -91,7 +91,7 @@ export default function AdvertiserCampaignsPage() {
             </div>
           </div>
 
-          <div className="bg-white dark:bg-white/5 p-6 rounded-[2rem] border border-gray-100 dark:border-white/5 shadow-sm">
+          <div className="bg-white dark:bg-white/5 p-6 rounded-4xl border border-gray-100 dark:border-white/5 shadow-sm">
             <div className="flex justify-between items-center mb-4">
               <span className="text-[10px] font-black text-red-500 uppercase tracking-widest">Rejected</span>
               <div className="w-8 h-8 rounded-lg bg-red-500/10 flex items-center justify-center text-red-500">
