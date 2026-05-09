@@ -368,6 +368,24 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
   const [preferredIndustries, setPreferredIndustries] = useState<string[]>([]);
   const [campaignTypes, setCampaignTypes] = useState<string[]>([]);
 
+  /* ── TikTok Analytics state ── */
+  const [tiktokUsername, setTiktokUsername] = useState('');
+  const [tiktokFollowers, setTiktokFollowers] = useState('');
+  const [tiktokTotalLikes, setTiktokTotalLikes] = useState('');
+  const [tiktokAvgViews, setTiktokAvgViews] = useState('');
+  const [tiktokEngagementRate, setTiktokEngagementRate] = useState('');
+  const [tiktokAvgComments, setTiktokAvgComments] = useState('');
+  const [tiktokAvgShares, setTiktokAvgShares] = useState('');
+  const [tiktokAccountType, setTiktokAccountType] = useState('Creator');
+  const [tiktokProfileLink, setTiktokProfileLink] = useState('');
+  const [tiktokPostingFrequency, setTiktokPostingFrequency] = useState('3-5 per week');
+  const [tiktokNiche, setTiktokNiche] = useState<string[]>([]);
+  const [tiktokAudienceGender, setTiktokAudienceGender] = useState('Mixed');
+  const [tiktokAudienceTopCountry, setTiktokAudienceTopCountry] = useState('');
+  const [tiktokAudienceAgeRange, setTiktokAudienceAgeRange] = useState('18-24');
+  const [tiktokContentStyle, setTiktokContentStyle] = useState<string[]>([]);
+  const [showTiktokAnalytics, setShowTiktokAnalytics] = useState(false);
+
   /* ── Business-specific state ── */
   const [businessName, setBusinessName] = useState('');
   const [industry, setIndustry] = useState('Technology');
@@ -563,6 +581,25 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
           availability,
           preferredIndustries,
           campaignTypes,
+
+          // TikTok Analytics
+          tiktokAnalytics: {
+            username: tiktokUsername,
+            followers: tiktokFollowers,
+            totalLikes: tiktokTotalLikes,
+            avgViews: tiktokAvgViews,
+            engagementRate: tiktokEngagementRate,
+            avgComments: tiktokAvgComments,
+            avgShares: tiktokAvgShares,
+            accountType: tiktokAccountType,
+            profileLink: tiktokProfileLink,
+            postingFrequency: tiktokPostingFrequency,
+            niche: tiktokNiche,
+            audienceGender: tiktokAudienceGender,
+            audienceTopCountry: tiktokAudienceTopCountry,
+            audienceAgeRange: tiktokAudienceAgeRange,
+            contentStyle: tiktokContentStyle,
+          },
         };
       }
 
@@ -724,8 +761,8 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
           <div className="space-y-4">
             {[
               { id: 'facebook', name: 'Facebook', icon: <FaFacebook />, color: 'text-blue-600', useToken: true },
-              { id: 'instagram', name: 'Instagram', icon: <FaInstagram />, color: 'text-pink-600', useToken: false },
-              { id: 'tiktok', name: 'TikTok', icon: <FaTiktok />, color: 'text-black dark:text-white', useToken: false },
+              { id: 'instagram', name: 'Instagram', icon: <FaInstagram />, color: 'text-pink-600', useToken: false, comingSoon: true },
+              { id: 'tiktok', name: 'TikTok', icon: <FaTiktok />, color: 'text-black dark:text-white', useToken: false, comingSoon: true },
             ].map((platform) => {
               const conn = socialConnections.find(c => c.platform === platform.id);
               const status = conn?.status || 'none';
@@ -754,13 +791,14 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
                       <p className={cn(
                         "text-[10px] uppercase tracking-wider font-bold",
                         isConnected ? "text-emerald-600 dark:text-emerald-400" :
-                        status === 'pending' ? "text-amber-600 dark:text-amber-400" :
-                        "text-gray-500"
+                          status === 'pending' ? "text-amber-600 dark:text-amber-400" :
+                            "text-gray-500"
                       )}>
                         {isCurrentlyConnecting ? 'Connecting...' :
-                         isConnected ? 'Connected' :
-                         status === 'pending' ? 'Pending Approval' :
-                         'Not Connected'}
+                          isConnected ? 'Connected' :
+                            status === 'pending' ? 'Pending Approval' :
+                            platform.comingSoon ? 'Launching Soon' :
+                              'Not Connected'}
                       </p>
                     </div>
                   </div>
@@ -776,6 +814,10 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
                   ) : status === 'pending' ? (
                     <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-50 dark:bg-amber-500/10 text-amber-600 text-xs font-bold">
                       <Loader2 size={14} className="animate-spin" /> Pending
+                    </div>
+                  ) : platform.comingSoon ? (
+                    <div className="px-3 py-1.5 rounded-full bg-gray-100 dark:bg-white/5 text-gray-400 text-[10px] font-black uppercase tracking-widest border border-gray-200 dark:border-white/5">
+                      Coming Soon
                     </div>
                   ) : (
                     <button
@@ -1262,47 +1304,237 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
         ) : (
           /* ━━ ADVERTISER (CREATOR) PROFILE ━━ */
           <>
-            {/* Collaboration Preferences */}
-            <SectionCard
-              icon={<Target size={20} />}
-              title="Collaboration Preferences"
-            >
+            {/* ━━ TikTok Analytics Section ━━ */}
+            <SectionCard icon={<FaTiktok size={20} />} title="TikTok Creator Analytics">
+              <p className="text-xs text-gray-500 dark:text-gray-400 -mt-4 mb-5">
+                Provide your TikTok metrics so brands can evaluate your reach and engagement.
+              </p>
+
+              {/* Toggle Button */}
+              <button
+                type="button"
+                onClick={() => setShowTiktokAnalytics(!showTiktokAnalytics)}
+                className={cn(
+                  "w-full flex items-center justify-between p-4 rounded-2xl border transition-all duration-200",
+                  showTiktokAnalytics
+                    ? "bg-emerald-50 dark:bg-emerald-500/5 border-emerald-200 dark:border-emerald-500/20"
+                    : "bg-gray-50 dark:bg-white/5 border-gray-100 dark:border-white/5 hover:border-emerald-300 dark:hover:border-emerald-500/20"
+                )}
+              >
+                <div className="flex items-center gap-3">
+                  <div className={cn(
+                    "w-10 h-10 rounded-xl flex items-center justify-center transition-all",
+                    showTiktokAnalytics ? "bg-emerald-500 text-white" : "bg-white dark:bg-white/10 text-gray-600 dark:text-gray-400"
+                  )}>
+                    <FaTiktok size={18} />
+                  </div>
+                  <div className="text-left">
+                    <p className="text-sm font-bold text-gray-900 dark:text-white">TikTok Analytics</p>
+                    <p className="text-[10px] text-gray-500 uppercase tracking-wider font-bold">
+                      {showTiktokAnalytics ? 'Editing' : tiktokUsername ? 'Configured' : 'Click to add your TikTok data'}
+                    </p>
+                  </div>
+                </div>
+                <ChevronDown size={18} className={cn(
+                  "text-gray-400 transition-transform duration-200",
+                  showTiktokAnalytics && "rotate-180"
+                )} />
+              </button>
+
+              <AnimatePresence>
+                {showTiktokAnalytics && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
+                    className="overflow-hidden"
+                  >
+                    <div className="pt-6 space-y-8">
+
+                      {/* ── Account Info ── */}
+                      <div>
+                        <div className="flex items-center gap-2 mb-4">
+                          <div className="w-1.5 h-5 bg-emerald-500 rounded-full" />
+                          <h4 className="text-xs font-bold text-gray-900 dark:text-white uppercase tracking-wider">Account Info</h4>
+                        </div>
+                        <div className="space-y-4">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <InputField label="TikTok Username" placeholder="@username" value={tiktokUsername} onChange={setTiktokUsername} icon={<FaTiktok size={14} />} />
+                            <InputField label="Profile Link" placeholder="https://tiktok.com/@username" value={tiktokProfileLink} onChange={setTiktokProfileLink} prefix="https://" />
+                          </div>
+                          <div className="grid grid-cols-2 gap-4">
+                            <SelectField label="Account Type" value={tiktokAccountType} onChange={setTiktokAccountType} options={['Creator', 'Business', 'Personal']} />
+                            <SelectField label="Posting Frequency" value={tiktokPostingFrequency} onChange={setTiktokPostingFrequency} options={['Daily', '3-5 per week', '1-2 per week', 'Bi-weekly', 'Monthly']} />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* ── Performance Metrics ── */}
+                      <div>
+                        <div className="flex items-center gap-2 mb-4">
+                          <div className="w-1.5 h-5 bg-blue-500 rounded-full" />
+                          <h4 className="text-xs font-bold text-gray-900 dark:text-white uppercase tracking-wider">Performance Metrics</h4>
+                        </div>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                          <div className="space-y-2">
+                            <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">Followers</label>
+                            <div className="relative">
+                              <input type="text" value={tiktokFollowers} onChange={e => setTiktokFollowers(e.target.value)} placeholder="e.g. 50K"
+                                className="w-full bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl py-3 pl-4 pr-4 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30 transition-all" />
+                            </div>
+                          </div>
+                          <div className="space-y-2">
+                            <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">Total Likes</label>
+                            <input type="text" value={tiktokTotalLikes} onChange={e => setTiktokTotalLikes(e.target.value)} placeholder="e.g. 1.2M"
+                              className="w-full bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl py-3 px-4 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30 transition-all" />
+                          </div>
+                          <div className="space-y-2">
+                            <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">Avg. Views</label>
+                            <input type="text" value={tiktokAvgViews} onChange={e => setTiktokAvgViews(e.target.value)} placeholder="e.g. 10K"
+                              className="w-full bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl py-3 px-4 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30 transition-all" />
+                          </div>
+                          <div className="space-y-2">
+                            <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">Engagement Rate</label>
+                            <div className="relative">
+                              <input type="text" value={tiktokEngagementRate} onChange={e => setTiktokEngagementRate(e.target.value)} placeholder="e.g. 5.2"
+                                className="w-full bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl py-3 pl-4 pr-8 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30 transition-all" />
+                              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-gray-400">%</span>
+                            </div>
+                          </div>
+                          <div className="space-y-2">
+                            <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">Avg. Comments</label>
+                            <input type="text" value={tiktokAvgComments} onChange={e => setTiktokAvgComments(e.target.value)} placeholder="e.g. 200"
+                              className="w-full bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl py-3 px-4 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30 transition-all" />
+                          </div>
+                          <div className="space-y-2">
+                            <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">Avg. Shares</label>
+                            <input type="text" value={tiktokAvgShares} onChange={e => setTiktokAvgShares(e.target.value)} placeholder="e.g. 50"
+                              className="w-full bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl py-3 px-4 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30 transition-all" />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* ── Content Niche ── */}
+                      <div>
+                        <div className="flex items-center gap-2 mb-4">
+                          <div className="w-1.5 h-5 bg-purple-500 rounded-full" />
+                          <h4 className="text-xs font-bold text-gray-900 dark:text-white uppercase tracking-wider">Content Niche</h4>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {['Comedy', 'Dance', 'Education', 'Fashion', 'Beauty', 'Food', 'Fitness', 'Tech', 'Gaming', 'Travel', 'Lifestyle', 'Music', 'DIY', 'Finance', 'Pets'].map(niche => (
+                            <TagPill
+                              key={niche}
+                              label={niche}
+                              selected={tiktokNiche.includes(niche)}
+                              onClick={() => setTiktokNiche(prev =>
+                                prev.includes(niche) ? prev.filter(n => n !== niche) : [...prev, niche]
+                              )}
+                            />
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* ── Content Style ── */}
+                      <div>
+                        <div className="flex items-center gap-2 mb-4">
+                          <div className="w-1.5 h-5 bg-pink-500 rounded-full" />
+                          <h4 className="text-xs font-bold text-gray-900 dark:text-white uppercase tracking-wider">Content Style</h4>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {['Talking Head', 'Voiceover', 'Trending Audio', 'Transitions', 'Storytelling', 'Tutorial', 'Behind-the-Scenes', 'Product Review', 'Unboxing', 'Day in My Life'].map(style => (
+                            <TagPill
+                              key={style}
+                              label={style}
+                              selected={tiktokContentStyle.includes(style)}
+                              onClick={() => setTiktokContentStyle(prev =>
+                                prev.includes(style) ? prev.filter(s => s !== style) : [...prev, style]
+                              )}
+                            />
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* ── Audience Demographics ── */}
+                      <div>
+                        <div className="flex items-center gap-2 mb-4">
+                          <div className="w-1.5 h-5 bg-amber-500 rounded-full" />
+                          <h4 className="text-xs font-bold text-gray-900 dark:text-white uppercase tracking-wider">Audience Demographics</h4>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                          <SelectField label="Primary Gender" value={tiktokAudienceGender} onChange={setTiktokAudienceGender} options={['Mixed', 'Mostly Male', 'Mostly Female']} />
+                          <SelectField label="Top Age Range" value={tiktokAudienceAgeRange} onChange={setTiktokAudienceAgeRange} options={['13-17', '18-24', '25-34', '35-44', '45+']} />
+                          <InputField label="Top Country" placeholder="e.g. Ethiopia" value={tiktokAudienceTopCountry} onChange={setTiktokAudienceTopCountry} icon={<Globe size={14} />} />
+                        </div>
+                      </div>
+
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </SectionCard>
+
+            {/* ━━ Creator Bio & Rates ━━ */}
+            <SectionCard icon={<Briefcase size={20} />} title="Creator Bio & Rates">
+              <p className="text-xs text-gray-500 dark:text-gray-400 -mt-4 mb-6">
+                Tell brands who you are and what you charge.
+              </p>
+              <div className="space-y-5">
+                <div className="space-y-2">
+                  <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">Bio / Pitch</label>
+                  <div className="relative">
+                    <textarea
+                      rows={4}
+                      value={bioPitch}
+                      onChange={(e) => setBioPitch(e.target.value)}
+                      placeholder="Tell brands why they should work with you..."
+                      maxLength={400}
+                      className="w-full bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl p-4 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30 transition-all resize-none"
+                    />
+                    <span className="absolute bottom-3 right-3 text-[10px] text-gray-400">{bioPitch.length} / 400</span>
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <InputField label="Base Rate (USD)" placeholder="e.g. $50" value={baseRate} onChange={setBaseRate} icon={<DollarSign size={14} />} />
+                  <InputField label="Portfolio URL" placeholder="www.yoursite.com" value={portfolioUrl} onChange={setPortfolioUrl} prefix="https://" />
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <SelectField label="Payment Preference" value={paymentPreference} onChange={setPaymentPreference} options={['Negotiable', 'Per Post', 'Monthly Retainer', 'Revenue Share', 'Product Exchange']} />
+                  <SelectField label="Availability" value={availability} onChange={setAvailability} options={['Full-time', 'Part-time', 'Weekends Only', 'Project-based']} />
+                </div>
+                <SelectField label="Primary Language" value={primaryLanguage} onChange={setPrimaryLanguage} options={['English (US)', 'English (UK)', 'Spanish', 'French', 'German', 'Amharic', 'Arabic', 'Chinese', 'Other']} />
+              </div>
+            </SectionCard>
+
+            {/* ━━ Collaboration Preferences ━━ */}
+            <SectionCard icon={<Target size={20} />} title="Collaboration Preferences">
               <div className="space-y-6">
                 <div className="space-y-3">
-                  <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">
-                    Preferred Industries
-                  </label>
+                  <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">Preferred Industries</label>
                   <div className="flex flex-wrap gap-2">
-                    {industries.map((ind) => (
+                    {['Organic Agriculture', 'Technology', 'Healthcare', 'Education', 'E-commerce', 'Fintech', 'SaaS', 'Fashion & Apparel', 'Food & Beverage', 'Other'].map((ind) => (
                       <TagPill
                         key={ind}
                         label={ind}
                         selected={preferredIndustries.includes(ind)}
-                        onClick={() =>
-                          setPreferredIndustries(prev =>
-                            prev.includes(ind) ? prev.filter(i => i !== ind) : [...prev, ind]
-                          )
-                        }
+                        onClick={() => setPreferredIndustries(prev =>
+                          prev.includes(ind) ? prev.filter(i => i !== ind) : [...prev, ind]
+                        )}
                       />
                     ))}
                   </div>
                 </div>
-
                 <div className="space-y-3">
-                  <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">
-                    Preferred Campaign Types
-                  </label>
+                  <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">Preferred Campaign Types</label>
                   <div className="flex flex-wrap gap-2">
-                    {preferredCampaigns.map((type) => (
+                    {['Shoutouts', 'Product Reviews', 'Long-term Ambassadorship', 'Event Attendance', 'Affiliate'].map((type) => (
                       <TagPill
                         key={type}
                         label={type}
                         selected={campaignTypes.includes(type)}
-                        onClick={() =>
-                          setCampaignTypes(prev =>
-                            prev.includes(type) ? prev.filter(t => t !== type) : [...prev, type]
-                          )
-                        }
+                        onClick={() => setCampaignTypes(prev =>
+                          prev.includes(type) ? prev.filter(t => t !== type) : [...prev, type]
+                        )}
                       />
                     ))}
                   </div>
