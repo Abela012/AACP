@@ -160,3 +160,86 @@ export const disconnectPlatform = async (req: Request, res: Response) => {
         res.status(500).json({ success: false, message: error.message });
     }
 };
+
+/**
+ * Connect a social platform using a provided access token (no OAuth redirect).
+ * Validates the token against the platform's API, then stores/updates the connection.
+ */
+export const connectWithToken = async (req: Request, res: Response) => {
+    const { platform } = req.params;
+    const { access_token } = req.body;
+    const { userId: clerkId } = getAuth(req);
+
+    if (!clerkId) {
+        return res.status(401).json({ success: false, message: 'Unauthorized' });
+    }
+
+    if (!access_token) {
+        return res.status(400).json({ success: false, message: 'access_token is required in request body' });
+    }
+
+    if (!['facebook', 'instagram', 'tiktok'].includes(platform)) {
+        return res.status(400).json({ success: false, message: 'Invalid platform. Allowed: facebook, instagram, tiktok' });
+    }
+
+    try {
+        const user = await User.findOne({ clerkId });
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'User not found. Please sync your profile first.' });
+        }
+
+        // Validate the token by fetching the user's profile from the platform
+        let profile: { id: string; name?: string; email?: string; avatar?: string } | null = null;
+
+        try {
+            profile = await SocialAuthService.getPlatformUserProfile(platform as any, access_token);
+        } catch (validationError: any) {
+            logger.error(`[Social] Token validation failed for ${platform}: ${validationError.message}`);
+            return res.status(400).json({
+                success: false,
+                message: `Invalid or expired ${platform} access token. Please check the token and try again.`,
+            });
+        }
+
+        if (!profile || !profile.id) {
+            return res.status(400).json({
+                success: false,
+                message: `Could not retrieve profile from ${platform}. The token may be invalid.`,
+            });
+        }
+
+        // Store or update connection
+        const connection = await SocialConnection.findOneAndUpdate(
+            { userId: user._id, platform },
+            {
+                platformUserId: profile.id,
+                accessToken: access_token,
+                isConnected: true,
+                metadata: profile,
+                status: 'approved',
+                lastSyncedAt: new Date(),
+            },
+            { upsert: true, new: true }
+        );
+
+        logger.info(`[Social] ${platform} connected for user ${user.email} (profile: ${profile.name || profile.id})`);
+
+        res.json({
+            success: true,
+            message: `Successfully connected to ${platform}`,
+            data: {
+                platform: connection.platform,
+                isConnected: connection.isConnected,
+                status: connection.status,
+                metadata: {
+                    name: profile.name,
+                    avatar: profile.avatar,
+                },
+                lastSyncedAt: connection.lastSyncedAt,
+            },
+        });
+    } catch (error: any) {
+        logger.error(`[Social] Connect with token error [${platform}]: ${error.message}`);
+        res.status(500).json({ success: false, message: 'Failed to connect social account' });
+    }
+};

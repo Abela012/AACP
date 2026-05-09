@@ -1,7 +1,8 @@
 import { useAuth } from "@clerk/clerk-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useCallback } from "react";
-import { useApiClient, userApi } from "../utils/api";
+import { useApiClient } from "../api/apiClient";
+import { userApi } from "../api/userApi";
 import { useUser } from "../shared/context/UserContext";
 import { useProfile } from "../shared/context/ProfileContext";
 

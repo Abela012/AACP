@@ -1,7 +1,8 @@
 import { Navigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
-import { useApiClient, userApi } from "../../utils/api";
+import { useApiClient } from "../../api/apiClient";
+import { userApi } from "../../api/userApi";
 import { useUserSync } from "../../hooks/useUserSync";
 import type { User } from "../../types";
 import { useUser } from "../../shared/context/UserContext";
@@ -27,7 +28,7 @@ export default function RoleDashboardRedirectPage() {
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["authUser"],
     queryFn: async () => {
-      const response = await userApi.getCurrentUser(api);
+      const response = await userApi.getMe(api);
       return response.data as any;
     },
     retry: 3,
@@ -58,7 +59,7 @@ export default function RoleDashboardRedirectPage() {
   });
 
   useEffect(() => {
-    const timer = window.setTimeout(() => setTimedOut(true), 6000); // Increased timeout
+    const timer = window.setTimeout(() => setTimedOut(true), 15000); // Increased timeout
     return () => window.clearTimeout(timer);
   }, []);
 

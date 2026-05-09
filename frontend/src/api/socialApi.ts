@@ -29,6 +29,17 @@ export const socialApi = {
         return response.data;
     },
 
+    /**
+     * Connect a social platform using an access token directly.
+     * No OAuth redirect needed — just pass the token.
+     */
+    connectWithToken: async (api: AxiosInstance, platform: string, accessToken: string): Promise<ApiResponse<SocialConnection>> => {
+        const response = await api.post(`/social/connect/${platform}`, {
+            access_token: accessToken,
+        });
+        return response.data;
+    },
+
     disconnectPlatform: async (api: AxiosInstance, platform: string): Promise<ApiResponse<any>> => {
         const response = await api.delete(`/social/disconnect/${platform}`);
         return response.data;

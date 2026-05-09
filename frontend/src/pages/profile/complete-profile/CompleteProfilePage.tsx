@@ -261,6 +261,10 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
 
   const [socialConnections, setSocialConnections] = useState<SocialConnection[]>([]);
   const [isSocialLoading, setIsSocialLoading] = useState(true);
+  const [connectingPlatform, setConnectingPlatform] = useState<string | null>(null);
+  const [showTokenModal, setShowTokenModal] = useState<string | null>(null);
+  const [tokenInput, setTokenInput] = useState('');
+  const [tokenError, setTokenError] = useState<string | null>(null);
 
   const fetchSocialConnections = useCallback(async () => {
     try {
@@ -274,6 +278,28 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
       setIsSocialLoading(false);
     }
   }, [api]);
+
+  const handleConnectWithToken = useCallback(async (platform: string, accessToken: string) => {
+    setConnectingPlatform(platform);
+    setTokenError(null);
+    try {
+      const res = await socialApi.connectWithToken(api, platform, accessToken);
+      if (res.success) {
+        toast.success(`Successfully connected to ${platform}!`);
+        setShowTokenModal(null);
+        setTokenInput('');
+        await fetchSocialConnections();
+      } else {
+        setTokenError(res.message || 'Connection failed');
+      }
+    } catch (err: any) {
+      const message = err?.response?.data?.message || `Failed to connect ${platform}`;
+      setTokenError(message);
+      toast.error(message);
+    } finally {
+      setConnectingPlatform(null);
+    }
+  }, [api, fetchSocialConnections]);
 
   // Fetch initial connections
   useEffect(() => {
@@ -697,30 +723,55 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
           </p>
           <div className="space-y-4">
             {[
-              { id: 'tiktok', name: 'TikTok', icon: <FaTiktok />, color: 'text-black dark:text-white' },
-              { id: 'instagram', name: 'Instagram', icon: <FaInstagram />, color: 'text-pink-600' },
-              { id: 'facebook', name: 'Facebook', icon: <FaFacebook />, color: 'text-blue-600' },
+              { id: 'facebook', name: 'Facebook', icon: <FaFacebook />, color: 'text-blue-600', useToken: true },
+              { id: 'instagram', name: 'Instagram', icon: <FaInstagram />, color: 'text-pink-600', useToken: false },
+              { id: 'tiktok', name: 'TikTok', icon: <FaTiktok />, color: 'text-black dark:text-white', useToken: false },
             ].map((platform) => {
               const conn = socialConnections.find(c => c.platform === platform.id);
-              const isConnected = !!conn;
               const status = conn?.status || 'none';
+              const isConnected = status === 'approved' || (conn?.isConnected && status !== 'none');
+              const isCurrentlyConnecting = connectingPlatform === platform.id;
 
               return (
-                <div key={platform.id} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-white/5 rounded-2xl border border-gray-100 dark:border-white/5">
+                <div key={platform.id} className={cn(
+                  "flex items-center justify-between p-4 rounded-2xl border transition-all duration-300",
+                  isConnected
+                    ? "bg-emerald-50/50 dark:bg-emerald-500/5 border-emerald-200 dark:border-emerald-500/20"
+                    : "bg-gray-50 dark:bg-white/5 border-gray-100 dark:border-white/5"
+                )}>
                   <div className="flex items-center gap-3">
-                    <div className={cn("p-2.5 rounded-xl bg-white dark:bg-white/5 shadow-sm", platform.color)}>
+                    <div className={cn(
+                      "p-2.5 rounded-xl shadow-sm transition-all",
+                      isConnected
+                        ? "bg-emerald-100 dark:bg-emerald-500/15"
+                        : "bg-white dark:bg-white/5",
+                      platform.color
+                    )}>
                       {platform.icon}
                     </div>
                     <div>
                       <p className="text-sm font-bold text-gray-900 dark:text-white">{platform.name}</p>
-                      <p className="text-[10px] text-gray-500 uppercase tracking-wider font-bold">
-                        {status === 'none' ? 'Not Connected' : status === 'pending' ? 'Pending Approval' : 'Verified'}
+                      <p className={cn(
+                        "text-[10px] uppercase tracking-wider font-bold",
+                        isConnected ? "text-emerald-600 dark:text-emerald-400" :
+                        status === 'pending' ? "text-amber-600 dark:text-amber-400" :
+                        "text-gray-500"
+                      )}>
+                        {isCurrentlyConnecting ? 'Connecting...' :
+                         isConnected ? 'Connected' :
+                         status === 'pending' ? 'Pending Approval' :
+                         'Not Connected'}
                       </p>
                     </div>
                   </div>
-                  {status === 'approved' ? (
+
+                  {isCurrentlyConnecting ? (
+                    <div className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-blue-50 dark:bg-blue-500/10 text-blue-600 text-xs font-bold">
+                      <Loader2 size={14} className="animate-spin" /> Connecting...
+                    </div>
+                  ) : isConnected ? (
                     <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 text-xs font-bold">
-                      <CheckCircle2 size={14} /> Approved
+                      <CheckCircle2 size={14} /> Connected
                     </div>
                   ) : status === 'pending' ? (
                     <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-50 dark:bg-amber-500/10 text-amber-600 text-xs font-bold">
@@ -730,13 +781,21 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
                     <button
                       type="button"
                       onClick={async () => {
-                        try {
-                          const res = await socialApi.initiateAuth(api, platform.id, location.pathname);
-                          if (res.success && res.data?.authUrl) {
-                            window.location.href = res.data.authUrl;
+                        if (platform.useToken) {
+                          setShowTokenModal(platform.id);
+                          setTokenInput('');
+                          setTokenError(null);
+                        } else {
+                          setConnectingPlatform(platform.id);
+                          try {
+                            const res = await socialApi.initiateAuth(api, platform.id, location.pathname);
+                            if (res.success && res.data?.authUrl) {
+                              window.location.href = res.data.authUrl;
+                            }
+                          } catch (err) {
+                            toast.error(`Failed to connect ${platform.name}`);
+                            setConnectingPlatform(null);
                           }
-                        } catch (err) {
-                          toast.error(`Failed to connect ${platform.name}`);
                         }
                       }}
                       className="px-4 py-2 rounded-xl bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-xs font-bold hover:opacity-90 transition-opacity"
@@ -749,6 +808,81 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
             })}
           </div>
         </SectionCard>
+
+        {/* ── Token Input Modal ── */}
+        <AnimatePresence>
+          {showTokenModal && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4"
+              onClick={() => { setShowTokenModal(null); setTokenError(null); }}
+            >
+              <motion.div
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.9, opacity: 0 }}
+                transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+                className="bg-white dark:bg-[#111] rounded-3xl border border-gray-100 dark:border-white/10 p-8 max-w-md w-full shadow-2xl"
+                onClick={e => e.stopPropagation()}
+              >
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-10 h-10 bg-blue-100 dark:bg-blue-500/10 rounded-xl flex items-center justify-center text-blue-600">
+                    <FaFacebook size={20} />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-gray-900 dark:text-white">Connect Facebook</h3>
+                    <p className="text-xs text-gray-500">Enter your Facebook access token</p>
+                  </div>
+                </div>
+
+                {tokenError && (
+                  <div className="mb-4 p-3 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 rounded-xl text-red-600 text-xs font-medium">
+                    {tokenError}
+                  </div>
+                )}
+
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em] mb-1.5 block">
+                      Access Token
+                    </label>
+                    <textarea
+                      value={tokenInput}
+                      onChange={(e) => setTokenInput(e.target.value)}
+                      placeholder="Paste your Facebook access token here..."
+                      rows={3}
+                      className="w-full bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm font-mono focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/20 text-gray-900 dark:text-white resize-none transition-all"
+                    />
+                  </div>
+
+                  <div className="flex gap-3">
+                    <button
+                      type="button"
+                      onClick={() => { setShowTokenModal(null); setTokenError(null); }}
+                      className="flex-1 py-3 rounded-xl border border-gray-200 dark:border-white/10 text-sm font-bold text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 transition-all"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      disabled={!tokenInput.trim() || connectingPlatform === showTokenModal}
+                      onClick={() => handleConnectWithToken(showTokenModal, tokenInput.trim())}
+                      className="flex-1 py-3 rounded-xl bg-blue-600 text-white text-sm font-bold hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
+                    >
+                      {connectingPlatform === showTokenModal ? (
+                        <><Loader2 size={16} className="animate-spin" /> Connecting...</>
+                      ) : (
+                        <><CheckCircle2 size={16} /> Connect</>
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {isBusiness ? (
           /* ━━ BUSINESS PROFILE ━━ */
@@ -890,42 +1024,6 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
                 </div>
               </div>
             </SectionCard>
-
-            {/* Collaboration Preferences */}
-            <SectionCard
-              icon={<Target size={20} />}
-              title="Collaboration Preferences"
-            >
-              <div className="space-y-6">
-                <div className="space-y-3">
-                  <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">
-                    Who are you looking for?
-                  </label>
-                  <div className="flex flex-wrap gap-2">
-                    {promoterTypes.map((type) => (
-                      <TagPill
-                        key={type}
-                        label={type}
-                        selected={preferredPromoterTypes.includes(type)}
-                        onClick={() =>
-                          setPreferredPromoterTypes(prev =>
-                            prev.includes(type) ? prev.filter(t => t !== type) : [...prev, type]
-                          )
-                        }
-                      />
-                    ))}
-                  </div>
-                </div>
-
-                <InputField
-                  label="Number of Promoters Needed"
-                  placeholder="e.g. 5-10"
-                  value={promotersNeededCount}
-                  onChange={setPromotersNeededCount}
-                />
-              </div>
-            </SectionCard>
-
             {/* Trade License Verification */}
             <SectionCard
               icon={<ShieldCheck size={20} />}
@@ -1164,130 +1262,6 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
         ) : (
           /* ━━ ADVERTISER (CREATOR) PROFILE ━━ */
           <>
-            {/* Work & Pricing */}
-            <SectionCard
-              icon={<Briefcase size={20} />}
-              title="Work & Pricing"
-            >
-              <div className="space-y-5">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                  <InputField
-                    label="Portfolio URL"
-                    placeholder="https://youtube.com/c/creator"
-                    value={portfolioUrl}
-                    onChange={setPortfolioUrl}
-                    icon={<Globe size={16} />}
-                  />
-                  <SelectField
-                    label="Primary Language"
-                    value={primaryLanguage}
-                    onChange={setPrimaryLanguage}
-                    options={languages}
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                  <InputField
-                    label="Base Rate (USD)"
-                    placeholder="500"
-                    value={baseRate}
-                    onChange={setBaseRate}
-                    icon={<DollarSign size={16} />}
-                    type="number"
-                  />
-                  <InputField
-                    label="Bio / Pitch"
-                    placeholder="Short intro..."
-                    value={bioPitch}
-                    onChange={setBioPitch}
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                  <SelectField
-                    label="Payment Preference"
-                    value={paymentPreference}
-                    onChange={setPaymentPreference}
-                    options={['Fixed', 'Negotiable', 'Both']}
-                  />
-                  <SelectField
-                    label="Availability"
-                    value={availability}
-                    onChange={setAvailability}
-                    options={['Full-time', 'Part-time', 'Freelance']}
-                  />
-                </div>
-
-                {/* Niche */}
-                <div className="space-y-2">
-                  <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">
-                    Niche / Categories
-                  </label>
-                  <div className="flex gap-2 flex-wrap items-center">
-                    {commonNiches.map((niche) => {
-                      const isSelected = nicheTags.some(t => t.label === niche);
-                      return (
-                        <TagPill
-                          key={niche}
-                          label={niche}
-                          selected={isSelected}
-                          onClick={() => {
-                            if (isSelected) {
-                              setNicheTags(prev => prev.filter(t => t.label !== niche));
-                            } else {
-                              setNicheTags(prev => [...prev, { label: niche, removable: true }]);
-                            }
-                          }}
-                        />
-                      );
-                    })}
-                    {nicheTags.filter(t => !commonNiches.includes(t.label)).map((tag) => (
-                      <RemovableTag
-                        key={tag.label}
-                        label={tag.label}
-                        onRemove={() =>
-                          setNicheTags((prev) =>
-                            prev.filter((t) => t.label !== tag.label)
-                          )
-                        }
-                      />
-                    ))}
-                    {showNicheInput ? (
-                      <div className="flex items-center gap-2">
-                        <input
-                          autoFocus
-                          value={newNiche}
-                          onChange={(e) => setNewNiche(e.target.value)}
-                          onKeyDown={(e) => e.key === 'Enter' && addNicheTag()}
-                          placeholder="Add niche"
-                          className="w-28 bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:border-emerald-500 text-gray-900 dark:text-white"
-                        />
-                        <button
-                          onClick={addNicheTag}
-                          className="text-emerald-500 hover:text-emerald-400 transition-colors"
-                        >
-                          <CheckCircle2 size={18} />
-                        </button>
-                        <button
-                          onClick={() => setShowNicheInput(false)}
-                          className="text-gray-400 hover:text-gray-600 transition-colors"
-                        >
-                          <X size={16} />
-                        </button>
-                      </div>
-                    ) : (
-                      <button
-                        onClick={() => setShowNicheInput(true)}
-                        className="flex items-center gap-1 px-3 py-1.5 border border-dashed border-gray-300 dark:border-white/15 rounded-full text-xs font-semibold text-gray-500 dark:text-gray-400 hover:border-emerald-400 hover:text-emerald-500 transition-all"
-                      >
-                        <Plus size={14} /> Add Niche
-                      </button>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </SectionCard>
-
             {/* Collaboration Preferences */}
             <SectionCard
               icon={<Target size={20} />}
