@@ -23,6 +23,7 @@ import {
   AlertCircle,
   Globe
 } from 'lucide-react';
+import { FaInstagram, FaTiktok } from 'react-icons/fa6';
 import { Link, useParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useApiClient } from '@/src/api/apiClient';
@@ -64,6 +65,13 @@ export default function AdminUserDetailPage() {
 
   const handleStatusChange = (newStatus: string) => {
     updateStatus.mutate(newStatus);
+  };
+
+  const formatMetric = (num: number | undefined): string => {
+    if (num === undefined || num === null) return '0';
+    if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+    if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+    return num.toString();
   };
 
   const handleResetPassword = () => {
@@ -330,6 +338,105 @@ export default function AdminUserDetailPage() {
                 </>
               )}
             </div>
+
+            {/* Detailed Social Analytics - Only for Advertisers */}
+            {user.role === 'advertiser' && (displayProfileData.tiktok || displayProfileData.instagram) && (
+              <div className="mt-12 pt-12 border-t border-gray-100 dark:border-white/5 space-y-12">
+                <h4 className="text-sm font-black uppercase tracking-[0.2em] text-[#9A9FA5]">Social Performance Analytics</h4>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+                  {/* TikTok */}
+                  {displayProfileData.tiktok && (
+                    <div className="space-y-6">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 bg-black rounded-xl flex items-center justify-center text-white shadow-lg">
+                            <FaTiktok size={20} />
+                          </div>
+                          <div>
+                            <p className="text-xs font-black uppercase tracking-widest text-gray-400">TikTok</p>
+                            <p className="text-sm font-bold">@{displayProfileData.tiktok.username}</p>
+                          </div>
+                        </div>
+                        <a href={displayProfileData.tiktok.profileLink} target="_blank" rel="noopener noreferrer" className="p-2 bg-gray-100 dark:bg-white/10 rounded-lg hover:bg-gray-200 transition-colors">
+                          <ExternalLink size={14} />
+                        </a>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        {[
+                          { label: 'Followers', value: formatMetric(displayProfileData.tiktok.followers) },
+                          { label: 'Engagement', value: `${displayProfileData.tiktok.engagementRate}%` },
+                          { label: 'Avg Views', value: formatMetric(displayProfileData.tiktok.avgViews) },
+                          { label: 'Avg Likes', value: formatMetric(displayProfileData.tiktok.totalLikes) },
+                        ].map((s, i) => (
+                          <div key={i} className="p-4 bg-gray-50 dark:bg-white/5 rounded-2xl border border-gray-100 dark:border-white/5">
+                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">{s.label}</p>
+                            <p className="text-lg font-black">{s.value}</p>
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className="p-6 bg-gray-50 dark:bg-white/5 rounded-3xl space-y-4">
+                         <div className="flex justify-between items-center">
+                            <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Top Audience</span>
+                            <span className="text-xs font-bold">{displayProfileData.tiktok.audienceTopCountry || 'Global'}</span>
+                         </div>
+                         <div className="flex justify-between items-center">
+                            <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Core Age</span>
+                            <span className="text-xs font-bold">{displayProfileData.tiktok.audienceAgeRange || '18-24'}</span>
+                         </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Instagram */}
+                  {displayProfileData.instagram && (
+                    <div className="space-y-6">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 bg-pink-500 rounded-xl flex items-center justify-center text-white shadow-lg shadow-pink-500/20">
+                            <FaInstagram size={20} />
+                          </div>
+                          <div>
+                            <p className="text-xs font-black uppercase tracking-widest text-pink-400">Instagram</p>
+                            <p className="text-sm font-bold">@{displayProfileData.instagram.username}</p>
+                          </div>
+                        </div>
+                        <a href={displayProfileData.instagram.profileLink} target="_blank" rel="noopener noreferrer" className="p-2 bg-pink-50 dark:bg-pink-500/10 rounded-lg hover:bg-pink-100 transition-colors">
+                          <ExternalLink size={14} className="text-pink-600" />
+                        </a>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        {[
+                          { label: 'Followers', value: formatMetric(displayProfileData.instagram.followers) },
+                          { label: 'Engagement', value: `${displayProfileData.instagram.engagementRate}%` },
+                          { label: 'Avg Views', value: formatMetric(displayProfileData.instagram.avgViews) },
+                          { label: 'Avg Likes', value: formatMetric(displayProfileData.instagram.totalLikes) },
+                        ].map((s, i) => (
+                          <div key={i} className="p-4 bg-pink-50/30 dark:bg-pink-500/5 rounded-2xl border border-pink-100/50 dark:border-pink-500/10">
+                            <p className="text-[10px] font-black text-pink-400 uppercase tracking-widest mb-1">{s.label}</p>
+                            <p className="text-lg font-black text-pink-600">{s.value}</p>
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className="p-6 bg-pink-50/30 dark:bg-pink-500/5 rounded-3xl space-y-4">
+                         <div className="flex justify-between items-center">
+                            <span className="text-[10px] font-black text-pink-400 uppercase tracking-widest">Top Audience</span>
+                            <span className="text-xs font-bold">{displayProfileData.instagram.audienceTopCountry || 'Global'}</span>
+                         </div>
+                         <div className="flex justify-between items-center">
+                            <span className="text-[10px] font-black text-pink-400 uppercase tracking-widest">Core Age</span>
+                            <span className="text-xs font-bold">{displayProfileData.instagram.audienceAgeRange || '18-24'}</span>
+                         </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         </div>
 

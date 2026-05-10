@@ -197,13 +197,13 @@ export default function RoleDashboardRedirectPage() {
               type="button"
               onClick={() => { setSelectedRole('business_owner'); setRoleError(null); }}
               className={`group relative flex flex-col items-center gap-3 p-6 rounded-2xl border-2 transition-all duration-200 ${selectedRole === 'business_owner'
-                  ? 'border-[#14a800] bg-[#14a800]/5 shadow-lg shadow-[#14a800]/10'
-                  : 'border-gray-100 bg-white hover:border-[#14a800]/30 hover:shadow-md'
+                ? 'border-[#14a800] bg-[#14a800]/5 shadow-lg shadow-[#14a800]/10'
+                : 'border-gray-100 bg-white hover:border-[#14a800]/30 hover:shadow-md'
                 }`}
             >
               <div className={`w-14 h-14 rounded-xl flex items-center justify-center transition-all ${selectedRole === 'business_owner'
-                  ? 'bg-[#14a800] text-white'
-                  : 'bg-gray-50 text-[#5e6d55] group-hover:bg-[#14a800]/10 group-hover:text-[#14a800]'
+                ? 'bg-[#14a800] text-white'
+                : 'bg-gray-50 text-[#5e6d55] group-hover:bg-[#14a800]/10 group-hover:text-[#14a800]'
                 }`}>
                 <Briefcase size={26} />
               </div>
@@ -224,13 +224,13 @@ export default function RoleDashboardRedirectPage() {
               type="button"
               onClick={() => { setSelectedRole('advertiser'); setRoleError(null); }}
               className={`group relative flex flex-col items-center gap-3 p-6 rounded-2xl border-2 transition-all duration-200 ${selectedRole === 'advertiser'
-                  ? 'border-[#14a800] bg-[#14a800]/5 shadow-lg shadow-[#14a800]/10'
-                  : 'border-gray-100 bg-white hover:border-[#14a800]/30 hover:shadow-md'
+                ? 'border-[#14a800] bg-[#14a800]/5 shadow-lg shadow-[#14a800]/10'
+                : 'border-gray-100 bg-white hover:border-[#14a800]/30 hover:shadow-md'
                 }`}
             >
               <div className={`w-14 h-14 rounded-xl flex items-center justify-center transition-all ${selectedRole === 'advertiser'
-                  ? 'bg-[#14a800] text-white'
-                  : 'bg-gray-50 text-[#5e6d55] group-hover:bg-[#14a800]/10 group-hover:text-[#14a800]'
+                ? 'bg-[#14a800] text-white'
+                : 'bg-gray-50 text-[#5e6d55] group-hover:bg-[#14a800]/10 group-hover:text-[#14a800]'
                 }`}>
                 <Megaphone size={26} />
               </div>

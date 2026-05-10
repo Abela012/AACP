@@ -11,8 +11,13 @@ import {
   ShieldCheck,
   RotateCcw,
   Ban,
-  Info
+  Info,
+  BarChart3,
+  Music2,
+  Building2
 } from 'lucide-react';
+import { FaInstagram, FaTiktok } from 'react-icons/fa6';
+import { cn } from '@/src/shared/utils/cn';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useApiClient } from '@/src/api/apiClient';
@@ -49,8 +54,21 @@ export default function UserApprovalPage() {
     );
   }
 
-  const profile = user.profileData || {};
-  const isBusiness = user.role === 'business_owner';
+  const displayProfileData = user ? {
+    ...(user.profileData || {}),
+    ...(user.pendingProfileData || {})
+  } : {};
+  
+  const hasPendingChanges = !!user?.pendingProfileData;
+  const isBusiness = user?.role === 'business_owner';
+
+  const formatMetric = (num: number | undefined): string => {
+    if (num === undefined || num === null) return '0';
+    if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+    if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+    return num.toString();
+  };
+
   return (
     <AdminLayout>
       <div className="max-w-[1400px] mx-auto pb-12">
@@ -88,9 +106,9 @@ export default function UserApprovalPage() {
                   <label className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest mb-2 block">{isBusiness ? 'Industry' : 'Primary Niche'}</label>
                   <div className="flex flex-wrap gap-2">
                     {isBusiness ? (
-                      <span className="px-4 py-2 bg-green-50 dark:bg-green-500/10 text-[#14a800] rounded-xl text-xs font-bold ring-1 ring-green-100 dark:ring-green-500/20">{profile.industry || 'General'}</span>
+                      <span className="px-4 py-2 bg-green-50 dark:bg-green-500/10 text-[#14a800] rounded-xl text-xs font-bold ring-1 ring-green-100 dark:ring-green-500/20">{displayProfileData.industry || 'General'}</span>
                     ) : (
-                      (profile.selectedStyles || ['Lifestyle']).map((style: string) => (
+                      (displayProfileData.selectedStyles || ['Lifestyle']).map((style: string) => (
                         <span key={style} className="px-4 py-2 bg-gray-50 dark:bg-white/5 text-[#6F767E] dark:text-gray-400 rounded-xl text-xs font-bold border border-gray-100 dark:border-white/10">{style}</span>
                       ))
                     )}
@@ -101,16 +119,28 @@ export default function UserApprovalPage() {
                   <label className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest mb-2 block">Location</label>
                   <div className="flex items-center gap-2 font-bold text-[#1A1D1F] dark:text-white">
                     <MapPin size={16} className="text-[#14a800]" />
-                    <span className="text-sm">{profile.businessLocation || profile.geoTags?.[0] || user.location || 'Remote'}</span>
+                    <span className="text-sm">{displayProfileData.businessLocation || displayProfileData.geoTags?.[0] || user.location || 'Remote'}</span>
                   </div>
                 </div>
 
                 <div>
-                  <label className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest mb-2 block">Bio</label>
+                  <label className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest mb-2 block">Bio / Pitch</label>
                   <p className="text-xs text-[#6F767E] dark:text-gray-400 font-medium leading-relaxed">
-                    {profile.bio || 'No bio provided.'}
+                    {displayProfileData.bio || user.bio || 'No bio provided.'}
                   </p>
                 </div>
+
+                {hasPendingChanges && (
+                  <div className="pt-4 mt-4 border-t border-dashed border-amber-200 dark:border-amber-500/20">
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse" />
+                      <span className="text-[10px] font-black text-amber-600 uppercase tracking-widest">Awaiting Approval</span>
+                    </div>
+                    <p className="text-[10px] text-amber-600/70 font-medium leading-relaxed italic">
+                      The details shown include newly submitted updates currently pending your review.
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -175,40 +205,229 @@ export default function UserApprovalPage() {
               <div className="space-y-4">
                 <p className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest mb-4">Portfolio & Socials</p>
 
-                {profile.website && (
-                  <button className="w-full p-4 bg-[#F4F4F4]/50 dark:bg-white/5 hover:bg-white dark:hover:bg-white/10 transition-all rounded-2xl flex items-center justify-between group border border-transparent hover:border-[#EFEFEF] dark:hover:border-white/5">
+                {displayProfileData.website && (
+                  <a 
+                    href={displayProfileData.website.startsWith('http') ? displayProfileData.website : `https://${displayProfileData.website}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full p-4 bg-[#F4F4F4]/50 dark:bg-white/5 hover:bg-white dark:hover:bg-white/10 transition-all rounded-2xl flex items-center justify-between group border border-transparent hover:border-[#EFEFEF] dark:hover:border-white/5"
+                  >
                     <div className="flex items-center gap-4">
                       <div className="w-10 h-10 rounded-xl bg-green-100 dark:bg-green-500/20 text-[#14a800] flex items-center justify-center">
                         <Globe size={18} />
                       </div>
                       <div className="text-left">
                         <p className="text-sm font-bold leading-none mb-1">Website / Portfolio</p>
-                        <p className="text-xs text-[#6F767E] dark:text-gray-400 font-medium">{profile.website}</p>
+                        <p className="text-xs text-[#6F767E] dark:text-gray-400 font-medium">{displayProfileData.website}</p>
                       </div>
                     </div>
                     <ChevronRight size={18} className="text-[#9A9FA5] group-hover:translate-x-1 transition-transform" />
-                  </button>
+                  </a>
                 )}
 
-                {(profile.youtubeHandle || profile.tiktokHandle) && (
-                  <button className="w-full p-4 bg-[#F4F4F4]/50 dark:bg-white/5 hover:bg-white dark:hover:bg-white/10 transition-all rounded-2xl flex items-center justify-between group border border-transparent hover:border-[#EFEFEF] dark:hover:border-white/5">
-                    <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-500/20 text-[#2563EB] flex items-center justify-center">
-                        <Link size={18} />
-                      </div>
-                      <div className="text-left">
-                        <p className="text-sm font-bold leading-none mb-1">Social Handles</p>
-                        <p className="text-xs text-[#6F767E] dark:text-gray-400 font-medium">
-                          {profile.youtubeHandle && `YT: ${profile.youtubeHandle} `}
-                          {profile.tiktokHandle && `TT: ${profile.tiktokHandle}`}
-                        </p>
-                      </div>
+                <div className="grid grid-cols-2 gap-4">
+                  {displayProfileData.tiktok?.username && (
+                    <div className="p-4 bg-black/5 dark:bg-white/5 rounded-2xl border border-transparent">
+                      <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">TikTok</p>
+                      <p className="text-xs font-bold truncate">@{displayProfileData.tiktok.username}</p>
                     </div>
-                    <ChevronRight size={18} className="text-[#9A9FA5] group-hover:translate-x-1 transition-transform" />
-                  </button>
-                )}
+                  )}
+                  {displayProfileData.instagram?.username && (
+                    <div className="p-4 bg-pink-50/50 dark:bg-pink-500/5 rounded-2xl border border-transparent">
+                      <p className="text-[9px] font-black text-pink-400 uppercase tracking-widest mb-1">Instagram</p>
+                      <p className="text-xs font-bold truncate">@{displayProfileData.instagram.username}</p>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
+
+            {/* Analytics Review Section - Only for Advertisers */}
+            {!isBusiness && (displayProfileData.tiktok || displayProfileData.instagram) && (
+              <div className="bg-white dark:bg-[#111111] p-8 rounded-[2.5rem] border border-[#EFEFEF] dark:border-white/5 shadow-sm space-y-8">
+                <h3 className="font-extrabold text-lg flex items-center gap-2">
+                  <BarChart3 size={20} className="text-emerald-500" />
+                  Analytics Review
+                </h3>
+
+                {/* TikTok Detailed Stats */}
+                {displayProfileData.tiktok && (
+                  <div className="space-y-6">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center text-white">
+                          <FaTiktok size={16} />
+                        </div>
+                        <span className="text-sm font-black tracking-tight">TikTok Insights</span>
+                      </div>
+                      <a href={displayProfileData.tiktok.profileLink} target="_blank" rel="noopener noreferrer" className="text-[10px] font-black text-blue-500 uppercase tracking-widest hover:underline">View Profile</a>
+                    </div>
+
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                      {[
+                        { label: 'Followers', value: formatMetric(displayProfileData.tiktok.followers) },
+                        { label: 'Avg Likes', value: formatMetric(displayProfileData.tiktok.totalLikes) },
+                        { label: 'Avg Views', value: formatMetric(displayProfileData.tiktok.avgViews) },
+                        { label: 'Engagement', value: `${displayProfileData.tiktok.engagementRate}%`, highlight: true },
+                      ].map((stat, i) => (
+                        <div key={i} className="p-4 bg-gray-50 dark:bg-white/5 rounded-2xl border border-gray-100 dark:border-white/5">
+                          <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">{stat.label}</p>
+                          <p className={cn("text-sm font-black", stat.highlight ? "text-emerald-500" : "")}>{stat.value}</p>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-3">
+                        <p className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest">Demographics</p>
+                        <div className="space-y-2">
+                          <div className="flex justify-between text-[11px] font-bold">
+                            <span className="text-gray-500 uppercase tracking-wider">Top Country</span>
+                            <span>{displayProfileData.tiktok.audienceTopCountry || 'Global'}</span>
+                          </div>
+                          <div className="flex justify-between text-[11px] font-bold">
+                            <span className="text-gray-500 uppercase tracking-wider">Gender</span>
+                            <span>{displayProfileData.tiktok.audienceGender || 'Mixed'}</span>
+                          </div>
+                          <div className="flex justify-between text-[11px] font-bold">
+                            <span className="text-gray-500 uppercase tracking-wider">Age Range</span>
+                            <span>{displayProfileData.tiktok.audienceAgeRange || '18-24'}</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="space-y-3">
+                        <p className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest">Content Style</p>
+                        <div className="flex flex-wrap gap-2">
+                          {(displayProfileData.tiktok.contentStyle || []).map((style: string) => (
+                            <span key={style} className="px-3 py-1 bg-gray-50 dark:bg-white/5 text-gray-500 rounded-lg text-[9px] font-black uppercase tracking-widest border border-gray-100 dark:border-white/5">
+                              {style}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Divider if both exist */}
+                {displayProfileData.tiktok && displayProfileData.instagram && (
+                  <div className="border-t border-gray-100 dark:border-white/5" />
+                )}
+
+                {/* Instagram Detailed Stats */}
+                {displayProfileData.instagram && (
+                  <div className="space-y-6">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 bg-pink-500 rounded-lg flex items-center justify-center text-white">
+                          <FaInstagram size={16} />
+                        </div>
+                        <span className="text-sm font-black tracking-tight">Instagram Insights</span>
+                      </div>
+                      <a href={displayProfileData.instagram.profileLink} target="_blank" rel="noopener noreferrer" className="text-[10px] font-black text-blue-500 uppercase tracking-widest hover:underline">View Profile</a>
+                    </div>
+
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                      {[
+                        { label: 'Followers', value: formatMetric(displayProfileData.instagram.followers) },
+                        { label: 'Avg Likes', value: formatMetric(displayProfileData.instagram.totalLikes) },
+                        { label: 'Avg Views', value: formatMetric(displayProfileData.instagram.avgViews) },
+                        { label: 'Engagement', value: `${displayProfileData.instagram.engagementRate}%`, highlight: true },
+                      ].map((stat, i) => (
+                        <div key={i} className="p-4 bg-pink-50/30 dark:bg-pink-500/5 rounded-2xl border border-pink-100/50 dark:border-pink-500/10">
+                          <p className="text-[9px] font-black text-pink-400 uppercase tracking-widest mb-1">{stat.label}</p>
+                          <p className={cn("text-sm font-black", stat.highlight ? "text-pink-600" : "")}>{stat.value}</p>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-3">
+                        <p className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest">Demographics</p>
+                        <div className="space-y-2">
+                          <div className="flex justify-between text-[11px] font-bold">
+                            <span className="text-gray-500 uppercase tracking-wider">Top Country</span>
+                            <span>{displayProfileData.instagram.audienceTopCountry || 'Global'}</span>
+                          </div>
+                          <div className="flex justify-between text-[11px] font-bold">
+                            <span className="text-gray-500 uppercase tracking-wider">Gender</span>
+                            <span>{displayProfileData.instagram.audienceGender || 'Mixed'}</span>
+                          </div>
+                          <div className="flex justify-between text-[11px] font-bold">
+                            <span className="text-gray-500 uppercase tracking-wider">Age Range</span>
+                            <span>{displayProfileData.instagram.audienceAgeRange || '18-24'}</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="space-y-3">
+                        <p className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest">Content Style</p>
+                        <div className="flex flex-wrap gap-2">
+                          {(displayProfileData.instagram.contentStyle || []).map((style: string) => (
+                            <span key={style} className="px-3 py-1 bg-pink-50/50 dark:bg-pink-500/10 text-pink-500 rounded-lg text-[9px] font-black uppercase tracking-widest border border-pink-100 dark:border-pink-500/20">
+                              {style}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Business Review Section - Only for Business Owners */}
+            {isBusiness && (
+              <div className="bg-white dark:bg-[#111111] p-8 rounded-[2.5rem] border border-[#EFEFEF] dark:border-white/5 shadow-sm space-y-8">
+                <h3 className="font-extrabold text-lg flex items-center gap-2">
+                  <Building2 size={20} className="text-emerald-500" />
+                  Business Review
+                </h3>
+
+                <div className="grid grid-cols-2 gap-6">
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest block">Business Name</label>
+                    <p className="text-sm font-black">{displayProfileData.businessName || 'N/A'}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest block">Monthly Budget</label>
+                    <p className="text-sm font-black text-emerald-500">${displayProfileData.monthlyBudget?.toLocaleString() || '0'}</p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-6">
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest block">Business Type</label>
+                    <p className="text-sm font-bold text-gray-600 dark:text-gray-400">{displayProfileData.businessType || 'N/A'}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest block">Industry</label>
+                    <p className="text-sm font-bold text-gray-600 dark:text-gray-400">{displayProfileData.industry || 'N/A'}</p>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <p className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest">Promotion Goals</p>
+                  <div className="flex flex-wrap gap-2">
+                    {(displayProfileData.promotionGoals || []).map((goal: string) => (
+                      <span key={goal} className="px-3 py-1 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 rounded-lg text-[10px] font-bold border border-emerald-100 dark:border-emerald-500/20">
+                        {goal}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <p className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest">Target Audience</p>
+                  <div className="flex flex-wrap gap-2">
+                    {(displayProfileData.targetAudienceTags || []).map((tag: string) => (
+                      <span key={tag} className="px-3 py-1 bg-blue-50 dark:bg-blue-500/10 text-blue-600 rounded-lg text-[10px] font-bold border border-blue-100 dark:border-blue-500/20">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Right Column: Approval Controls */}
