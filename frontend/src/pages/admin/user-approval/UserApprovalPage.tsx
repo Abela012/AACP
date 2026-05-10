@@ -1,12 +1,12 @@
 import { motion } from 'framer-motion';
-import { 
-  Fingerprint, 
-  Mail, 
-  MapPin, 
-  Maximize2, 
-  Download, 
-  Globe, 
-  Link, 
+import {
+  Fingerprint,
+  Mail,
+  MapPin,
+  Maximize2,
+  Download,
+  Globe,
+  Link,
   ChevronRight,
   ShieldCheck,
   RotateCcw,
@@ -141,13 +141,13 @@ export default function UserApprovalPage() {
 
               {/* ID or Trade License Preview */}
               <div className="relative group cursor-pointer mb-8">
-                <div className="aspect-[4/3] rounded-4xl overflow-hidden border border-[#EFEFEF] dark:border-white/5 bg-[#F4F4F4] dark:bg-white/10 relative">
-                  <img 
-                    src={user.tradeLicenseUrl || "https://images.unsplash.com/photo-1554224155-1696413575b8?auto=format&fit=crop&q=80&w=800"} 
-                    alt="Verification Document" 
+                <div className="aspect-4/3 rounded-4xl overflow-hidden border border-[#EFEFEF] dark:border-white/5 bg-[#F4F4F4] dark:bg-white/10 relative">
+                  <img
+                    src={user.tradeLicenseUrl || "https://images.unsplash.com/photo-1554224155-1696413575b8?auto=format&fit=crop&q=80&w=800"}
+                    alt="Verification Document"
                     className="w-full h-full object-cover grayscale opacity-50 contrast-125 hover:opacity-100 transition-opacity"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent pointer-events-none" />
+                  <div className="absolute inset-0 bg-linear-to-t from-black/80 to-transparent pointer-events-none" />
                   <div className="absolute bottom-6 left-6 text-white pointer-events-none">
                     <p className="text-[10px] font-black uppercase tracking-widest opacity-60 mb-1">{isBusiness ? 'Trade License' : 'Government ID'}</p>
                     <div className="text-sm font-bold flex items-center gap-2">
@@ -158,9 +158,9 @@ export default function UserApprovalPage() {
                     </div>
                   </div>
                   {user.tradeLicenseUrl && (
-                    <a 
-                      href={user.tradeLicenseUrl} 
-                      target="_blank" 
+                    <a
+                      href={user.tradeLicenseUrl}
+                      target="_blank"
                       rel="noopener noreferrer"
                       className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity"
                     >
@@ -169,12 +169,12 @@ export default function UserApprovalPage() {
                   )}
                 </div>
               </div>
-              
+
 
               {/* Portfolio & Socials */}
               <div className="space-y-4">
                 <p className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest mb-4">Portfolio & Socials</p>
-                
+
                 {profile.website && (
                   <button className="w-full p-4 bg-[#F4F4F4]/50 dark:bg-white/5 hover:bg-white dark:hover:bg-white/10 transition-all rounded-2xl flex items-center justify-between group border border-transparent hover:border-[#EFEFEF] dark:hover:border-white/5">
                     <div className="flex items-center gap-4">
@@ -217,16 +217,16 @@ export default function UserApprovalPage() {
               <div className="w-12 h-12 bg-white dark:bg-white/10 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-sm">
                 <ShieldCheck size={24} className="text-[#14a800]" />
               </div>
-              <h3 className="font-black text-xl mb-2">Approval<br/>Controls</h3>
+              <h3 className="font-black text-xl mb-2">Approval<br />Controls</h3>
               <p className="text-xs text-[#6F767E] dark:text-gray-400 font-medium mb-8 leading-relaxed">
                 Select an action for this profile application.
               </p>
 
               <div className="space-y-4">
-                <button 
+                <button
                   onClick={() => updateStatus.mutate('active')}
                   disabled={updateStatus.isPending || user.status === 'active'}
-                  className="w-full h-16 bg-[#14a800] hover:bg-[#108a00] text-white rounded-[1.5rem] font-bold text-sm flex items-center justify-center gap-3 shadow-lg shadow-green-100 dark:shadow-none transition-all group disabled:opacity-50"
+                  className="w-full h-16 bg-[#14a800] hover:bg-[#108a00] text-white rounded-1.5rem font-bold text-sm flex items-center justify-center gap-3 shadow-lg shadow-green-100 dark:shadow-none transition-all group disabled:opacity-50"
                 >
                   <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center ring-4 ring-white/10">
                     <ShieldCheck size={14} className="fill-current" />
@@ -234,12 +234,12 @@ export default function UserApprovalPage() {
                   {user.status === 'active' ? 'Approved' : 'Approve Profile'}
                 </button>
 
-                <button className="w-full h-16 bg-white dark:bg-white/5 hover:bg-gray-50 dark:hover:bg-white/10 text-[#1A1D1F] dark:text-white rounded-[1.5rem] font-bold text-sm flex items-center justify-center gap-3 border border-[#EFEFEF] dark:border-white/10 transition-all">
+                <button className="w-full h-16 bg-white dark:bg-white/5 hover:bg-gray-50 dark:hover:bg-white/10 text-[#1A1D1F] dark:text-white rounded-3xl font-bold text-sm flex items-center justify-center gap-3 border border-[#EFEFEF] dark:border-white/10 transition-all">
                   <RotateCcw size={18} className="text-[#6F767E]" />
                   Request Changes
                 </button>
 
-                <button 
+                <button
                   onClick={() => updateStatus.mutate('suspended')}
                   disabled={updateStatus.isPending || user.status === 'suspended'}
                   className="w-full h-16 flex items-center justify-center gap-3 text-red-500 font-bold text-sm hover:underline transition-all disabled:opacity-50"

@@ -1,8 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
-import { 
-  Send, 
-  Paperclip, 
-  MoreVertical, 
+import {
+  Send,
+  Paperclip,
+  MoreVertical,
   Search,
   Phone,
   Video,
@@ -39,7 +39,7 @@ export default function AdminChatPage() {
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
     if (!message.trim() || !activeChat) return;
-    
+
     emitMessage(message, activeChat._id);
     setMessage('');
   };
@@ -50,14 +50,14 @@ export default function AdminChatPage() {
     <AdminLayout>
       <div className="h-[calc(100vh-160px)] overflow-hidden flex bg-white dark:bg-[#111111] rounded-[3rem] border border-[#EFEFEF] dark:border-white/5 shadow-sm">
         {/* Sidebar */}
-        <div className="w-80 border-r border-[#EFEFEF] dark:border-white/5 flex flex-col bg-[#F8F8FD] dark:bg-white/[0.02]">
+        <div className="w-80 border-r border-[#EFEFEF] dark:border-white/5 flex flex-col bg-[#F8F8FD] dark:bg-white/2">
           <div className="p-6">
             <h1 className="text-xl font-black text-[#1A1D1F] dark:text-white mb-6">Collaborations</h1>
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[#9A9FA5] w-4 h-4" />
-              <input 
-                type="text" 
-                placeholder="Search..." 
+              <input
+                type="text"
+                placeholder="Search..."
                 className="w-full bg-white dark:bg-white/5 border border-[#EFEFEF] dark:border-white/10 rounded-xl pl-10 pr-4 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-[#14a800]/20 transition-all"
               />
             </div>
@@ -75,13 +75,13 @@ export default function AdminChatPage() {
                   onClick={() => setActiveChat(user)}
                   className={cn(
                     "w-full flex items-center gap-4 p-4 rounded-2xl transition-all",
-                    activeChat?._id === user._id 
-                      ? "bg-white dark:bg-white/5 shadow-md border border-[#EFEFEF] dark:border-white/10" 
-                      : "hover:bg-white/50 dark:hover:bg-white/[0.05]"
+                    activeChat?._id === user._id
+                      ? "bg-white dark:bg-white/5 shadow-md border border-[#EFEFEF] dark:border-white/10"
+                      : "hover:bg-white/50 dark:hover:bg-white/5"
                   )}
                 >
                   <div className="relative shrink-0">
-                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#14a800] to-green-400 flex items-center justify-center overflow-hidden">
+                    <div className="w-12 h-12 rounded-2xl bg-linear-to-tr from-[#14a800] to-green-400 flex items-center justify-center overflow-hidden">
                       {user.profilePicture ? (
                         <img src={user.profilePicture} alt={user.firstName} className="w-full h-full object-cover" />
                       ) : (
@@ -182,8 +182,8 @@ export default function AdminChatPage() {
                           </div>
                           <div className={cn(
                             "p-4 rounded-2xl text-xs font-medium leading-relaxed shadow-sm",
-                            isMe 
-                              ? "bg-[#14a800] text-white rounded-tr-none" 
+                            isMe
+                              ? "bg-[#14a800] text-white rounded-tr-none"
                               : "bg-white dark:bg-white/5 border border-[#EFEFEF] dark:border-white/10 text-[#1A1D1F] dark:text-white rounded-tl-none"
                           )}>
                             {msg.text}
@@ -205,14 +205,14 @@ export default function AdminChatPage() {
                   <button type="button" className="p-3 text-[#9A9FA5] hover:text-[#14a800] transition-colors pr-4 border-r border-[#EFEFEF] dark:border-white/10">
                     <Paperclip size={20} />
                   </button>
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
-                    placeholder="Send a message to the collaboration group..." 
+                    placeholder="Send a message to the collaboration group..."
                     className="flex-1 bg-transparent border-none focus:outline-none text-xs font-bold text-[#1A1D1F] dark:text-white px-2"
                   />
-                  <button 
+                  <button
                     type="submit"
                     disabled={!message.trim()}
                     className="px-6 h-12 bg-[#14a800] text-white rounded-2xl flex items-center justify-center gap-2 hover:bg-[#108a00] transition-all shadow-lg shadow-green-100 dark:shadow-none disabled:opacity-50 disabled:shadow-none font-black text-[10px] uppercase tracking-widest"

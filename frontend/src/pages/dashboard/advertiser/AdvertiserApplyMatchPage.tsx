@@ -1,10 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
-import { 
-  Building2, 
-  MapPin, 
-  DollarSign, 
+import {
+  Building2,
+  MapPin,
+  DollarSign,
   ArrowLeft,
   BookmarkPlus,
   UploadCloud,
@@ -30,13 +30,13 @@ export default function AdvertiserApplyMatchPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const { id } = useParams();
-  
+
   const { data: oppData, isLoading: isLoadingOpp } = useOpportunity(id || '');
   const activeJobData = oppData?.opportunity || location.state?.job || {};
 
   const { data: walletData } = useWalletBalance();
   const applyMutation = useApply();
-  
+
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -101,7 +101,7 @@ export default function AdvertiserApplyMatchPage() {
   }, [clerkUser]);
 
   const [skillsInput, setSkillsInput] = useState('');
-  
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target as HTMLInputElement;
     const checked = (e.target as HTMLInputElement).checked;
@@ -136,7 +136,7 @@ export default function AdvertiserApplyMatchPage() {
       setCurrentStep(currentStep + 1);
       return;
     }
-    
+
     // Use availableBalance to match backend logic (total - locked)
     const availableCoins = walletData?.availableBalance ?? walletData?.balance ?? 0;
     if (availableCoins < APPLICATION_FEE) {
@@ -159,12 +159,12 @@ export default function AdvertiserApplyMatchPage() {
     } catch (error: any) {
       console.error('Failed to apply:', error);
       let msg = error?.response?.data?.message || error?.message || 'Failed to submit application. Please try again.';
-      
+
       // If there are detailed validation errors, display the first one to be clear
       if (error?.response?.data?.errors && Array.isArray(error.response.data.errors) && error.response.data.errors.length > 0) {
         msg = error.response.data.errors[0].message;
       }
-      
+
       setSubmitError(msg);
     } finally {
       setIsSubmitting(false);
@@ -181,12 +181,12 @@ export default function AdvertiserApplyMatchPage() {
     return (
       <AdvertiserLayout>
         <main className="min-h-[80vh] flex items-center justify-center p-4 relative">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             className="bg-white dark:bg-[#111] p-10 md:p-16 rounded-[3rem] border border-gray-100 dark:border-white/5 shadow-2xl max-w-xl w-full text-center relative"
           >
-            <motion.div 
+            <motion.div
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: -40, opacity: 1 }}
               transition={{ delay: 0.5, duration: 0.5 }}
@@ -202,15 +202,15 @@ export default function AdvertiserApplyMatchPage() {
             <p className="text-gray-500 dark:text-gray-400 mb-10 leading-relaxed text-sm md:text-base">
               Your application for <strong>{activeJobData.campaign || activeJobData.title}</strong> at {activeJobData.brand || activeJobData.company} has been sent successfully. We'll contact you via email regarding the next steps.
             </p>
-            
+
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button 
+              <button
                 onClick={() => navigate('/advertiser/matches')}
                 className="px-8 py-4 bg-emerald-500 text-black font-bold rounded-2xl hover:bg-emerald-400 transition-all shadow-lg shadow-emerald-500/20"
               >
                 View Other Jobs
               </button>
-              <button 
+              <button
                 onClick={() => navigate('/dashboard/advertiser')}
                 className="px-8 py-4 bg-gray-100 dark:bg-white/5 text-gray-900 dark:text-white font-bold rounded-2xl hover:bg-gray-200 dark:hover:bg-white/10 transition-all"
               >
@@ -230,12 +230,12 @@ export default function AdvertiserApplyMatchPage() {
         <AnimatePresence>
           {showInsufficientBalance && (
             <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                 onClick={() => setShowInsufficientBalance(false)}
                 className="absolute inset-0 bg-black/60 backdrop-blur-sm"
               />
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }}
                 className="relative bg-white dark:bg-[#111] w-full max-w-md rounded-[2.5rem] overflow-hidden shadow-2xl border border-gray-100 dark:border-white/10 z-10 p-10 text-center"
               >
@@ -250,13 +250,13 @@ export default function AdvertiserApplyMatchPage() {
                   Your current balance: <strong>{walletData?.availableBalance ?? walletData?.balance ?? 0} coins</strong>
                 </p>
                 <div className="flex flex-col gap-3">
-                  <button 
+                  <button
                     onClick={() => navigate('/advertiser/buy-coins')}
                     className="w-full bg-amber-500 hover:bg-amber-400 text-black font-bold py-4 rounded-xl shadow-lg shadow-amber-500/20 transition-all"
                   >
                     Buy Coins Now
                   </button>
-                  <button 
+                  <button
                     onClick={() => setShowInsufficientBalance(false)}
                     className="w-full bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 text-gray-900 dark:text-white font-bold py-4 rounded-xl transition-all"
                   >
@@ -295,7 +295,7 @@ export default function AdvertiserApplyMatchPage() {
         <div className="flex gap-2 mb-8">
           {[1, 2, 3].map(step => (
             <div key={step} className="flex-1 h-1.5 rounded-full bg-gray-100 dark:bg-white/5 overflow-hidden">
-              <div 
+              <div
                 className={cn("h-full transition-all duration-500", step <= currentStep ? "bg-emerald-500" : "bg-transparent")}
                 style={{ width: step === currentStep ? "50%" : step < currentStep ? "100%" : "0%" }}
               />
@@ -307,14 +307,14 @@ export default function AdvertiserApplyMatchPage() {
           <AnimatePresence mode="wait">
             {currentStep === 1 && (
               <motion.div key="step1" variants={formVariants} initial="hidden" animate="visible" exit="exit" className="space-y-8 relative">
-                
+
                 {/* Step 2: Personal Information */}
                 <section className="bg-white dark:bg-[#111] p-6 md:p-8 rounded-[2.5rem] border border-gray-100 dark:border-white/5 shadow-sm">
                   <div className="flex items-center gap-2 mb-6">
                     <div className="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center"><Briefcase size={16} /></div>
                     <h2 className="text-xl font-bold text-gray-900 dark:text-white">Personal Information</h2>
                   </div>
-                  
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
                       <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">First Name *</label>
@@ -340,7 +340,7 @@ export default function AdvertiserApplyMatchPage() {
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">LinkedIn Profile</label>
+                      <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">Social Media Profile</label>
                       <input type="url" name="linkedin" value={formData.linkedin} onChange={handleInputChange} className="w-full bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-500 text-gray-900 dark:text-white" />
                     </div>
                   </div>
@@ -352,9 +352,9 @@ export default function AdvertiserApplyMatchPage() {
                     <div className="w-8 h-8 rounded-xl bg-purple-500/10 text-purple-500 flex items-center justify-center"><FileText size={16} /></div>
                     <h2 className="text-xl font-bold text-gray-900 dark:text-white">Resume / CV</h2>
                   </div>
-                  
-                  <input 
-                    type="file" 
+
+                  <input
+                    type="file"
                     ref={resumeInputRef}
                     onChange={handleResumeUpload}
                     className="hidden"
@@ -362,7 +362,7 @@ export default function AdvertiserApplyMatchPage() {
                   />
 
                   {!resume ? (
-                    <div 
+                    <div
                       onClick={() => resumeInputRef.current?.click()}
                       className="border-2 border-dashed border-emerald-500/30 rounded-3xl p-8 text-center bg-emerald-500/5 hover:bg-emerald-500/10 transition-colors cursor-pointer group"
                     >
@@ -379,8 +379,8 @@ export default function AdvertiserApplyMatchPage() {
                           <p className="text-xs text-emerald-500">{resume.size} • Uploaded successfully</p>
                         </div>
                       </div>
-                      <button 
-                        type="button" 
+                      <button
+                        type="button"
                         onClick={handleRemoveResume}
                         className="text-xs font-bold text-gray-400 hover:text-red-500"
                       >
@@ -395,7 +395,7 @@ export default function AdvertiserApplyMatchPage() {
 
             {currentStep === 2 && (
               <motion.div key="step2" variants={formVariants} initial="hidden" animate="visible" exit="exit" className="space-y-8">
-                
+
                 {/* Step 4: Professional Details & Step 5: Skills */}
                 <section className="bg-white dark:bg-[#111] p-6 md:p-8 rounded-[2.5rem] border border-gray-100 dark:border-white/5 shadow-sm">
                   <div className="flex items-center gap-2 mb-6">
@@ -429,13 +429,13 @@ export default function AdvertiserApplyMatchPage() {
                   <div className="space-y-4 pt-6 border-t border-gray-100 dark:border-white/5">
                     <div className="space-y-2">
                       <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">Skills & Tools</label>
-                      <input 
-                        type="text" 
-                        placeholder="Type a skill and press Enter" 
+                      <input
+                        type="text"
+                        placeholder="Type a skill and press Enter"
                         value={skillsInput}
                         onChange={(e) => setSkillsInput(e.target.value)}
                         onKeyDown={handleAddSkill}
-                        className="w-full bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:border-emerald-500 outline-none text-gray-900 dark:text-white" 
+                        className="w-full bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:border-emerald-500 outline-none text-gray-900 dark:text-white"
                       />
                       <div className="flex flex-wrap gap-2 pt-2">
                         {formData.skills.map(skill => (
@@ -465,19 +465,19 @@ export default function AdvertiserApplyMatchPage() {
                   <div className="space-y-6">
                     <div className="space-y-2">
                       <label className="text-xs font-bold text-gray-500 uppercase tracking-widest flex justify-between">Cover Letter<span>{formData.coverLetter.length} / 500 words</span></label>
-                      <textarea 
-                        name="coverLetter" 
-                        rows={5} 
-                        value={formData.coverLetter} 
-                        onChange={handleInputChange} 
-                        placeholder="Briefly explain why you're a good fit..." 
+                      <textarea
+                        name="coverLetter"
+                        rows={5}
+                        value={formData.coverLetter}
+                        onChange={handleInputChange}
+                        placeholder="Briefly explain why you're a good fit..."
                         className="w-full bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl p-4 text-sm focus:border-emerald-500 outline-none resize-none text-gray-900 dark:text-white"
                       />
                     </div>
 
                     <div className="pt-6 border-t border-gray-100 dark:border-white/5 space-y-6">
                       <h3 className="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-2"><AlertCircle size={16} className="text-amber-500" /> Screening Questions</h3>
-                      
+
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-2">
                           <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Expected salary (USD)?</label>
@@ -496,10 +496,10 @@ export default function AdvertiserApplyMatchPage() {
 
                 {/* Step 8: Preferences */}
                 <section className="bg-white dark:bg-[#111] p-6 md:p-8 rounded-[2.5rem] border border-gray-100 dark:border-white/5 shadow-sm">
-                   <div className="space-y-6">
+                  <div className="space-y-6">
                     <h3 className="text-sm font-bold text-gray-900 dark:text-white">Availability & Preferences</h3>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                      
+
                       <div className="space-y-2">
                         <label className="text-xs text-gray-500 uppercase tracking-widest font-bold">Availability</label>
                         <select name="availability" value={formData.availability} onChange={handleInputChange} className="w-full bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm outline-none text-gray-900 dark:text-white">
@@ -529,7 +529,7 @@ export default function AdvertiserApplyMatchPage() {
 
             {currentStep === 3 && (
               <motion.div key="step3" variants={formVariants} initial="hidden" animate="visible" exit="exit" className="space-y-8">
-                
+
                 {/* Step 10: Review Section */}
                 <section className="bg-white dark:bg-[#111] p-6 md:p-8 rounded-[2.5rem] border border-gray-100 dark:border-white/5 shadow-sm">
                   <div className="flex items-center gap-2 mb-8">
@@ -579,7 +579,7 @@ export default function AdvertiserApplyMatchPage() {
                     <label className="flex items-start gap-3 cursor-pointer group">
                       <div className="relative flex items-start pt-1">
                         <input type="checkbox" name="allowContact" checked={formData.allowContact} onChange={handleInputChange} className="peer sr-only" />
-                         <div className="w-5 h-5 border-2 border-gray-300 dark:border-gray-600 rounded-md peer-checked:bg-emerald-500 peer-checked:border-emerald-500 transition-colors flex items-center justify-center">
+                        <div className="w-5 h-5 border-2 border-gray-300 dark:border-gray-600 rounded-md peer-checked:bg-emerald-500 peer-checked:border-emerald-500 transition-colors flex items-center justify-center">
                           <CheckCircle2 size={14} className="text-white opacity-0 peer-checked:opacity-100" />
                         </div>
                       </div>
@@ -605,8 +605,8 @@ export default function AdvertiserApplyMatchPage() {
             )}
             <div className="max-w-4xl mx-auto flex justify-between items-center">
               {currentStep > 1 ? (
-                <button 
-                  type="button" 
+                <button
+                  type="button"
                   onClick={() => setCurrentStep(prev => prev - 1)}
                   className="px-6 py-3 rounded-xl font-bold text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5 transition-colors"
                 >
@@ -614,7 +614,7 @@ export default function AdvertiserApplyMatchPage() {
                 </button>
               ) : <div></div>}
 
-              <button 
+              <button
                 type="submit"
                 disabled={isSubmitting || (currentStep === 3 && !formData.agreedToTerms)}
                 className={cn(

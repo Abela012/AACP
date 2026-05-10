@@ -151,7 +151,7 @@ export default function SuperAdminLayout({ children }: Props) {
                 <p className="text-xs font-bold leading-none mb-1">{clerkUser?.fullName || 'Super Admin'}</p>
                 <p className="text-[10px] font-bold text-[#14a800] uppercase tracking-widest leading-none">Velocity Root</p>
               </div>
-              <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-[#14a800] to-green-400 overflow-hidden shadow-lg border-2 border-white dark:border-[#0A0A0A]">
+              <div className="w-10 h-10 rounded-full bg-linear-to-tr from-[#14a800] to-green-400 overflow-hidden shadow-lg border-2 border-white dark:border-[#0A0A0A]">
                 {clerkUser?.imageUrl ? (
                   <img src={clerkUser.imageUrl} alt="User" className="w-full h-full object-cover" />
                 ) : (

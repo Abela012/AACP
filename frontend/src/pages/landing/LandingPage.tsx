@@ -33,6 +33,75 @@ export default function LandingPage() {
   const { user } = useUser();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
+  const testimonials = [
+    {
+      name: 'Selam Teshome',
+      role: 'TikTok Creator',
+      badge: 'Advertiser',
+      badgeColor: 'bg-purple-100 text-purple-700',
+      avatar: 'https://ui-avatars.com/api/?name=Selam+Teshome&background=7c3aed&color=fff&bold=true',
+      quote: 'Within my first month on AACP, I landed 3 brand deals worth over $2,000. The platform made it so easy to showcase my analytics and connect with businesses that truly value organic content.',
+      rating: 5,
+      metric: '320% revenue increase',
+      metricLabel: 'in 90 days',
+    },
+    {
+      name: 'Daniel Kebede',
+      role: 'CEO, FreshBrew Coffee',
+      badge: 'Business Owner',
+      badgeColor: 'bg-emerald-100 text-emerald-700',
+      avatar: 'https://ui-avatars.com/api/?name=Daniel+Kebede&background=14a800&color=fff&bold=true',
+      quote: 'We found 12 verified local influencers through AACP who drove a 40% increase in foot traffic to our stores. The verified impressions feature gave us confidence in every campaign.',
+      rating: 5,
+      metric: '40% more foot traffic',
+      metricLabel: 'per campaign',
+    },
+    {
+      name: 'Hana Mesfin',
+      role: 'Instagram Influencer',
+      badge: 'Advertiser',
+      badgeColor: 'bg-pink-100 text-pink-700',
+      avatar: 'https://ui-avatars.com/api/?name=Hana+Mesfin&background=ec4899&color=fff&bold=true',
+      quote: 'AACP\'s profile system lets me present my engagement data professionally. Brands take me seriously now, and I\'ve built long-term ambassador relationships I never had before.',
+      rating: 5,
+      metric: '8 ambassador deals',
+      metricLabel: 'this quarter',
+    },
+    {
+      name: 'Yonas Abera',
+      role: 'Marketing Director, TechHub ET',
+      badge: 'Business Owner',
+      badgeColor: 'bg-blue-100 text-blue-700',
+      avatar: 'https://ui-avatars.com/api/?name=Yonas+Abera&background=2563eb&color=fff&bold=true',
+      quote: 'Managing multiple influencer campaigns used to be chaotic. AACP\'s dashboard and real-time analytics changed everything — we now track ROI down to the last cent.',
+      rating: 4,
+      metric: '5x ROI improvement',
+      metricLabel: 'year over year',
+    },
+    {
+      name: 'Sara Ahmed',
+      role: 'Fashion Content Creator',
+      badge: 'Advertiser',
+      badgeColor: 'bg-amber-100 text-amber-700',
+      avatar: 'https://ui-avatars.com/api/?name=Sara+Ahmed&background=f59e0b&color=fff&bold=true',
+      quote: 'I went from 5K to 50K followers while working with AACP brands. The collaboration tools and secure payments make freelancing feel stable and professional.',
+      rating: 5,
+      metric: '10x follower growth',
+      metricLabel: 'in 6 months',
+    },
+    {
+      name: 'Bereket Tadesse',
+      role: 'Founder, GreenLeaf Organics',
+      badge: 'Business Owner',
+      badgeColor: 'bg-emerald-100 text-emerald-700',
+      avatar: 'https://ui-avatars.com/api/?name=Bereket+Tadesse&background=059669&color=fff&bold=true',
+      quote: 'As a small business, we couldn\'t afford traditional advertising. AACP connected us with micro-influencers who genuinely loved our products. Sales jumped 60% in one quarter.',
+      rating: 5,
+      metric: '60% sales increase',
+      metricLabel: 'first quarter',
+    },
+  ];
+
   return (
     <div className="min-h-screen bg-white text-[#001e00] font-sans selection:bg-[#14a800]/20 selection:text-[#001e00]">
       {/* ─── Navbar ─── */}
@@ -320,137 +389,72 @@ export default function LandingPage() {
             </motion.p>
           </motion.div>
 
-          {/* Testimonial Cards Grid */}
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: '-50px' }}
-            variants={staggerContainer}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-          >
-            {[
-              {
-                name: 'Selam Teshome',
-                role: 'TikTok Creator',
-                badge: 'Advertiser',
-                badgeColor: 'bg-purple-100 text-purple-700',
-                avatar: 'https://ui-avatars.com/api/?name=Selam+Teshome&background=7c3aed&color=fff&bold=true',
-                quote: 'Within my first month on AACP, I landed 3 brand deals worth over $2,000. The platform made it so easy to showcase my analytics and connect with businesses that truly value organic content.',
-                rating: 5,
-                metric: '320% revenue increase',
-                metricLabel: 'in 90 days',
-              },
-              {
-                name: 'Daniel Kebede',
-                role: 'CEO, FreshBrew Coffee',
-                badge: 'Business Owner',
-                badgeColor: 'bg-emerald-100 text-emerald-700',
-                avatar: 'https://ui-avatars.com/api/?name=Daniel+Kebede&background=14a800&color=fff&bold=true',
-                quote: 'We found 12 verified local influencers through AACP who drove a 40% increase in foot traffic to our stores. The verified impressions feature gave us confidence in every campaign.',
-                rating: 5,
-                metric: '40% more foot traffic',
-                metricLabel: 'per campaign',
-              },
-              {
-                name: 'Hana Mesfin',
-                role: 'Instagram Influencer',
-                badge: 'Advertiser',
-                badgeColor: 'bg-pink-100 text-pink-700',
-                avatar: 'https://ui-avatars.com/api/?name=Hana+Mesfin&background=ec4899&color=fff&bold=true',
-                quote: 'AACP\'s profile system lets me present my engagement data professionally. Brands take me seriously now, and I\'ve built long-term ambassador relationships I never had before.',
-                rating: 5,
-                metric: '8 ambassador deals',
-                metricLabel: 'this quarter',
-              },
-              {
-                name: 'Yonas Abera',
-                role: 'Marketing Director, TechHub ET',
-                badge: 'Business Owner',
-                badgeColor: 'bg-blue-100 text-blue-700',
-                avatar: 'https://ui-avatars.com/api/?name=Yonas+Abera&background=2563eb&color=fff&bold=true',
-                quote: 'Managing multiple influencer campaigns used to be chaotic. AACP\'s dashboard and real-time analytics changed everything — we now track ROI down to the last cent.',
-                rating: 4,
-                metric: '5x ROI improvement',
-                metricLabel: 'year over year',
-              },
-              {
-                name: 'Sara Ahmed',
-                role: 'Fashion Content Creator',
-                badge: 'Advertiser',
-                badgeColor: 'bg-amber-100 text-amber-700',
-                avatar: 'https://ui-avatars.com/api/?name=Sara+Ahmed&background=f59e0b&color=fff&bold=true',
-                quote: 'I went from 5K to 50K followers while working with AACP brands. The collaboration tools and secure payments make freelancing feel stable and professional.',
-                rating: 5,
-                metric: '10x follower growth',
-                metricLabel: 'in 6 months',
-              },
-              {
-                name: 'Bereket Tadesse',
-                role: 'Founder, GreenLeaf Organics',
-                badge: 'Business Owner',
-                badgeColor: 'bg-emerald-100 text-emerald-700',
-                avatar: 'https://ui-avatars.com/api/?name=Bereket+Tadesse&background=059669&color=fff&bold=true',
-                quote: 'As a small business, we couldn\'t afford traditional advertising. AACP connected us with micro-influencers who genuinely loved our products. Sales jumped 60% in one quarter.',
-                rating: 5,
-                metric: '60% sales increase',
-                metricLabel: 'first quarter',
-              },
-            ].map((testimonial, i) => (
-              <motion.div
-                key={i}
-                variants={fadeInUp}
-                className="group bg-white rounded-2xl p-7 border border-gray-100 hover:border-[#14a800]/30 hover:shadow-xl hover:shadow-[#14a800]/5 transition-all duration-300 flex flex-col"
-              >
-                {/* Header: Avatar + Info */}
-                <div className="flex items-start gap-4 mb-5">
-                  <img
-                    src={testimonial.avatar}
-                    alt={testimonial.name}
-                    className="w-12 h-12 rounded-full ring-2 ring-gray-100 group-hover:ring-[#14a800]/30 transition-all"
-                  />
-                  <div className="flex-1 min-w-0">
-                    <h4 className="text-sm font-bold text-[#001e00] truncate">{testimonial.name}</h4>
-                    <p className="text-xs text-[#5e6d55] truncate">{testimonial.role}</p>
-                    <span className={`inline-block mt-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${testimonial.badgeColor}`}>
-                      {testimonial.badge}
-                    </span>
-                  </div>
-                </div>
+          {/* Testimonial Auto-Scrolling Carousel */}
+          <div className="relative overflow-hidden w-full py-8">
+            <div className="absolute left-0 top-0 bottom-0 w-16 sm:w-32 bg-linear-to-r from-[#f7faf7] to-transparent z-10 pointer-events-none"></div>
+            <div className="absolute right-0 top-0 bottom-0 w-16 sm:w-32 bg-linear-to-l from-[#f7faf7] to-transparent z-10 pointer-events-none"></div>
 
-                {/* Star Rating */}
-                <div className="flex items-center gap-0.5 mb-4">
-                  {Array.from({ length: 5 }).map((_, starIdx) => (
-                    <svg
-                      key={starIdx}
-                      className={`w-4 h-4 ${starIdx < testimonial.rating ? 'text-[#14a800]' : 'text-gray-200'}`}
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                    </svg>
-                  ))}
-                </div>
-
-                {/* Quote */}
-                <p className="text-sm text-[#5e6d55] leading-relaxed flex-1 mb-5">
-                  "{testimonial.quote}"
-                </p>
-
-                {/* Metric Badge */}
-                <div className="pt-4 border-t border-gray-50">
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-lg bg-[#14a800]/10 flex items-center justify-center">
-                      <TrendingUp className="w-4 h-4 text-[#14a800]" />
+            <motion.div
+              animate={{ x: ["0%", "-50%"] }}
+              transition={{ repeat: Infinity, ease: "linear", duration: 40 }}
+              className="flex w-max"
+            >
+              {[...testimonials, ...testimonials].map((testimonial, i) => (
+                <div
+                  key={i}
+                  className="mr-6 group bg-white rounded-2xl p-7 border border-gray-100 hover:border-[#14a800]/30 hover:shadow-xl hover:shadow-[#14a800]/5 transition-all duration-300 flex flex-col w-[350px] shrink-0"
+                >
+                  {/* Header: Avatar + Info */}
+                  <div className="flex items-start gap-4 mb-5">
+                    <img
+                      src={testimonial.avatar}
+                      alt={testimonial.name}
+                      className="w-12 h-12 rounded-full ring-2 ring-gray-100 group-hover:ring-[#14a800]/30 transition-all"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <h4 className="text-sm font-bold text-[#001e00] truncate">{testimonial.name}</h4>
+                      <p className="text-xs text-[#5e6d55] truncate">{testimonial.role}</p>
+                      <span className={`inline-block mt-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${testimonial.badgeColor}`}>
+                        {testimonial.badge}
+                      </span>
                     </div>
-                    <div>
-                      <p className="text-sm font-bold text-[#001e00]">{testimonial.metric}</p>
-                      <p className="text-[10px] text-[#5e6d55] uppercase tracking-wider font-medium">{testimonial.metricLabel}</p>
+                  </div>
+
+                  {/* Star Rating */}
+                  <div className="flex items-center gap-0.5 mb-4">
+                    {Array.from({ length: 5 }).map((_, starIdx) => (
+                      <svg
+                        key={starIdx}
+                        className={`w-4 h-4 ${starIdx < testimonial.rating ? 'text-[#14a800]' : 'text-gray-200'}`}
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                      </svg>
+                    ))}
+                  </div>
+
+                  {/* Quote */}
+                  <p className="text-sm text-[#5e6d55] leading-relaxed flex-1 mb-5">
+                    "{testimonial.quote}"
+                  </p>
+
+                  {/* Metric Badge */}
+                  <div className="pt-4 border-t border-gray-50">
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-lg bg-[#14a800]/10 flex items-center justify-center">
+                        <TrendingUp className="w-4 h-4 text-[#14a800]" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-bold text-[#001e00]">{testimonial.metric}</p>
+                        <p className="text-[10px] text-[#5e6d55] uppercase tracking-wider font-medium">{testimonial.metricLabel}</p>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </motion.div>
-            ))}
-          </motion.div>
+              ))}
+            </motion.div>
+          </div>
 
           {/* Social Proof Stats Bar */}
           <motion.div

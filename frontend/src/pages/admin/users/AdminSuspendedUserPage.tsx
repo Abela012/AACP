@@ -1,9 +1,9 @@
 import { motion } from 'framer-motion';
-import { 
+import {
   ArrowLeft,
-  Lock, 
-  TrendingUp, 
-  Star, 
+  Lock,
+  TrendingUp,
+  Star,
   AlertTriangle,
   History,
   Zap,
@@ -48,9 +48,9 @@ export default function AdminSuspendedUserPage() {
           <div className="lg:col-span-3 bg-white dark:bg-[#111111] p-8 rounded-[3rem] border border-[#EFEFEF] dark:border-white/5 shadow-sm text-center">
             <div className="relative w-40 h-40 mx-auto mb-10">
               <div className="w-full h-full rounded-[2.5rem] overflow-hidden border-4 border-white dark:border-[#1A1A1A] shadow-xl">
-                <img 
-                  src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=400" 
-                  alt="Marcus Thorne" 
+                <img
+                  src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=400"
+                  alt="Marcus Thorne"
                   className="w-full h-full object-cover"
                 />
               </div>
@@ -104,7 +104,7 @@ export default function AdminSuspendedUserPage() {
 
               <div className="space-y-6">
                 <p className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest">Evidence & Logs</p>
-                
+
                 <div className="flex justify-between items-center p-4 bg-[#F4F4F4]/50 dark:bg-white/5 rounded-2xl border border-[#EFEFEF] dark:border-white/5">
                   <span className="text-xs font-bold text-[#6F767E] dark:text-gray-400">Flagged Message Content</span>
                   <button className="text-[10px] font-black text-[#14a800] uppercase hover:underline flex items-center gap-1">
@@ -129,9 +129,9 @@ export default function AdminSuspendedUserPage() {
           <div className="lg:col-span-4 space-y-8">
             <div className="bg-[#F1FFF0] dark:bg-white/5 p-8 rounded-[3rem] border border-white dark:border-white/5 shadow-inner">
               <h3 className="font-black text-xl mb-10">Administrative Actions</h3>
-              
+
               <div className="space-y-4 mb-10">
-                <button className="w-full p-6 bg-gradient-to-tr from-[#14a800] to-emerald-600 text-white rounded-[1.5rem] flex items-start gap-4 transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-green-100 dark:shadow-none text-left">
+                <button className="w-full p-6 bg-linear-to-tr from-[#14a800] to-emerald-600 text-white rounded-3xl flex items-start gap-4 transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-green-100 dark:shadow-none text-left">
                   <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center shrink-0">
                     <Zap size={20} className="fill-current" />
                   </div>
@@ -141,7 +141,7 @@ export default function AdminSuspendedUserPage() {
                   </div>
                 </button>
 
-                <button className="w-full p-6 bg-white dark:bg-white/5 border border-[#EFEFEF] dark:border-white/10 text-[#1A1D1F] dark:text-white rounded-[1.5rem] flex items-start gap-4 transition-all hover:bg-gray-50 active:scale-[0.98] text-left">
+                <button className="w-full p-6 bg-white dark:bg-white/5 border border-[#EFEFEF] dark:border-white/10 text-[#1A1D1F] dark:text-white rounded-3xl flex items-start gap-4 transition-all hover:bg-gray-50 active:scale-[0.98] text-left">
                   <div className="w-10 h-10 bg-gray-100 dark:bg-white/10 rounded-xl flex items-center justify-center shrink-0">
                     <Mail size={20} className="text-[#6F767E]" />
                   </div>
@@ -151,7 +151,7 @@ export default function AdminSuspendedUserPage() {
                   </div>
                 </button>
 
-                <button className="w-full p-6 bg-[#FFF0F0] dark:bg-red-500/10 border border-red-100 dark:border-red-500/20 rounded-[1.5rem] flex items-start gap-4 transition-all hover:bg-[#FFE5E5] active:scale-[0.98] text-left group">
+                <button className="w-full p-6 bg-[#FFF0F0] dark:bg-red-500/10 border border-red-100 dark:border-red-500/20 rounded-3xl flex items-start gap-4 transition-all hover:bg-[#FFE5E5] active:scale-[0.98] text-left group">
                   <div className="w-10 h-10 bg-red-100 dark:bg-red-500/20 rounded-xl flex items-center justify-center shrink-0">
                     <Ban size={20} className="text-red-500" />
                   </div>
@@ -165,7 +165,7 @@ export default function AdminSuspendedUserPage() {
               <div className="space-y-4">
                 <p className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest pl-2">Internal Notes</p>
                 <div className="relative">
-                  <textarea 
+                  <textarea
                     className="w-full h-32 bg-white/50 dark:bg-white/5 border border-[#EFEFEF] dark:border-white/10 rounded-2xl p-4 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-[#14a800]/20 transition-all resize-none italic"
                     placeholder="Document the decision process for audit logs..."
                   />

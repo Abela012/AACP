@@ -1,11 +1,11 @@
 import { useState, useRef, type ReactNode } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  LayoutDashboard, 
-  Users, 
-  Coins, 
-  BarChart3, 
-  Settings, 
+import {
+  LayoutDashboard,
+  Users,
+  Coins,
+  BarChart3,
+  Settings,
   AlertCircle,
   Bell,
   Search,
@@ -62,7 +62,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     }
 
     setIsGenerating(true);
-    
+
     // Mock generation delay
     setTimeout(() => {
       setIsGenerating(false);
@@ -80,7 +80,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       {/* Mobile Sidebar Overlay */}
       <AnimatePresence>
         {isSidebarOpen && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -112,20 +112,20 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             {navigation.map((item) => {
               const isActive = location.pathname === item.path;
               return (
-                <Link 
+                <Link
                   key={item.name}
                   to={item.path}
                   className={cn(
                     "flex items-center gap-4 px-4 py-3.5 rounded-2xl text-sm font-semibold transition-all relative group",
-                    isActive 
-                      ? "text-[#14a800] bg-[#F1FFF0] dark:bg-[#14a800]/10" 
+                    isActive
+                      ? "text-[#14a800] bg-[#F1FFF0] dark:bg-[#14a800]/10"
                       : "text-[#6F767E] hover:text-[#1A1D1F] dark:hover:text-white"
                   )}
                 >
                   <item.icon size={20} className={cn("transition-colors", isActive ? "text-[#14a800]" : "text-[#9A9FA5]")} />
                   {item.name}
                   {isActive && (
-                    <motion.div 
+                    <motion.div
                       layoutId="active-indicator"
                       className="absolute left-0 w-1 h-6 bg-[#14a800] rounded-r-full"
                     />
@@ -136,7 +136,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           </nav>
 
           <div className="pt-6 border-t border-[#EFEFEF] dark:border-white/5">
-            <button 
+            <button
               onClick={() => setShowReportModal(true)}
               className="w-full h-12 bg-[#14a800] hover:bg-[#108a00] text-white rounded-2xl text-sm font-bold shadow-lg shadow-green-100 dark:shadow-none transition-all flex items-center justify-center gap-2"
             >
@@ -152,7 +152,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               <HelpCircle size={20} />
               Help Center
             </Link>
-            <button 
+            <button
               onClick={() => {
                 localLogout();
                 signOut();
@@ -179,11 +179,11 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             </div>
             <div className="relative hidden lg:block ml-8" ref={searchRef}>
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#9A9FA5] w-4 h-4" />
-              <input 
-                type="text" 
+              <input
+                type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search profiles, transactions, or logs..." 
+                placeholder="Search profiles, transactions, or logs..."
                 className="bg-[#F4F4F4] dark:bg-white/5 rounded-2xl pl-11 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#14a800]/20 w-[400px] transition-all border-none"
               />
             </div>
@@ -191,7 +191,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
           <div className="flex items-center gap-4">
             <ThemeToggle />
-            <div className="h-10 w-[1px] bg-[#EFEFEF] dark:bg-white/5 mx-2 hidden sm:block" />
+            <div className="h-10 w-1px bg-[#EFEFEF] dark:bg-white/5 mx-2 hidden sm:block" />
             <Link to="/admin/notifications" className="relative w-10 h-10 flex items-center justify-center text-[#6F767E] hover:text-[#1A1D1F] transition-all">
               <Bell size={20} />
               <div className="absolute top-2.5 right-2.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white dark:border-[#0A0A0A]" />
@@ -199,13 +199,13 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             <Link to="/admin/settings" className="w-10 h-10 flex items-center justify-center text-[#6F767E] hover:text-[#1A1D1F] transition-all">
               <Settings size={20} />
             </Link>
-            
+
             <Link to="/admin/profile" className="flex items-center gap-3 ml-4 pl-4 border-l border-[#EFEFEF] dark:border-white/5 hover:opacity-80 transition-opacity">
               <div className="text-right hidden sm:block">
                 <p className="text-xs font-bold text-[#1A1D1F] dark:text-white leading-none mb-1">{clerkUser?.fullName || 'Administrator'}</p>
                 <p className="text-[10px] font-bold text-[#14a800] uppercase tracking-widest leading-none">Profile</p>
               </div>
-              <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-[#14a800] to-green-500 overflow-hidden shadow-lg border-2 border-white dark:border-[#0A0A0A]">
+              <div className="w-10 h-10 rounded-full bg-linear-to-tr from-[#14a800] to-green-500 overflow-hidden shadow-lg border-2 border-white dark:border-[#0A0A0A]">
                 {clerkUser?.imageUrl ? (
                   <img src={clerkUser.imageUrl} alt="User" className="w-full h-full object-cover" />
                 ) : (
@@ -227,18 +227,18 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       <AnimatePresence>
         {showReportModal && (
           <>
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setShowReportModal(false)}
-              className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[60]"
+              className="fixed inset-0 bg-black/40 backdrop-blur-sm z-60"
             />
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-xl bg-white dark:bg-[#0F0F0F] rounded-[3rem] shadow-2xl border border-[#EFEFEF] dark:border-white/5 z-[70] overflow-hidden"
+              className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-xl bg-white dark:bg-[#0F0F0F] rounded-[3rem] shadow-2xl border border-[#EFEFEF] dark:border-white/5 z-[70 overflow-hidden"
             >
               <div className="p-8 sm:p-10">
                 <div className="flex justify-between items-center mb-10">
@@ -251,7 +251,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                       <p className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest">Custom Platform Reporting</p>
                     </div>
                   </div>
-                  <button 
+                  <button
                     onClick={() => setShowReportModal(false)}
                     className="p-3 hover:bg-gray-100 dark:hover:bg-white/5 rounded-2xl transition-all"
                   >
@@ -270,13 +270,13 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                         { id: 'users', label: 'User Demographics', icon: Users },
                         { id: 'audit', label: 'Audit Summary', icon: CheckCircle2 },
                       ].map((type) => (
-                        <button 
+                        <button
                           key={type.id}
                           onClick={() => setSelectedReportType(type.id)}
                           className={cn(
                             "flex flex-col items-center gap-3 p-6 rounded-4xl border transition-all group relative",
-                            selectedReportType === type.id 
-                              ? "bg-white dark:bg-white/10 border-[#14a800] shadow-xl shadow-green-100 dark:shadow-none" 
+                            selectedReportType === type.id
+                              ? "bg-white dark:bg-white/10 border-[#14a800] shadow-xl shadow-green-100 dark:shadow-none"
                               : "bg-gray-50 dark:bg-white/5 border-transparent hover:border-[#14a800]/30 hover:bg-white dark:hover:bg-white/10"
                           )}
                         >
@@ -313,13 +313,13 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                     </div>
                   </div>
 
-                  <button 
+                  <button
                     onClick={handleGenerateReport}
                     disabled={isGenerating}
                     className={cn(
                       "w-full py-5 rounded-4xl font-black text-xs uppercase tracking-[0.2em] transition-all mt-4 flex items-center justify-center gap-3",
-                      isGenerating 
-                        ? "bg-gray-100 dark:bg-white/5 text-[#9A9FA5] cursor-not-allowed" 
+                      isGenerating
+                        ? "bg-gray-100 dark:bg-white/5 text-[#9A9FA5] cursor-not-allowed"
                         : "bg-[#14a800] hover:bg-[#108a00] text-white shadow-xl shadow-green-100 dark:shadow-none"
                     )}
                   >
@@ -347,14 +347,14 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       {/* Global Toast */}
       <AnimatePresence>
         {toast.show && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 50, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, scale: 0.9 }}
             className={cn(
-              "fixed bottom-8 right-8 z-[100] px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3 border",
-              toast.type === 'success' 
-                ? 'bg-[#14a800] text-white border-green-400' 
+              "fixed bottom-8 right-8 z-100 px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3 border",
+              toast.type === 'success'
+                ? 'bg-[#14a800] text-white border-green-400'
                 : 'bg-red-500 text-white border-red-400'
             )}
           >

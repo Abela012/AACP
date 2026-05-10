@@ -1,11 +1,11 @@
 import { motion } from 'framer-motion';
-import { 
-  HelpCircle, 
-  Search, 
-  Book, 
-  MessageSquare, 
-  FileText, 
-  Shield, 
+import {
+  HelpCircle,
+  Search,
+  Book,
+  MessageSquare,
+  FileText,
+  Shield,
   ExternalLink,
   ChevronRight,
   Zap,
@@ -32,7 +32,7 @@ export default function AdminHelpPage() {
     <AdminLayout>
       <div className="max-w-[1000px] mx-auto pb-12">
         {/* Hero Section */}
-        <div className="bg-gradient-to-tr from-[#14a800] to-green-400 rounded-[3rem] p-12 text-white mb-12 shadow-xl shadow-green-100 dark:shadow-none relative overflow-hidden">
+        <div className="bg-linear-to-tr from-[#14a800] to-green-400 rounded-[3rem] p-12 text-white mb-12 shadow-xl shadow-green-100 dark:shadow-none relative overflow-hidden">
           <div className="relative z-10">
             <h1 className="text-4xl font-black mb-4">Admin Help Center</h1>
             <p className="text-white/80 font-bold max-w-lg mb-8 leading-relaxed">
@@ -40,9 +40,9 @@ export default function AdminHelpPage() {
             </p>
             <div className="relative max-w-md">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40 w-5 h-5" />
-              <input 
-                type="text" 
-                placeholder="Search for help articles..." 
+              <input
+                type="text"
+                placeholder="Search for help articles..."
                 className="w-full bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl pl-12 pr-4 py-4 text-sm placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-white/30 transition-all text-white"
               />
             </div>

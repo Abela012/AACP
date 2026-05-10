@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { 
-  Search, 
-  Filter, 
-  Star, 
+import {
+  Search,
+  Filter,
+  Star,
   ArrowRight,
   Sparkles,
   X,
@@ -49,14 +49,14 @@ export default function MatchesPage() {
   };
 
   const filteredCreators = recommendations.filter((c: any) => {
-    const matchesNiche = selectedNiche === 'All Niches' || 
-                        (c.category && c.category.toLowerCase().includes(selectedNiche.toLowerCase()));
-                           
+    const matchesNiche = selectedNiche === 'All Niches' ||
+      (c.category && c.category.toLowerCase().includes(selectedNiche.toLowerCase()));
+
     const searchLower = searchQuery.trim().toLowerCase();
-    const matchesSearch = !searchLower || 
-                         (c.name && c.name.toLowerCase().includes(searchLower)) || 
-                         (c.location && c.location.toLowerCase().includes(searchLower));
-    
+    const matchesSearch = !searchLower ||
+      (c.name && c.name.toLowerCase().includes(searchLower)) ||
+      (c.location && c.location.toLowerCase().includes(searchLower));
+
     return matchesNiche && matchesSearch;
   });
 
@@ -68,22 +68,22 @@ export default function MatchesPage() {
         <AnimatePresence>
           {selectedCreator && (
             <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                 onClick={() => setSelectedCreator(null)}
                 className="absolute inset-0 bg-black/60 backdrop-blur-sm"
               />
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }}
                 className="relative bg-white dark:bg-[#1a1a1a] w-full max-w-2xl rounded-[2.5rem] overflow-hidden shadow-2xl border border-gray-100 dark:border-white/10 z-10 flex flex-col max-h-[90vh]"
               >
                 <div className="h-48 relative shrink-0">
-                  <img 
-                    src={selectedCreator.meta?.profilePicture || `https://ui-avatars.com/api/?name=${selectedCreator.name}&background=10b981&color=fff`} 
-                    alt={selectedCreator.name} 
-                    className="w-full h-full object-cover" 
+                  <img
+                    src={selectedCreator.meta?.profilePicture || `https://ui-avatars.com/api/?name=${selectedCreator.name}&background=10b981&color=fff`}
+                    alt={selectedCreator.name}
+                    className="w-full h-full object-cover"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
+                  <div className="absolute inset-0 bg-linear-to-t from-black/80 to-transparent"></div>
                   <button onClick={() => setSelectedCreator(null)} className="absolute top-4 right-4 bg-white/10 hover:bg-white/20 backdrop-blur-md text-white p-2 rounded-full transition-colors">
                     <X size={20} />
                   </button>
@@ -95,7 +95,7 @@ export default function MatchesPage() {
                     </p>
                   </div>
                 </div>
-                
+
                 <div className="p-8 overflow-y-auto">
                   <div className="flex flex-wrap gap-4 mb-8">
                     <span className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold px-4 py-2 rounded-xl text-sm flex items-center gap-2">
@@ -130,7 +130,7 @@ export default function MatchesPage() {
                         </div>
                         <h4 className="text-sm font-black text-gray-900 dark:text-white uppercase tracking-widest">AI Match Insight</h4>
                       </div>
-                      
+
                       {isLoadingPrediction ? (
                         <div className="flex items-center gap-3 text-emerald-600/60 py-4">
                           <Loader2 size={16} className="animate-spin" />
@@ -141,7 +141,7 @@ export default function MatchesPage() {
                           <p className="text-sm text-gray-700 dark:text-gray-300 font-medium italic mb-6">
                             "{predictionData?.aiInsight || "This creator shows strong potential for your brand's growth."}"
                           </p>
-                          
+
                           <div className="mt-8">
                             <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">6-Month ROI Projection</h4>
                             {predictionData?.projections && (
@@ -170,21 +170,21 @@ export default function MatchesPage() {
                       <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">Primary Platforms</h3>
                       <div className="flex gap-2">
                         {selectedCreator.meta?.platforms?.map((p: string) => (
-                           <span key={p} className="bg-gray-50 dark:bg-white/5 px-3 py-1 rounded-lg font-bold text-xs">{p}</span>
+                          <span key={p} className="bg-gray-50 dark:bg-white/5 px-3 py-1 rounded-lg font-bold text-xs">{p}</span>
                         )) || <span className="bg-gray-50 dark:bg-white/5 px-3 py-1 rounded-lg font-bold text-xs">Instagram</span>}
                       </div>
                     </div>
                   </div>
 
                   <div className="flex gap-4 pt-6 border-t border-gray-100 dark:border-white/10">
-                     <button 
+                    <button
                       onClick={() => navigate('/messages', { state: { creator: selectedCreator } })}
                       className="flex-1 py-4 bg-emerald-500 text-black rounded-2xl font-bold text-lg hover:bg-emerald-400 transition-all shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2"
                     >
                       Invite to Campaign
                       <ArrowRight size={20} />
                     </button>
-                    <button 
+                    <button
                       onClick={() => navigate(`/admin/users/${selectedCreator.targetId}`)}
                       className="w-14 h-14 border border-gray-100 dark:border-white/10 rounded-2xl flex items-center justify-center text-gray-400 dark:text-gray-500 hover:text-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 transition-all"
                     >
@@ -203,7 +203,7 @@ export default function MatchesPage() {
             <p className="text-gray-500 dark:text-gray-400 text-sm font-medium">Our AI has identified the best creators for your brand's unique niche.</p>
           </div>
           <div className="flex gap-3">
-            <button 
+            <button
               onClick={handleSync}
               disabled={isSyncing}
               className="bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-500 px-6 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-emerald-100 dark:hover:bg-emerald-500/20 transition-all border border-emerald-100 dark:border-emerald-500/20 disabled:opacity-50"
@@ -218,16 +218,16 @@ export default function MatchesPage() {
         <div className="bg-white dark:bg-white/5 p-4 rounded-2xl border border-gray-100 dark:border-white/5 shadow-sm dark:shadow-none mb-8 flex flex-col sm:flex-row gap-4 justify-between">
           <div className="relative flex-1">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 w-4 h-4" />
-            <input 
-              type="text" 
-              placeholder="Search by name, location or skills..." 
+            <input
+              type="text"
+              placeholder="Search by name, location or skills..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-10 pr-4 py-3 rounded-2xl border border-gray-100 dark:border-white/10 bg-white/50 dark:bg-white/5 backdrop-blur-sm focus:border-emerald-500 outline-none text-sm transition-all"
             />
           </div>
           <div className="flex gap-3">
-            <select 
+            <select
               value={selectedNiche}
               onChange={(e) => setSelectedNiche(e.target.value)}
               className="px-6 py-3 rounded-2xl border border-gray-100 dark:border-white/10 text-sm font-bold text-gray-600 dark:text-gray-400 outline-none bg-white/50 dark:bg-white/5 backdrop-blur-sm cursor-pointer"
@@ -251,19 +251,19 @@ export default function MatchesPage() {
             </div>
           ) : filteredCreators.length > 0 ? (
             filteredCreators.map((c: any) => (
-              <motion.div 
+              <motion.div
                 key={c.targetId}
                 whileHover={{ y: -5 }}
                 onClick={() => setSelectedCreator(c)}
                 className="bg-white dark:bg-[#0d0d0d] rounded-[2.5rem] border border-gray-100 dark:border-white/5 shadow-sm hover:shadow-2xl transition-all overflow-hidden group cursor-pointer"
               >
                 <div className="h-48 relative">
-                  <img 
-                    src={c.meta?.profilePicture || `https://ui-avatars.com/api/?name=${c.name}&background=10b981&color=fff`} 
-                    alt={c.name} 
-                    className="w-full h-full object-cover transition-transform group-hover:scale-110 duration-700" 
+                  <img
+                    src={c.meta?.profilePicture || `https://ui-avatars.com/api/?name=${c.name}&background=10b981&color=fff`}
+                    alt={c.name}
+                    className="w-full h-full object-cover transition-transform group-hover:scale-110 duration-700"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60"></div>
+                  <div className="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent opacity-60"></div>
                   <div className="absolute top-4 right-4 bg-emerald-500 text-black text-[10px] font-black px-3 py-1.5 rounded-full uppercase tracking-widest shadow-lg flex items-center gap-1">
                     <Sparkles size={10} />
                     {c.score}% Match
@@ -311,15 +311,15 @@ export default function MatchesPage() {
                   </div>
 
                   <div className="flex gap-3">
-                    <button 
+                    <button
                       onClick={(e) => { e.stopPropagation(); navigate('/messages', { state: { creator: c } }); }}
                       className="flex-1 py-4 bg-emerald-500 text-black rounded-2xl font-black text-sm hover:bg-emerald-400 transition-all shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2"
                     >
                       Invite Now
                       <ArrowRight size={18} />
                     </button>
-                    <button 
-                      onClick={(e) => e.stopPropagation()} 
+                    <button
+                      onClick={(e) => e.stopPropagation()}
                       className="w-14 h-14 border border-gray-100 dark:border-white/10 rounded-2xl flex items-center justify-center text-gray-400 dark:text-gray-500 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-all"
                     >
                       <X size={20} />
