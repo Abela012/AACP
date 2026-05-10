@@ -67,6 +67,11 @@ const userSchema: Schema = new Schema(
             default: "",
         },
 
+        bio: {
+            type: String,
+            default: ""
+        },
+
         location: {
             type: String,
             default: "",
@@ -87,8 +92,41 @@ const userSchema: Schema = new Schema(
             default: false,
         },
         profileData: {
-            type: Schema.Types.Mixed,
-            default: {},
+            tiktok: {
+                username: String,
+                profileLink: String,
+                accountType: String,
+                postingFrequency: String,
+                followers: Number,
+                engagementRate: Number,
+                totalLikes: Number,
+                avgViews: Number,
+                avgComments: Number,
+                avgShares: Number,
+                niche: {},
+                contentStyle: {},
+                audienceGender: String,
+                audienceTopCountry: String,
+                audienceAgeRange: String,
+            },
+
+            instagram: {
+                username: String,
+                profileLink: String,
+                accountType: String,
+                postingFrequency: String,
+                followers: Number,
+                totalLikes: Number,
+                avgViews: Number,
+                engagementRate: Number,
+                avgComments: Number,
+                avgShares: Number,
+                niche: {},
+                contentStyle: {},
+                audienceGender: String,
+                audienceTopCountry: String,
+                audienceAgeRange: String,
+            },
         },
         pendingProfileData: {
             type: Schema.Types.Mixed,
@@ -114,11 +152,55 @@ const userSchema: Schema = new Schema(
     { timestamps: true }
 );
 
-userSchema.pre('save', function(next) {
+userSchema.pre('save', function (next) {
     const user = this as any;
     if (user.role === 'admin' || user.role === 'super_admin') {
         user.status = 'active';
     }
+
+    // Compute Engagement Rate dynamically for TikTok and Instagram
+    const parseNum = (val: any) => {
+        if (typeof val === 'number') return val;
+        if (typeof val === 'string') {
+            const cleaned = val.toUpperCase().replace(/[^0-9.KMB]/g, '');
+            let multiplier = 1;
+            if (cleaned.endsWith('K')) multiplier = 1000;
+            else if (cleaned.endsWith('M')) multiplier = 1000000;
+            else if (cleaned.endsWith('B')) multiplier = 1000000000;
+            const num = parseFloat(cleaned.replace(/[KMB]/g, ''));
+            return isNaN(num) ? 0 : num * multiplier;
+        }
+        return 0;
+    };
+
+    if (user.profileData?.tiktok) {
+        const t = user.profileData.tiktok;
+        const followers = parseNum(t.followers);
+        const likes = parseNum(t.totalLikes);
+        const comments = parseNum(t.avgComments);
+        const shares = parseNum(t.avgShares);
+
+        if (followers > 0) {
+            t.engagementRate = parseFloat((((likes + comments + shares) / followers) * 100).toFixed(2));
+        } else {
+            t.engagementRate = 0;
+        }
+    }
+
+    if (user.profileData?.instagram) {
+        const i = user.profileData.instagram;
+        const followers = parseNum(i.followers);
+        const likes = parseNum(i.totalLikes);
+        const comments = parseNum(i.avgComments);
+        const shares = parseNum(i.avgShares);
+
+        if (followers > 0) {
+            i.engagementRate = parseFloat((((likes + comments + shares) / followers) * 100).toFixed(2));
+        } else {
+            i.engagementRate = 0;
+        }
+    }
+
     next();
 });
 

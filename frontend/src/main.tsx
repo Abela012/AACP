@@ -8,6 +8,10 @@ import App from './App.tsx'
 import { UserProvider } from './shared/context/UserContext'
 import { ThemeProvider } from './shared/context/ThemeContext'
 import { ProfileProvider } from './shared/context/ProfileContext'
+import { setupConsoleInterceptor } from './utils/consoleInterceptor'
+
+// Initialize production console interceptor to prevent noise
+setupConsoleInterceptor()
 
 // Global React Query client
 const queryClient = new QueryClient()

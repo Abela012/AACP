@@ -70,11 +70,10 @@ export default function RegisterForm() {
                             <button
                                 type="button"
                                 onClick={() => setRole('business_owner')}
-                                className={`flex flex-col items-center gap-2 p-5 rounded-xl border-2 transition-all ${
-                                    role === 'business_owner'
-                                        ? 'border-[#14a800] bg-[#14a800]/5 text-[#14a800]'
-                                        : 'border-gray-100 bg-white text-[#5e6d55] hover:border-[#14a800]/30 hover:text-[#001e00]'
-                                }`}
+                                className={`flex flex-col items-center gap-2 p-5 rounded-xl border-2 transition-all ${role === 'business_owner'
+                                    ? 'border-[#14a800] bg-[#14a800]/5 text-[#14a800]'
+                                    : 'border-gray-100 bg-white text-[#5e6d55] hover:border-[#14a800]/30 hover:text-[#001e00]'
+                                    }`}
                             >
                                 <Briefcase size={22} />
                                 <span className="text-[10px] font-black uppercase tracking-tight">Business</span>
@@ -82,11 +81,10 @@ export default function RegisterForm() {
                             <button
                                 type="button"
                                 onClick={() => setRole('advertiser')}
-                                className={`flex flex-col items-center gap-2 p-5 rounded-xl border-2 transition-all ${
-                                    role === 'advertiser'
-                                        ? 'border-[#14a800] bg-[#14a800]/5 text-[#14a800]'
-                                        : 'border-gray-100 bg-white text-[#5e6d55] hover:border-[#14a800]/30 hover:text-[#001e00]'
-                                }`}
+                                className={`flex flex-col items-center gap-2 p-5 rounded-xl border-2 transition-all ${role === 'advertiser'
+                                    ? 'border-[#14a800] bg-[#14a800]/5 text-[#14a800]'
+                                    : 'border-gray-100 bg-white text-[#5e6d55] hover:border-[#14a800]/30 hover:text-[#001e00]'
+                                    }`}
                             >
                                 <Megaphone size={22} />
                                 <span className="text-[10px] font-black uppercase tracking-tight">Advertiser</span>
@@ -221,29 +219,6 @@ export default function RegisterForm() {
 
             {!pendingVerification && (
                 <>
-                    <div className="relative my-10">
-                        <div className="absolute inset-0 flex items-center">
-                            <div className="w-full border-t border-gray-100"></div>
-                        </div>
-                        <div className="relative flex justify-center text-xs uppercase">
-                            <span className="bg-white px-6 text-[#5e6d55] font-bold tracking-widest leading-none">
-                                Or sign up with
-                            </span>
-                        </div>
-                    </div>
-
-                    <div className="grid grid-cols-3 gap-3">
-                        <button disabled className="opacity-50 cursor-not-allowed flex h-12 items-center justify-center rounded-xl border border-gray-100 bg-white transition-all shadow-sm">
-                            <img src={FacebookIcon} alt="Facebook" className="h-6 w-6 object-contain" />
-                        </button>
-                        <button disabled className="opacity-50 cursor-not-allowed flex h-12 items-center justify-center rounded-xl border border-gray-100 bg-white transition-all shadow-sm">
-                            <img src={TiktokIcon} alt="TikTok" className="h-6 w-6 object-contain rounded" />
-                        </button>
-                        <button disabled className="opacity-50 cursor-not-allowed flex h-12 items-center justify-center rounded-xl border border-gray-100 bg-white transition-all shadow-sm">
-                            <img src={GoogleIcon} alt="Google" className="h-6 w-6 object-contain" />
-                        </button>
-                    </div>
-
                     <p className="mt-10 text-center text-sm font-medium text-[#5e6d55]">
                         Already have an account?{" "}
                         <Link

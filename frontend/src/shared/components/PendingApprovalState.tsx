@@ -9,7 +9,7 @@ interface PendingApprovalStateProps {
 export default function PendingApprovalState({ onRefresh, isRefreshing }: PendingApprovalStateProps) {
   return (
     <div className="flex flex-col items-center justify-center py-20 px-4 max-w-2xl mx-auto">
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         className="w-full bg-white dark:bg-white/5 rounded-[3rem] p-12 border border-gray-100 dark:border-white/5 text-center shadow-2xl shadow-amber-500/5"
@@ -24,7 +24,7 @@ export default function PendingApprovalState({ onRefresh, isRefreshing }: Pendin
         <h1 className="text-4xl font-black text-gray-900 dark:text-white mb-6 tracking-tight">
           Review in Progress
         </h1>
-        
+
         <p className="text-gray-600 dark:text-gray-400 leading-relaxed mb-10 text-lg">
           We've received your profile details! Our experts are currently reviewing your information to maintain the highest quality within our community.
           <br /><br />
@@ -38,11 +38,11 @@ export default function PendingApprovalState({ onRefresh, isRefreshing }: Pendin
             </div>
             <div>
               <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Support</p>
-              <p className="text-sm font-bold text-gray-900 dark:text-white">help@aacp.com</p>
+              <p className="text-sm font-bold text-gray-900 dark:text-white">wyaikob@gmail.com</p>
             </div>
           </div>
 
-          <button 
+          <button
             onClick={onRefresh}
             disabled={isRefreshing}
             className="bg-gray-900 dark:bg-white text-white dark:text-black rounded-2xl p-6 flex items-center justify-center gap-3 font-black uppercase tracking-widest text-xs hover:opacity-90 transition-all disabled:opacity-50"

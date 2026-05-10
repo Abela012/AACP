@@ -51,15 +51,15 @@ export default function ViewProfilePage() {
       : profile.selectedStyles || ['Content Creator', 'Social Media'],
     stats: isBusiness
       ? [
-          { label: 'Monthly Budget', value: profile.monthlyBudget ? `$${profile.monthlyBudget.toLocaleString()}` : '$0' },
-          { label: 'Platforms', value: profile.selectedPlatforms?.length.toString() || '0' },
-          { label: 'Company Size', value: profile.companySize || 'Private' },
-        ]
+        { label: 'Monthly Budget', value: profile.monthlyBudget ? `$${profile.monthlyBudget.toLocaleString()}` : '$0' },
+        { label: 'Platforms', value: profile.selectedPlatforms?.length.toString() || '0' },
+        { label: 'Company Size', value: profile.companySize || 'Private' },
+      ]
       : [
-          { label: 'Followers', value: profile.followers || '0' },
-          { label: 'Avg Views', value: profile.avgViews || '0' },
-          { label: 'Engagement', value: profile.engagementRate || '0%' },
-        ],
+        { label: 'Followers', value: profile.followers || '0' },
+        { label: 'Avg Views', value: profile.avgViews || '0' },
+        { label: 'Engagement', value: profile.engagementRate || '0%' },
+      ],
   };
 
   const containerVariants: Variants = {
@@ -91,7 +91,7 @@ export default function ViewProfilePage() {
           >
             {/* Cover Image */}
             <div className="h-48 md:h-64 w-full relative">
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent z-10" />
+              <div className="absolute inset-0 bg-linear-to-t from-black/60 to-transparent z-10" />
               <img src={profileData.coverImage} alt="Cover" className="w-full h-full object-cover" />
               <div className="absolute bottom-4 right-4 z-20 flex gap-2">
                 <span className="bg-emerald-500 text-black text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1 shadow-lg">
@@ -187,7 +187,7 @@ export default function ViewProfilePage() {
                 {profileData.stats.map((stat, idx) => (
                   <div
                     key={idx}
-                    className="bg-gradient-to-br from-emerald-500/10 to-transparent dark:from-emerald-500/5 dark:to-transparent border border-emerald-500/20 dark:border-emerald-500/10 p-6 rounded-3xl text-center hover:-translate-y-1 transition-transform cursor-default"
+                    className="bg-linear-to-br from-emerald-500/10 to-transparent dark:from-emerald-500/5 dark:to-transparent border border-emerald-500/20 dark:border-emerald-500/10 p-6 rounded-3xl text-center hover:-translate-y-1 transition-transform cursor-default"
                   >
                     <p className="text-3xl font-black text-gray-900 dark:text-white mb-1">{stat.value}</p>
                     <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">

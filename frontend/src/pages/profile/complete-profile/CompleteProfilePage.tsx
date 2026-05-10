@@ -235,11 +235,31 @@ function PlatformButton({
   );
 }
 
+const parseMetric = (val: string | number): number => {
+  if (!val) return 0;
+  if (typeof val === 'number') return val;
+  const cleaned = val.toString().toUpperCase().replace(/[^0-9.KMB]/g, '');
+  let multiplier = 1;
+  if (cleaned.endsWith('K')) multiplier = 1000;
+  else if (cleaned.endsWith('M')) multiplier = 1000000;
+  else if (cleaned.endsWith('B')) multiplier = 1000000000;
+
+  const num = parseFloat(cleaned.replace(/[KMB]/g, ''));
+  return isNaN(num) ? 0 : num * multiplier;
+};
+
+const formatMetric = (num: number | undefined): string => {
+  if (num === undefined || num === null) return '';
+  if (num >= 1000000000) return (num / 1000000000).toFixed(1).replace(/\.0$/, '') + 'B';
+  if (num >= 1000000) return (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
+  if (num >= 1000) return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
+  return String(num);
+};
 
 export default function CompleteProfilePage({ isInsideDashboard = false }: { isInsideDashboard?: boolean }) {
   const { userRole, setOnboardingStatus } = useUser();
   const { user: clerkUser } = useClerkUser();
-  const { updateProfile } = useProfile();
+  const { profile, updateProfile } = useProfile();
   const location = useLocation();
   const navigate = useNavigate();
   const api = useApiClient();
@@ -258,6 +278,48 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
       setProfilePicture(prev => prev || clerkUser.imageUrl || '');
     }
   }, [clerkUser]);
+
+  useEffect(() => {
+    if (profile && profile._id) {
+      // Auto-populate TikTok
+      if (profile.tiktok) {
+        setTiktokUsername(profile.tiktok.username || '');
+        setTiktokFollowers(formatMetric(profile.tiktok.followers));
+        setTiktokTotalLikes(formatMetric(profile.tiktok.totalLikes));
+        setTiktokAvgViews(formatMetric(profile.tiktok.avgViews));
+        setTiktokAvgComments(formatMetric(profile.tiktok.avgComments));
+        setTiktokAvgShares(formatMetric(profile.tiktok.avgShares));
+        setTiktokAccountType(profile.tiktok.accountType || 'Creator');
+        setTiktokProfileLink(profile.tiktok.profileLink || '');
+        setTiktokPostingFrequency(profile.tiktok.postingFrequency || '3-5 per week');
+        setTiktokNiche(profile.tiktok.niche || []);
+        setTiktokAudienceGender(profile.tiktok.audienceGender || 'Mixed');
+        setTiktokAudienceTopCountry(profile.tiktok.audienceTopCountry || '');
+        setTiktokAudienceAgeRange(profile.tiktok.audienceAgeRange || '18-24');
+        setTiktokContentStyle(profile.tiktok.contentStyle || []);
+        setShowTiktokAnalytics(true);
+      }
+
+      // Auto-populate Instagram
+      if (profile.instagram) {
+        setInstagramUsername(profile.instagram.username || '');
+        setInstagramFollowers(formatMetric(profile.instagram.followers));
+        setInstagramTotalLikes(formatMetric(profile.instagram.totalLikes));
+        setInstagramAvgViews(formatMetric(profile.instagram.avgViews));
+        setInstagramAvgComments(formatMetric(profile.instagram.avgComments));
+        setInstagramAvgShares(formatMetric(profile.instagram.avgShares));
+        setInstagramAccountType(profile.instagram.accountType || 'Creator');
+        setInstagramProfileLink(profile.instagram.profileLink || '');
+        setInstagramPostingFrequency(profile.instagram.postingFrequency || '3-5 per week');
+        setInstagramNiche(profile.instagram.niche || []);
+        setInstagramAudienceGender(profile.instagram.audienceGender || 'Mixed');
+        setInstagramAudienceTopCountry(profile.instagram.audienceTopCountry || '');
+        setInstagramAudienceAgeRange(profile.instagram.audienceAgeRange || '18-24');
+        setInstagramContentStyle(profile.instagram.contentStyle || []);
+        setShowInstagramAnalytics(true);
+      }
+    }
+  }, [profile]);
 
   const [socialConnections, setSocialConnections] = useState<SocialConnection[]>([]);
   const [isSocialLoading, setIsSocialLoading] = useState(true);
@@ -385,6 +447,88 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
   const [tiktokAudienceAgeRange, setTiktokAudienceAgeRange] = useState('18-24');
   const [tiktokContentStyle, setTiktokContentStyle] = useState<string[]>([]);
   const [showTiktokAnalytics, setShowTiktokAnalytics] = useState(false);
+
+  /* ── Instagram Analytics state ── */
+  const [instagramUsername, setInstagramUsername] = useState('');
+  const [instagramFollowers, setInstagramFollowers] = useState('');
+  const [instagramTotalLikes, setInstagramTotalLikes] = useState('');
+  const [instagramAvgViews, setInstagramAvgViews] = useState('');
+  const [instagramEngagementRate, setInstagramEngagementRate] = useState('');
+  const [instagramAvgComments, setInstagramAvgComments] = useState('');
+  const [instagramAvgShares, setInstagramAvgShares] = useState('');
+  const [instagramAccountType, setInstagramAccountType] = useState('Creator');
+  const [instagramProfileLink, setInstagramProfileLink] = useState('');
+  const [instagramPostingFrequency, setInstagramPostingFrequency] = useState('3-5 per week');
+  const [instagramNiche, setInstagramNiche] = useState<string[]>([]);
+  const [instagramAudienceGender, setInstagramAudienceGender] = useState('Mixed');
+  const [instagramAudienceTopCountry, setInstagramAudienceTopCountry] = useState('');
+  const [instagramAudienceAgeRange, setInstagramAudienceAgeRange] = useState('18-24');
+  const [instagramContentStyle, setInstagramContentStyle] = useState<string[]>([]);
+  const [showInstagramAnalytics, setShowInstagramAnalytics] = useState(false);
+
+  // Compute ER dynamically
+  const computedTiktokER = useMemo(() => {
+    const followers = parseMetric(tiktokFollowers);
+    const likes = parseMetric(tiktokTotalLikes);
+    const comments = parseMetric(tiktokAvgComments);
+    const shares = parseMetric(tiktokAvgShares);
+
+    if (followers > 0) {
+      return (((likes + comments + shares) / followers) * 100).toFixed(2);
+    }
+    return '0.00';
+  }, [tiktokFollowers, tiktokTotalLikes, tiktokAvgComments, tiktokAvgShares]);
+
+  const computedInstagramER = useMemo(() => {
+    const followers = parseMetric(instagramFollowers);
+    const likes = parseMetric(instagramTotalLikes);
+    const comments = parseMetric(instagramAvgComments);
+    const shares = parseMetric(instagramAvgShares);
+
+    if (followers > 0) {
+      return (((likes + comments + shares) / followers) * 100).toFixed(2);
+    }
+    return '0.00';
+  }, [instagramFollowers, instagramTotalLikes, instagramAvgComments, instagramAvgShares]);
+
+  // Validation Logic
+  const isTiktokFormComplete = useMemo(() => {
+    return !!(
+      tiktokUsername &&
+      tiktokFollowers &&
+      tiktokTotalLikes &&
+      tiktokAvgViews &&
+      tiktokAvgComments &&
+      tiktokAvgShares &&
+      tiktokProfileLink &&
+      tiktokNiche.length > 0 &&
+      tiktokAudienceTopCountry
+    );
+  }, [
+    tiktokUsername, tiktokFollowers, tiktokTotalLikes, tiktokAvgViews,
+    tiktokAvgComments, tiktokAvgShares, tiktokProfileLink, tiktokNiche,
+    tiktokAudienceTopCountry
+  ]);
+
+  const isInstagramFormComplete = useMemo(() => {
+    return !!(
+      instagramUsername &&
+      instagramFollowers &&
+      instagramTotalLikes &&
+      instagramAvgViews &&
+      instagramAvgComments &&
+      instagramAvgShares &&
+      instagramProfileLink &&
+      instagramNiche.length > 0 &&
+      instagramAudienceTopCountry
+    );
+  }, [
+    instagramUsername, instagramFollowers, instagramTotalLikes, instagramAvgViews,
+    instagramAvgComments, instagramAvgShares, instagramProfileLink, instagramNiche,
+    instagramAudienceTopCountry
+  ]);
+
+  const canSubmitAdvertiser = isTiktokFormComplete || isInstagramFormComplete;
 
   /* ── Business-specific state ── */
   const [businessName, setBusinessName] = useState('');
@@ -560,37 +704,16 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
           phone,
         };
       } else {
+        // For Advertisers, only save platform-specific analytics to profileData
         profileData = {
-          bio: bioPitch,
-          website: portfolioUrl,
-          youtubeHandle,
-          tiktokHandle,
-          instagramHandle,
-          xHandle,
-
-          followers,
-          avgViews,
-          engagementRate,
-          geoTags: geoTags.map((t) => t.label),
-          niches: nicheTags.map((t) => t.label),
-          ageRanges: selectedAgeRanges,
-          primaryLanguage,
-          baseRate,
-          phone,
-          paymentPreference,
-          availability,
-          preferredIndustries,
-          campaignTypes,
-
           // TikTok Analytics
-          tiktokAnalytics: {
+          tiktok: {
             username: tiktokUsername,
-            followers: tiktokFollowers,
-            totalLikes: tiktokTotalLikes,
-            avgViews: tiktokAvgViews,
-            engagementRate: tiktokEngagementRate,
-            avgComments: tiktokAvgComments,
-            avgShares: tiktokAvgShares,
+            followers: parseMetric(tiktokFollowers),
+            totalLikes: parseMetric(tiktokTotalLikes),
+            avgViews: parseMetric(tiktokAvgViews),
+            avgComments: parseMetric(tiktokAvgComments),
+            avgShares: parseMetric(tiktokAvgShares),
             accountType: tiktokAccountType,
             profileLink: tiktokProfileLink,
             postingFrequency: tiktokPostingFrequency,
@@ -600,6 +723,24 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
             audienceAgeRange: tiktokAudienceAgeRange,
             contentStyle: tiktokContentStyle,
           },
+
+          // Instagram Analytics
+          instagram: {
+            username: instagramUsername,
+            followers: parseMetric(instagramFollowers),
+            totalLikes: parseMetric(instagramTotalLikes),
+            avgViews: parseMetric(instagramAvgViews),
+            avgComments: parseMetric(instagramAvgComments),
+            avgShares: parseMetric(instagramAvgShares),
+            accountType: instagramAccountType,
+            profileLink: instagramProfileLink,
+            postingFrequency: instagramPostingFrequency,
+            niche: instagramNiche,
+            audienceGender: instagramAudienceGender,
+            audienceTopCountry: instagramAudienceTopCountry,
+            audienceAgeRange: instagramAudienceAgeRange,
+            contentStyle: instagramContentStyle,
+          },
         };
       }
 
@@ -607,6 +748,8 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
         firstName,
         lastName,
         profilePicture,
+        bio: isBusiness ? brandDescription : "",
+        location: isBusiness ? businessLocation : "",
         tradeLicenseUrl,
         profileData,
       });
@@ -750,7 +893,7 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
             <InputField label="First Name" value={firstName} onChange={setFirstName} placeholder="John" />
             <InputField label="Last Name" value={lastName} onChange={setLastName} placeholder="Doe" />
           </div>
-          <InputField label="Phone (Optional)" value={phone} onChange={setPhone} placeholder="+251 ..." icon={<CheckCircle2 size={16} className="opacity-0" />} />
+          <InputField label="Phone" value={phone} onChange={setPhone} placeholder="+251 ..." icon={<CheckCircle2 size={16} className="opacity-0" />} />
         </SectionCard>
 
         {/* Social Connections Section */}
@@ -797,8 +940,8 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
                         {isCurrentlyConnecting ? 'Connecting...' :
                           isConnected ? 'Connected' :
                             status === 'pending' ? 'Pending Approval' :
-                            platform.comingSoon ? 'Launching Soon' :
-                              'Not Connected'}
+                              platform.comingSoon ? 'Launching Soon' :
+                                'Not Connected'}
                       </p>
                     </div>
                   </div>
@@ -1385,7 +1528,7 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
                             </div>
                           </div>
                           <div className="space-y-2">
-                            <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">Total Likes</label>
+                            <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">Avg. Likes</label>
                             <input type="text" value={tiktokTotalLikes} onChange={e => setTiktokTotalLikes(e.target.value)} placeholder="e.g. 1.2M"
                               className="w-full bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl py-3 px-4 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30 transition-all" />
                           </div>
@@ -1395,11 +1538,11 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
                               className="w-full bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl py-3 px-4 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30 transition-all" />
                           </div>
                           <div className="space-y-2">
-                            <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">Engagement Rate</label>
+                            <label className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-[0.08em]">Engagement Rate (Computed)</label>
                             <div className="relative">
-                              <input type="text" value={tiktokEngagementRate} onChange={e => setTiktokEngagementRate(e.target.value)} placeholder="e.g. 5.2"
-                                className="w-full bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl py-3 pl-4 pr-8 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30 transition-all" />
-                              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-gray-400">%</span>
+                              <input type="text" value={computedTiktokER} readOnly disabled
+                                className="w-full bg-emerald-50/50 dark:bg-emerald-500/5 border border-emerald-200 dark:border-emerald-500/20 rounded-xl py-3 pl-4 pr-8 text-sm font-bold text-emerald-700 dark:text-emerald-400 cursor-not-allowed opacity-80" />
+                              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-emerald-500">%</span>
                             </div>
                           </div>
                           <div className="space-y-2">
@@ -1474,74 +1617,175 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
               </AnimatePresence>
             </SectionCard>
 
-            {/* ━━ Creator Bio & Rates ━━ */}
-            <SectionCard icon={<Briefcase size={20} />} title="Creator Bio & Rates">
-              <p className="text-xs text-gray-500 dark:text-gray-400 -mt-4 mb-6">
-                Tell brands who you are and what you charge.
+            {/* ━━ Instagram Analytics Section ━━ */}
+            <SectionCard icon={<FaInstagram size={20} />} title="Instagram Creator Analytics">
+              <p className="text-xs text-gray-500 dark:text-gray-400 -mt-4 mb-5">
+                Provide your Instagram metrics so brands can evaluate your reach and engagement.
               </p>
-              <div className="space-y-5">
-                <div className="space-y-2">
-                  <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">Bio / Pitch</label>
-                  <div className="relative">
-                    <textarea
-                      rows={4}
-                      value={bioPitch}
-                      onChange={(e) => setBioPitch(e.target.value)}
-                      placeholder="Tell brands why they should work with you..."
-                      maxLength={400}
-                      className="w-full bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl p-4 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30 transition-all resize-none"
-                    />
-                    <span className="absolute bottom-3 right-3 text-[10px] text-gray-400">{bioPitch.length} / 400</span>
-                  </div>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <InputField label="Base Rate (USD)" placeholder="e.g. $50" value={baseRate} onChange={setBaseRate} icon={<DollarSign size={14} />} />
-                  <InputField label="Portfolio URL" placeholder="www.yoursite.com" value={portfolioUrl} onChange={setPortfolioUrl} prefix="https://" />
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <SelectField label="Payment Preference" value={paymentPreference} onChange={setPaymentPreference} options={['Negotiable', 'Per Post', 'Monthly Retainer', 'Revenue Share', 'Product Exchange']} />
-                  <SelectField label="Availability" value={availability} onChange={setAvailability} options={['Full-time', 'Part-time', 'Weekends Only', 'Project-based']} />
-                </div>
-                <SelectField label="Primary Language" value={primaryLanguage} onChange={setPrimaryLanguage} options={['English (US)', 'English (UK)', 'Spanish', 'French', 'German', 'Amharic', 'Arabic', 'Chinese', 'Other']} />
-              </div>
-            </SectionCard>
 
-            {/* ━━ Collaboration Preferences ━━ */}
-            <SectionCard icon={<Target size={20} />} title="Collaboration Preferences">
-              <div className="space-y-6">
-                <div className="space-y-3">
-                  <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">Preferred Industries</label>
-                  <div className="flex flex-wrap gap-2">
-                    {['Organic Agriculture', 'Technology', 'Healthcare', 'Education', 'E-commerce', 'Fintech', 'SaaS', 'Fashion & Apparel', 'Food & Beverage', 'Other'].map((ind) => (
-                      <TagPill
-                        key={ind}
-                        label={ind}
-                        selected={preferredIndustries.includes(ind)}
-                        onClick={() => setPreferredIndustries(prev =>
-                          prev.includes(ind) ? prev.filter(i => i !== ind) : [...prev, ind]
-                        )}
-                      />
-                    ))}
+              {/* Toggle Button */}
+              <button
+                type="button"
+                onClick={() => setShowInstagramAnalytics(!showInstagramAnalytics)}
+                className={cn(
+                  "w-full flex items-center justify-between p-4 rounded-2xl border transition-all duration-200",
+                  showInstagramAnalytics
+                    ? "bg-pink-50 dark:bg-pink-500/5 border-pink-200 dark:border-pink-500/20"
+                    : "bg-gray-50 dark:bg-white/5 border-gray-100 dark:border-white/5 hover:border-pink-300 dark:hover:border-pink-500/20"
+                )}
+              >
+                <div className="flex items-center gap-3">
+                  <div className={cn(
+                    "w-10 h-10 rounded-xl flex items-center justify-center transition-all",
+                    showInstagramAnalytics ? "bg-pink-500 text-white" : "bg-white dark:bg-white/10 text-gray-600 dark:text-gray-400"
+                  )}>
+                    <FaInstagram size={18} />
+                  </div>
+                  <div className="text-left">
+                    <p className="text-sm font-bold text-gray-900 dark:text-white">Instagram Analytics</p>
+                    <p className="text-[10px] text-gray-500 uppercase tracking-wider font-bold">
+                      {showInstagramAnalytics ? 'Editing' : instagramUsername ? 'Configured' : 'Click to add your Instagram data'}
+                    </p>
                   </div>
                 </div>
-                <div className="space-y-3">
-                  <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">Preferred Campaign Types</label>
-                  <div className="flex flex-wrap gap-2">
-                    {['Shoutouts', 'Product Reviews', 'Long-term Ambassadorship', 'Event Attendance', 'Affiliate'].map((type) => (
-                      <TagPill
-                        key={type}
-                        label={type}
-                        selected={campaignTypes.includes(type)}
-                        onClick={() => setCampaignTypes(prev =>
-                          prev.includes(type) ? prev.filter(t => t !== type) : [...prev, type]
-                        )}
-                      />
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </SectionCard>
+                <ChevronDown size={18} className={cn(
+                  "text-gray-400 transition-transform duration-200",
+                  showInstagramAnalytics && "rotate-180"
+                )} />
+              </button>
 
+              <AnimatePresence>
+                {showInstagramAnalytics && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
+                    className="overflow-hidden"
+                  >
+                    <div className="pt-6 space-y-8">
+
+                      {/* ── Account Info ── */}
+                      <div>
+                        <div className="flex items-center gap-2 mb-4">
+                          <div className="w-1.5 h-5 bg-pink-500 rounded-full" />
+                          <h4 className="text-xs font-bold text-gray-900 dark:text-white uppercase tracking-wider">Account Info</h4>
+                        </div>
+                        <div className="space-y-4">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <InputField label="Instagram Username" placeholder="@username" value={instagramUsername} onChange={setInstagramUsername} icon={<FaInstagram size={14} />} />
+                            <InputField label="Profile Link" placeholder="https://instagram.com/username" value={instagramProfileLink} onChange={setInstagramProfileLink} prefix="https://" />
+                          </div>
+                          <div className="grid grid-cols-2 gap-4">
+                            <SelectField label="Account Type" value={instagramAccountType} onChange={setInstagramAccountType} options={['Creator', 'Business', 'Personal']} />
+                            <SelectField label="Posting Frequency" value={instagramPostingFrequency} onChange={setInstagramPostingFrequency} options={['Daily', '3-5 per week', '1-2 per week', 'Bi-weekly', 'Monthly']} />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* ── Performance Metrics ── */}
+                      <div>
+                        <div className="flex items-center gap-2 mb-4">
+                          <div className="w-1.5 h-5 bg-blue-500 rounded-full" />
+                          <h4 className="text-xs font-bold text-gray-900 dark:text-white uppercase tracking-wider">Performance Metrics</h4>
+                        </div>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                          <div className="space-y-2">
+                            <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">Followers</label>
+                            <div className="relative">
+                              <input type="text" value={instagramFollowers} onChange={e => setInstagramFollowers(e.target.value)} placeholder="e.g. 50K"
+                                className="w-full bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl py-3 pl-4 pr-4 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-pink-500 focus:ring-1 focus:ring-pink-500/30 transition-all" />
+                            </div>
+                          </div>
+                          <div className="space-y-2">
+                            <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">Avg. Likes</label>
+                            <input type="text" value={instagramTotalLikes} onChange={e => setInstagramTotalLikes(e.target.value)} placeholder="e.g. 1.2M"
+                              className="w-full bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl py-3 px-4 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-pink-500 focus:ring-1 focus:ring-pink-500/30 transition-all" />
+                          </div>
+                          <div className="space-y-2">
+                            <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">Avg. Views (Reels)</label>
+                            <input type="text" value={instagramAvgViews} onChange={e => setInstagramAvgViews(e.target.value)} placeholder="e.g. 10K"
+                              className="w-full bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl py-3 px-4 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-pink-500 focus:ring-1 focus:ring-pink-500/30 transition-all" />
+                          </div>
+                          <div className="space-y-2">
+                            <label className="text-[11px] font-bold text-pink-600 dark:text-pink-400 uppercase tracking-[0.08em]">Engagement Rate (Computed)</label>
+                            <div className="relative">
+                              <input type="text" value={computedInstagramER} readOnly disabled
+                                className="w-full bg-pink-50/50 dark:bg-pink-500/5 border border-pink-200 dark:border-pink-500/20 rounded-xl py-3 pl-4 pr-8 text-sm font-bold text-pink-700 dark:text-pink-400 cursor-not-allowed opacity-80" />
+                              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-pink-500">%</span>
+                            </div>
+                          </div>
+                          <div className="space-y-2">
+                            <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">Avg. Comments</label>
+                            <input type="text" value={instagramAvgComments} onChange={e => setInstagramAvgComments(e.target.value)} placeholder="e.g. 200"
+                              className="w-full bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl py-3 px-4 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-pink-500 focus:ring-1 focus:ring-pink-500/30 transition-all" />
+                          </div>
+                          <div className="space-y-2">
+                            <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">Avg. Shares</label>
+                            <input type="text" value={instagramAvgShares} onChange={e => setInstagramAvgShares(e.target.value)} placeholder="e.g. 50"
+                              className="w-full bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl py-3 px-4 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-pink-500 focus:ring-1 focus:ring-pink-500/30 transition-all" />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* ── Content Niche ── */}
+                      <div>
+                        <div className="flex items-center gap-2 mb-4">
+                          <div className="w-1.5 h-5 bg-purple-500 rounded-full" />
+                          <h4 className="text-xs font-bold text-gray-900 dark:text-white uppercase tracking-wider">Content Niche</h4>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {['Comedy', 'Dance', 'Education', 'Fashion', 'Beauty', 'Food', 'Fitness', 'Tech', 'Gaming', 'Travel', 'Lifestyle', 'Music', 'DIY', 'Finance', 'Pets'].map(niche => (
+                            <TagPill
+                              key={niche}
+                              label={niche}
+                              selected={instagramNiche.includes(niche)}
+                              onClick={() => setInstagramNiche(prev =>
+                                prev.includes(niche) ? prev.filter(n => n !== niche) : [...prev, niche]
+                              )}
+                            />
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* ── Content Style ── */}
+                      <div>
+                        <div className="flex items-center gap-2 mb-4">
+                          <div className="w-1.5 h-5 bg-orange-500 rounded-full" />
+                          <h4 className="text-xs font-bold text-gray-900 dark:text-white uppercase tracking-wider">Content Style</h4>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {['Reels', 'Static Posts', 'Carousels', 'Stories', 'Live Streams', 'Aesthetic', 'Vlogs', 'Tutorials', 'Photography', 'Meme Content'].map(style => (
+                            <TagPill
+                              key={style}
+                              label={style}
+                              selected={instagramContentStyle.includes(style)}
+                              onClick={() => setInstagramContentStyle(prev =>
+                                prev.includes(style) ? prev.filter(s => s !== style) : [...prev, style]
+                              )}
+                            />
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* ── Audience Demographics ── */}
+                      <div>
+                        <div className="flex items-center gap-2 mb-4">
+                          <div className="w-1.5 h-5 bg-amber-500 rounded-full" />
+                          <h4 className="text-xs font-bold text-gray-900 dark:text-white uppercase tracking-wider">Audience Demographics</h4>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                          <SelectField label="Primary Gender" value={instagramAudienceGender} onChange={setInstagramAudienceGender} options={['Mixed', 'Mostly Male', 'Mostly Female']} />
+                          <SelectField label="Top Age Range" value={instagramAudienceAgeRange} onChange={setInstagramAudienceAgeRange} options={['13-17', '18-24', '25-34', '35-44', '45+']} />
+                          <InputField label="Top Country" placeholder="e.g. Ethiopia" value={instagramAudienceTopCountry} onChange={setInstagramAudienceTopCountry} icon={<Globe size={14} />} />
+                        </div>
+                      </div>
+
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </SectionCard>
           </>
         )}
 
@@ -1553,14 +1797,19 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
             transition={{ delay: 0.3 }}
             className="text-center pt-4"
           >
+            {!canSubmitAdvertiser && (
+              <p className="text-[10px] font-bold text-amber-600 dark:text-amber-500 uppercase tracking-widest mb-4">
+                Please complete at least one TikTok or Instagram analytics form to proceed
+              </p>
+            )}
             <button
               onClick={handleSubmit}
-              disabled={isSubmitting}
+              disabled={isSubmitting || !canSubmitAdvertiser}
               className={cn(
-                'px-10 py-4 rounded-2xl font-bold text-base transition-all duration-300 shadow-xl shadow-emerald-500/20',
-                isSubmitting
-                  ? 'bg-emerald-400 text-white cursor-wait'
-                  : 'bg-emerald-500 text-white hover:bg-emerald-400 hover:shadow-2xl hover:shadow-emerald-500/30 hover:-translate-y-0.5'
+                'px-10 py-4 rounded-2xl font-bold text-base transition-all duration-300 shadow-xl',
+                isSubmitting || !canSubmitAdvertiser
+                  ? 'bg-gray-300 dark:bg-white/5 text-gray-500 dark:text-gray-500 cursor-not-allowed shadow-none'
+                  : 'bg-emerald-500 text-white hover:bg-emerald-400 hover:shadow-2xl hover:shadow-emerald-500/30 hover:-translate-y-0.5 shadow-emerald-500/20'
               )}
             >
               {isSubmitting ? (

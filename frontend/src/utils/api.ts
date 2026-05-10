@@ -1,10 +1,10 @@
 import { useAuth } from "@clerk/clerk-react";
 import axios, { type AxiosInstance } from "axios";
 
-// Using the backend port (5000) and the v1 prefix defined in app.ts
+
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://aacp.onrender.com/api/v1";
 
-// Create an authenticated API instance that includes the Clerk token
+
 export const createApiClient = (
     getToken: () => Promise<string | null>
 ): AxiosInstance => {
@@ -15,15 +15,29 @@ export const createApiClient = (
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }
-        // Custom User-Agent if needed
         config.headers["X-Client-Platform"] = "Web";
         return config;
     });
 
+
+    api.interceptors.response.use(
+        (response) => response,
+        (error) => {
+            if (!import.meta.env.DEV) {
+
+                if (error.config) delete error.config;
+                if (error.request) delete error.request;
+                if (error.response?.config) delete error.response.config;
+                if (error.response?.request) delete error.response.request;
+            }
+            return Promise.reject(error);
+        }
+    );
+
     return api;
 };
 
-// Hook to obtain a configured API client
+
 export const useApiClient = (): AxiosInstance => {
     const { getToken } = useAuth();
     return createApiClient(getToken);

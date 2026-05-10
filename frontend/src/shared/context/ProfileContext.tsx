@@ -35,6 +35,8 @@ export interface ProfileData {
   selectedStyles?: string[];
   _id?: string;
   clerkId?: string;
+  tiktok?: any;
+  instagram?: any;
 }
 
 interface ProfileContextType {
@@ -67,8 +69,8 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
 
   const refreshProfile = async () => {
     if (!isSignedIn) {
-        setIsLoading(false);
-        return;
+      setIsLoading(false);
+      return;
     }
     try {
       const response = await userApi.getMe(api);
@@ -101,8 +103,8 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
     if (isLoaded && isSignedIn) {
       refreshProfile();
     } else if (isLoaded && !isSignedIn) {
-        setProfile(EMPTY_PROFILE);
-        setIsLoading(false);
+      setProfile(EMPTY_PROFILE);
+      setIsLoading(false);
     }
   }, [isLoaded, isSignedIn]);
 

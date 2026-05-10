@@ -81,6 +81,7 @@ export const updateUserProfile = async (
     "username",
     "profilePicture",
     "coverImage",
+    "bio",
     "location",
     "tradeLicenseUrl",
     "idVerificationUrl",
@@ -160,18 +161,14 @@ export const updateUserProfile = async (
     }
 
     // 🧾 Update user safely
-    const updatedUser = await User.findByIdAndUpdate(
-      user._id,
-      { $set: updates },
-      {
-        new: true,
-        runValidators: true, // 🔥 important: ensures schema rules still apply
-      }
-    ).select("-__v");
+    user.set(updates);
+    const updatedUser = await user.save();
+    const userResponse = updatedUser.toObject();
+    delete (userResponse as any).__v;
 
     res.status(200).json({
       message: "Profile updated successfully",
-      user: updatedUser,
+      user: userResponse,
     });
     return
   } catch (error) {
@@ -190,6 +187,7 @@ export const submitProfileForReview = async (
     "lastName",
     "username",
     "profilePicture",
+    "bio",
     "location",
     "tradeLicenseUrl",
     "idVerificationUrl",
@@ -232,15 +230,14 @@ export const submitProfileForReview = async (
       delete updates.profileData;
     }
 
-    const updatedUser = await User.findByIdAndUpdate(
-      user._id,
-      { $set: updates },
-      { new: true, runValidators: true }
-    ).select("-__v");
+    user.set(updates);
+    const updatedUser = await user.save();
+    const userResponse = updatedUser.toObject();
+    delete (userResponse as any).__v;
 
     res.status(200).json({
       message: "Profile submitted for review successfully",
-      user: updatedUser,
+      user: userResponse,
     });
   } catch (error) {
     console.error("Submit profile error:", error);
