@@ -21,11 +21,12 @@ import {
 import { cn } from '@/src/shared/utils/cn';
 import AdvertiserLayout from '@/src/shared/components/layouts/AdvertiserLayout';
 
-import { useWalletBalance, useWalletHistory } from '@/src/hooks/useWallet';
+import { useFinalizeChapaTopupOnReturn, useWalletBalance, useWalletHistory } from '@/src/hooks/useWallet';
 import { Loader2 } from 'lucide-react';
 
 export default function AdvertiserBalancePage() {
   const navigate = useNavigate();
+  useFinalizeChapaTopupOnReturn();
   const { data: balanceData, isLoading: balanceLoading } = useWalletBalance();
   const { data: txHistoryData, isLoading: historyLoading } = useWalletHistory();
 

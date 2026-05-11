@@ -31,9 +31,20 @@ export const verifyTopup = async (req: Request, res: Response, next: NextFunctio
     }
 };
 
+const extractTxRef = (req: Request): string =>
+    String(
+        req.body?.tx_ref ||
+            req.body?.trx_ref ||
+            req.body?.TxRef ||
+            req.body?.txRef ||
+            req.query.tx_ref ||
+            req.query.trx_ref ||
+            ''
+    ).trim();
+
 export const chapaWebhook = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const txRef = String(req.body?.tx_ref || req.body?.txRef || '');
+        const txRef = extractTxRef(req);
         if (!txRef) {
             return res.status(400).json({ success: false, message: 'tx_ref is required' });
         }
@@ -45,11 +56,18 @@ export const chapaWebhook = async (req: Request, res: Response, next: NextFuncti
     }
 };
 
-export const chapaCallback = async (req: Request, res: Response) => {
-    const txRef = String(req.query.tx_ref || req.query.txRef || '');
-    return res.status(200).json({
-        success: true,
-        message: 'Callback received',
-        txRef,
-    });
+export const chapaCallback = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const txRef = extractTxRef(req);
+        if (txRef) {
+            await paymentsService.verifyTopup(txRef);
+        }
+        return res.status(200).json({
+            success: true,
+            message: txRef ? 'Verified' : 'Callback received',
+            txRef: txRef || undefined,
+        });
+    } catch (err) {
+        return next(err);
+    }
 };

@@ -59,6 +59,9 @@ router.post('/chapa/webhook', paymentsController.chapaWebhook);
  */
 router.get('/chapa/callback', paymentsController.chapaCallback);
 
+/** Same handler if Chapa POSTs to callback_url (body may include trx_ref). */
+router.post('/chapa/callback', paymentsController.chapaCallback);
+
 router.use(protect);
 
 /**

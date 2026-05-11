@@ -1,21 +1,16 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { 
   ArrowLeft, 
-  CreditCard, 
-  Smartphone, 
+  Zap,
   ShieldCheck, 
-  Lock, 
   Info,
   Package,
-  ShieldAlert,
-  Key,
-  CheckCircle
 } from 'lucide-react';
-import { cn } from '@/src/shared/utils/cn';
 import AdvertiserLayout from '@/src/shared/components/layouts/AdvertiserLayout';
 import { walletApi } from '@/src/api/walletApi';
 import { useApiClient } from '@/src/api/apiClient';
+import { CHAPA_PENDING_TX_KEY } from '@/src/hooks/useWallet';
 
 export default function AdvertiserCheckoutPage() {
   const navigate = useNavigate();
@@ -29,130 +24,39 @@ export default function AdvertiserCheckoutPage() {
     title: '500 Coins Package',
   };
 
-  const [paymentType, setPaymentType] = useState<'card' | 'telebirr'>('card');
   const [isProcessing, setIsProcessing] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
-  const [errors, setErrors] = useState<Record<string, string>>({});
-
-  // Form states
-  const [formData, setFormData] = useState({
-    name: '',
-    cardNumber: '',
-    expiry: '',
-    cvv: ''
-  });
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    let newValue = value;
-
-    if (name === 'name') {
-      // Don't let numbers in the name part
-      newValue = value.replace(/[0-9]/g, '');
-    } else if (name === 'cardNumber' || name === 'cvv' || name === 'expiry') {
-      // Don't let strings on the number parts (allow / for expiry and space for card formatting)
-      if (name === 'cardNumber') {
-        newValue = value.replace(/[^0-9 ]/g, '');
-        // Auto-format card number: 0000 0000 0000 0000
-        newValue = newValue.replace(/\s?/g, '').replace(/(\d{4})/g, '$1 ').trim();
-      } else if (name === 'cvv') {
-        newValue = value.replace(/[^0-9]/g, '');
-      } else if (name === 'expiry') {
-        newValue = value.replace(/[^0-9/]/g, '');
-        if (newValue.length === 2 && !newValue.includes('/') && value.length > prevFormData.expiry.length) {
-          newValue = newValue + '/';
-        }
-      }
-    }
-
-    setFormData(prev => ({ ...prev, [name]: newValue }));
-  };
-
-  const [prevFormData, setPrevFormData] = useState(formData);
-  useEffect(() => {
-    setPrevFormData(formData);
-  }, [formData]);
-
-  const validateForm = () => {
-    const { name, cardNumber, expiry, cvv } = formData;
-    const newErrors: Record<string, string> = {};
-    
-    // Check reliable data
-    if (name.trim().length < 3) {
-      newErrors.name = 'Please enter a valid cardholder name.';
-    }
-
-    const cleanCard = cardNumber.replace(/\s/g, '');
-    if (cleanCard.length < 13 || cleanCard.length > 19) {
-      newErrors.cardNumber = 'Please enter a valid card number.';
-    }
-
-    if (!/^\d{2}\/\d{2}$/.test(expiry)) {
-      newErrors.expiry = 'Use format MM/YY.';
-    } else {
-      const [month, year] = expiry.split('/').map(Number);
-      if (month < 1 || month > 12) {
-        newErrors.expiry = 'Invalid month.';
-      } else {
-        const now = new Date();
-        const currentYear = now.getFullYear() % 100;
-        const currentMonth = now.getMonth() + 1;
-        if (year < currentYear || (year === currentYear && month < currentMonth)) {
-          newErrors.expiry = 'Card is expired.';
-        }
-      }
-    }
-
-    if (cvv.length < 3) {
-      newErrors.cvv = 'Valid CVV required.';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handlePay = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!validateForm()) return;
-    
+  const handlePayWithChapa = async () => {
     setIsProcessing(true);
     try {
-      await walletApi.requestCoins(api, {
-        coins: packDetails.coins,
-        paymentMethod: paymentType === 'card' ? 'chapa-card' : 'chapa-telebirr',
-        pricePaid: packDetails.price,
+      const origin = window.location.origin;
+      const apiRoot = (
+        import.meta.env.VITE_API_URL ||
+        import.meta.env.VITE_API_BASE_URL ||
+        'http://localhost:5000/api/v1'
+      ).replace(/\/$/, '');
+      const response = await walletApi.initializeChapaTopup(api, {
+        amount: Number(packDetails.price),
+        currency: 'ETB',
+        callbackUrl: `${apiRoot}/payments/chapa/callback`,
+        returnUrl: `${origin}/advertiser/balance`,
       });
-      setIsSuccess(true);
+
+      const pkg = response.data?.data;
+      if (pkg?.txRef) {
+        sessionStorage.setItem(CHAPA_PENDING_TX_KEY, pkg.txRef);
+      }
+      const checkoutUrl = pkg?.checkoutUrl;
+      if (!checkoutUrl) {
+        throw new Error('No Chapa checkout URL returned');
+      }
+
+      window.location.href = checkoutUrl;
     } catch (err) {
-      console.error('Coin request failed:', err);
+      console.error('Chapa initialization failed:', err);
     } finally {
       setIsProcessing(false);
     }
   };
-
-  if (isSuccess) {
-    return (
-      <AdvertiserLayout>
-        <main className="max-w-[1200px] mx-auto px-4 sm:px-6 py-20 flex flex-col items-center justify-center min-h-[70vh]">
-          <div className="bg-white dark:bg-[#111] rounded-[2.5rem] p-10 max-w-md w-full text-center border border-gray-100 dark:border-white/5 shadow-2xl">
-            <div className="w-20 h-20 rounded-full bg-emerald-500/10 flex items-center justify-center mx-auto mb-6">
-              <CheckCircle className="text-emerald-500 w-10 h-10" />
-            </div>
-            <h2 className="text-2xl font-black text-gray-900 dark:text-white mb-2">Request Submitted!</h2>
-            <p className="text-gray-500 dark:text-gray-400 mb-8 leading-relaxed text-sm">
-              Your coin purchase request for <strong className="text-emerald-500">{packDetails.coins} coins</strong> has been submitted. An admin will verify the transaction and credit your wallet shortly.
-            </p>
-            <button 
-              onClick={() => navigate('/advertiser/wallet')}
-              className="w-full bg-emerald-500 hover:bg-emerald-400 text-black font-bold py-4 rounded-xl shadow-lg shadow-emerald-500/20 active:scale-[0.98] transition-all"
-            >
-              Back to Wallet
-            </button>
-          </div>
-        </main>
-      </AdvertiserLayout>
-    );
-  }
 
   return (
     <AdvertiserLayout>
@@ -174,163 +78,38 @@ export default function AdvertiserCheckoutPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 lg:gap-12">
           
-          {/* Left Column: Payment Form */}
+          {/* Left Column: Chapa only */}
           <div className="lg:col-span-3 space-y-8">
             <div className="bg-white dark:bg-[#111] rounded-[2.5rem] p-6 md:p-10 shadow-sm border border-gray-100 dark:border-white/5">
-              <h2 className="text-2xl font-bold mb-8 text-gray-900 dark:text-white">Payment Method</h2>
-              
-              {/* Payment Type Toggle */}
-              <div className="flex gap-4 mb-8 bg-gray-50 dark:bg-white/5 p-1.5 rounded-2xl">
-                <button 
-                  type="button"
-                  onClick={() => setPaymentType('card')}
-                  className={cn(
-                    "flex-1 py-3.5 rounded-xl font-bold flex items-center justify-center gap-3 transition-all",
-                    paymentType === 'card' 
-                      ? "bg-white dark:bg-white/10 shadow-sm text-gray-900 dark:text-white" 
-                      : "bg-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
-                  )}
-                >
-                  <CreditCard size={18} /> Card Payment
-                </button>
-                <button 
-                  type="button"
-                  onClick={() => setPaymentType('telebirr')}
-                  className={cn(
-                    "flex-1 py-3.5 rounded-xl font-bold flex items-center justify-center gap-3 transition-all",
-                    paymentType === 'telebirr' 
-                      ? "bg-white dark:bg-white/10 shadow-sm text-gray-900 dark:text-white" 
-                      : "bg-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
-                  )}
-                >
-                  <Smartphone size={18} /> Telebirr
-                </button>
-              </div>
+              <h2 className="text-2xl font-bold mb-8 text-gray-900 dark:text-white">Pay With Chapa</h2>
 
               {/* Chapa Secure Banner */}
-              <div className="bg-emerald-50/50 dark:bg-emerald-500/10 border border-emerald-100 dark:border-emerald-500/20 rounded-2xl p-4 flex items-center justify-between mb-8">
+              <div className="bg-emerald-50/50 dark:bg-emerald-500/10 border border-emerald-100 dark:border-emerald-500/20 rounded-2xl p-5 mb-8">
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-500/20 flex items-center justify-center">
                     <ShieldCheck size={16} className="text-emerald-500 dark:text-emerald-400" />
                   </div>
                   <span className="text-sm font-medium text-gray-900 dark:text-gray-200">Chapa Secure Payment Gateway</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  {/* Mock card icons matching design */}
-                  <div className="w-8 h-5 bg-gradient-to-br from-orange-200 to-orange-300 rounded-[3px] flex items-center justify-center"><div className="w-2 h-2 rounded-full bg-orange-500/80"></div></div>
-                  <div className="w-8 h-5 bg-gradient-to-br from-gray-100 to-gray-200 rounded-[3px] border border-gray-300 flex items-center justify-center"><div className="w-3 h-1.5 bg-blue-400 rounded-sm"></div></div>
-                  <div className="w-8 h-5 bg-[#008080] rounded-[3px] flex items-center justify-center"><div className="w-3 h-0.5 bg-white rounded-full"></div></div>
-                </div>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-3">
+                  You will be redirected to Chapa checkout to complete your payment.
+                </p>
               </div>
 
-              {/* Form */}
-              {paymentType === 'card' ? (
-                <form onSubmit={handlePay} className="space-y-6">
-                  <div className="space-y-2">
-                    <label className={cn("text-sm font-medium transition-colors", errors.name ? "text-red-500" : "text-gray-600 dark:text-gray-400")}>
-                      Cardholder Name {errors.name && <span className="text-[10px] ml-2 italic font-bold">({errors.name})</span>}
-                    </label>
-                    <input 
-                      required
-                      type="text" 
-                      name="name"
-                      placeholder="Full Name on Card"
-                      value={formData.name}
-                      onChange={handleInputChange}
-                      className={cn(
-                        "w-full bg-white dark:bg-[#222] border rounded-xl px-4 py-4 text-sm focus:outline-none transition-all text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600",
-                        errors.name ? "border-red-500/50 ring-1 ring-red-500/20" : "border-gray-200 dark:border-white/5 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/50"
-                      )}
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <label className={cn("text-sm font-medium transition-colors", errors.cardNumber ? "text-red-500" : "text-gray-600 dark:text-gray-400")}>
-                      Card Number {errors.cardNumber && <span className="text-[10px] ml-2 italic font-bold">({errors.cardNumber})</span>}
-                    </label>
-                    <div className="relative">
-                      <input 
-                        required
-                        type="text" 
-                        name="cardNumber"
-                        placeholder="0000 0000 0000 0000"
-                        maxLength={19}
-                        value={formData.cardNumber}
-                        onChange={handleInputChange}
-                        className={cn(
-                          "w-full bg-white dark:bg-[#222] border rounded-xl pl-4 pr-12 py-4 text-sm focus:outline-none transition-all text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600",
-                          errors.cardNumber ? "border-red-500/50 ring-1 ring-red-500/20" : "border-gray-200 dark:border-white/5 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/50"
-                        )}
-                      />
-                      <CreditCard className={cn("absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5", errors.cardNumber ? "text-red-500" : "text-gray-400 dark:text-gray-600")} />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <label className={cn("text-sm font-medium transition-colors", errors.expiry ? "text-red-500" : "text-gray-600 dark:text-gray-400")}>
-                        Expiry Date {errors.expiry && <span className="text-[10px] ml-2 italic font-bold">({errors.expiry})</span>}
-                      </label>
-                      <input 
-                        required
-                        type="text" 
-                        name="expiry"
-                        placeholder="MM/YY"
-                        maxLength={5}
-                        value={formData.expiry}
-                        onChange={handleInputChange}
-                        className={cn(
-                          "w-full bg-white dark:bg-[#222] border rounded-xl px-4 py-4 text-sm focus:outline-none transition-all text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600",
-                          errors.expiry ? "border-red-500/50 ring-1 ring-red-500/20" : "border-gray-200 dark:border-white/5 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/50"
-                        )}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className={cn("text-sm font-medium transition-colors", errors.cvv ? "text-red-500" : "text-gray-600 dark:text-gray-400")}>
-                        CVV {errors.cvv && <span className="text-[10px] ml-2 italic font-bold">({errors.cvv})</span>}
-                      </label>
-                      <input 
-                        required
-                        type="password" 
-                        name="cvv"
-                        placeholder="123"
-                        maxLength={4}
-                        value={formData.cvv}
-                        onChange={handleInputChange}
-                        className={cn(
-                          "w-full bg-white dark:bg-[#222] border rounded-xl px-4 py-4 text-sm focus:outline-none transition-all text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600",
-                          errors.cvv ? "border-red-500/50 ring-1 ring-red-500/20" : "border-gray-200 dark:border-white/5 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/50"
-                        )}
-                      />
-                    </div>
-                  </div>
-
-                  <button 
-                    type="submit"
-                    disabled={isProcessing}
-                    className="w-full bg-emerald-500 hover:bg-emerald-400 text-black py-4 rounded-xl font-bold flex items-center justify-center gap-2 mt-8 transition-all shadow-lg shadow-emerald-500/30 disabled:opacity-70 disabled:cursor-not-allowed"
-                  >
-                    {isProcessing ? (
-                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    ) : (
-                      <>
-                        <Lock size={16} /> Pay ${packDetails.price.toFixed(2)} Now
-                      </>
-                    )}
-                  </button>
-                </form>
-              ) : (
-                <div className="py-20 text-center text-gray-500">
-                  <Smartphone className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                  <p>Telebirr payment interface will be loaded here.</p>
-                </div>
-              )}
-
-              <div className="flex items-center justify-center gap-6 mt-10 pt-8 border-t border-gray-100 dark:border-white/5 text-[11px] font-bold text-gray-400 dark:text-gray-600 tracking-widest uppercase">
-                <span className="flex items-center gap-1.5"><ShieldAlert size={14} /> SSL SECURE</span>
-                <span className="flex items-center gap-1.5"><ShieldCheck size={14} /> PCI COMPLIANT</span>
-                <span className="flex items-center gap-1.5"><Key size={14} /> ENCRYPTED</span>
-              </div>
+              <button
+                type="button"
+                onClick={handlePayWithChapa}
+                disabled={isProcessing}
+                className="w-full bg-emerald-500 hover:bg-emerald-400 text-black py-4 rounded-xl font-bold flex items-center justify-center gap-2 mt-6 transition-all shadow-lg shadow-emerald-500/30 disabled:opacity-70 disabled:cursor-not-allowed"
+              >
+                {isProcessing ? (
+                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                ) : (
+                  <>
+                    <Zap size={16} /> Continue to Chapa (${packDetails.price.toFixed(2)})
+                  </>
+                )}
+              </button>
             </div>
           </div>
 

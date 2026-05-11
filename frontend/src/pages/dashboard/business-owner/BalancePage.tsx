@@ -17,11 +17,12 @@ import { Link, useNavigate } from 'react-router-dom';
 import { cn } from '@/src/shared/utils/cn';
 import BusinessLayout from '@/src/shared/components/layouts/BusinessLayout';
 
-import { useWalletBalance, useWalletHistory } from '@/src/hooks/useWallet';
+import { useFinalizeChapaTopupOnReturn, useWalletBalance, useWalletHistory } from '@/src/hooks/useWallet';
 import { Loader2 } from 'lucide-react';
 
 export default function BalancePage() {
   const navigate = useNavigate();
+  useFinalizeChapaTopupOnReturn();
   const { data: balanceData, isLoading: balanceLoading } = useWalletBalance();
   const { data: txHistoryData, isLoading: historyLoading } = useWalletHistory();
 

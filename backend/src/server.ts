@@ -21,6 +21,30 @@ connectDB();
 
 
 
+/** Warn if frontend publishable key env and backend secret look like different Clerk instances (common cause of “user not found” on login). */
+const logClerkKeyAlignment = () => {
+    const pk = process.env.CLERK_PUBLISHABLE_KEY || process.env.VITE_CLERK_PUBLISHABLE_KEY;
+    const sk = process.env.CLERK_SECRET_KEY;
+    if (!sk) {
+        logger.warn('[Clerk] CLERK_SECRET_KEY is not set — authenticated routes will fail.');
+        return;
+    }
+    if (!pk) return;
+    const isTest = (k: string) => k.includes('_test_') || k.includes('pk_test') || k.includes('sk_test');
+    const isLive = (k: string) => k.includes('_live_') || k.includes('pk_live') || k.includes('sk_live');
+    const pkDev = isTest(pk);
+    const skDev = isTest(sk);
+    const pkProd = isLive(pk);
+    const skProd = isLive(sk);
+    if ((pkDev && skProd) || (pkProd && skDev)) {
+        logger.warn(
+            '[Clerk] Publishable key and secret key look like different Clerk environments (test vs live). ' +
+                'API-created users will not match the app the browser uses — use matching keys in frontend/.env and backend/.env.'
+        );
+    }
+};
+logClerkKeyAlignment();
+
 const app: Application = express();
 
 app.use(express.json());

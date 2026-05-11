@@ -21,6 +21,29 @@ type ChapaApiResponse = {
 
 const COIN_RATE = 1;
 
+/** Chapa rejects titles longer than 16 characters. */
+const CHAPA_CUSTOMIZATION_TITLE_MAX = 16;
+
+const truncateChapaTitle = (title: string): string => {
+    const t = title.trim();
+    if (t.length <= CHAPA_CUSTOMIZATION_TITLE_MAX) return t;
+    return t.slice(0, CHAPA_CUSTOMIZATION_TITLE_MAX);
+};
+
+const toErrorMessage = (value: unknown): string => {
+    if (typeof value === 'string') return value;
+    if (Array.isArray(value)) {
+        return value.map((item) => toErrorMessage(item)).join(', ');
+    }
+    if (value && typeof value === 'object') {
+        const record = value as Record<string, unknown>;
+        if (typeof record.message === 'string') return record.message;
+        if (record.message !== undefined) return toErrorMessage(record.message);
+        return JSON.stringify(record);
+    }
+    return 'Unknown Chapa error';
+};
+
 const assertAmount = (amount: number) => {
     if (!Number.isFinite(amount) || amount <= 0) {
         const err = new Error('Amount must be a number greater than 0');
@@ -52,7 +75,7 @@ const callChapa = async (path: string, options: RequestInit = {}): Promise<Chapa
     const payload = (await response.json()) as ChapaApiResponse;
 
     if (!response.ok || payload?.status === 'failed') {
-        const err = new Error(payload?.message || 'Chapa API request failed');
+        const err = new Error(toErrorMessage(payload?.message) || 'Chapa API request failed');
         (err as any).statusCode = 502;
         (err as any).details = payload;
         throw err;
@@ -100,7 +123,7 @@ export const initializeTopup = async ({
         last_name: user.lastName || 'User',
         tx_ref: txRef,
         customization: {
-            title: 'AACP Wallet Top-up',
+            title: truncateChapaTitle('AACP Top-up'),
             description: 'Wallet top-up payment',
         },
     };
@@ -155,10 +178,9 @@ const creditWalletForTopup = async (paymentTx: any, chapaVerification: any) => {
         userId: String(paymentTx.user),
         amount: coins,
         description: 'Wallet top-up completed via Chapa',
-        referenceType: 'wallet_topup',
-        referenceId: paymentTx._id,
         metadata: {
             provider: 'chapa',
+            paymentTransactionId: String(paymentTx._id),
             tx_ref: paymentTx.metadata?.tx_ref,
             chapaTransactionId: chapaVerification?.id,
             paidAmount: amountPaid,
@@ -207,9 +229,18 @@ export const verifyTopup = async (txRef: string, requestingUserId?: string) => {
         throw err;
     }
 
-    const verification = await callChapa(`/transaction/verify/${txRef}`);
+    const verification = await callChapa(`/transaction/verify/${encodeURIComponent(txRef)}`);
     const chapaData = verification?.data || {};
     const status = String(chapaData?.status || '').toLowerCase();
+
+    if (status === 'pending' || status === 'processing' || status === '') {
+        return {
+            txRef,
+            status: paymentTx.status,
+            verified: false,
+            message: 'Payment not confirmed by Chapa yet — wait a moment and try again.',
+        };
+    }
 
     if (status !== 'success') {
         paymentTx.status = 'failed';
