@@ -148,14 +148,13 @@ export const promoteExistingUserToAdmin = async (req: Request, res: Response, ne
 export const createAdminUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const actor = (req as any).currentUser || (req as any).user;
-        const { email, password, role } = req.body as {
+        const { email, password } = req.body as {
             email?: string;
             password?: string;
-            role?: 'admin' | 'super_admin';
         };
 
         const normalizedEmail = String(email || '').trim().toLowerCase();
-        const normalizedRole = role === 'super_admin' ? 'super_admin' : 'admin';
+        const normalizedRole: 'admin' = 'admin';
 
         if (!normalizedEmail) {
             return res.status(400).json({ error: 'email is required' });
@@ -169,25 +168,59 @@ export const createAdminUser = async (req: Request, res: Response, next: NextFun
             return res.status(409).json({ error: 'User already exists. Use promote for existing users.' });
         }
 
-        const clerkUser = await clerkClient.users.createUser({
-            emailAddress: [normalizedEmail],
-            password,
-            publicMetadata: { role: normalizedRole },
-        });
+        const localPart = normalizedEmail.split('@')[0] || 'admin';
+        const displayFirst = localPart.charAt(0).toUpperCase() + localPart.slice(1, 48);
+
+        let clerkUser;
+        try {
+            clerkUser = await clerkClient.users.createUser({
+                emailAddress: [normalizedEmail],
+                password,
+                firstName: displayFirst,
+                lastName: 'Admin',
+                publicMetadata: { role: normalizedRole },
+                skipLegalChecks: true,
+            });
+        } catch (clerkErr: any) {
+            const clerkMsg =
+                clerkErr?.errors?.[0]?.longMessage ||
+                clerkErr?.errors?.[0]?.message ||
+                clerkErr?.message ||
+                'Clerk could not create this user. Check Dashboard required fields and auth settings.';
+            return res.status(400).json({ error: clerkMsg });
+        }
+
+        for (const addr of clerkUser.emailAddresses ?? []) {
+            try {
+                await clerkClient.emailAddresses.updateEmailAddress(addr.id, { verified: true });
+            } catch {
+                /* non-fatal if already verified */
+            }
+        }
 
         const username = await generateUniqueUsername(normalizedEmail);
 
-        const user = await User.create({
-            clerkId: clerkUser.id,
-            email: normalizedEmail,
-            firstName: clerkUser.firstName || '',
-            lastName: clerkUser.lastName || '',
-            username,
-            profilePicture: clerkUser.imageUrl || '',
-            role: normalizedRole,
-            status: 'active',
-            isVerified: true,
-        });
+        let user;
+        try {
+            user = await User.create({
+                clerkId: clerkUser.id,
+                email: normalizedEmail,
+                firstName: clerkUser.firstName || displayFirst,
+                lastName: clerkUser.lastName || 'Admin',
+                username,
+                profilePicture: clerkUser.imageUrl || '',
+                role: normalizedRole,
+                status: 'active',
+                isVerified: true,
+            });
+        } catch (dbErr) {
+            try {
+                await clerkClient.users.deleteUser(clerkUser.id);
+            } catch {
+                /* best-effort rollback */
+            }
+            return next(dbErr);
+        }
 
         if (actor?._id && actor?.role) {
             await createAuditLog({

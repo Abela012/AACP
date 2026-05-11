@@ -96,7 +96,7 @@ export const superAdminApi = {
 
   createAdminUser: (
     api: AxiosInstance,
-    payload: { email: string; password: string; role?: 'admin' | 'super_admin' }
+    payload: { email: string; password: string }
   ) =>
     api.post<{ success: boolean; message: string; data: { user: SuperAdminUser } }>(
       '/super-admin/admins/create',

@@ -8,7 +8,6 @@ export default function SuperAdminAdminManagementPage() {
   const [search, setSearch] = useState('');
   const [inviteEmail, setInviteEmail] = useState('');
   const [invitePassword, setInvitePassword] = useState('');
-  const [inviteRole, setInviteRole] = useState<'admin' | 'super_admin'>('admin');
   const [toast, setToast] = useState<{ show: boolean; message: string; type: 'success' | 'error' }>({ show: false, message: '', type: 'success' });
   const { data, isLoading, isError, refetch } = useSuperAdmins({ search: search || undefined });
   const createAdmin = useCreateAdminUser();
@@ -38,15 +37,17 @@ export default function SuperAdminAdminManagementPage() {
     }
     try {
       await createAdmin.mutateAsync({
-        email: inviteEmail.trim(),
+        email: inviteEmail.trim().toLowerCase(),
         password: invitePassword.trim(),
-        role: inviteRole,
       });
       setInviteEmail('');
       setInvitePassword('');
-      showToast(`${inviteRole === 'super_admin' ? 'Super admin' : 'Admin'} account created successfully`);
+      showToast('Admin account created successfully');
     } catch (error: any) {
-      showToast(error?.response?.data?.error || 'Failed to create admin account', 'error');
+      showToast(
+        error?.response?.data?.error || error?.response?.data?.message || 'Failed to create admin account',
+        'error'
+      );
     }
   };
 
@@ -92,14 +93,6 @@ export default function SuperAdminAdminManagementPage() {
               placeholder="Temporary password"
               className="bg-white dark:bg-white/5 border border-[#EFEFEF] dark:border-white/10 rounded-2xl px-4 py-3 text-sm w-56 outline-none"
             />
-            <select
-              value={inviteRole}
-              onChange={(e) => setInviteRole(e.target.value as 'admin' | 'super_admin')}
-              className="bg-white dark:bg-white/5 border border-[#EFEFEF] dark:border-white/10 rounded-2xl px-4 py-3 text-sm font-bold outline-none"
-            >
-              <option value="admin">Admin</option>
-              <option value="super_admin">Super Admin</option>
-            </select>
             <button
               onClick={handleCreateAdmin}
               disabled={createAdmin.isPending}

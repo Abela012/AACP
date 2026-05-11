@@ -4,9 +4,18 @@ import { Bell, CheckCircle2, AlertTriangle, ShieldCheck, CreditCard, Info } from
 import SuperAdminLayout from '@/src/shared/components/layouts/SuperAdminLayout';
 import { useSuperAdminNotifications } from '@/src/hooks/useSuperAdmin';
 
+const filterOptions = [
+  { id: 'all', label: 'All Notifications' },
+  { id: 'system', label: 'System' },
+  { id: 'user_activity', label: 'User Activity' },
+  { id: 'payments', label: 'Payments' },
+] as const;
+
+type NotificationFilter = (typeof filterOptions)[number]['id'];
+
 export default function SuperAdminNotificationsPage() {
   const { data, isLoading, isError, refetch } = useSuperAdminNotifications();
-  const [filter, setFilter] = useState<'all' | 'system' | 'user_activity' | 'payments'>('all');
+  const [filter, setFilter] = useState<NotificationFilter>('all');
 
   const notifications = useMemo(() => {
     const all = data?.notifications ?? [];
@@ -38,15 +47,10 @@ export default function SuperAdminNotificationsPage() {
         </div>
 
         <div className="flex flex-wrap gap-2">
-          {[
-            { id: 'all', label: 'All Notifications' },
-            { id: 'system', label: 'System' },
-            { id: 'user_activity', label: 'User Activity' },
-            { id: 'payments', label: 'Payments' },
-          ].map((item) => (
+          {filterOptions.map((item) => (
             <button
               key={item.id}
-              onClick={() => setFilter(item.id as any)}
+              onClick={() => setFilter(item.id)}
               className={`px-5 py-2.5 rounded-2xl text-xs font-black transition-all ${
                 filter === item.id
                   ? 'bg-[#14a800] text-white shadow-lg shadow-green-100 dark:shadow-none'
