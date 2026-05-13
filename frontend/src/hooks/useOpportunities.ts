@@ -9,11 +9,21 @@ export const useOpportunities = (params?: { page?: number; limit?: number; categ
         queryFn: () =>
             publicClient.get<any>('/opportunities', { params }).then(r => {
                 const payload = r.data?.data ?? r.data;
-                // If the backend returns an array directly in data, wrap it in the expected response shape
+                const rawOpportunities = Array.isArray(payload) ? payload : (payload.opportunities || []);
+                
+                // Transform to match frontend interface (businessOwner -> owner)
+                const transformed = (rawOpportunities || []).map((o: any) => {
+                    if (!o) return o;
+                    return {
+                        ...o,
+                        owner: o.businessOwner
+                    };
+                });
+
                 if (Array.isArray(payload)) {
-                    return { opportunities: payload, total: payload.length, page: 1, pages: 1 };
+                    return { opportunities: transformed, total: payload.length, page: 1, pages: 1 };
                 }
-                return payload;
+                return { ...payload, opportunities: transformed };
             }),
         staleTime: 60_000,
     });
@@ -43,9 +53,17 @@ export const useOpportunity = (id: string) => {
         queryFn: () =>
             publicClient.get<any>(`/opportunities/${id}`).then(r => {
                 const payload = r.data?.data ?? r.data;
-                // Backend might return { opportunity } or just the opportunity object
-                if (payload.opportunity) return payload;
-                return { opportunity: payload };
+                
+                // Extract opportunity object
+                const opp = payload.opportunity || payload;
+                
+                // Transform (businessOwner -> owner)
+                const transformed = {
+                    ...opp,
+                    owner: opp.businessOwner
+                };
+
+                return { opportunity: transformed };
             }),
         enabled: !!id,
         staleTime: 60_000,

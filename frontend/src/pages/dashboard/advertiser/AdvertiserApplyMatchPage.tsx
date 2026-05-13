@@ -200,7 +200,7 @@ export default function AdvertiserApplyMatchPage() {
             </div>
             <h2 className="text-3xl font-black text-gray-900 dark:text-white mb-4">Application Submitted!</h2>
             <p className="text-gray-500 dark:text-gray-400 mb-10 leading-relaxed text-sm md:text-base">
-              Your application for <strong>{activeJobData.campaign || activeJobData.title}</strong> at {activeJobData.brand || activeJobData.company} has been sent successfully. We'll contact you via email regarding the next steps.
+              Your application for <strong>{activeJobData.title}</strong> has been sent successfully. We'll contact you via email regarding the next steps.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -275,10 +275,10 @@ export default function AdvertiserApplyMatchPage() {
               <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-sm font-bold text-gray-400 hover:text-emerald-500 transition-colors mb-4">
                 <ArrowLeft size={16} /> Back to listings
               </button>
-              <h1 className="text-2xl md:text-3xl font-black text-gray-900 dark:text-white mb-2">{activeJobData.campaign || activeJobData.title}</h1>
+              <h1 className="text-2xl md:text-3xl font-black text-gray-900 dark:text-white mb-2">{activeJobData.title}</h1>
               <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500 font-medium">
-                <span className="flex items-center gap-1.5"><Building2 size={16} /> {activeJobData.brand || activeJobData.company || activeJobData?.businessOwner?.companyName || 'Global Brand'}</span>
-                <span className="flex items-center gap-1.5"><MapPin size={16} /> {activeJobData.location || 'Remote'}</span>
+                <span className="flex items-center gap-1.5"><Building2 size={16} /> {activeJobData.owner?.firstName || activeJobData?.businessOwner?.firstName || 'Global Brand'}</span>
+                <span className="flex items-center gap-1.5"><MapPin size={16} /> {activeJobData.location || activeJobData.requirements?.location || 'Remote'}</span>
                 <span className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-500"><DollarSign size={16} /> {(typeof activeJobData.budget === 'object' ? activeJobData.budget.amount : (activeJobData.budget || 0)).toLocaleString()}</span>
               </div>
             </div>
