@@ -42,6 +42,7 @@ export default function BusinessLayout({ children }: BusinessLayoutProps) {
   const { onboardingStatus, logout: localLogout } = useUser();
   const { profile } = useProfile();
   const isApproved = onboardingStatus === 'approved';
+  const isProfileIncomplete = onboardingStatus === 'incomplete';
 
   const { notifications, unreadCount, markAllAsRead } = useNotifications();
   const [searchQuery, setSearchQuery] = useState('');
@@ -382,16 +383,20 @@ export default function BusinessLayout({ children }: BusinessLayoutProps) {
                 <div className="w-20 h-20 bg-emerald-600/10 rounded-3xl flex items-center justify-center mx-auto mb-6">
                   <Lock className="text-emerald-600 w-10 h-10" />
                 </div>
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">Profile Pending Approval</h2>
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">
+                  {isProfileIncomplete ? 'Complete Your Profile' : 'Profile Pending Approval'}
+                </h2>
                 <p className="text-gray-500 dark:text-gray-400 mb-8 leading-relaxed">
-                  Your business profile is currently being reviewed. This page will be unlocked once your account is approved.
+                  {isProfileIncomplete
+                    ? 'Please complete your business profile and submit it for admin approval to unlock all features.'
+                    : 'Your business profile is currently being reviewed. This page will be unlocked once your account is approved.'}
                 </p>
                 <div className="flex flex-col gap-3">
                   <Link 
-                    to="/dashboard/business-owner"
+                    to={isProfileIncomplete ? '/profile/complete/business' : '/dashboard/business-owner'}
                     className="w-full py-4 bg-emerald-600 text-white rounded-xl font-bold hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-100 dark:shadow-none"
                   >
-                    Return to Dashboard
+                    {isProfileIncomplete ? 'Complete Profile' : 'Return to Dashboard'}
                   </Link>
                   <div className="flex items-center justify-center gap-2 text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">
                     <ShieldCheck size={14} className="text-emerald-600" />

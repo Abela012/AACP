@@ -200,6 +200,29 @@ export default function BusinessDashboardPage() {
     }
   };
 
+  if (onboardingStatus === 'incomplete') {
+    return (
+      <BusinessLayout>
+        <main className="p-4 md:p-8 max-w-[1600px] mx-auto w-full">
+          <CompleteProfilePage isInsideDashboard={true} />
+        </main>
+      </BusinessLayout>
+    );
+  }
+
+  if (onboardingStatus === 'pending') {
+    return (
+      <BusinessLayout>
+        <main className="p-4 md:p-8 max-w-[1600px] mx-auto w-full">
+          <PendingApprovalState
+            onRefresh={() => sync()}
+            isRefreshing={isSyncing}
+          />
+        </main>
+      </BusinessLayout>
+    );
+  }
+
   return (
     <BusinessLayout>
       <main className="p-4 md:p-8 max-w-[1600px] mx-auto w-full space-y-8 pb-20">
