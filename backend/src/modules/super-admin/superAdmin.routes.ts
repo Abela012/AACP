@@ -96,10 +96,6 @@ router.post('/admins/promote', promoteExistingUserToAdmin);
  *                 type: string
  *               password:
  *                 type: string
- *               role:
- *                 type: string
- *                 enum: [admin, super_admin]
- *                 default: admin
  *     responses:
  *       200:
  *         description: Admin account created successfully

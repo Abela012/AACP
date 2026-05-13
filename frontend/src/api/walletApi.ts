@@ -16,6 +16,15 @@ export interface WalletTransaction {
     createdAt: string;
 }
 
+export interface ChapaInitializeResponse {
+    txRef: string;
+    checkoutUrl: string;
+    transaction: {
+        _id: string;
+        status: 'pending' | 'completed' | 'failed';
+    };
+}
+
 export const walletApi = {
     /** POST /wallet — Create wallet for a user */
     create: (api: AxiosInstance) =>
@@ -48,4 +57,18 @@ export const walletApi = {
     /** POST /wallet/request-coins — User submits a pending coin purchase request */
     requestCoins: (api: AxiosInstance, data: { coins: number; paymentMethod: string; pricePaid: number }) =>
         api.post<{ _id: string; status: string; amount: number }>('/wallet/request-coins', data),
+
+    /** POST /payments/chapa/initialize — Start Chapa checkout */
+    initializeChapaTopup: (
+        api: AxiosInstance,
+        data: { amount: number; currency?: string; callbackUrl?: string; returnUrl?: string }
+    ) =>
+        api.post<{ success: boolean; message: string; data: ChapaInitializeResponse }>(
+            '/payments/chapa/initialize',
+            data
+        ),
+
+    /** POST /payments/chapa/verify — Verify Chapa transaction by txRef */
+    verifyChapaTopup: (api: AxiosInstance, data: { txRef: string }) =>
+        api.post('/payments/chapa/verify', data),
 };
