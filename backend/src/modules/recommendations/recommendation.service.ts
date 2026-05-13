@@ -2,6 +2,81 @@ import User, { IUser } from '../../database/models/User';
 import Opportunity, { IOpportunity } from '../../database/models/Opportunity';
 import logger from '../../utils/logger';
 
+// ─── Profile Data Helper ─────────────────────────────────────────────────────
+
+const parseNum = (val: any): number => {
+    if (typeof val === 'number') return val;
+    if (typeof val === 'string') {
+        const cleaned = val.toUpperCase().replace(/[^0-9.KMB]/g, '');
+        let multiplier = 1;
+        if (cleaned.endsWith('K')) multiplier = 1000;
+        else if (cleaned.endsWith('M')) multiplier = 1000000;
+        else if (cleaned.endsWith('B')) multiplier = 1000000000;
+        const num = parseFloat(cleaned.replace(/[KMB]/g, ''));
+        return isNaN(num) ? 0 : num * multiplier;
+    }
+    return 0;
+};
+
+const extractMetrics = (profileData: any) => {
+    if (!profileData) return { followers: 0, engagementRate: 0, niche: '', niches: [] as string[], platforms: [] as string[] };
+
+    let bestFollowers = 0;
+    let bestEngagement = 0;
+    let niches: string[] = [];
+    const platforms: string[] = [];
+
+    // 1. Check Nested Platforms
+    if (profileData.tiktok) {
+        const t = profileData.tiktok;
+        const f = parseNum(t.followers);
+        const e = parseNum(t.engagementRate);
+        if (f > 0) platforms.push('tiktok');
+        if (f > bestFollowers) bestFollowers = f;
+        if (e > bestEngagement) bestEngagement = e;
+        if (t.niche) {
+            if (typeof t.niche === 'string') niches.push(t.niche);
+            else if (Array.isArray(t.niche)) niches.push(...t.niche);
+            else if (typeof t.niche === 'object') niches.push(...Object.values(t.niche).filter(Boolean) as string[]);
+        }
+    }
+
+    if (profileData.instagram) {
+        const ig = profileData.instagram;
+        const f = parseNum(ig.followers);
+        const e = parseNum(ig.engagementRate);
+        if (f > 0) platforms.push('instagram');
+        if (f > bestFollowers) bestFollowers = f;
+        if (e > bestEngagement) bestEngagement = e;
+        if (ig.niche) {
+            if (typeof ig.niche === 'string') niches.push(ig.niche);
+            else if (Array.isArray(ig.niche)) niches.push(...ig.niche);
+            else if (typeof ig.niche === 'object') niches.push(...Object.values(ig.niche).filter(Boolean) as string[]);
+        }
+    }
+
+    // 2. Flat field fallback (legacy or business profiles)
+    if (bestFollowers === 0 && profileData.followers) bestFollowers = parseNum(profileData.followers);
+    if (bestEngagement === 0 && profileData.engagementRate) bestEngagement = parseNum(profileData.engagementRate);
+    
+    // Niche fallbacks
+    if (niches.length === 0) {
+        if (profileData.category) niches.push(profileData.category);
+        if (profileData.industry) niches.push(profileData.industry);
+        if (Array.isArray(profileData.targetAudienceTags)) niches.push(...profileData.targetAudienceTags);
+    }
+
+    niches = [...new Set(niches.filter(Boolean))];
+
+    return {
+        followers: bestFollowers,
+        engagementRate: bestEngagement,
+        niche: niches[0] || '',
+        niches,
+        platforms,
+    };
+};
+
 /**
  * Recommendation Service
  * 
@@ -52,13 +127,19 @@ const calculateMatchScore = (
     let score = 0;
 
     // ── Category/Niche Match (30 pts) ──
-    const userCategory = userProfile.category || userProfile.niche || '';
-    const targetNiches = target.niches || (target.category ? [target.category] : []);
+    const userCategory = (userProfile.category || userProfile.niche || userProfile.industry || '').toLowerCase();
+    const userTags = Array.isArray(userProfile.targetAudienceTags) ? userProfile.targetAudienceTags.map((t: string) => t.toLowerCase()) : [];
+    
+    const targetNiches = (target.niches || (target.category ? [target.category] : [])).map((n: string) => n.toLowerCase());
     
     if (userCategory && targetNiches.length > 0) {
-        const hasMatch = targetNiches.some((n: string) => n.toLowerCase() === userCategory.toLowerCase());
+        const hasMatch = targetNiches.some((n: string) => n === userCategory);
         if (hasMatch) {
             score += 30;
+        } else if (userTags.length > 0) {
+            // Partial match via tags
+            const hasTagMatch = targetNiches.some((n: string) => userTags.includes(n));
+            if (hasTagMatch) score += 20;
         }
     }
 
@@ -129,10 +210,12 @@ export const getRecommendationsForUser = async (userId: string): Promise<Recomme
 
         for (const adv of advertisers) {
             const advProfile = adv.profileData || {};
+            const advMetrics = extractMetrics(advProfile);
+
             const score = calculateMatchScore(
                 userProfile,
                 user.location,
-                { ...advProfile, niches: advProfile.niches || [advProfile.category || advProfile.niche] },
+                { ...advProfile, niches: advMetrics.niches, followers: advMetrics.followers, engagementRate: advMetrics.engagementRate },
                 adv.location
             );
 
@@ -141,16 +224,16 @@ export const getRecommendationsForUser = async (userId: string): Promise<Recomme
                 type: 'advertiser',
                 score,
                 name: `${adv.firstName} ${adv.lastName}`.trim() || adv.username,
-                category: advProfile.category || advProfile.niche,
+                category: advMetrics.niche,
                 location: adv.location,
                 meta: {
                     profilePicture: adv.profilePicture,
-                    followers: advProfile.followers,
-                    engagementRate: advProfile.engagementRate,
+                    followers: advMetrics.followers,
+                    engagementRate: advMetrics.engagementRate,
                     username: adv.username,
-                    niches: advProfile.niches || [advProfile.category || advProfile.niche],
-                    bio: advProfile.bio,
-                    platforms: advProfile.platforms,
+                    niches: advMetrics.niches,
+                    bio: advProfile.bio || '',
+                    platforms: advMetrics.platforms,
                     averageRating: adv.averageRating || 0,
                     totalReviews: adv.totalReviews || 0,
                 },

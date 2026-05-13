@@ -4,6 +4,87 @@ import User from '../../database/models/User';
 import { getGeminiModel } from '../../config/gemini';
 import logger from '../../utils/logger';
 
+// ─── Profile Data Helper ─────────────────────────────────────────────────────
+
+/**
+ * Parse numeric values that may be stored as strings with K/M/B suffixes
+ */
+const parseNum = (val: any): number => {
+    if (typeof val === 'number') return val;
+    if (typeof val === 'string') {
+        const cleaned = val.toUpperCase().replace(/[^0-9.KMB]/g, '');
+        let multiplier = 1;
+        if (cleaned.endsWith('K')) multiplier = 1000;
+        else if (cleaned.endsWith('M')) multiplier = 1000000;
+        else if (cleaned.endsWith('B')) multiplier = 1000000000;
+        const num = parseFloat(cleaned.replace(/[KMB]/g, ''));
+        return isNaN(num) ? 0 : num * multiplier;
+    }
+    return 0;
+};
+
+/**
+ * Extract the best social media metrics from the nested profileData.
+ * Database schema: profileData.tiktok.{followers, engagementRate, niche, ...}
+ *                  profileData.instagram.{followers, engagementRate, niche, ...}
+ */
+export const extractMetrics = (profileData: any) => {
+    if (!profileData) return { followers: 0, engagementRate: 0, niche: 'General', platforms: [] as string[] };
+
+    let bestFollowers = 0;
+    let bestEngagement = 0;
+    let niches: string[] = [];
+    const platforms: string[] = [];
+
+    // 1. Check Nested Platforms
+    if (profileData.tiktok) {
+        const t = profileData.tiktok;
+        const f = parseNum(t.followers);
+        const e = parseNum(t.engagementRate);
+        if (f > 0) platforms.push('tiktok');
+        if (f > bestFollowers) bestFollowers = f;
+        if (e > bestEngagement) bestEngagement = e;
+        if (t.niche) {
+            if (typeof t.niche === 'string') niches.push(t.niche);
+            else if (Array.isArray(t.niche)) niches.push(...t.niche);
+            else if (typeof t.niche === 'object') niches.push(...Object.values(t.niche).filter(Boolean) as string[]);
+        }
+    }
+
+    if (profileData.instagram) {
+        const ig = profileData.instagram;
+        const f = parseNum(ig.followers);
+        const e = parseNum(ig.engagementRate);
+        if (f > 0) platforms.push('instagram');
+        if (f > bestFollowers) bestFollowers = f;
+        if (e > bestEngagement) bestEngagement = e;
+        if (ig.niche) {
+            if (typeof ig.niche === 'string') niches.push(ig.niche);
+            else if (Array.isArray(ig.niche)) niches.push(...ig.niche);
+            else if (typeof ig.niche === 'object') niches.push(...Object.values(ig.niche).filter(Boolean) as string[]);
+        }
+    }
+
+    // 2. Flat field fallback (legacy or business profiles)
+    if (bestFollowers === 0 && profileData.followers) bestFollowers = parseNum(profileData.followers);
+    if (bestEngagement === 0 && profileData.engagementRate) bestEngagement = parseNum(profileData.engagementRate);
+    
+    // Niche fallbacks
+    if (niches.length === 0) {
+        if (profileData.category) niches.push(profileData.category);
+        if (profileData.industry) niches.push(profileData.industry);
+        if (Array.isArray(profileData.targetAudienceTags)) niches.push(...profileData.targetAudienceTags);
+    }
+
+    return {
+        followers: bestFollowers,
+        engagementRate: bestEngagement,
+        niche: [...new Set(niches.filter(Boolean))][0] || 'General',
+        allNiches: [...new Set(niches.filter(Boolean))],
+        platforms,
+    };
+};
+
 /**
  * Marketing Analysis Service
  *
@@ -75,8 +156,8 @@ export const runMarketingAnalysis = async (
     avgProductPrice?: number
 ): Promise<MarketingAnalysisResult> => {
 
-    // 1. Load the opportunity
-    const opp = await Opportunity.findById(opportunityId);
+    // 1. Load the opportunity with populated business owner
+    const opp = await Opportunity.findById(opportunityId).populate('businessOwner', 'firstName lastName profileData');
     if (!opp) throw new Error('Opportunity not found');
 
     // 2. Load all applications with populated advertiser data
@@ -97,17 +178,27 @@ export const runMarketingAnalysis = async (
         const adv = app.advertiser as any;
         if (!adv) continue;
 
+        // Extract REAL metrics from nested profileData (tiktok/instagram)
         const advProfile = adv.profileData || {};
-        const followers = advProfile.followers || 0;
-        const engagementRate = advProfile.engagementRate || 0;
-        const niche = advProfile.category || advProfile.niche || 'General';
+        const metrics = extractMetrics(advProfile);
+        const followers = metrics.followers;
+        const engagementRate = metrics.engagementRate;
+        const niche = metrics.niche;
         const cost = app.proposedRate?.amount || 0;
         const currency = app.proposedRate?.currency || 'ETB';
 
+        logger.info(`[MarketingAnalysis] Advertiser ${adv.username}: followers=${followers}, engagement=${engagementRate}%, niche=${niche}, cost=${cost}`);
+
+        // Dynamic rates based on advertiser quality (heuristic fallback)
+        const effectiveReachFactor = 0.30 + (followers < 50000 ? 0.05 : 0); // Smaller creators get slight reach boost
+        const effectiveConvRate = conversionRate !== 0.02 
+            ? conversionRate 
+            : Math.min(0.05, Math.max(0.005, (engagementRate / 100) * 0.4));
+
         // Profitability calculations
-        const reach = followers * 0.3;
+        const reach = followers * effectiveReachFactor;
         const engagement = reach * (engagementRate / 100);
-        const conversions = engagement * conversionRate;
+        const conversions = engagement * effectiveConvRate;
         const revenue = conversions * productPrice;
         const profit = revenue - cost;
         const profitPercentage = cost > 0 ? (profit / cost) * 100 : 0;
@@ -188,15 +279,24 @@ async function generateAISummary(opp: any, results: ApplicantAnalysis[]): Promis
     const forAnalysis = results.slice(0, 10);
 
     const prompt = `
-You are a senior marketing strategist. Analyze these advertiser applicants for a campaign.
+You are a senior marketing strategist. Analyze these advertiser applicants for a specific campaign and provide high-value business insights.
 
 Campaign Details:
 - Title: ${opp.title}
+- Description: ${opp.description || 'No description provided'}
 - Category: ${opp.category}
 - Budget: ${opp.budget?.amount || 'N/A'} ${opp.budget?.currency || 'ETB'}
+- Requirements: ${opp.requirements?.minFollowers || 0}+ followers, Niches: ${opp.requirements?.preferredNiches?.join(', ') || 'Any'}
+- Business Owner Industry: ${(opp.businessOwner as any)?.profileData?.industry || 'General'}
 
-Applicant List:
-${forAnalysis.map((r, i) => `${i + 1}. ID: ${r.advertiserId}, Name: ${r.advertiserName}, Followers: ${r.followers}, Engagement: ${r.engagementRate}%, ROI: ${r.profitPercentage}%, Niche: ${r.niche}`).join('\n')}
+Applicant List (Top 10):
+${forAnalysis.map((r, i) => `${i + 1}. ID: ${r.advertiserId}, Name: ${r.advertiserName}, Followers: ${r.followers.toLocaleString()}, Engagement: ${r.engagementRate}%, ROI: ${r.profitPercentage}%, Niche: ${r.niche}`).join('\n')}
+
+Analysis Tasks:
+1. Evaluate the "Brand Fit" between the campaign category (${opp.category}) and each advertiser's niche.
+2. Consider the budget constraints and ROI.
+3. Identify the "Safe Choice" vs the "High Growth" choice.
+4. Provide a summarized pool quality assessment.
 
 Return your response in strict JSON format:
 {
@@ -275,17 +375,68 @@ export const predictAdvertiserROI = async (
     const advProfile = adv.profileData || {};
     const ownerProfile = owner.profileData || {};
 
-    // 2. Base metrics
-    const followers = advProfile.followers || 10000;
-    const engagementRate = advProfile.engagementRate || 3;
+    // 2. Extract REAL metrics from nested profileData (tiktok/instagram)
+    const advMetrics = extractMetrics(advProfile);
+    const followers = advMetrics.followers;
+    const engagementRate = advMetrics.engagementRate;
     const avgProductPrice = ownerProfile.monthlyBudget ? Math.round(ownerProfile.monthlyBudget / 50) : 50;
 
-    // 3. Generate 6-month projection data
+    // 3. Generate AI Match Insight & Metrics with Smart Fallbacks
+    let aiInsight = "Based on your niche, this creator offers strong growth potential.";
+    
+    // Heuristic Fallback: Use engagement rate as a proxy for conversion quality
+    // Typically conversion rate is 1/10th to 1/20th of engagement rate
+    let dynamicConvRate = Math.min(0.05, Math.max(0.005, (engagementRate / 100) * 0.4)); 
+    
+    // Reach factor depends on platforms and followers (smaller creators often have higher reach relative to size)
+    let dynamicReachFactor = followers > 100000 ? 0.25 : 0.35;
+
+    try {
+        const model = getGeminiModel();
+        if (model) {
+            const prompt = `
+                Analyze the potential brand partnership match between Business Owner "${owner.firstName}" and Advertiser "${adv.firstName}".
+                Owner Details:
+                - Industry: ${ownerProfile.industry || ownerProfile.category || 'General'}
+                - Target Audience: ${ownerProfile.targetAudienceTags?.join(', ') || 'N/A'}
+                
+                Advertiser Details:
+                - Niche: ${advMetrics.allNiches?.join(', ') || advMetrics.niche}
+                - Followers: ${followers.toLocaleString()}
+                - Engagement: ${engagementRate}%
+                - Platforms: ${advMetrics.platforms.join(', ')}
+                
+                Based on this synergy, suggest:
+                1. A realistic "Conversion Rate" (as a decimal, e.g., 0.015 for 1.5%). High fit = higher rate.
+                2. A "Reach Factor" (how much of their audience will actually see the post, e.g., 0.25 for 25%).
+                3. A 2-sentence "Match Insight" about the synergy.
+
+                Return your response in strict JSON format:
+                {
+                  "conversionRate": 0.025,
+                  "reachFactor": 0.35,
+                  "insight": "..."
+                }
+            `;
+            const result = await model.generateContent({
+                contents: [{ role: 'user', parts: [{ text: prompt }] }],
+                generationConfig: { responseMimeType: "application/json" }
+            });
+            const parsed = JSON.parse(result.response.text());
+            aiInsight = parsed.insight || aiInsight;
+            dynamicConvRate = parsed.conversionRate || dynamicConvRate;
+            dynamicReachFactor = parsed.reachFactor || dynamicReachFactor;
+        }
+    } catch (err) {
+        logger.warn(`[MarketingAnalysis] Predictive AI insight failed: ${err}`);
+    }
+
+    // 4. Generate 6-month projection data using dynamic metrics
     const months = ['Month 1', 'Month 2', 'Month 3', 'Month 4', 'Month 5', 'Month 6'];
     const projections = months.map((month, i) => {
         const growthFactor = 1 + (i * 0.15); // Assume 15% monthly growth
-        const reach = followers * 0.3 * growthFactor;
-        const conversions = reach * (engagementRate / 100) * 0.02;
+        const reach = followers * dynamicReachFactor * growthFactor;
+        const conversions = reach * (engagementRate / 100) * dynamicConvRate;
         const revenue = conversions * avgProductPrice;
 
         return {
@@ -296,35 +447,14 @@ export const predictAdvertiserROI = async (
         };
     });
 
-    // 4. Generate AI Match Insight
-    let aiInsight = "Based on your niche, this creator offers strong growth potential.";
-    try {
-        const model = getGeminiModel();
-        if (model) {
-            const prompt = `
-                Analyze the potential match between Business Owner "${owner.firstName}" and Advertiser "${adv.firstName}".
-                Owner Industry: ${ownerProfile.industry || 'General'}
-                Advertiser Niche: ${advProfile.category || 'Lifestyle'}
-                Followers: ${followers}
-                Engagement: ${engagementRate}%
-                
-                Provide a 2-sentence "Match Insight" about why this collaboration is promising or what to watch out for.
-                Return only the text.
-            `;
-            const result = await model.generateContent(prompt);
-            aiInsight = result.response.text().trim();
-        }
-    } catch (err) {
-        logger.warn(`[MarketingAnalysis] Predictive AI insight failed: ${err}`);
-    }
-
     return {
         advertiserName: `${adv.firstName} ${adv.lastName}`.trim(),
         aiInsight,
         projections,
         metrics: {
-            reach: Math.round(followers * 0.3),
-            conversionRate: '2%',
+            reach: Math.round(followers * dynamicReachFactor),
+            conversionRate: `${(dynamicConvRate * 100).toFixed(1)}%`,
+            reachFactor: `${(dynamicReachFactor * 100).toFixed(0)}%`,
             avgProductPrice,
         }
     };
