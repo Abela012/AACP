@@ -73,6 +73,11 @@ import Wallet from "../../database/models/Wallet";
 import AuditLog from "../../database/models/AuditLog";
 import Opportunity from "../../database/models/Opportunity";
 import Application from "../../database/models/Application";
+import {
+    getPlatformSettings,
+    updatePlatformSettings,
+    isDatabaseConnected,
+} from "../platform/platformSettings.service";
 
 export const getUserById = async (req: Request, res: Response) => {
     try {
@@ -290,6 +295,111 @@ export const approveWalletRequest = async (req: Request, res: Response, next: Ne
             });
         }
         return success(res, "Request approved and coins credited", result);
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const getAdminSettings = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const settings = await getPlatformSettings();
+        const recentAudit = await AuditLog.find()
+            .sort({ createdAt: -1 })
+            .limit(30)
+            .populate("actor", "firstName lastName email username")
+            .lean();
+
+        const mongoOk = isDatabaseConnected();
+        const services = [
+            {
+                id: "api",
+                name: "Application API",
+                status: "operational" as const,
+                detail: "This server is responding to requests.",
+            },
+            {
+                id: "database",
+                name: "MongoDB",
+                status: mongoOk ? ("operational" as const) : ("degraded" as const),
+                detail: mongoOk ? "Driver connection is active." : "Database is not connected.",
+            },
+        ];
+
+        return success(res, "Admin settings loaded", {
+            settings: {
+                maintenanceMode: settings.maintenanceMode,
+                supportContactEmail: settings.supportContactEmail || "",
+            },
+            services,
+            recentAudit: recentAudit.map((log: any) => ({
+                id: String(log._id),
+                action: log.action,
+                message: log.message || log.action,
+                createdAt: log.createdAt,
+                actorName: log.actor
+                    ? `${log.actor.firstName || ""} ${log.actor.lastName || ""}`.trim() ||
+                      log.actor.username ||
+                      log.actor.email ||
+                      "Admin"
+                    : "Unknown",
+            })),
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const patchAdminSettings = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const actor = (req as any).currentUser;
+        const { maintenanceMode, supportContactEmail } = req.body as {
+            maintenanceMode?: boolean;
+            supportContactEmail?: string;
+        };
+
+        const prev = await getPlatformSettings();
+        const patch: { maintenanceMode?: boolean; supportContactEmail?: string } = {};
+
+        if (typeof maintenanceMode === "boolean") patch.maintenanceMode = maintenanceMode;
+        if (typeof supportContactEmail === "string") {
+            const trimmed = supportContactEmail.trim();
+            if (trimmed && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) {
+                return res.status(400).json({ error: "Invalid support email address" });
+            }
+            patch.supportContactEmail = trimmed;
+        }
+
+        if (Object.keys(patch).length === 0) {
+            return res.status(400).json({ error: "No valid fields to update" });
+        }
+
+        const nextDoc = await updatePlatformSettings(patch);
+
+        if (actor?._id && actor?.role && ["admin", "super_admin"].includes(actor.role)) {
+            await createAuditLog({
+                action: "SYSTEM_CONFIG_UPDATED",
+                actorId: String(actor._id),
+                actorRole: actor.role as "admin" | "super_admin",
+                targetType: "platform_settings",
+                targetId: "singleton",
+                message: "Updated platform settings",
+                metadata: {
+                    before: {
+                        maintenanceMode: prev.maintenanceMode,
+                        supportContactEmail: prev.supportContactEmail || "",
+                    },
+                    after: patch,
+                },
+                req,
+            });
+        }
+
+        return success(res, "Settings updated", {
+            settings: {
+                maintenanceMode: nextDoc!.maintenanceMode,
+                supportContactEmail: nextDoc!.supportContactEmail || "",
+            },
+        });
     } catch (error) {
         next(error);
     }

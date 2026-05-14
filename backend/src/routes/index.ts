@@ -15,6 +15,7 @@ import marketingAnalysisRoutes from '../modules/marketing-analysis/marketing-ana
 import socialRoutes from '../modules/social/social.routes';
 import searchRoutes from '../modules/search/search.routes';
 import facebookAnalyticsRoutes from '../modules/facebook-analytics/facebookAnalytics.routes';
+import { maintenanceGate } from '../middlewares/maintenance.middleware';
 
 
 /**
@@ -341,6 +342,12 @@ import facebookAnalyticsRoutes from '../modules/facebook-analytics/facebookAnaly
 
 const router = express.Router();
 
+router.get('/health', (req, res) => {
+    res.status(200).json({ status: 'OK', message: 'API is running' });
+});
+
+router.use(maintenanceGate);
+
 router.use('/opportunities', opportunityRoutes);
 router.use('/applications', applicationRoutes);
 router.use('/collaborations', collaborationRoutes);
@@ -382,8 +389,4 @@ router.use('/', facebookAnalyticsRoutes);
  *                   type: string
  *                   example: API is running
  */
-router.get('/health', (req, res) => {
-    res.status(200).json({ status: 'OK', message: 'API is running' });
-});
-
 export default router;

@@ -12,7 +12,9 @@ import {
     createNews,
     getWalletRequests,
     approveWalletRequest,
-    rejectWalletRequest
+    rejectWalletRequest,
+    getAdminSettings,
+    patchAdminSettings,
 } from "./adminController";
 
 import {
@@ -31,6 +33,9 @@ const router = express.Router();
 
 // Apply admin check to all routes
 router.use(requireAdmin);
+
+router.get("/settings", getAdminSettings);
+router.patch("/settings", patchAdminSettings);
 
 /**
  * @swagger
