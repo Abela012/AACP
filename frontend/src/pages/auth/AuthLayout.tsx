@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { ArrowLeft, CheckCircle2, ShieldCheck, Zap, TrendingUp } from "lucide-react";
 import type { ReactNode } from "react";
+import ThemeToggle from "@/src/shared/components/ThemeToggle";
 
 interface AuthLayoutProps {
     children: ReactNode;
@@ -9,7 +10,7 @@ interface AuthLayoutProps {
 
 export default function AuthLayout({ children }: AuthLayoutProps) {
     return (
-        <div className="flex min-h-dvh w-full bg-white font-sans text-[#001e00]">
+        <div className="flex min-h-dvh w-full bg-white dark:bg-[#0a0a0a] font-sans text-[#001e00] dark:text-gray-100 transition-colors">
             {/* Left Side - Brand Section */}
             <div className="relative hidden w-[45%] flex-col items-start justify-between overflow-hidden bg-[#001e00] p-12 lg:flex xl:p-20">
                 {/* Subtle Decorative Elements */}
@@ -77,15 +78,16 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
             </div>
 
             {/* Right Side - Form Section */}
-            <div className="relative flex w-full flex-col justify-center bg-white p-6 lg:w-[55%] lg:p-12 xl:p-20">
-                <div className="absolute top-8 left-8 lg:left-12 xl:left-20">
+            <div className="relative flex w-full flex-col justify-center bg-white dark:bg-[#111111] p-6 lg:w-[55%] lg:p-12 xl:p-20 border-l border-transparent dark:border-white/5 transition-colors">
+                <div className="absolute top-8 left-8 right-8 lg:left-12 lg:right-12 xl:left-20 xl:right-20 flex items-center justify-between gap-4">
                     <Link
                         to="/"
-                        className="flex items-center gap-2 text-sm font-semibold text-[#5e6d55] hover:text-[#14a800] transition-colors"
+                        className="flex items-center gap-2 text-sm font-semibold text-[#5e6d55] dark:text-gray-400 hover:text-[#14a800] dark:hover:text-emerald-400 transition-colors"
                     >
                         <ArrowLeft size={16} />
                         Back to website
                     </Link>
+                    <ThemeToggle />
                 </div>
                 <motion.div
                     initial={{ opacity: 0, scale: 0.98 }}
