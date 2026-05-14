@@ -43,6 +43,28 @@ export const extractMetrics = (profileData: any): {
 } => {
     if (!profileData) return { followers: 0, engagementRate: 0, niche: 'General', platforms: [] as string[], allNiches: [], totalLikes: 0, avgViews: 0, avgComments: 0, avgShares: 0, isMultiPlatform: false, audienceInfo: {} };
 
+    // Helper: compute ER from raw metrics if engagementRate is not stored
+    const computeER = (platform: any): number => {
+        const storedER = parseNum(platform.engagementRate);
+        if (storedER > 0 && storedER <= 100) return storedER;
+
+        const f = parseNum(platform.followers);
+        const likes = parseNum(platform.totalLikes);
+        const comments = parseNum(platform.avgComments);
+        const shares = parseNum(platform.avgShares);
+        const views = parseNum(platform.avgViews);
+
+        if (f <= 0) return 0;
+
+        if (likes > 0 && views > 0 && likes > views) {
+            logger.warn(`[extractMetrics] Invalid metrics: likes (${likes}) > views (${views}). Skipping ER computation.`);
+            return 0;
+        }
+
+        const rawER = ((likes + comments + shares) / f) * 100;
+        return Math.min(rawER, 100); // Cap at 100%
+    };
+
     let totalFollowers = 0;
     let totalLikes = 0;
     let totalAvgViews = 0;
@@ -53,17 +75,19 @@ export const extractMetrics = (profileData: any): {
     const niches: string[] = [];
     const audienceInfo: any = {};
 
-    // Check TikTok
+    // 1. Check TikTok
     if (profileData.tiktok) {
         const t = profileData.tiktok;
-        if (t.username || t.followers > 0) {
+        const f = parseNum(t.followers);
+        if (t.username || f > 0) {
             platforms.push('tiktok');
-            totalFollowers += parseNum(t.followers);
+            totalFollowers += f;
             totalLikes += parseNum(t.totalLikes);
             totalAvgViews += parseNum(t.avgViews);
             totalAvgComments += parseNum(t.avgComments);
             totalAvgShares += parseNum(t.avgShares);
-            const e = parseNum(t.engagementRate);
+            
+            const e = computeER(t);
             if (e > maxEngagement) maxEngagement = e;
 
             if (t.niche) {
@@ -77,17 +101,19 @@ export const extractMetrics = (profileData: any): {
         }
     }
 
-    // Check Instagram
+    // 2. Check Instagram
     if (profileData.instagram) {
         const ig = profileData.instagram;
-        if (ig.username || ig.followers > 0) {
+        const f = parseNum(ig.followers);
+        if (ig.username || f > 0) {
             platforms.push('instagram');
-            totalFollowers += parseNum(ig.followers);
+            totalFollowers += f;
             totalLikes += parseNum(ig.totalLikes);
             totalAvgViews += parseNum(ig.avgViews);
             totalAvgComments += parseNum(ig.avgComments);
             totalAvgShares += parseNum(ig.avgShares);
-            const e = parseNum(ig.engagementRate);
+            
+            const e = computeER(ig);
             if (e > maxEngagement) maxEngagement = e;
 
             if (ig.niche) {
@@ -103,9 +129,12 @@ export const extractMetrics = (profileData: any): {
 
     const isMultiPlatform = platforms.length > 1;
 
-    // Fallbacks for legacy/flat data
+    // 3. Fallbacks for legacy/flat data
     if (totalFollowers === 0 && profileData.followers) totalFollowers = parseNum(profileData.followers);
-    if (maxEngagement === 0 && profileData.engagementRate) maxEngagement = parseNum(profileData.engagementRate);
+    if (maxEngagement === 0 && profileData.engagementRate) {
+        maxEngagement = Math.min(parseNum(profileData.engagementRate), 100);
+    }
+
     if (niches.length === 0) {
         if (profileData.category) niches.push(profileData.category);
         if (profileData.industry) niches.push(profileData.industry);

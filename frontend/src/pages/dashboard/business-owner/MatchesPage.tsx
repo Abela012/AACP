@@ -305,7 +305,7 @@ export default function MatchesPage() {
                       </div>
                       <div>
                         <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Engagement</p>
-                        <p className="text-sm font-black text-gray-900 dark:text-white">{c.meta?.engagementRate || '4.5'}%</p>
+                        <p className={cn("text-sm font-black", (c.meta?.engagementRate || 0) > 20 ? "text-amber-600" : "text-gray-900 dark:text-white")}>{typeof c.meta?.engagementRate === 'number' ? Math.min(c.meta.engagementRate, 100).toFixed(1) : (c.meta?.engagementRate || '4.5')}%</p>
                       </div>
                     </div>
                   </div>

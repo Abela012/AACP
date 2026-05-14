@@ -23,10 +23,17 @@ export const createOpportunity = async (data: Partial<IOpportunity>): Promise<IO
  * @returns List of all opportunities
  */
 export const getAllOpportunities = async (): Promise<IOpportunity[]> => {
-    const opportunities = await Opportunity.find()
-        .populate('businessOwner', 'fullName email')
-        .sort({ createdAt: -1 });
-    return opportunities;
+    try {
+        console.log('[OpportunityService] Fetching all opportunities...');
+        const opportunities = await Opportunity.find()
+            .populate('businessOwner', 'firstName lastName email profilePicture')
+            .sort({ createdAt: -1 });
+        console.log(`[OpportunityService] Found ${opportunities.length} opportunities`);
+        return opportunities;
+    } catch (err: any) {
+        console.error(`[OpportunityService] Error in getAllOpportunities: ${err.message}`);
+        throw err;
+    }
 };
 
 /**
@@ -35,9 +42,15 @@ export const getAllOpportunities = async (): Promise<IOpportunity[]> => {
  * @returns Opportunity document or null
  */
 export const getOpportunityById = async (id: string): Promise<IOpportunity | null> => {
-    const opportunity = await Opportunity.findById(id)
-        .populate('businessOwner', 'name email');
-    return opportunity;
+    try {
+        console.log(`[OpportunityService] Fetching opportunity ${id}...`);
+        const opportunity = await Opportunity.findById(id)
+            .populate('businessOwner', 'firstName lastName email profilePicture');
+        return opportunity;
+    } catch (err: any) {
+        console.error(`[OpportunityService] Error in getOpportunityById: ${err.message}`);
+        throw err;
+    }
 };
 
 /**
@@ -50,7 +63,7 @@ export const updateOpportunity = async (id: string, data: Partial<IOpportunity>)
     const opportunity = await Opportunity.findByIdAndUpdate(id, data, {
         new: true,
         runValidators: true,
-    }).populate('businessOwner', 'name email');
+    }).populate('businessOwner', 'firstName lastName email profilePicture');
     return opportunity;
 };
 
@@ -79,7 +92,7 @@ export const getOpportunitiesByUser = async (userId: string): Promise<IOpportuni
     }
 
     const opportunities = await Opportunity.find({ businessOwner: mongoUserId })
-        .populate('businessOwner', 'fullName email')
+        .populate('businessOwner', 'firstName lastName email profilePicture')
         .sort({ createdAt: -1 });
     return opportunities;
 };
