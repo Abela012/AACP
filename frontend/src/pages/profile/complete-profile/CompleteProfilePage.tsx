@@ -461,30 +461,78 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
   const [instagramContentStyle, setInstagramContentStyle] = useState<string[]>([]);
   const [showInstagramAnalytics, setShowInstagramAnalytics] = useState(false);
 
-  // Compute ER dynamically
-  const computedTiktokER = useMemo(() => {
-    const followers = parseMetric(tiktokFollowers);
-    const likes = parseMetric(tiktokTotalLikes);
-    const comments = parseMetric(tiktokAvgComments);
-    const shares = parseMetric(tiktokAvgShares);
+  // ── Analytics Validation ──
+  interface MetricWarning {
+    field: string;
+    message: string;
+    severity: 'error' | 'warning';
+  }
 
-    if (followers > 0) {
-      return (((likes + comments + shares) / followers) * 100).toFixed(2);
+  const validatePlatformMetrics = (metrics: {
+    followers: number; likes: number; views: number; comments: number; shares: number;
+  }): MetricWarning[] => {
+    const warnings: MetricWarning[] = [];
+    const { followers, likes, views, comments, shares } = metrics;
+
+    if (likes > 0 && views > 0 && likes > views) {
+      warnings.push({ field: 'likes', message: 'Avg. Likes cannot exceed Avg. Views — please double-check your numbers', severity: 'error' });
     }
-    return '0.00';
-  }, [tiktokFollowers, tiktokTotalLikes, tiktokAvgComments, tiktokAvgShares]);
-
-  const computedInstagramER = useMemo(() => {
-    const followers = parseMetric(instagramFollowers);
-    const likes = parseMetric(instagramTotalLikes);
-    const comments = parseMetric(instagramAvgComments);
-    const shares = parseMetric(instagramAvgShares);
-
-    if (followers > 0) {
-      return (((likes + comments + shares) / followers) * 100).toFixed(2);
+    if (comments > 0 && likes > 0 && comments > likes) {
+      warnings.push({ field: 'comments', message: 'Avg. Comments should not exceed Avg. Likes', severity: 'warning' });
     }
-    return '0.00';
-  }, [instagramFollowers, instagramTotalLikes, instagramAvgComments, instagramAvgShares]);
+    if (shares > 0 && likes > 0 && shares > likes) {
+      warnings.push({ field: 'shares', message: 'Avg. Shares should not exceed Avg. Likes', severity: 'warning' });
+    }
+    if (followers > 0 && views > 0 && views > followers * 10) {
+      warnings.push({ field: 'views', message: 'Avg. Views seems unusually high relative to followers', severity: 'warning' });
+    }
+    return warnings;
+  };
+
+  const computeEngagementRate = (metrics: {
+    followers: number; likes: number; views: number; comments: number; shares: number;
+  }): { rate: string; isAbnormal: boolean; hasErrors: boolean; warnings: MetricWarning[] } => {
+    const warnings = validatePlatformMetrics(metrics);
+    const hasErrors = warnings.some(w => w.severity === 'error');
+    const { followers, likes, comments, shares } = metrics;
+
+    if (followers <= 0) return { rate: '0.00', isAbnormal: false, hasErrors, warnings };
+
+    // If there are validation errors, show a capped/flagged rate
+    const rawRate = ((likes + comments + shares) / followers) * 100;
+    const isAbnormal = rawRate > 20; // Typical social media ER is 1-10%, >20% is suspicious
+    const cappedRate = Math.min(rawRate, 100); // Cap display at 100%
+
+    return {
+      rate: hasErrors ? '—' : cappedRate.toFixed(2),
+      isAbnormal: isAbnormal && !hasErrors,
+      hasErrors,
+      warnings,
+    };
+  };
+
+  // Compute ER dynamically with validation
+  const tiktokMetrics = useMemo(() => ({
+    followers: parseMetric(tiktokFollowers),
+    likes: parseMetric(tiktokTotalLikes),
+    views: parseMetric(tiktokAvgViews),
+    comments: parseMetric(tiktokAvgComments),
+    shares: parseMetric(tiktokAvgShares),
+  }), [tiktokFollowers, tiktokTotalLikes, tiktokAvgViews, tiktokAvgComments, tiktokAvgShares]);
+
+  const tiktokER = useMemo(() => computeEngagementRate(tiktokMetrics), [tiktokMetrics]);
+  const computedTiktokER = tiktokER.rate;
+
+  const instagramMetrics = useMemo(() => ({
+    followers: parseMetric(instagramFollowers),
+    likes: parseMetric(instagramTotalLikes),
+    views: parseMetric(instagramAvgViews),
+    comments: parseMetric(instagramAvgComments),
+    shares: parseMetric(instagramAvgShares),
+  }), [instagramFollowers, instagramTotalLikes, instagramAvgViews, instagramAvgComments, instagramAvgShares]);
+
+  const instagramER = useMemo(() => computeEngagementRate(instagramMetrics), [instagramMetrics]);
+  const computedInstagramER = instagramER.rate;
 
   // Validation Logic
   const isTiktokFormComplete = useMemo(() => {
@@ -680,6 +728,29 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
     bioPitch,
   ]);
 
+  // ── Inline warning banner component ──
+  const ValidationWarnings = ({ warnings, platform }: { warnings: MetricWarning[]; platform: string }) => {
+    if (warnings.length === 0) return null;
+    return (
+      <div className="mt-4 space-y-2">
+        {warnings.map((w, i) => (
+          <div
+            key={`${platform}-${i}`}
+            className={cn(
+              'flex items-start gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold border',
+              w.severity === 'error'
+                ? 'bg-red-50 dark:bg-red-500/10 border-red-200 dark:border-red-500/20 text-red-700 dark:text-red-400'
+                : 'bg-amber-50 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/20 text-amber-700 dark:text-amber-400'
+            )}
+          >
+            <span className="mt-0.5 shrink-0">{w.severity === 'error' ? '⛔' : '⚠️'}</span>
+            <span>{w.message}</span>
+          </div>
+        ))}
+      </div>
+    );
+  };
+
   /* ── Handlers ── */
   const toggleAgeRange = (range: string) =>
     setSelectedAgeRanges((prev) =>
@@ -761,6 +832,13 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
           phone,
         };
       } else {
+        // Block submission if there are validation errors
+        if (tiktokER.hasErrors || instagramER.hasErrors) {
+          toast.error('Please fix the highlighted analytics errors before submitting.');
+          setIsSubmitting(false);
+          return;
+        }
+
         // For Advertisers, only save platform-specific analytics to profileData
         profileData = {
           // TikTok Analytics
@@ -771,6 +849,7 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
             avgViews: parseMetric(tiktokAvgViews),
             avgComments: parseMetric(tiktokAvgComments),
             avgShares: parseMetric(tiktokAvgShares),
+            engagementRate: tiktokER.hasErrors ? 0 : parseFloat(computedTiktokER),
             accountType: tiktokAccountType,
             profileLink: tiktokProfileLink,
             postingFrequency: tiktokPostingFrequency,
@@ -789,6 +868,7 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
             avgViews: parseMetric(instagramAvgViews),
             avgComments: parseMetric(instagramAvgComments),
             avgShares: parseMetric(instagramAvgShares),
+            engagementRate: instagramER.hasErrors ? 0 : parseFloat(computedInstagramER),
             accountType: instagramAccountType,
             profileLink: instagramProfileLink,
             postingFrequency: instagramPostingFrequency,
@@ -1632,12 +1712,32 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
                               className="w-full bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl py-3 px-4 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30 transition-all" />
                           </div>
                           <div className="space-y-2">
-                            <label className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-[0.08em]">Engagement Rate (Computed)</label>
+                            <label className={cn(
+                              "text-[11px] font-bold uppercase tracking-[0.08em]",
+                              tiktokER.hasErrors ? 'text-red-600 dark:text-red-400' :
+                              tiktokER.isAbnormal ? 'text-amber-600 dark:text-amber-400' :
+                              'text-emerald-600 dark:text-emerald-400'
+                            )}>Engagement Rate (Computed)</label>
                             <div className="relative">
-                              <input type="text" value={computedTiktokER} readOnly disabled
-                                className="w-full bg-emerald-50/50 dark:bg-emerald-500/5 border border-emerald-200 dark:border-emerald-500/20 rounded-xl py-3 pl-4 pr-8 text-sm font-bold text-emerald-700 dark:text-emerald-400 cursor-not-allowed opacity-80" />
-                              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-emerald-500">%</span>
+                              <input type="text" value={tiktokER.hasErrors ? '—' : `${computedTiktokER}`} readOnly disabled
+                                className={cn(
+                                  'w-full rounded-xl py-3 pl-4 pr-8 text-sm font-bold cursor-not-allowed opacity-80 border',
+                                  tiktokER.hasErrors
+                                    ? 'bg-red-50/50 dark:bg-red-500/5 border-red-200 dark:border-red-500/20 text-red-700 dark:text-red-400'
+                                    : tiktokER.isAbnormal
+                                    ? 'bg-amber-50/50 dark:bg-amber-500/5 border-amber-200 dark:border-amber-500/20 text-amber-700 dark:text-amber-400'
+                                    : 'bg-emerald-50/50 dark:bg-emerald-500/5 border-emerald-200 dark:border-emerald-500/20 text-emerald-700 dark:text-emerald-400'
+                                )} />
+                              <span className={cn(
+                                'absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold',
+                                tiktokER.hasErrors ? 'text-red-500' : tiktokER.isAbnormal ? 'text-amber-500' : 'text-emerald-500'
+                              )}>{tiktokER.hasErrors ? '' : '%'}</span>
                             </div>
+                            {tiktokER.isAbnormal && !tiktokER.hasErrors && (
+                              <p className="text-[10px] font-bold text-amber-600 dark:text-amber-400 flex items-center gap-1 mt-1">
+                                ⚠️ Unusually high — typical engagement is 1-10%
+                              </p>
+                            )}
                           </div>
                           <div className="space-y-2">
                             <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">Avg. Comments</label>
@@ -1650,6 +1750,7 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
                               className="w-full bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl py-3 px-4 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30 transition-all" />
                           </div>
                         </div>
+                        <ValidationWarnings warnings={tiktokER.warnings} platform="tiktok" />
                       </div>
 
                       {/* ── Content Niche ── */}
@@ -1802,12 +1903,32 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
                               className="w-full bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl py-3 px-4 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-pink-500 focus:ring-1 focus:ring-pink-500/30 transition-all" />
                           </div>
                           <div className="space-y-2">
-                            <label className="text-[11px] font-bold text-pink-600 dark:text-pink-400 uppercase tracking-[0.08em]">Engagement Rate (Computed)</label>
+                            <label className={cn(
+                              "text-[11px] font-bold uppercase tracking-[0.08em]",
+                              instagramER.hasErrors ? 'text-red-600 dark:text-red-400' :
+                              instagramER.isAbnormal ? 'text-amber-600 dark:text-amber-400' :
+                              'text-pink-600 dark:text-pink-400'
+                            )}>Engagement Rate (Computed)</label>
                             <div className="relative">
-                              <input type="text" value={computedInstagramER} readOnly disabled
-                                className="w-full bg-pink-50/50 dark:bg-pink-500/5 border border-pink-200 dark:border-pink-500/20 rounded-xl py-3 pl-4 pr-8 text-sm font-bold text-pink-700 dark:text-pink-400 cursor-not-allowed opacity-80" />
-                              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-pink-500">%</span>
+                              <input type="text" value={instagramER.hasErrors ? '—' : `${computedInstagramER}`} readOnly disabled
+                                className={cn(
+                                  'w-full rounded-xl py-3 pl-4 pr-8 text-sm font-bold cursor-not-allowed opacity-80 border',
+                                  instagramER.hasErrors
+                                    ? 'bg-red-50/50 dark:bg-red-500/5 border-red-200 dark:border-red-500/20 text-red-700 dark:text-red-400'
+                                    : instagramER.isAbnormal
+                                    ? 'bg-amber-50/50 dark:bg-amber-500/5 border-amber-200 dark:border-amber-500/20 text-amber-700 dark:text-amber-400'
+                                    : 'bg-pink-50/50 dark:bg-pink-500/5 border-pink-200 dark:border-pink-500/20 text-pink-700 dark:text-pink-400'
+                                )} />
+                              <span className={cn(
+                                'absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold',
+                                instagramER.hasErrors ? 'text-red-500' : instagramER.isAbnormal ? 'text-amber-500' : 'text-pink-500'
+                              )}>{instagramER.hasErrors ? '' : '%'}</span>
                             </div>
+                            {instagramER.isAbnormal && !instagramER.hasErrors && (
+                              <p className="text-[10px] font-bold text-amber-600 dark:text-amber-400 flex items-center gap-1 mt-1">
+                                ⚠️ Unusually high — typical engagement is 1-10%
+                              </p>
+                            )}
                           </div>
                           <div className="space-y-2">
                             <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">Avg. Comments</label>
@@ -1820,6 +1941,7 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
                               className="w-full bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl py-3 px-4 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-pink-500 focus:ring-1 focus:ring-pink-500/30 transition-all" />
                           </div>
                         </div>
+                        <ValidationWarnings warnings={instagramER.warnings} platform="instagram" />
                       </div>
 
                       {/* ── Content Niche ── */}

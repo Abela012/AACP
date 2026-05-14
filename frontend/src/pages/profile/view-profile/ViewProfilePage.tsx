@@ -58,7 +58,13 @@ export default function ViewProfilePage() {
       : [
         { label: 'Followers', value: profile.followers || '0' },
         { label: 'Avg Views', value: profile.avgViews || '0' },
-        { label: 'Engagement', value: profile.engagementRate || '0%' },
+        { label: 'Engagement', value: (() => {
+          const er = profile.engagementRate;
+          if (!er) return '0%';
+          if (typeof er === 'number') return `${Math.min(er, 100).toFixed(1)}%`;
+          const parsed = parseFloat(String(er));
+          return isNaN(parsed) ? String(er) : `${Math.min(parsed, 100).toFixed(1)}%`;
+        })() },
       ],
   };
 

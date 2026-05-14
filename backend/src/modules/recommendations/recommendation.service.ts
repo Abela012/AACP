@@ -26,11 +26,36 @@ const extractMetrics = (profileData: any) => {
     let niches: string[] = [];
     const platforms: string[] = [];
 
+    // Helper: compute ER from raw metrics if engagementRate is not stored
+    const computeER = (platform: any): number => {
+        // If engagementRate is already stored and valid, use it (but cap at 100)
+        const storedER = parseNum(platform.engagementRate);
+        if (storedER > 0 && storedER <= 100) return storedER;
+
+        // Otherwise compute from raw metrics: (likes + comments + shares) / followers * 100
+        const f = parseNum(platform.followers);
+        const likes = parseNum(platform.totalLikes);
+        const comments = parseNum(platform.avgComments);
+        const shares = parseNum(platform.avgShares);
+        const views = parseNum(platform.avgViews);
+
+        if (f <= 0) return 0;
+
+        // Validate: likes should not exceed views (if both exist)
+        if (likes > 0 && views > 0 && likes > views) {
+            logger.warn(`[extractMetrics] Invalid metrics: likes (${likes}) > views (${views}). Skipping ER computation.`);
+            return 0;
+        }
+
+        const rawER = ((likes + comments + shares) / f) * 100;
+        return Math.min(rawER, 100); // Cap at 100%
+    };
+
     // 1. Check Nested Platforms
     if (profileData.tiktok) {
         const t = profileData.tiktok;
         const f = parseNum(t.followers);
-        const e = parseNum(t.engagementRate);
+        const e = computeER(t);
         if (f > 0) platforms.push('tiktok');
         if (f > bestFollowers) bestFollowers = f;
         if (e > bestEngagement) bestEngagement = e;
@@ -44,7 +69,7 @@ const extractMetrics = (profileData: any) => {
     if (profileData.instagram) {
         const ig = profileData.instagram;
         const f = parseNum(ig.followers);
-        const e = parseNum(ig.engagementRate);
+        const e = computeER(ig);
         if (f > 0) platforms.push('instagram');
         if (f > bestFollowers) bestFollowers = f;
         if (e > bestEngagement) bestEngagement = e;
@@ -57,7 +82,9 @@ const extractMetrics = (profileData: any) => {
 
     // 2. Flat field fallback (legacy or business profiles)
     if (bestFollowers === 0 && profileData.followers) bestFollowers = parseNum(profileData.followers);
-    if (bestEngagement === 0 && profileData.engagementRate) bestEngagement = parseNum(profileData.engagementRate);
+    if (bestEngagement === 0 && profileData.engagementRate) {
+        bestEngagement = Math.min(parseNum(profileData.engagementRate), 100); // Cap legacy values too
+    }
     
     // Niche fallbacks
     if (niches.length === 0) {
