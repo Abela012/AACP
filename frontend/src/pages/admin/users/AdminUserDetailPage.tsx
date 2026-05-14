@@ -69,9 +69,31 @@ export default function AdminUserDetailPage() {
 
   const formatMetric = (num: number | undefined): string => {
     if (num === undefined || num === null) return '0';
-    if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
-    if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+    if (num >= 1000000000) return (num / 1000000000).toFixed(1).replace(/\.0$/, '') + 'B';
+    if (num >= 1000000) return (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
+    if (num >= 1000) return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
     return num.toString();
+  };
+
+  // Validate platform analytics for suspicious values
+  const validatePlatformAnalytics = (platform: any) => {
+    if (!platform) return { warnings: [], isValid: true };
+    const warnings: string[] = [];
+    const followers = platform.followers || 0;
+    const likes = platform.totalLikes || 0;
+    const views = platform.avgViews || 0;
+    const er = platform.engagementRate || 0;
+
+    if (likes > 0 && views > 0 && likes > views) {
+      warnings.push(`Likes (${formatMetric(likes)}) exceed Views (${formatMetric(views)})`);
+    }
+    if (er > 20) {
+      warnings.push(`Engagement rate (${typeof er === 'number' ? er.toFixed(1) : er}%) is unusually high`);
+    }
+    if (er > 100) {
+      warnings.push(`Engagement rate exceeds 100% — data is invalid`);
+    }
+    return { warnings, isValid: warnings.length === 0 };
   };
 
   const handleResetPassword = () => {
@@ -363,16 +385,33 @@ export default function AdminUserDetailPage() {
                         </a>
                       </div>
 
+                      {(() => {
+                        const { warnings } = validatePlatformAnalytics(displayProfileData.tiktok);
+                        return warnings.length > 0 ? (
+                          <div className="p-3 bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 rounded-xl space-y-1">
+                            {warnings.map((w, i) => (
+                              <p key={i} className="text-[10px] font-bold text-amber-700 dark:text-amber-400 flex items-center gap-1.5">
+                                <AlertCircle size={12} className="shrink-0" /> {w}
+                              </p>
+                            ))}
+                          </div>
+                        ) : null;
+                      })()}
+
                       <div className="grid grid-cols-2 gap-4">
                         {[
                           { label: 'Followers', value: formatMetric(displayProfileData.tiktok.followers) },
-                          { label: 'Engagement', value: `${displayProfileData.tiktok.engagementRate}%` },
+                          { label: 'Engagement', value: `${typeof displayProfileData.tiktok.engagementRate === 'number' ? Math.min(displayProfileData.tiktok.engagementRate, 100).toFixed(1) : displayProfileData.tiktok.engagementRate}%`, highlight: displayProfileData.tiktok.engagementRate > 20 },
                           { label: 'Avg Views', value: formatMetric(displayProfileData.tiktok.avgViews) },
-                          { label: 'Avg Likes', value: formatMetric(displayProfileData.tiktok.totalLikes) },
+                          { label: 'Avg Likes', value: formatMetric(displayProfileData.tiktok.totalLikes), highlight: displayProfileData.tiktok.totalLikes > displayProfileData.tiktok.avgViews && displayProfileData.tiktok.avgViews > 0 },
                         ].map((s, i) => (
-                          <div key={i} className="p-4 bg-gray-50 dark:bg-white/5 rounded-2xl border border-gray-100 dark:border-white/5">
+                          <div key={i} className={`p-4 rounded-2xl border ${
+                            (s as any).highlight
+                              ? 'bg-amber-50 dark:bg-amber-500/5 border-amber-200 dark:border-amber-500/10'
+                              : 'bg-gray-50 dark:bg-white/5 border-gray-100 dark:border-white/5'
+                          }`}>
                             <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">{s.label}</p>
-                            <p className="text-lg font-black">{s.value}</p>
+                            <p className={`text-lg font-black ${(s as any).highlight ? 'text-amber-600' : ''}`}>{s.value}</p>
                           </div>
                         ))}
                       </div>
@@ -408,16 +447,33 @@ export default function AdminUserDetailPage() {
                         </a>
                       </div>
 
+                      {(() => {
+                        const { warnings } = validatePlatformAnalytics(displayProfileData.instagram);
+                        return warnings.length > 0 ? (
+                          <div className="p-3 bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 rounded-xl space-y-1">
+                            {warnings.map((w, i) => (
+                              <p key={i} className="text-[10px] font-bold text-amber-700 dark:text-amber-400 flex items-center gap-1.5">
+                                <AlertCircle size={12} className="shrink-0" /> {w}
+                              </p>
+                            ))}
+                          </div>
+                        ) : null;
+                      })()}
+
                       <div className="grid grid-cols-2 gap-4">
                         {[
                           { label: 'Followers', value: formatMetric(displayProfileData.instagram.followers) },
-                          { label: 'Engagement', value: `${displayProfileData.instagram.engagementRate}%` },
+                          { label: 'Engagement', value: `${typeof displayProfileData.instagram.engagementRate === 'number' ? Math.min(displayProfileData.instagram.engagementRate, 100).toFixed(1) : displayProfileData.instagram.engagementRate}%`, highlight: displayProfileData.instagram.engagementRate > 20 },
                           { label: 'Avg Views', value: formatMetric(displayProfileData.instagram.avgViews) },
-                          { label: 'Avg Likes', value: formatMetric(displayProfileData.instagram.totalLikes) },
+                          { label: 'Avg Likes', value: formatMetric(displayProfileData.instagram.totalLikes), highlight: displayProfileData.instagram.totalLikes > displayProfileData.instagram.avgViews && displayProfileData.instagram.avgViews > 0 },
                         ].map((s, i) => (
-                          <div key={i} className="p-4 bg-pink-50/30 dark:bg-pink-500/5 rounded-2xl border border-pink-100/50 dark:border-pink-500/10">
+                          <div key={i} className={`p-4 rounded-2xl border ${
+                            (s as any).highlight
+                              ? 'bg-amber-50 dark:bg-amber-500/5 border-amber-200 dark:border-amber-500/10'
+                              : 'bg-pink-50/30 dark:bg-pink-500/5 border-pink-100/50 dark:border-pink-500/10'
+                          }`}>
                             <p className="text-[10px] font-black text-pink-400 uppercase tracking-widest mb-1">{s.label}</p>
-                            <p className="text-lg font-black text-pink-600">{s.value}</p>
+                            <p className={`text-lg font-black ${(s as any).highlight ? 'text-amber-600' : 'text-pink-600'}`}>{s.value}</p>
                           </div>
                         ))}
                       </div>

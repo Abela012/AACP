@@ -14,7 +14,8 @@ import {
   Info,
   BarChart3,
   Music2,
-  Building2
+  Building2,
+  AlertCircle
 } from 'lucide-react';
 import { FaInstagram, FaTiktok } from 'react-icons/fa6';
 import { cn } from '@/src/shared/utils/cn';
@@ -64,9 +65,35 @@ export default function UserApprovalPage() {
 
   const formatMetric = (num: number | undefined): string => {
     if (num === undefined || num === null) return '0';
-    if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
-    if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+    if (num >= 1000000000) return (num / 1000000000).toFixed(1).replace(/\.0$/, '') + 'B';
+    if (num >= 1000000) return (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
+    if (num >= 1000) return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
     return num.toString();
+  };
+
+  // Validate platform analytics for suspicious values
+  const validatePlatformAnalytics = (platform: any) => {
+    if (!platform) return { warnings: [] as string[], isValid: true };
+    const warnings: string[] = [];
+    const likes = platform.totalLikes || 0;
+    const views = platform.avgViews || 0;
+    const er = platform.engagementRate || 0;
+
+    if (likes > 0 && views > 0 && likes > views) {
+      warnings.push(`Likes (${formatMetric(likes)}) exceed Views (${formatMetric(views)})`);
+    }
+    if (er > 20) {
+      warnings.push(`Engagement rate (${typeof er === 'number' ? er.toFixed(1) : er}%) is unusually high`);
+    }
+    if (er > 100) {
+      warnings.push(`Engagement rate exceeds 100% — data is invalid`);
+    }
+    return { warnings, isValid: warnings.length === 0 };
+  };
+
+  const formatER = (er: any): string => {
+    if (typeof er === 'number') return Math.min(er, 100).toFixed(1);
+    return String(er || '0');
   };
 
   return (
@@ -266,16 +293,37 @@ export default function UserApprovalPage() {
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                       {[
                         { label: 'Followers', value: formatMetric(displayProfileData.tiktok.followers) },
-                        { label: 'Avg Likes', value: formatMetric(displayProfileData.tiktok.totalLikes) },
+                        { label: 'Avg Likes', value: formatMetric(displayProfileData.tiktok.totalLikes), warn: displayProfileData.tiktok.totalLikes > displayProfileData.tiktok.avgViews && displayProfileData.tiktok.avgViews > 0 },
                         { label: 'Avg Views', value: formatMetric(displayProfileData.tiktok.avgViews) },
-                        { label: 'Engagement', value: `${displayProfileData.tiktok.engagementRate}%`, highlight: true },
+                        { label: 'Engagement', value: `${formatER(displayProfileData.tiktok.engagementRate)}%`, highlight: true, warn: displayProfileData.tiktok.engagementRate > 20 },
                       ].map((stat, i) => (
-                        <div key={i} className="p-4 bg-gray-50 dark:bg-white/5 rounded-2xl border border-gray-100 dark:border-white/5">
+                        <div key={i} className={cn(
+                          'p-4 rounded-2xl border',
+                          (stat as any).warn
+                            ? 'bg-amber-50 dark:bg-amber-500/5 border-amber-200 dark:border-amber-500/10'
+                            : 'bg-gray-50 dark:bg-white/5 border-gray-100 dark:border-white/5'
+                        )}>
                           <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">{stat.label}</p>
-                          <p className={cn("text-sm font-black", stat.highlight ? "text-emerald-500" : "")}>{stat.value}</p>
+                          <p className={cn(
+                            'text-sm font-black',
+                            (stat as any).warn ? 'text-amber-600' : stat.highlight ? 'text-emerald-500' : ''
+                          )}>{stat.value}</p>
                         </div>
                       ))}
                     </div>
+
+                    {(() => {
+                      const { warnings } = validatePlatformAnalytics(displayProfileData.tiktok);
+                      return warnings.length > 0 ? (
+                        <div className="p-3 bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 rounded-xl space-y-1 mt-4">
+                          {warnings.map((w, i) => (
+                            <p key={i} className="text-[10px] font-bold text-amber-700 dark:text-amber-400 flex items-center gap-1.5">
+                              <AlertCircle size={12} className="shrink-0" /> {w}
+                            </p>
+                          ))}
+                        </div>
+                      ) : null;
+                    })()}
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-3">
@@ -330,16 +378,37 @@ export default function UserApprovalPage() {
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                       {[
                         { label: 'Followers', value: formatMetric(displayProfileData.instagram.followers) },
-                        { label: 'Avg Likes', value: formatMetric(displayProfileData.instagram.totalLikes) },
+                        { label: 'Avg Likes', value: formatMetric(displayProfileData.instagram.totalLikes), warn: displayProfileData.instagram.totalLikes > displayProfileData.instagram.avgViews && displayProfileData.instagram.avgViews > 0 },
                         { label: 'Avg Views', value: formatMetric(displayProfileData.instagram.avgViews) },
-                        { label: 'Engagement', value: `${displayProfileData.instagram.engagementRate}%`, highlight: true },
+                        { label: 'Engagement', value: `${formatER(displayProfileData.instagram.engagementRate)}%`, highlight: true, warn: displayProfileData.instagram.engagementRate > 20 },
                       ].map((stat, i) => (
-                        <div key={i} className="p-4 bg-pink-50/30 dark:bg-pink-500/5 rounded-2xl border border-pink-100/50 dark:border-pink-500/10">
+                        <div key={i} className={cn(
+                          'p-4 rounded-2xl border',
+                          (stat as any).warn
+                            ? 'bg-amber-50 dark:bg-amber-500/5 border-amber-200 dark:border-amber-500/10'
+                            : 'bg-pink-50/30 dark:bg-pink-500/5 border-pink-100/50 dark:border-pink-500/10'
+                        )}>
                           <p className="text-[9px] font-black text-pink-400 uppercase tracking-widest mb-1">{stat.label}</p>
-                          <p className={cn("text-sm font-black", stat.highlight ? "text-pink-600" : "")}>{stat.value}</p>
+                          <p className={cn(
+                            'text-sm font-black',
+                            (stat as any).warn ? 'text-amber-600' : stat.highlight ? 'text-pink-600' : ''
+                          )}>{stat.value}</p>
                         </div>
                       ))}
                     </div>
+
+                    {(() => {
+                      const { warnings } = validatePlatformAnalytics(displayProfileData.instagram);
+                      return warnings.length > 0 ? (
+                        <div className="p-3 bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 rounded-xl space-y-1 mt-4">
+                          {warnings.map((w, i) => (
+                            <p key={i} className="text-[10px] font-bold text-amber-700 dark:text-amber-400 flex items-center gap-1.5">
+                              <AlertCircle size={12} className="shrink-0" /> {w}
+                            </p>
+                          ))}
+                        </div>
+                      ) : null;
+                    })()}
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-3">
