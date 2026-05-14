@@ -18,21 +18,26 @@ const parseNum = (val: any): number => {
     return 0;
 };
 
-const extractMetrics = (profileData: any) => {
-    if (!profileData) return { followers: 0, engagementRate: 0, niche: '', niches: [] as string[], platforms: [] as string[] };
-
-    let bestFollowers = 0;
-    let bestEngagement = 0;
-    let niches: string[] = [];
-    const platforms: string[] = [];
+const extractMetrics = (profileData: any): {
+    followers: number;
+    engagementRate: number;
+    totalLikes: number;
+    avgViews: number;
+    avgComments: number;
+    avgShares: number;
+    niche: string;
+    niches: string[];
+    platforms: string[];
+    isMultiPlatform: boolean;
+    audienceInfo: any;
+} => {
+    if (!profileData) return { followers: 0, engagementRate: 0, niche: 'General', platforms: [] as string[], niches: [], totalLikes: 0, avgViews: 0, avgComments: 0, avgShares: 0, isMultiPlatform: false, audienceInfo: {} };
 
     // Helper: compute ER from raw metrics if engagementRate is not stored
     const computeER = (platform: any): number => {
-        // If engagementRate is already stored and valid, use it (but cap at 100)
         const storedER = parseNum(platform.engagementRate);
         if (storedER > 0 && storedER <= 100) return storedER;
 
-        // Otherwise compute from raw metrics: (likes + comments + shares) / followers * 100
         const f = parseNum(platform.followers);
         const likes = parseNum(platform.totalLikes);
         const comments = parseNum(platform.avgComments);
@@ -41,7 +46,6 @@ const extractMetrics = (profileData: any) => {
 
         if (f <= 0) return 0;
 
-        // Validate: likes should not exceed views (if both exist)
         if (likes > 0 && views > 0 && likes > views) {
             logger.warn(`[extractMetrics] Invalid metrics: likes (${likes}) > views (${views}). Skipping ER computation.`);
             return 0;
@@ -51,56 +55,94 @@ const extractMetrics = (profileData: any) => {
         return Math.min(rawER, 100); // Cap at 100%
     };
 
-    // 1. Check Nested Platforms
+    let totalFollowers = 0;
+    let totalLikes = 0;
+    let totalAvgViews = 0;
+    let totalAvgComments = 0;
+    let totalAvgShares = 0;
+    let maxEngagement = 0;
+    const platforms: string[] = [];
+    const niches: string[] = [];
+    const audienceInfo: any = {};
+
+    // 1. Check TikTok
     if (profileData.tiktok) {
         const t = profileData.tiktok;
         const f = parseNum(t.followers);
-        const e = computeER(t);
-        if (f > 0) platforms.push('tiktok');
-        if (f > bestFollowers) bestFollowers = f;
-        if (e > bestEngagement) bestEngagement = e;
-        if (t.niche) {
-            if (typeof t.niche === 'string') niches.push(t.niche);
-            else if (Array.isArray(t.niche)) niches.push(...t.niche);
-            else if (typeof t.niche === 'object') niches.push(...Object.values(t.niche).filter(Boolean) as string[]);
+        if (t.username || f > 0) {
+            platforms.push('tiktok');
+            totalFollowers += f;
+            totalLikes += parseNum(t.totalLikes);
+            totalAvgViews += parseNum(t.avgViews);
+            totalAvgComments += parseNum(t.avgComments);
+            totalAvgShares += parseNum(t.avgShares);
+            
+            const e = computeER(t);
+            if (e > maxEngagement) maxEngagement = e;
+
+            if (t.niche) {
+                if (typeof t.niche === 'string') niches.push(t.niche);
+                else if (Array.isArray(t.niche)) niches.push(...t.niche);
+                else if (typeof t.niche === 'object') niches.push(...Object.values(t.niche).filter(Boolean) as string[]);
+            }
+            if (t.audienceTopCountry) audienceInfo.topCountry = t.audienceTopCountry;
+            if (t.audienceAgeRange) audienceInfo.ageRange = t.audienceAgeRange;
+            if (t.audienceGender) audienceInfo.gender = t.audienceGender;
         }
     }
 
+    // 2. Check Instagram
     if (profileData.instagram) {
         const ig = profileData.instagram;
         const f = parseNum(ig.followers);
-        const e = computeER(ig);
-        if (f > 0) platforms.push('instagram');
-        if (f > bestFollowers) bestFollowers = f;
-        if (e > bestEngagement) bestEngagement = e;
-        if (ig.niche) {
-            if (typeof ig.niche === 'string') niches.push(ig.niche);
-            else if (Array.isArray(ig.niche)) niches.push(...ig.niche);
-            else if (typeof ig.niche === 'object') niches.push(...Object.values(ig.niche).filter(Boolean) as string[]);
+        if (ig.username || f > 0) {
+            platforms.push('instagram');
+            totalFollowers += f;
+            totalLikes += parseNum(ig.totalLikes);
+            totalAvgViews += parseNum(ig.avgViews);
+            totalAvgComments += parseNum(ig.avgComments);
+            totalAvgShares += parseNum(ig.avgShares);
+            
+            const e = computeER(ig);
+            if (e > maxEngagement) maxEngagement = e;
+
+            if (ig.niche) {
+                if (typeof ig.niche === 'string') niches.push(ig.niche);
+                else if (Array.isArray(ig.niche)) niches.push(...ig.niche);
+                else if (typeof ig.niche === 'object') niches.push(...Object.values(ig.niche).filter(Boolean) as string[]);
+            }
+            if (ig.audienceTopCountry) audienceInfo.topCountry = ig.audienceTopCountry;
+            if (ig.audienceAgeRange) audienceInfo.ageRange = ig.audienceAgeRange;
+            if (ig.audienceGender) audienceInfo.gender = ig.audienceGender;
         }
     }
 
-    // 2. Flat field fallback (legacy or business profiles)
-    if (bestFollowers === 0 && profileData.followers) bestFollowers = parseNum(profileData.followers);
-    if (bestEngagement === 0 && profileData.engagementRate) {
-        bestEngagement = Math.min(parseNum(profileData.engagementRate), 100); // Cap legacy values too
+    const isMultiPlatform = platforms.length > 1;
+
+    // 3. Fallbacks for legacy/flat data
+    if (totalFollowers === 0 && profileData.followers) totalFollowers = parseNum(profileData.followers);
+    if (maxEngagement === 0 && profileData.engagementRate) {
+        maxEngagement = Math.min(parseNum(profileData.engagementRate), 100);
     }
-    
-    // Niche fallbacks
+
     if (niches.length === 0) {
         if (profileData.category) niches.push(profileData.category);
         if (profileData.industry) niches.push(profileData.industry);
         if (Array.isArray(profileData.targetAudienceTags)) niches.push(...profileData.targetAudienceTags);
     }
 
-    niches = [...new Set(niches.filter(Boolean))];
-
     return {
-        followers: bestFollowers,
-        engagementRate: bestEngagement,
-        niche: niches[0] || '',
-        niches,
+        followers: totalFollowers,
+        engagementRate: maxEngagement,
+        totalLikes,
+        avgViews: totalAvgViews,
+        avgComments: totalAvgComments,
+        avgShares: totalAvgShares,
+        niche: [...new Set(niches.filter(Boolean))][0] || 'General',
+        niches: [...new Set(niches.filter(Boolean))],
         platforms,
+        isMultiPlatform,
+        audienceInfo
     };
 };
 
@@ -298,10 +340,13 @@ export const getRecommendationsForUser = async (userId: string): Promise<Recomme
                 category: opp.category,
                 location: opp.requirements?.location,
                 meta: {
+                    description: opp.description,
+                    deliverables: opp.deliverables,
                     budget: opp.budget,
                     platforms: opp.platforms,
                     deadline: opp.deadline,
                     tags: opp.tags,
+                    requirements: opp.requirements,
                     businessOwner: owner ? {
                         name: `${owner.firstName || ''} ${owner.lastName || ''}`.trim(),
                         profilePicture: owner.profilePicture,

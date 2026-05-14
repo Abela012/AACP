@@ -33,7 +33,7 @@ export interface JobOpportunity {
   requirements?: string[];
 }
 
-import { useOpportunities } from '@/src/hooks/useOpportunities';
+import { useRecommendations } from '@/src/hooks/useRecommendations';
 import { Loader2 } from 'lucide-react';
 
 export default function AdvertiserMatchesPage() {
@@ -44,8 +44,24 @@ export default function AdvertiserMatchesPage() {
   const [selectedJob, setSelectedJob] = useState<any | null>(null);
   const [appliedJobs, setAppliedJobs] = useState<any[]>([]);
 
-  const { data: oppsData, isLoading } = useOpportunities();
-  const opportunities = oppsData?.opportunities ?? [];
+  const { data: recoData, isLoading } = useRecommendations();
+  const opportunities = (recoData?.recommendations || []).map((r: any) => ({
+    _id: r.targetId,
+    title: r.name,
+    category: r.category,
+    location: r.location,
+    score: r.score,
+    ...r.meta,
+    owner: r.meta?.businessOwner ? {
+      ...r.meta.businessOwner,
+      firstName: r.meta.businessOwner.name.split(' ')[0] || 'Business'
+    } : undefined,
+    // Add compatibility fields for UI
+    brand: r.meta?.businessOwner?.name || 'Business',
+    campaign: r.name,
+    budget: r.meta?.budget,
+    image: r.meta?.businessOwner?.profilePicture || `https://ui-avatars.com/api/?name=${r.name}&background=10b981&color=fff`
+  }));
 
   useEffect(() => {
     const stored = localStorage.getItem('appliedJobs');
@@ -235,8 +251,9 @@ export default function AdvertiserMatchesPage() {
                   <div className="w-full h-full bg-gray-200 dark:bg-white/5 flex items-center justify-center text-gray-400">
                     <Building2 size={48} />
                   </div>
-                  <div className="absolute top-4 right-4 bg-emerald-500/90 backdrop-blur-md text-black text-[10px] font-bold px-3 py-1.5 rounded-full uppercase tracking-widest shadow-lg">
-                    95% Match
+                  <div className="absolute top-4 right-4 bg-emerald-500/90 backdrop-blur-md text-black text-[10px] font-bold px-3 py-1.5 rounded-full uppercase tracking-widest shadow-lg flex items-center gap-1">
+                    <Sparkles size={10} />
+                    {o.score}% Match
                   </div>
                 </div>
                 <div className="p-8">
