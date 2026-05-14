@@ -28,6 +28,7 @@ import { cn } from '@/src/shared/utils/cn';
 import { useApiClient } from '@/src/api/apiClient';
 import { userApi } from '@/src/api/userApi';
 import { socialApi } from '../../../api/socialApi';
+import { facebookAnalyticsApi } from '../../../api/facebookAnalyticsApi';
 import type { SocialConnection } from '../../../api/socialApi';
 import { toast } from 'react-hot-toast';
 
@@ -605,7 +606,7 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
 
   useEffect(() => {
     if (!profile?._id || !isBusiness) return;
-    const p = profile as Record<string, unknown>;
+    const p = profile as unknown as Record<string, unknown>;
     if (typeof p.businessName === 'string' && p.businessName) setBusinessName(p.businessName);
     if (typeof p.industry === 'string' && p.industry) setIndustry(p.industry);
     if (typeof p.businessLocation === 'string' && p.businessLocation) setBusinessLocation(p.businessLocation);
@@ -1035,173 +1036,218 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
 
         {/* Social Connections — creators only (not used for business-owner AI signals) */}
         {!isBusiness && (
-        <SectionCard icon={<Sparkles size={20} />} title="Social Connections">
-          <p className="text-xs text-gray-500 dark:text-gray-400 -mt-4 mb-6">
-            Connect your social media accounts to sync metrics and verify your presence.
-          </p>
-          <div className="space-y-4">
-            {[
-              { id: 'facebook', name: 'Facebook', icon: <FaFacebook />, color: 'text-blue-600', useToken: true },
-              { id: 'instagram', name: 'Instagram', icon: <FaInstagram />, color: 'text-pink-600', useToken: false, comingSoon: true },
-              { id: 'tiktok', name: 'TikTok', icon: <FaTiktok />, color: 'text-black dark:text-white', useToken: false, comingSoon: true },
-            ].map((platform) => {
-              const conn = socialConnections.find(c => c.platform === platform.id);
-              const status = conn?.status || 'none';
-              const isConnected = status === 'approved' || (conn?.isConnected && status !== 'none');
-              const isCurrentlyConnecting = connectingPlatform === platform.id;
+          <SectionCard icon={<Sparkles size={20} />} title="Social Connections">
+            <p className="text-xs text-gray-500 dark:text-gray-400 -mt-4 mb-6">
+              Connect your social media accounts to sync metrics and verify your presence.
+            </p>
+            <div className="space-y-4">
+              {[
+                { id: 'facebook', name: 'Facebook', icon: <FaFacebook />, color: 'text-blue-600', useToken: false },
+                { id: 'instagram', name: 'Instagram', icon: <FaInstagram />, color: 'text-pink-600', useToken: false, comingSoon: true },
+                { id: 'tiktok', name: 'TikTok', icon: <FaTiktok />, color: 'text-black dark:text-white', useToken: false, comingSoon: true },
+              ].map((platform) => {
+                const conn = socialConnections.find(c => c.platform === platform.id);
+                const status = conn?.status || 'none';
+                const isConnected = status === 'approved' || (conn?.isConnected && status !== 'none');
+                const isCurrentlyConnecting = connectingPlatform === platform.id;
 
-              return (
-                <div key={platform.id} className={cn(
-                  "flex items-center justify-between p-4 rounded-2xl border transition-all duration-300",
-                  isConnected
-                    ? "bg-emerald-50/50 dark:bg-emerald-500/5 border-emerald-200 dark:border-emerald-500/20"
-                    : "bg-gray-50 dark:bg-white/5 border-gray-100 dark:border-white/5"
-                )}>
-                  <div className="flex items-center gap-3">
-                    <div className={cn(
-                      "p-2.5 rounded-xl shadow-sm transition-all",
-                      isConnected
-                        ? "bg-emerald-100 dark:bg-emerald-500/15"
-                        : "bg-white dark:bg-white/5",
-                      platform.color
-                    )}>
-                      {platform.icon}
-                    </div>
-                    <div>
-                      <p className="text-sm font-bold text-gray-900 dark:text-white">{platform.name}</p>
-                      <p className={cn(
-                        "text-[10px] uppercase tracking-wider font-bold",
-                        isConnected ? "text-emerald-600 dark:text-emerald-400" :
-                          status === 'pending' ? "text-amber-600 dark:text-amber-400" :
-                            "text-gray-500"
+                return (
+                  <div key={platform.id} className={cn(
+                    "flex items-center justify-between p-4 rounded-2xl border transition-all duration-300",
+                    isConnected
+                      ? "bg-emerald-50/50 dark:bg-emerald-500/5 border-emerald-200 dark:border-emerald-500/20"
+                      : "bg-gray-50 dark:bg-white/5 border-gray-100 dark:border-white/5"
+                  )}>
+                    <div className="flex items-center gap-3">
+                      <div className={cn(
+                        "p-2.5 rounded-xl shadow-sm transition-all",
+                        isConnected
+                          ? "bg-emerald-100 dark:bg-emerald-500/15"
+                          : "bg-white dark:bg-white/5",
+                        platform.color
                       )}>
-                        {isCurrentlyConnecting ? 'Connecting...' :
-                          isConnected ? 'Connected' :
-                            status === 'pending' ? 'Pending Approval' :
-                              platform.comingSoon ? 'Launching Soon' :
-                                'Not Connected'}
-                      </p>
+                        {platform.icon}
+                      </div>
+                      <div>
+                        <p className="text-sm font-bold text-gray-900 dark:text-white">{platform.name}</p>
+                        <p className={cn(
+                          "text-[10px] uppercase tracking-wider font-bold",
+                          isConnected ? "text-emerald-600 dark:text-emerald-400" :
+                            status === 'pending' ? "text-amber-600 dark:text-amber-400" :
+                              "text-gray-500"
+                        )}>
+                          {isCurrentlyConnecting ? 'Connecting...' :
+                            isConnected ? 'Connected' :
+                              status === 'pending' ? 'Pending Approval' :
+                                platform.comingSoon ? 'Launching Soon' :
+                                  'Not Connected'}
+                        </p>
+                      </div>
                     </div>
-                  </div>
 
-                  {isCurrentlyConnecting ? (
-                    <div className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-blue-50 dark:bg-blue-500/10 text-blue-600 text-xs font-bold">
-                      <Loader2 size={14} className="animate-spin" /> Connecting...
-                    </div>
-                  ) : isConnected ? (
-                    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 text-xs font-bold">
-                      <CheckCircle2 size={14} /> Connected
-                    </div>
-                  ) : status === 'pending' ? (
-                    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-50 dark:bg-amber-500/10 text-amber-600 text-xs font-bold">
-                      <Loader2 size={14} className="animate-spin" /> Pending
-                    </div>
-                  ) : platform.comingSoon ? (
-                    <div className="px-3 py-1.5 rounded-full bg-gray-100 dark:bg-white/5 text-gray-400 text-[10px] font-black uppercase tracking-widest border border-gray-200 dark:border-white/5">
-                      Coming Soon
-                    </div>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={async () => {
-                        if (platform.useToken) {
-                          setShowTokenModal(platform.id);
-                          setTokenInput('');
-                          setTokenError(null);
-                        } else {
-                          setConnectingPlatform(platform.id);
-                          try {
-                            const res = await socialApi.initiateAuth(api, platform.id, location.pathname);
-                            if (res.success && res.data?.authUrl) {
-                              window.location.href = res.data.authUrl;
+                    {isCurrentlyConnecting ? (
+                      <div className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-blue-50 dark:bg-blue-500/10 text-blue-600 text-xs font-bold">
+                        <Loader2 size={14} className="animate-spin" /> Connecting...
+                      </div>
+                    ) : isConnected ? (
+                      <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 text-xs font-bold">
+                        <CheckCircle2 size={14} /> Connected
+                      </div>
+                    ) : status === 'pending' ? (
+                      <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-50 dark:bg-amber-500/10 text-amber-600 text-xs font-bold">
+                        <Loader2 size={14} className="animate-spin" /> Pending
+                      </div>
+                    ) : platform.comingSoon ? (
+                      <div className="px-3 py-1.5 rounded-full bg-gray-100 dark:bg-white/5 text-gray-400 text-[10px] font-black uppercase tracking-widest border border-gray-200 dark:border-white/5">
+                        Coming Soon
+                      </div>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          if (platform.id === 'facebook') {
+                            setShowTokenModal('facebook');
+                            setTokenError(null);
+                          } else {
+                            setConnectingPlatform(platform.id);
+                            try {
+                              const res = await socialApi.initiateAuth(api, platform.id, location.pathname);
+                              if (res.success && res.data?.authUrl) {
+                                window.location.href = res.data.authUrl;
+                              }
+                            } catch (err) {
+                              toast.error(`Failed to connect ${platform.name}`);
+                              setConnectingPlatform(null);
                             }
-                          } catch (err) {
-                            toast.error(`Failed to connect ${platform.name}`);
-                            setConnectingPlatform(null);
                           }
-                        }
-                      }}
-                      className="px-4 py-2 rounded-xl bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-xs font-bold hover:opacity-90 transition-opacity"
-                    >
-                      Connect
-                    </button>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </SectionCard>
+                        }}
+                        className="px-4 py-2 rounded-xl bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-xs font-bold hover:opacity-90 transition-opacity"
+                      >
+                        Connect
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </SectionCard>
         )}
 
-        {/* ── Token Input Modal ── */}
+        {/* ── Facebook OAuth Connection Modal ── */}
         <AnimatePresence>
-          {showTokenModal && (
+          {showTokenModal === 'facebook' && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4"
+              className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md px-4"
               onClick={() => { setShowTokenModal(null); setTokenError(null); }}
             >
               <motion.div
-                initial={{ scale: 0.9, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.9, opacity: 0 }}
+                initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                animate={{ scale: 1, opacity: 1, y: 0 }}
+                exit={{ scale: 0.9, opacity: 0, y: 20 }}
                 transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-                className="bg-white dark:bg-[#111] rounded-3xl border border-gray-100 dark:border-white/10 p-8 max-w-md w-full shadow-2xl"
+                className="bg-white dark:bg-[#0f0f14] rounded-3xl border border-gray-100 dark:border-white/8 p-0 max-w-md w-full shadow-2xl overflow-hidden"
                 onClick={e => e.stopPropagation()}
               >
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="w-10 h-10 bg-blue-100 dark:bg-blue-500/10 rounded-xl flex items-center justify-center text-blue-600">
-                    <FaFacebook size={20} />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-bold text-gray-900 dark:text-white">Connect Facebook</h3>
-                    <p className="text-xs text-gray-500">Enter your Facebook access token</p>
+                {/* Modal Header with gradient */}
+                <div className="relative px-8 pt-8 pb-6 bg-linear-to-b from-blue-50 dark:from-blue-500/5 to-transparent">
+                  <button
+                    type="button"
+                    onClick={() => { setShowTokenModal(null); setTokenError(null); }}
+                    className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 dark:bg-white/5 text-gray-400 hover:text-gray-600 dark:hover:text-white transition-colors"
+                  >
+                    <X size={16} />
+                  </button>
+                  <div className="flex flex-col items-center text-center">
+                    <div className="w-16 h-16 rounded-2xl bg-linear-to-br from-[#1877F2] to-[#0d47a1] flex items-center justify-center text-white shadow-lg shadow-blue-500/25 mb-5">
+                      <FaFacebook size={28} />
+                    </div>
+                    <h3 className="text-xl font-extrabold text-gray-900 dark:text-white mb-1.5">Connect Facebook Analytics</h3>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed max-w-xs">
+                      Connect your Facebook account to fetch followers, reach, engagement, and Page insights.
+                    </p>
                   </div>
                 </div>
 
-                {tokenError && (
-                  <div className="mb-4 p-3 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 rounded-xl text-red-600 text-xs font-medium">
-                    {tokenError}
-                  </div>
-                )}
+                {/* Modal Body */}
+                <div className="px-8 pb-8">
+                  {tokenError && (
+                    <div className="mb-5 p-3.5 bg-red-50 dark:bg-red-500/8 border border-red-200 dark:border-red-500/15 rounded-xl text-red-600 dark:text-red-400 text-xs font-medium flex items-center gap-2">
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" strokeWidth="1.5" /><path d="M8 5v3.5M8 10.5h.007" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></svg>
+                      {tokenError}
+                    </div>
+                  )}
 
-                <div className="space-y-4">
-                  <div>
-                    <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em] mb-1.5 block">
-                      Access Token
-                    </label>
-                    <textarea
-                      value={tokenInput}
-                      onChange={(e) => setTokenInput(e.target.value)}
-                      placeholder="Paste your Facebook access token here..."
-                      rows={3}
-                      className="w-full bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm font-mono focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/20 text-gray-900 dark:text-white resize-none transition-all"
-                    />
+                  {/* What gets synced */}
+                  <div className="mb-6 space-y-2.5">
+                    <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">What gets synced automatically</p>
+                    <div className="grid grid-cols-2 gap-2">
+                      {[
+                        { icon: '👥', label: 'Followers & Fans' },
+                        { icon: '📈', label: 'Page Engagement' },
+                        { icon: '👁️', label: 'Impressions & Reach' },
+                        { icon: '📊', label: 'Page Insights' },
+                      ].map((item) => (
+                        <div key={item.label} className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-gray-50 dark:bg-white/3 border border-gray-100 dark:border-white/5">
+                          <span className="text-base">{item.icon}</span>
+                          <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">{item.label}</span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
 
-                  <div className="flex gap-3">
+                  {/* Security note */}
+                  <div className="mb-6 flex items-start gap-3 p-3.5 rounded-xl bg-emerald-50/50 dark:bg-emerald-500/5 border border-emerald-200/50 dark:border-emerald-500/10">
+                    <Shield size={16} className="text-emerald-500 mt-0.5 shrink-0" />
+                    <p className="text-[11px] text-gray-600 dark:text-gray-400 leading-relaxed">
+                      Your connection is secure. We only request read-only access to your Page analytics — we can never post or modify anything on your behalf.
+                    </p>
+                  </div>
+
+                  {/* Action buttons */}
+                  <div className="space-y-3">
+                    <button
+                      type="button"
+                      disabled={connectingPlatform === 'facebook'}
+                      onClick={async () => {
+                        setConnectingPlatform('facebook');
+                        setTokenError(null);
+                        try {
+                          const res = await facebookAnalyticsApi.initiateAuth(api);
+                          if (res.success && res.data?.authUrl) {
+                            window.location.href = res.data.authUrl;
+                          } else {
+                            setTokenError('Unable to start Facebook authorization. Please try again.');
+                            setConnectingPlatform(null);
+                          }
+                        } catch (err: any) {
+                          const message = err?.response?.data?.message || 'Unable to connect to Facebook. Please try again.';
+                          setTokenError(message);
+                          setConnectingPlatform(null);
+                        }
+                      }}
+                      className="w-full py-3.5 rounded-2xl bg-[#1877F2] text-white text-sm font-bold hover:bg-[#1565c0] disabled:opacity-60 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2.5 shadow-lg shadow-blue-500/20"
+                    >
+                      {connectingPlatform === 'facebook' ? (
+                        <><Loader2 size={18} className="animate-spin" /> Connecting to Facebook...</>
+                      ) : (
+                        <><FaFacebook size={18} /> Continue with Facebook</>
+                      )}
+                    </button>
                     <button
                       type="button"
                       onClick={() => { setShowTokenModal(null); setTokenError(null); }}
-                      className="flex-1 py-3 rounded-xl border border-gray-200 dark:border-white/10 text-sm font-bold text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 transition-all"
+                      className="w-full py-3 rounded-2xl border border-gray-200 dark:border-white/8 text-sm font-semibold text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/3 transition-all"
                     >
                       Cancel
                     </button>
-                    <button
-                      type="button"
-                      disabled={!tokenInput.trim() || connectingPlatform === showTokenModal}
-                      onClick={() => handleConnectWithToken(showTokenModal, tokenInput.trim())}
-                      className="flex-1 py-3 rounded-xl bg-blue-600 text-white text-sm font-bold hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
-                    >
-                      {connectingPlatform === showTokenModal ? (
-                        <><Loader2 size={16} className="animate-spin" /> Connecting...</>
-                      ) : (
-                        <><CheckCircle2 size={16} /> Connect</>
-                      )}
-                    </button>
                   </div>
+
+                  <p className="text-center text-[10px] text-gray-400 dark:text-gray-600 mt-4">
+                    By connecting, you agree to share your Page analytics with AACP.
+                  </p>
                 </div>
               </motion.div>
             </motion.div>
@@ -1715,8 +1761,8 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
                             <label className={cn(
                               "text-[11px] font-bold uppercase tracking-[0.08em]",
                               tiktokER.hasErrors ? 'text-red-600 dark:text-red-400' :
-                              tiktokER.isAbnormal ? 'text-amber-600 dark:text-amber-400' :
-                              'text-emerald-600 dark:text-emerald-400'
+                                tiktokER.isAbnormal ? 'text-amber-600 dark:text-amber-400' :
+                                  'text-emerald-600 dark:text-emerald-400'
                             )}>Engagement Rate (Computed)</label>
                             <div className="relative">
                               <input type="text" value={tiktokER.hasErrors ? '—' : `${computedTiktokER}`} readOnly disabled
@@ -1725,8 +1771,8 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
                                   tiktokER.hasErrors
                                     ? 'bg-red-50/50 dark:bg-red-500/5 border-red-200 dark:border-red-500/20 text-red-700 dark:text-red-400'
                                     : tiktokER.isAbnormal
-                                    ? 'bg-amber-50/50 dark:bg-amber-500/5 border-amber-200 dark:border-amber-500/20 text-amber-700 dark:text-amber-400'
-                                    : 'bg-emerald-50/50 dark:bg-emerald-500/5 border-emerald-200 dark:border-emerald-500/20 text-emerald-700 dark:text-emerald-400'
+                                      ? 'bg-amber-50/50 dark:bg-amber-500/5 border-amber-200 dark:border-amber-500/20 text-amber-700 dark:text-amber-400'
+                                      : 'bg-emerald-50/50 dark:bg-emerald-500/5 border-emerald-200 dark:border-emerald-500/20 text-emerald-700 dark:text-emerald-400'
                                 )} />
                               <span className={cn(
                                 'absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold',
@@ -1906,8 +1952,8 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
                             <label className={cn(
                               "text-[11px] font-bold uppercase tracking-[0.08em]",
                               instagramER.hasErrors ? 'text-red-600 dark:text-red-400' :
-                              instagramER.isAbnormal ? 'text-amber-600 dark:text-amber-400' :
-                              'text-pink-600 dark:text-pink-400'
+                                instagramER.isAbnormal ? 'text-amber-600 dark:text-amber-400' :
+                                  'text-pink-600 dark:text-pink-400'
                             )}>Engagement Rate (Computed)</label>
                             <div className="relative">
                               <input type="text" value={instagramER.hasErrors ? '—' : `${computedInstagramER}`} readOnly disabled
@@ -1916,8 +1962,8 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
                                   instagramER.hasErrors
                                     ? 'bg-red-50/50 dark:bg-red-500/5 border-red-200 dark:border-red-500/20 text-red-700 dark:text-red-400'
                                     : instagramER.isAbnormal
-                                    ? 'bg-amber-50/50 dark:bg-amber-500/5 border-amber-200 dark:border-amber-500/20 text-amber-700 dark:text-amber-400'
-                                    : 'bg-pink-50/50 dark:bg-pink-500/5 border-pink-200 dark:border-pink-500/20 text-pink-700 dark:text-pink-400'
+                                      ? 'bg-amber-50/50 dark:bg-amber-500/5 border-amber-200 dark:border-amber-500/20 text-amber-700 dark:text-amber-400'
+                                      : 'bg-pink-50/50 dark:bg-pink-500/5 border-pink-200 dark:border-pink-500/20 text-pink-700 dark:text-pink-400'
                                 )} />
                               <span className={cn(
                                 'absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold',

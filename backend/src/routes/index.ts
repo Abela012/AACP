@@ -14,6 +14,7 @@ import recommendationRoutes from '../modules/recommendations/recommendation.rout
 import marketingAnalysisRoutes from '../modules/marketing-analysis/marketing-analysis.routes';
 import socialRoutes from '../modules/social/social.routes';
 import searchRoutes from '../modules/search/search.routes';
+import facebookAnalyticsRoutes from '../modules/facebook-analytics/facebookAnalytics.routes';
 
 
 /**
@@ -355,6 +356,9 @@ router.use('/recommendations', recommendationRoutes);
 router.use('/marketing-analysis', marketingAnalysisRoutes);
 router.use('/social', socialRoutes);
 router.use('/search', searchRoutes);
+
+// Facebook Analytics — mounted at root since route file has full paths
+router.use('/', facebookAnalyticsRoutes);
 
 
 /**

@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { 
-  Settings, 
-  Shield, 
-  Bell, 
+import {
+  Settings,
+  Shield,
+  Bell,
   Database,
   Globe,
   Lock,
@@ -92,12 +92,10 @@ export default function AdminSettingsPage() {
                   <service.icon size={20} />
                 </div>
                 <div className={`flex items-center gap-1.5`}>
-                  <div className={`w-2 h-2 rounded-full ${
-                    service.status === 'Operational' ? 'bg-emerald-500' : 'bg-amber-500 animate-pulse'
-                  }`} />
-                  <span className={`text-[10px] font-black uppercase tracking-widest ${
-                    service.status === 'Operational' ? 'text-emerald-600' : 'text-amber-600'
-                  }`}>
+                  <div className={`w-2 h-2 rounded-full ${service.status === 'Operational' ? 'bg-emerald-500' : 'bg-amber-500 animate-pulse'
+                    }`} />
+                  <span className={`text-[10px] font-black uppercase tracking-widest ${service.status === 'Operational' ? 'text-emerald-600' : 'text-amber-600'
+                    }`}>
                     {service.status}
                   </span>
                 </div>
@@ -134,13 +132,12 @@ export default function AdminSettingsPage() {
                       initial={{ width: 0 }}
                       animate={{ width: `${(resource.value / resource.max) * 100}%` }}
                       transition={{ delay: idx * 0.15, duration: 0.6 }}
-                      className={`h-full rounded-full ${
-                        (resource.value / resource.max) > 0.8 
-                          ? 'bg-gradient-to-r from-red-500 to-red-400' 
-                          : (resource.value / resource.max) > 0.6 
-                            ? 'bg-gradient-to-r from-amber-500 to-amber-400'
-                            : 'bg-gradient-to-r from-[#14a800] to-[#22c55e]'
-                      }`}
+                      className={`h-full rounded-full ${(resource.value / resource.max) > 0.8
+                          ? 'bg-linear-to-r from-red-500 to-red-400'
+                          : (resource.value / resource.max) > 0.6
+                            ? 'bg-linear-to-r from-amber-500 to-amber-400'
+                            : 'bg-linear-to-r from-[#14a800] to-[#22c55e]'
+                        }`}
                     />
                   </div>
                 </div>
@@ -175,17 +172,15 @@ export default function AdminSettingsPage() {
                     </div>
                     <p className="text-xs text-[#6F767E] dark:text-gray-400 font-medium leading-relaxed">{setting.desc}</p>
                   </div>
-                  <button 
+                  <button
                     onClick={() => setting.setter(!setting.value)}
-                    className={`w-14 h-7 rounded-full relative transition-all duration-200 ${
-                      setting.value 
+                    className={`w-14 h-7 rounded-full relative transition-all duration-200 ${setting.value
                         ? (setting.danger ? 'bg-red-500' : 'bg-[#14a800]')
                         : 'bg-gray-200 dark:bg-white/10'
-                    }`}
+                      }`}
                   >
-                    <div className={`absolute top-1 w-5 h-5 bg-white rounded-full shadow-sm transition-all duration-200 ${
-                      setting.value ? 'right-1' : 'left-1'
-                    }`} />
+                    <div className={`absolute top-1 w-5 h-5 bg-white rounded-full shadow-sm transition-all duration-200 ${setting.value ? 'right-1' : 'left-1'
+                      }`} />
                   </button>
                 </div>
               ))}
@@ -205,14 +200,13 @@ export default function AdminSettingsPage() {
           <div className="space-y-4">
             {recentEvents.map((event, idx) => (
               <div key={idx} className="flex items-center gap-4 p-4 bg-[#F8F8FD] dark:bg-white/5 rounded-2xl hover:bg-white dark:hover:bg-white/10 transition-all">
-                <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${
-                  event.type === 'success' ? 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-500' :
-                  event.type === 'warning' ? 'bg-amber-100 dark:bg-amber-500/20 text-amber-500' :
-                  'bg-blue-100 dark:bg-blue-500/20 text-blue-500'
-                }`}>
-                  {event.type === 'success' ? <CheckCircle2 size={16} /> : 
-                   event.type === 'warning' ? <AlertTriangle size={16} /> : 
-                   <Bell size={16} />}
+                <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${event.type === 'success' ? 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-500' :
+                    event.type === 'warning' ? 'bg-amber-100 dark:bg-amber-500/20 text-amber-500' :
+                      'bg-blue-100 dark:bg-blue-500/20 text-blue-500'
+                  }`}>
+                  {event.type === 'success' ? <CheckCircle2 size={16} /> :
+                    event.type === 'warning' ? <AlertTriangle size={16} /> :
+                      <Bell size={16} />}
                 </div>
                 <div className="flex-1">
                   <p className="text-sm font-bold">{event.event}</p>

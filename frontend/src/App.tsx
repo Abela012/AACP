@@ -58,6 +58,7 @@ import TermsOfService from './pages/legal/TermsOfService'
 import PrivacyPolicy from './pages/legal/PrivacyPolicy'
 import CollaborationsPage from './pages/collaboration/list/CollaborationsPage'
 import CollaborationDetailsPage from './pages/collaboration/details/CollaborationDetailsPage'
+import FacebookAnalyticsPage from './pages/social/facebook-analytics/FacebookAnalyticsPage'
 import './App.css'
 
 function App() {
@@ -459,6 +460,16 @@ function App() {
           element={
             <SignedIn>
               <ConversationPage />
+            </SignedIn>
+          }
+        />
+
+        {/* Facebook Analytics — accessible after SSO login */}
+        <Route
+          path="/facebook-analytics"
+          element={
+            <SignedIn>
+              <FacebookAnalyticsPage />
             </SignedIn>
           }
         />
