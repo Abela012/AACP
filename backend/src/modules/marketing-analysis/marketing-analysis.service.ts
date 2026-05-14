@@ -28,48 +28,84 @@ const parseNum = (val: any): number => {
  * Database schema: profileData.tiktok.{followers, engagementRate, niche, ...}
  *                  profileData.instagram.{followers, engagementRate, niche, ...}
  */
-export const extractMetrics = (profileData: any) => {
-    if (!profileData) return { followers: 0, engagementRate: 0, niche: 'General', platforms: [] as string[] };
+export const extractMetrics = (profileData: any): {
+    followers: number;
+    engagementRate: number;
+    totalLikes: number;
+    avgViews: number;
+    avgComments: number;
+    avgShares: number;
+    niche: string;
+    allNiches: string[];
+    platforms: string[];
+    isMultiPlatform: boolean;
+    audienceInfo: any;
+} => {
+    if (!profileData) return { followers: 0, engagementRate: 0, niche: 'General', platforms: [] as string[], allNiches: [], totalLikes: 0, avgViews: 0, avgComments: 0, avgShares: 0, isMultiPlatform: false, audienceInfo: {} };
 
-    let bestFollowers = 0;
-    let bestEngagement = 0;
-    let niches: string[] = [];
+    let totalFollowers = 0;
+    let totalLikes = 0;
+    let totalAvgViews = 0;
+    let totalAvgComments = 0;
+    let totalAvgShares = 0;
+    let maxEngagement = 0;
     const platforms: string[] = [];
+    const niches: string[] = [];
+    const audienceInfo: any = {};
 
-    // 1. Check Nested Platforms
+    // Check TikTok
     if (profileData.tiktok) {
         const t = profileData.tiktok;
-        const f = parseNum(t.followers);
-        const e = parseNum(t.engagementRate);
-        if (f > 0) platforms.push('tiktok');
-        if (f > bestFollowers) bestFollowers = f;
-        if (e > bestEngagement) bestEngagement = e;
-        if (t.niche) {
-            if (typeof t.niche === 'string') niches.push(t.niche);
-            else if (Array.isArray(t.niche)) niches.push(...t.niche);
-            else if (typeof t.niche === 'object') niches.push(...Object.values(t.niche).filter(Boolean) as string[]);
+        if (t.username || t.followers > 0) {
+            platforms.push('tiktok');
+            totalFollowers += parseNum(t.followers);
+            totalLikes += parseNum(t.totalLikes);
+            totalAvgViews += parseNum(t.avgViews);
+            totalAvgComments += parseNum(t.avgComments);
+            totalAvgShares += parseNum(t.avgShares);
+            const e = parseNum(t.engagementRate);
+            if (e > maxEngagement) maxEngagement = e;
+
+            if (t.niche) {
+                if (typeof t.niche === 'string') niches.push(t.niche);
+                else if (Array.isArray(t.niche)) niches.push(...t.niche);
+                else if (typeof t.niche === 'object') niches.push(...Object.values(t.niche).filter(Boolean) as string[]);
+            }
+            if (t.audienceTopCountry) audienceInfo.topCountry = t.audienceTopCountry;
+            if (t.audienceAgeRange) audienceInfo.ageRange = t.audienceAgeRange;
+            if (t.audienceGender) audienceInfo.gender = t.audienceGender;
         }
     }
 
+    // Check Instagram
     if (profileData.instagram) {
         const ig = profileData.instagram;
-        const f = parseNum(ig.followers);
-        const e = parseNum(ig.engagementRate);
-        if (f > 0) platforms.push('instagram');
-        if (f > bestFollowers) bestFollowers = f;
-        if (e > bestEngagement) bestEngagement = e;
-        if (ig.niche) {
-            if (typeof ig.niche === 'string') niches.push(ig.niche);
-            else if (Array.isArray(ig.niche)) niches.push(...ig.niche);
-            else if (typeof ig.niche === 'object') niches.push(...Object.values(ig.niche).filter(Boolean) as string[]);
+        if (ig.username || ig.followers > 0) {
+            platforms.push('instagram');
+            totalFollowers += parseNum(ig.followers);
+            totalLikes += parseNum(ig.totalLikes);
+            totalAvgViews += parseNum(ig.avgViews);
+            totalAvgComments += parseNum(ig.avgComments);
+            totalAvgShares += parseNum(ig.avgShares);
+            const e = parseNum(ig.engagementRate);
+            if (e > maxEngagement) maxEngagement = e;
+
+            if (ig.niche) {
+                if (typeof ig.niche === 'string') niches.push(ig.niche);
+                else if (Array.isArray(ig.niche)) niches.push(...ig.niche);
+                else if (typeof ig.niche === 'object') niches.push(...Object.values(ig.niche).filter(Boolean) as string[]);
+            }
+            if (ig.audienceTopCountry) audienceInfo.topCountry = ig.audienceTopCountry;
+            if (ig.audienceAgeRange) audienceInfo.ageRange = ig.audienceAgeRange;
+            if (ig.audienceGender) audienceInfo.gender = ig.audienceGender;
         }
     }
 
-    // 2. Flat field fallback (legacy or business profiles)
-    if (bestFollowers === 0 && profileData.followers) bestFollowers = parseNum(profileData.followers);
-    if (bestEngagement === 0 && profileData.engagementRate) bestEngagement = parseNum(profileData.engagementRate);
-    
-    // Niche fallbacks
+    const isMultiPlatform = platforms.length > 1;
+
+    // Fallbacks for legacy/flat data
+    if (totalFollowers === 0 && profileData.followers) totalFollowers = parseNum(profileData.followers);
+    if (maxEngagement === 0 && profileData.engagementRate) maxEngagement = parseNum(profileData.engagementRate);
     if (niches.length === 0) {
         if (profileData.category) niches.push(profileData.category);
         if (profileData.industry) niches.push(profileData.industry);
@@ -77,11 +113,17 @@ export const extractMetrics = (profileData: any) => {
     }
 
     return {
-        followers: bestFollowers,
-        engagementRate: bestEngagement,
+        followers: totalFollowers,
+        engagementRate: maxEngagement,
+        totalLikes,
+        avgViews: totalAvgViews,
+        avgComments: totalAvgComments,
+        avgShares: totalAvgShares,
         niche: [...new Set(niches.filter(Boolean))][0] || 'General',
         allNiches: [...new Set(niches.filter(Boolean))],
         platforms,
+        isMultiPlatform,
+        audienceInfo
     };
 };
 
@@ -121,6 +163,15 @@ export interface ApplicantAnalysis {
     profitable: boolean;
     aiInsight?: string;
     aiMatchScore?: number;
+    // Advanced Metrics
+    platforms: string[];
+    avgViews: number;
+    totalLikes: number;
+    avgComments: number;
+    avgShares: number;
+    audienceCountry?: string;
+    audienceAgeRange?: string;
+    audienceGender?: string;
 }
 
 export interface MarketingAnalysisResult {
@@ -191,8 +242,8 @@ export const runMarketingAnalysis = async (
 
         // Dynamic rates based on advertiser quality (heuristic fallback)
         const effectiveReachFactor = 0.30 + (followers < 50000 ? 0.05 : 0); // Smaller creators get slight reach boost
-        const effectiveConvRate = conversionRate !== 0.02 
-            ? conversionRate 
+        const effectiveConvRate = conversionRate !== 0.02
+            ? conversionRate
             : Math.min(0.05, Math.max(0.005, (engagementRate / 100) * 0.4));
 
         // Profitability calculations
@@ -200,7 +251,10 @@ export const runMarketingAnalysis = async (
         const engagement = reach * (engagementRate / 100);
         const conversions = engagement * effectiveConvRate;
         const revenue = conversions * productPrice;
-        const profit = revenue - cost;
+
+        // Apply Multi-platform bonus to ROI (e.g., 10% boost in estimated value)
+        const finalRevenue = metrics.isMultiPlatform ? revenue * 1.1 : revenue;
+        const profit = finalRevenue - cost;
         const profitPercentage = cost > 0 ? (profit / cost) * 100 : 0;
 
         results.push({
@@ -219,6 +273,14 @@ export const runMarketingAnalysis = async (
             profit: Number(profit.toFixed(2)),
             profitPercentage: Number(profitPercentage.toFixed(2)),
             profitable: profit > 0,
+            platforms: metrics.platforms,
+            avgViews: metrics.avgViews,
+            totalLikes: metrics.totalLikes,
+            avgComments: metrics.avgComments || 0,
+            avgShares: metrics.avgShares || 0,
+            audienceCountry: metrics.audienceInfo?.topCountry,
+            audienceAgeRange: metrics.audienceInfo?.ageRange,
+            audienceGender: metrics.audienceInfo?.gender,
         });
     }
 
@@ -233,7 +295,7 @@ export const runMarketingAnalysis = async (
         const aiResponse = await generateAISummary(opp, results);
         summary = aiResponse.summary;
         aiInsights = aiResponse.insights;
-        
+
         // Merge per-applicant AI insights back into the results
         if (aiResponse.applicantInsights) {
             results.forEach(res => {
@@ -279,41 +341,183 @@ async function generateAISummary(opp: any, results: ApplicantAnalysis[]): Promis
     const forAnalysis = results.slice(0, 10);
 
     const prompt = `
-You are a senior marketing strategist. Analyze these advertiser applicants for a specific campaign and provide high-value business insights.
+You are a senior influencer marketing strategist and campaign analyst.
 
-Campaign Details:
-- Title: ${opp.title}
-- Description: ${opp.description || 'No description provided'}
-- Category: ${opp.category}
-- Budget: ${opp.budget?.amount || 'N/A'} ${opp.budget?.currency || 'ETB'}
-- Requirements: ${opp.requirements?.minFollowers || 0}+ followers, Niches: ${opp.requirements?.preferredNiches?.join(', ') || 'Any'}
-- Business Owner Industry: ${(opp.businessOwner as any)?.profileData?.industry || 'General'}
+Your task is to analyze advertiser applicants for a campaign using PRE-CALCULATED business metrics provided by the backend system.
 
-Applicant List (Top 10):
-${forAnalysis.map((r, i) => `${i + 1}. ID: ${r.advertiserId}, Name: ${r.advertiserName}, Followers: ${r.followers.toLocaleString()}, Engagement: ${r.engagementRate}%, ROI: ${r.profitPercentage}%, Niche: ${r.niche}`).join('\n')}
+IMPORTANT RULES:
+- DO NOT generate or invent new scores.
+- Use ONLY the provided calculated metrics.
+- Your role is to explain and analyze the data professionally.
+- Keep the analysis realistic and business-oriented.
 
-Analysis Tasks:
-1. Evaluate the "Brand Fit" between the campaign category (${opp.category}) and each advertiser's niche.
-2. Consider the budget constraints and ROI.
-3. Identify the "Safe Choice" vs the "High Growth" choice.
-4. Provide a summarized pool quality assessment.
+==================================================
+CAMPAIGN DETAILS
+==================================================
 
-Return your response in strict JSON format:
+Title:
+${opp.title}
+
+Description:
+${opp.description || "No description"}
+
+Category:
+${opp.category}
+
+Campaign Budget:
+${opp.budget?.amount || "N/A"} ${opp.budget?.currency || "ETB"}
+
+Required Niches:
+${opp.requirements?.preferredNiches?.join(", ") || "Any"}
+
+Minimum Followers:
+${opp.requirements?.minFollowers || 0}
+
+Business Industry:
+${(opp.businessOwner)?.profileData?.industry || "General"}
+
+==================================================
+APPLICANT ANALYSIS DATA
+==================================================
+
+${forAnalysis.map((r, i) => `
+
+Applicant ${i + 1}
+
+Advertiser ID:
+${r.advertiserId}
+
+Name:
+${r.advertiserName}
+
+Platforms:
+${r.platforms.join(', ')}
+
+Followers:
+${r.followers.toLocaleString()}
+
+Average Views:
+${r.avgViews.toLocaleString()}
+
+Average Comments:
+${r.avgComments.toLocaleString()}
+
+Average Shares:
+${r.avgShares.toLocaleString()}
+
+Total Likes:
+${r.totalLikes.toLocaleString()}
+
+Engagement Rate:
+${r.engagementRate}%
+
+Audience:
+${r.audienceCountry || 'N/A'} | ${r.audienceAgeRange || 'N/A'} | ${r.audienceGender || 'N/A'}
+
+Niche:
+${r.niche}
+
+Campaign Price:
+${r.cost} ${r.currency}
+
+Estimated Reach:
+${r.estimatedReach}
+
+Estimated Engagement:
+${r.estimatedEngagement}
+
+Estimated Revenue:
+${r.estimatedRevenue}
+
+Estimated Profit:
+${r.profit}
+
+ROI Percentage:
+${r.profitPercentage}%
+
+Calculated Match Score:
+${r.aiMatchScore || 'N/A'}
+
+Profitability Status:
+${r.profitable ? "Profitable" : "Not Profitable"}
+
+`).join("\n")}
+
+==================================================
+ANALYSIS TASKS
+==================================================
+
+1. Evaluate brand compatibility between the advertiser niche and campaign category.
+
+2. Analyze profitability and ROI realistically.
+
+3. Compare audience quality, engagement quality, and campaign value.
+
+4. Identify:
+   - Safest advertiser choice
+   - Highest growth potential
+   - Best ROI performer
+   - Most risky applicant
+
+5. Explain WHY certain advertisers perform better than others.
+
+6. Use the provided "Calculated Match Score" exactly as given.
+DO NOT modify or regenerate scores.
+
+7. Give realistic business insight based on:
+   - followers
+   - engagement
+   - audience quality
+   - content niche
+   - pricing
+   - profitability
+
+==================================================
+RETURN FORMAT
+==================================================
+
+Return ONLY valid JSON.
+
 {
-  "summary": "A 150-word business summary of the applicant pool.",
-  "insights": {
-    "poolQuality": "Overview of quality",
-    "selectionReasoning": "Why the top choices stand out",
-    "risks": ["Risk 1", "Risk 2"],
-    "strategicAdvice": "Strategic direction",
-    "suggestedNextSteps": "Immediate actions",
-    "marketFitScore": 85
+  "summary": "Professional business summary of the advertiser pool.",
+
+  "overallCampaignAnalysis": {
+    "poolQuality": "Overall quality assessment",
+    "competitionLevel": "Low/Medium/High",
+    "marketFit": "Analysis of audience and campaign alignment",
+    "budgetEfficiency": "Analysis of pricing vs expected return",
+    "strategicRecommendation": "Best overall strategic direction"
   },
+
+  "topRecommendations": {
+    "safeChoice": {
+      "advertiserId": "",
+      "reason": ""
+    },
+
+    "highestGrowthPotential": {
+      "advertiserId": "",
+      "reason": ""
+    },
+
+    "bestROI": {
+      "advertiserId": "",
+      "reason": ""
+    }
+  },
+
+  "riskAnalysis": [
+    "Risk 1",
+    "Risk 2"
+  ],
+
   "applicantInsights": [
     {
-      "advertiserId": "ID from list",
-      "matchScore": 95,
-      "insight": "One sentence about why this creator is a good or bad fit."
+      "advertiserId": "",
+      "matchScore": 0,
+      "roi": 0,
+      "profitability": "",
+      "insight": ""
     }
   ]
 }
@@ -383,11 +587,11 @@ export const predictAdvertiserROI = async (
 
     // 3. Generate AI Match Insight & Metrics with Smart Fallbacks
     let aiInsight = "Based on your niche, this creator offers strong growth potential.";
-    
+
     // Heuristic Fallback: Use engagement rate as a proxy for conversion quality
     // Typically conversion rate is 1/10th to 1/20th of engagement rate
-    let dynamicConvRate = Math.min(0.05, Math.max(0.005, (engagementRate / 100) * 0.4)); 
-    
+    let dynamicConvRate = Math.min(0.05, Math.max(0.005, (engagementRate / 100) * 0.4));
+
     // Reach factor depends on platforms and followers (smaller creators often have higher reach relative to size)
     let dynamicReachFactor = followers > 100000 ? 0.25 : 0.35;
 
@@ -404,7 +608,11 @@ export const predictAdvertiserROI = async (
                 - Niche: ${advMetrics.allNiches?.join(', ') || advMetrics.niche}
                 - Followers: ${followers.toLocaleString()}
                 - Engagement: ${engagementRate}%
+                - Avg Views: ${advMetrics.avgViews.toLocaleString()}
+                - Total Likes: ${advMetrics.totalLikes.toLocaleString()}
                 - Platforms: ${advMetrics.platforms.join(', ')}
+                - Multi-platform Presence: ${advMetrics.isMultiPlatform ? 'YES (Give advantage)' : 'NO'}
+                - Audience: ${advMetrics.audienceInfo?.topCountry || 'Global'}, ${advMetrics.audienceInfo?.ageRange || 'Mixed'}
                 
                 Based on this synergy, suggest:
                 1. A realistic "Conversion Rate" (as a decimal, e.g., 0.015 for 1.5%). High fit = higher rate.
