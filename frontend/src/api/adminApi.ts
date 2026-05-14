@@ -73,4 +73,27 @@ export const adminApi = {
     /** PUT /admin/disputes/:disputeId/escalate — Escalate a dispute */
     escalateDispute: (api: AxiosInstance, disputeId: string) =>
         api.put(`/admin/disputes/${disputeId}/escalate`),
+
+    /** GET /admin/settings — Platform settings, service status, recent audit entries */
+    getSettings: (api: AxiosInstance) =>
+        api.get<{
+            success: boolean;
+            message: string;
+            data: {
+                settings: { maintenanceMode: boolean; supportContactEmail: string };
+                services: { id: string; name: string; status: 'operational' | 'degraded'; detail: string }[];
+                recentAudit: { id: string; action: string; message: string; createdAt: string; actorName: string }[];
+            };
+        }>('/admin/settings'),
+
+    /** PATCH /admin/settings — Update platform settings */
+    patchSettings: (
+        api: AxiosInstance,
+        body: { maintenanceMode?: boolean; supportContactEmail?: string }
+    ) =>
+        api.patch<{
+            success: boolean;
+            message: string;
+            data: { settings: { maintenanceMode: boolean; supportContactEmail: string } };
+        }>('/admin/settings', body),
 };

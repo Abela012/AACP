@@ -1,220 +1,264 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import {
   Settings,
   Shield,
-  Bell,
   Database,
-  Globe,
-  Lock,
-  Mail,
   Server,
-  Cpu,
-  HardDrive,
-  Clock,
+  Mail,
   CheckCircle2,
   AlertTriangle,
   RefreshCw,
   Zap,
-  ToggleLeft,
-  ToggleRight
 } from 'lucide-react';
+import { formatDistanceToNow } from 'date-fns';
+import toast from 'react-hot-toast';
 import AdminLayout from '@/src/shared/components/layouts/AdminLayout';
+import { useApiClient } from '@/src/api/apiClient';
+import { adminApi } from '@/src/api/adminApi';
 
 export default function AdminSettingsPage() {
+  const api = useApiClient();
+  const queryClient = useQueryClient();
   const [maintenanceMode, setMaintenanceMode] = useState(false);
-  const [twoFAEnforced, setTwoFAEnforced] = useState(true);
-  const [emailNotifications, setEmailNotifications] = useState(true);
-  const [autoModeration, setAutoModeration] = useState(true);
-  const [debugMode, setDebugMode] = useState(false);
+  const [supportContactEmail, setSupportContactEmail] = useState('');
 
-  const systemHealth = [
-    { label: 'API Server', status: 'Operational', uptime: '99.98%', icon: Server, color: 'text-emerald-500', bg: 'bg-emerald-50 dark:bg-emerald-500/10', border: 'border-emerald-100 dark:border-emerald-500/20' },
-    { label: 'Database', status: 'Operational', uptime: '99.95%', icon: Database, color: 'text-emerald-500', bg: 'bg-emerald-50 dark:bg-emerald-500/10', border: 'border-emerald-100 dark:border-emerald-500/20' },
-    { label: 'CDN / Assets', status: 'Degraded', uptime: '98.2%', icon: Globe, color: 'text-amber-500', bg: 'bg-amber-50 dark:bg-amber-500/10', border: 'border-amber-100 dark:border-amber-500/20' },
-    { label: 'Auth Service', status: 'Operational', uptime: '99.99%', icon: Lock, color: 'text-emerald-500', bg: 'bg-emerald-50 dark:bg-emerald-500/10', border: 'border-emerald-100 dark:border-emerald-500/20' },
-  ];
+  const { data, isLoading, isError, error, refetch, isFetching } = useQuery({
+    queryKey: ['adminSettings'],
+    queryFn: async () => {
+      const res = await adminApi.getSettings(api);
+      return res.data.data;
+    },
+  });
 
-  const resourceUsage = [
-    { label: 'CPU Usage', value: 42, max: 100, unit: '%', icon: Cpu },
-    { label: 'Memory', value: 6.2, max: 16, unit: 'GB', icon: HardDrive },
-    { label: 'Storage', value: 234, max: 500, unit: 'GB', icon: Database },
-  ];
+  useEffect(() => {
+    if (!data?.settings) return;
+    setMaintenanceMode(!!data.settings.maintenanceMode);
+    setSupportContactEmail(data.settings.supportContactEmail || '');
+  }, [data?.settings]);
 
-  const toggleSettings = [
-    { label: 'Maintenance Mode', desc: 'Temporarily disable public access for system updates.', value: maintenanceMode, setter: setMaintenanceMode, danger: true },
-    { label: 'Enforce 2FA', desc: 'Require two-factor authentication for all admin accounts.', value: twoFAEnforced, setter: setTwoFAEnforced, danger: false },
-    { label: 'Email Notifications', desc: 'Send email alerts for critical system events and user reports.', value: emailNotifications, setter: setEmailNotifications, danger: false },
-    { label: 'Auto-Moderation (AI)', desc: 'Enable AI Sentinel-V4 to automatically flag suspicious content.', value: autoModeration, setter: setAutoModeration, danger: false },
-    { label: 'Debug Mode', desc: 'Show verbose logging and diagnostic overlays. Not for production.', value: debugMode, setter: setDebugMode, danger: true },
-  ];
+  const saveMutation = useMutation({
+    mutationFn: async () => {
+      const res = await adminApi.patchSettings(api, {
+        maintenanceMode,
+        supportContactEmail,
+      });
+      return res.data.data;
+    },
+    onSuccess: (payload) => {
+      queryClient.invalidateQueries({ queryKey: ['adminSettings'] });
+      if (payload?.settings) {
+        setMaintenanceMode(payload.settings.maintenanceMode);
+        setSupportContactEmail(payload.settings.supportContactEmail || '');
+      }
+      toast.success('Settings saved');
+    },
+    onError: (err: any) => {
+      const msg = err?.response?.data?.error || err?.response?.data?.message || 'Failed to save settings';
+      toast.error(msg);
+    },
+  });
 
-  const recentEvents = [
-    { event: 'System backup completed', time: '2 hours ago', type: 'success' },
-    { event: 'CDN cache invalidated (partial)', time: '4 hours ago', type: 'warning' },
-    { event: 'Database migration v3.12 applied', time: '1 day ago', type: 'success' },
-    { event: 'SSL certificate renewed', time: '3 days ago', type: 'success' },
-    { event: 'Rate limiter threshold adjusted', time: '5 days ago', type: 'info' },
-  ];
+  const services = data?.services ?? [];
+  const recentAudit = data?.recentAudit ?? [];
 
   return (
     <AdminLayout>
       <div className="max-w-[1400px] mx-auto pb-12">
-        {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10">
           <div>
             <h1 className="text-3xl font-black text-[#1A1D1F] dark:text-white mb-2">System Settings</h1>
-            <p className="text-sm font-medium text-[#6F767E] dark:text-gray-400">Manage platform configuration, security policies, and infrastructure health.</p>
+            <p className="text-sm font-medium text-[#6F767E] dark:text-gray-400">
+              Platform configuration and live connection status. Changes are stored in the database and recorded in the audit log.
+            </p>
           </div>
           <div className="flex gap-3">
-            <button className="px-5 py-2.5 bg-white dark:bg-white/5 border border-[#EFEFEF] dark:border-white/10 rounded-2xl text-xs font-bold text-[#6F767E] hover:bg-gray-50 transition-all flex items-center gap-2">
-              <RefreshCw size={14} />
-              Refresh Status
+            <button
+              type="button"
+              onClick={() => refetch()}
+              disabled={isFetching}
+              className="px-5 py-2.5 bg-white dark:bg-white/5 border border-[#EFEFEF] dark:border-white/10 rounded-2xl text-xs font-bold text-[#6F767E] dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/10 transition-all flex items-center gap-2 disabled:opacity-50"
+            >
+              <RefreshCw size={14} className={isFetching ? 'animate-spin' : ''} />
+              Refresh
             </button>
-            <button className="px-5 py-2.5 bg-[#14a800] text-white rounded-2xl text-xs font-bold hover:bg-[#108a00] transition-all shadow-lg shadow-green-100 dark:shadow-none">
-              Save Changes
+            <button
+              type="button"
+              onClick={() => saveMutation.mutate()}
+              disabled={saveMutation.isPending || isLoading}
+              className="px-5 py-2.5 bg-[#14a800] text-white rounded-2xl text-xs font-bold hover:bg-[#108a00] transition-all shadow-lg shadow-green-100 dark:shadow-none disabled:opacity-50"
+            >
+              {saveMutation.isPending ? 'Saving…' : 'Save changes'}
             </button>
           </div>
         </div>
 
-        {/* System Health Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-          {systemHealth.map((service, idx) => (
-            <motion.div
-              key={idx}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: idx * 0.08 }}
-              className={`bg-white dark:bg-[#111111] p-6 rounded-4xl border border-[#EFEFEF] dark:border-white/5 shadow-sm`}
-            >
-              <div className="flex justify-between items-start mb-6">
-                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${service.bg} ${service.color} border ${service.border}`}>
-                  <service.icon size={20} />
-                </div>
-                <div className={`flex items-center gap-1.5`}>
-                  <div className={`w-2 h-2 rounded-full ${service.status === 'Operational' ? 'bg-emerald-500' : 'bg-amber-500 animate-pulse'
-                    }`} />
-                  <span className={`text-[10px] font-black uppercase tracking-widest ${service.status === 'Operational' ? 'text-emerald-600' : 'text-amber-600'
-                    }`}>
-                    {service.status}
-                  </span>
-                </div>
-              </div>
-              <p className="text-sm font-bold mb-1">{service.label}</p>
-              <p className="text-xs text-[#9A9FA5] font-medium">Uptime: <span className="font-bold text-[#1A1D1F] dark:text-white">{service.uptime}</span></p>
-            </motion.div>
-          ))}
+        {isError && (
+          <div className="mb-8 p-4 rounded-2xl bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 text-sm text-red-700 dark:text-red-300">
+            {(error as any)?.response?.data?.message || (error as any)?.message || 'Could not load settings.'}
+          </div>
+        )}
+
+        {/* Live service status (no fake CDN / CPU metrics) */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-10">
+          {isLoading ? (
+            <div className="col-span-full h-32 rounded-4xl bg-white dark:bg-[#111111] border border-[#EFEFEF] dark:border-white/5 animate-pulse" />
+          ) : (
+            services.map((service, idx) => {
+              const ok = service.status === 'operational';
+              return (
+                <motion.div
+                  key={service.id}
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: idx * 0.06 }}
+                  className="bg-white dark:bg-[#111111] p-6 rounded-4xl border border-[#EFEFEF] dark:border-white/5 shadow-sm"
+                >
+                  <div className="flex justify-between items-start mb-4">
+                    <div
+                      className={`w-12 h-12 rounded-2xl flex items-center justify-center border ${
+                        ok
+                          ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 border-emerald-100 dark:border-emerald-500/20'
+                          : 'bg-amber-50 dark:bg-amber-500/10 text-amber-600 border-amber-100 dark:border-amber-500/20'
+                      }`}
+                    >
+                      {service.id === 'database' ? <Database size={20} /> : <Server size={20} />}
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <div className={`w-2 h-2 rounded-full ${ok ? 'bg-emerald-500' : 'bg-amber-500 animate-pulse'}`} />
+                      <span
+                        className={`text-[10px] font-black uppercase tracking-widest ${
+                          ok ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400'
+                        }`}
+                      >
+                        {ok ? 'Operational' : 'Degraded'}
+                      </span>
+                    </div>
+                  </div>
+                  <p className="text-sm font-bold text-[#1A1D1F] dark:text-white mb-1">{service.name}</p>
+                  <p className="text-xs text-[#6F767E] dark:text-gray-400 leading-relaxed">{service.detail}</p>
+                </motion.div>
+              );
+            })
+          )}
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-8">
-          {/* Resource Usage */}
           <div className="lg:col-span-5 bg-white dark:bg-[#111111] p-8 rounded-[3rem] border border-[#EFEFEF] dark:border-white/5 shadow-sm">
-            <div className="flex justify-between items-center mb-10">
-              <h3 className="font-extrabold text-lg">Resource Usage</h3>
-              <div className="w-10 h-10 bg-green-100 dark:bg-green-500/20 rounded-xl flex items-center justify-center text-[#14a800]">
-                <Cpu size={18} />
+            <div className="flex justify-between items-center mb-8">
+              <h3 className="font-extrabold text-lg text-[#1A1D1F] dark:text-white">Support contact</h3>
+              <div className="w-10 h-10 bg-gray-100 dark:bg-white/10 rounded-xl flex items-center justify-center text-[#14a800]">
+                <Mail size={18} />
               </div>
             </div>
-            <div className="space-y-8">
-              {resourceUsage.map((resource, idx) => (
-                <div key={idx}>
-                  <div className="flex justify-between items-center mb-3">
-                    <div className="flex items-center gap-3">
-                      <resource.icon size={16} className="text-[#9A9FA5]" />
-                      <span className="text-sm font-bold">{resource.label}</span>
-                    </div>
-                    <span className="text-sm font-black">
-                      {resource.value}{resource.unit} <span className="text-xs text-[#9A9FA5] font-bold">/ {resource.max}{resource.unit}</span>
-                    </span>
-                  </div>
-                  <div className="h-3 w-full bg-[#F4F4F4] dark:bg-white/10 rounded-full overflow-hidden">
-                    <motion.div
-                      initial={{ width: 0 }}
-                      animate={{ width: `${(resource.value / resource.max) * 100}%` }}
-                      transition={{ delay: idx * 0.15, duration: 0.6 }}
-                      className={`h-full rounded-full ${(resource.value / resource.max) > 0.8
-                          ? 'bg-linear-to-r from-red-500 to-red-400'
-                          : (resource.value / resource.max) > 0.6
-                            ? 'bg-linear-to-r from-amber-500 to-amber-400'
-                            : 'bg-linear-to-r from-[#14a800] to-[#22c55e]'
-                        }`}
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div className="mt-10 p-4 bg-[#F8F8FD] dark:bg-white/5 rounded-2xl flex items-center gap-3">
-              <Clock size={16} className="text-[#9A9FA5]" />
-              <p className="text-[10px] font-bold text-[#6F767E] dark:text-gray-400">
-                Last system check: <span className="text-[#1A1D1F] dark:text-white">12 minutes ago</span>
-              </p>
-            </div>
+            <p className="text-xs text-[#6F767E] dark:text-gray-400 mb-4 leading-relaxed">
+              Shown to admins and used in platform communications. Leave blank if not set.
+            </p>
+            <label className="text-[11px] font-bold text-[#6F767E] dark:text-gray-400 uppercase tracking-widest block mb-2">
+              Email
+            </label>
+            <input
+              type="email"
+              value={supportContactEmail}
+              onChange={(e) => setSupportContactEmail(e.target.value)}
+              placeholder="support@yourdomain.com"
+              className="w-full rounded-2xl border border-[#EFEFEF] dark:border-white/10 bg-[#F8F8FD] dark:bg-black/30 px-4 py-3 text-sm text-[#1A1D1F] dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#14a800]/30"
+            />
           </div>
 
-          {/* Toggle Settings */}
           <div className="lg:col-span-7 bg-white dark:bg-[#111111] p-8 rounded-[3rem] border border-[#EFEFEF] dark:border-white/5 shadow-sm">
-            <div className="flex justify-between items-center mb-10">
-              <h3 className="font-extrabold text-lg">Platform Configuration</h3>
+            <div className="flex justify-between items-center mb-8">
+              <h3 className="font-extrabold text-lg text-[#1A1D1F] dark:text-white">Platform</h3>
               <div className="w-10 h-10 bg-gray-100 dark:bg-white/10 rounded-xl flex items-center justify-center text-[#9A9FA5]">
                 <Settings size={18} />
               </div>
             </div>
-            <div className="space-y-6">
-              {toggleSettings.map((setting, idx) => (
-                <div key={idx} className="flex items-center justify-between p-5 bg-[#F8F8FD] dark:bg-white/5 rounded-2xl hover:bg-white dark:hover:bg-white/10 transition-all border border-transparent hover:border-[#EFEFEF] dark:hover:border-white/5">
-                  <div className="flex-1 mr-4">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h4 className="text-sm font-bold">{setting.label}</h4>
-                      {setting.danger && (
-                        <span className="px-1.5 py-0.5 bg-red-100 dark:bg-red-500/20 text-red-500 text-[8px] font-black uppercase tracking-widest rounded">Caution</span>
-                      )}
-                    </div>
-                    <p className="text-xs text-[#6F767E] dark:text-gray-400 font-medium leading-relaxed">{setting.desc}</p>
-                  </div>
-                  <button
-                    onClick={() => setting.setter(!setting.value)}
-                    className={`w-14 h-7 rounded-full relative transition-all duration-200 ${setting.value
-                        ? (setting.danger ? 'bg-red-500' : 'bg-[#14a800]')
-                        : 'bg-gray-200 dark:bg-white/10'
-                      }`}
-                  >
-                    <div className={`absolute top-1 w-5 h-5 bg-white rounded-full shadow-sm transition-all duration-200 ${setting.value ? 'right-1' : 'left-1'
-                      }`} />
-                  </button>
+
+            <div className="flex items-center justify-between p-5 bg-[#F8F8FD] dark:bg-white/5 rounded-2xl border border-transparent hover:border-[#EFEFEF] dark:hover:border-white/10 transition-all">
+              <div className="flex-1 mr-4">
+                <div className="flex items-center gap-2 mb-1">
+                  <h4 className="text-sm font-bold text-[#1A1D1F] dark:text-white">Maintenance mode</h4>
+                  <span className="px-1.5 py-0.5 bg-red-100 dark:bg-red-500/20 text-red-500 text-[8px] font-black uppercase tracking-widest rounded">
+                    Caution
+                  </span>
                 </div>
-              ))}
+                <p className="text-xs text-[#6F767E] dark:text-gray-400 font-medium leading-relaxed">
+                  When enabled, the public API returns 503 for most routes. Admin, super-admin, payments webhooks, and{' '}
+                  <code className="text-[10px] bg-black/5 dark:bg-white/10 px-1 rounded">/health</code> stay available so you can turn this off again.
+                </p>
+              </div>
+              <button
+                type="button"
+                aria-pressed={maintenanceMode}
+                onClick={() => setMaintenanceMode(!maintenanceMode)}
+                className={`w-14 h-7 rounded-full relative transition-all duration-200 shrink-0 ${
+                  maintenanceMode ? 'bg-red-500' : 'bg-gray-200 dark:bg-white/10'
+                }`}
+              >
+                <span
+                  className={`absolute top-1 w-5 h-5 bg-white rounded-full shadow-sm transition-all duration-200 ${
+                    maintenanceMode ? 'right-1' : 'left-1'
+                  }`}
+                />
+              </button>
             </div>
           </div>
         </div>
 
-        {/* System Events Log */}
         <div className="bg-white dark:bg-[#111111] p-8 rounded-[3rem] border border-[#EFEFEF] dark:border-white/5 shadow-sm">
           <div className="flex justify-between items-center mb-8">
             <div className="flex items-center gap-2">
               <Zap className="text-[#14a800]" size={20} />
-              <h3 className="font-extrabold text-lg">System Events</h3>
+              <h3 className="font-extrabold text-lg text-[#1A1D1F] dark:text-white">Recent audit activity</h3>
             </div>
-            <button className="text-xs font-bold text-[#14a800] hover:underline uppercase tracking-widest">View Full Log</button>
+            <span className="text-[10px] font-bold text-[#9A9FA5] uppercase tracking-widest">Last 30 entries</span>
           </div>
-          <div className="space-y-4">
-            {recentEvents.map((event, idx) => (
-              <div key={idx} className="flex items-center gap-4 p-4 bg-[#F8F8FD] dark:bg-white/5 rounded-2xl hover:bg-white dark:hover:bg-white/10 transition-all">
-                <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${event.type === 'success' ? 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-500' :
-                    event.type === 'warning' ? 'bg-amber-100 dark:bg-amber-500/20 text-amber-500' :
-                      'bg-blue-100 dark:bg-blue-500/20 text-blue-500'
-                  }`}>
-                  {event.type === 'success' ? <CheckCircle2 size={16} /> :
-                    event.type === 'warning' ? <AlertTriangle size={16} /> :
-                      <Bell size={16} />}
-                </div>
-                <div className="flex-1">
-                  <p className="text-sm font-bold">{event.event}</p>
-                </div>
-                <span className="text-[10px] font-bold text-[#9A9FA5] whitespace-nowrap">{event.time}</span>
-              </div>
-            ))}
-          </div>
+          {recentAudit.length === 0 ? (
+            <p className="text-sm text-[#6F767E] dark:text-gray-400 text-center py-8">No audit entries yet.</p>
+          ) : (
+            <div className="space-y-3 max-h-[420px] overflow-y-auto pr-1">
+              {recentAudit.map((entry) => {
+                const t = entry.action?.includes('WALLET')
+                  ? 'warning'
+                  : entry.action?.includes('SYSTEM') || entry.action?.includes('STATUS')
+                    ? 'info'
+                    : 'success';
+                return (
+                  <div
+                    key={entry.id}
+                    className="flex items-start gap-4 p-4 bg-[#F8F8FD] dark:bg-white/5 rounded-2xl hover:bg-white dark:hover:bg-white/[0.07] transition-all"
+                  >
+                    <div
+                      className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 mt-0.5 ${
+                        t === 'success'
+                          ? 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-500'
+                          : t === 'warning'
+                            ? 'bg-amber-100 dark:bg-amber-500/20 text-amber-500'
+                            : 'bg-blue-100 dark:bg-blue-500/20 text-blue-500'
+                      }`}
+                    >
+                      {t === 'success' ? (
+                        <CheckCircle2 size={16} />
+                      ) : t === 'warning' ? (
+                        <AlertTriangle size={16} />
+                      ) : (
+                        <Shield size={16} />
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-wider mb-0.5">{entry.action}</p>
+                      <p className="text-sm font-bold text-[#1A1D1F] dark:text-white break-words">{entry.message}</p>
+                      <p className="text-[11px] text-[#6F767E] dark:text-gray-500 mt-1">By {entry.actorName}</p>
+                    </div>
+                    <span className="text-[10px] font-bold text-[#9A9FA5] whitespace-nowrap shrink-0">
+                      {formatDistanceToNow(new Date(entry.createdAt), { addSuffix: true })}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       </div>
     </AdminLayout>
