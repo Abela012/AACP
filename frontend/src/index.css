@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* Class-based dark mode (Tailwind v4 defaults to media query unless this is set) */
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --radius-4xl: 2rem;
 }
@@ -11,6 +14,11 @@ html {
 
 :root {
   font-family: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
+  color-scheme: light;
+}
+
+html.dark {
+  color-scheme: dark;
 }
 
 body {
@@ -18,6 +26,11 @@ body {
   padding: 0;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  @apply bg-[#fafaf8] text-gray-900 antialiased;
+}
+
+html.dark body {
+  @apply bg-[#0a0a0a] text-gray-100;
 }
 
 * {

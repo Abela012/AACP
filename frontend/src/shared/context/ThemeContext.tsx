@@ -9,12 +9,15 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
+function readInitialTheme(): Theme {
+  if (typeof window === 'undefined') return 'light';
+  const saved = localStorage.getItem('theme');
+  if (saved === 'light' || saved === 'dark') return saved;
+  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+}
+
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setTheme] = useState<Theme>(() => {
-    const saved = localStorage.getItem('theme');
-    if (saved === 'light' || saved === 'dark') return saved;
-    return 'light';
-  });
+  const [theme, setTheme] = useState<Theme>(readInitialTheme);
 
   useEffect(() => {
     const root = window.document.documentElement;
@@ -25,7 +28,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       root.classList.remove('dark');
       root.classList.add('light');
     }
-
+    root.style.colorScheme = theme === 'dark' ? 'dark' : 'light';
     localStorage.setItem('theme', theme);
   }, [theme]);
 
