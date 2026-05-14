@@ -7,7 +7,6 @@ import {
   Plus,
   X,
   CheckCircle2,
-  Music2,
   Globe,
   Loader2,
   MapPin,
@@ -17,12 +16,8 @@ import {
   ArrowRight,
   Sparkles,
   BarChart3,
-  Briefcase,
   Building2,
-  DollarSign,
-  Palette,
   Users,
-  Target,
   Camera,
   ShieldCheck,
 } from 'lucide-react';
@@ -587,27 +582,60 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
   const [targetAudienceTags, setTargetAudienceTags] = useState<TagItem[]>([]);
   const [newAudienceTag, setNewAudienceTag] = useState('');
   const [showAudienceInput, setShowAudienceInput] = useState(false);
-  const [monthlyBudget, setMonthlyBudget] = useState(0);
+  /** Monthly marketing budget in ETB (Birr) */
+  const [monthlyBudget, setMonthlyBudget] = useState(50000);
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
   const [brandDescription, setBrandDescription] = useState('');
   const [tradeLicenseUrl, setTradeLicenseUrl] = useState('');
   const [isUploadingLicense, setIsUploadingLicense] = useState(false);
-  const [businessType, setBusinessType] = useState('Shop');
-  const [businessPhone, setBusinessPhone] = useState('');
-  const [openingHours, setOpeningHours] = useState('');
-  const [priceRange, setPriceRange] = useState('Medium');
   const [servicesOffered, setServicesOffered] = useState('');
   const [promotionGoals, setPromotionGoals] = useState<string[]>([]);
   const [preferredPromotionTypes, setPreferredPromotionTypes] = useState<string[]>([]);
   const [preferredPromoterTypes, setPreferredPromoterTypes] = useState<string[]>([]);
   const [promotersNeededCount, setPromotersNeededCount] = useState('');
+  /** ETB — typical max spend per creator post (powers recommendation “budget fit”) */
+  const [maxSpendPerPostETB, setMaxSpendPerPostETB] = useState(15000);
+  /** Minimum creator engagement % you expect for strong matches */
+  const [minEngagementPercent, setMinEngagementPercent] = useState('3');
+  /** Average order or typical sale value in ETB — helps AI profitability context */
+  const [avgOrderValueETB, setAvgOrderValueETB] = useState('');
+  const [brandVoice, setBrandVoice] = useState('Professional');
+  const [primaryKpis, setPrimaryKpis] = useState<string[]>([]);
+  const [targetAudienceAgeRanges, setTargetAudienceAgeRanges] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (!profile?._id || !isBusiness) return;
+    const p = profile as Record<string, unknown>;
+    if (typeof p.businessName === 'string' && p.businessName) setBusinessName(p.businessName);
+    if (typeof p.industry === 'string' && p.industry) setIndustry(p.industry);
+    if (typeof p.businessLocation === 'string' && p.businessLocation) setBusinessLocation(p.businessLocation);
+    if (typeof p.website === 'string' && p.website) setWebsiteUrl(p.website);
+    if (typeof p.companySize === 'string' && p.companySize) setCompanySize(p.companySize);
+    if (typeof p.bio === 'string' && p.bio) setBrandDescription(p.bio);
+    if (Array.isArray(p.targetAudienceTags) && p.targetAudienceTags.length) {
+      setTargetAudienceTags((p.targetAudienceTags as string[]).map((label) => ({ label, removable: true })));
+    }
+    if (typeof p.monthlyBudget === 'number' && p.monthlyBudget > 0) setMonthlyBudget(p.monthlyBudget);
+    if (Array.isArray(p.selectedPlatforms) && p.selectedPlatforms.length) setSelectedPlatforms(p.selectedPlatforms as string[]);
+    if (typeof p.tradeLicenseUrl === 'string' && p.tradeLicenseUrl) setTradeLicenseUrl(p.tradeLicenseUrl);
+    if (typeof p.servicesOffered === 'string' && p.servicesOffered) setServicesOffered(p.servicesOffered);
+    if (Array.isArray(p.promotionGoals)) setPromotionGoals(p.promotionGoals as string[]);
+    if (Array.isArray(p.preferredPromotionTypes)) setPreferredPromotionTypes(p.preferredPromotionTypes as string[]);
+    if (Array.isArray(p.preferredPromoterTypes)) setPreferredPromoterTypes(p.preferredPromoterTypes as string[]);
+    if (typeof p.promotersNeededCount === 'string' && p.promotersNeededCount) setPromotersNeededCount(p.promotersNeededCount);
+    if (typeof p.budget === 'number' && p.budget > 0) setMaxSpendPerPostETB(p.budget);
+    if (typeof p.minEngagement === 'number' && p.minEngagement >= 0) setMinEngagementPercent(String(p.minEngagement));
+    if (typeof p.avgOrderValueETB === 'number') setAvgOrderValueETB(String(p.avgOrderValueETB));
+    else if (typeof p.avgOrderValueETB === 'string' && p.avgOrderValueETB) setAvgOrderValueETB(p.avgOrderValueETB);
+    if (typeof p.brandVoice === 'string' && p.brandVoice) setBrandVoice(p.brandVoice);
+    if (Array.isArray(p.primaryKpis) && p.primaryKpis.length) setPrimaryKpis(p.primaryKpis as string[]);
+    if (Array.isArray(p.targetAudienceAgeRanges) && p.targetAudienceAgeRanges.length) {
+      setTargetAudienceAgeRanges(p.targetAudienceAgeRanges as string[]);
+    }
+  }, [profile, isBusiness]);
 
   /* ── Constants ── */
   const ageRanges = ['13-17', '18-24', '25-34', '35-44', '45+'];
-  const commonNiches = [
-    'Lifestyle', 'Tech', 'Fashion', 'Beauty', 'Gaming', 'Fitness', 'Food', 'Travel'
-  ];
-  const preferredCampaigns = ['Shoutouts', 'Product Reviews', 'Long-term Ambassadorship', 'Event Attendance', 'Affiliate'];
   const companySizes = ['1-10', '11-50', '51-200', '200+'];
   const industries = [
     'Organic Agriculture',
@@ -632,25 +660,33 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
     'Chinese',
     'Other',
   ];
-  const platformOptions = ['Instagram', 'TikTok', 'LinkedIn'];
-  const businessTypes = ['Shop', 'Restaurant', 'Service', 'Online Store', 'Hotel', 'Other'];
-  const priceRanges = ['Low', 'Medium', 'High'];
-  const businessGoals = ['More customers', 'Online visibility', 'Product promotion', 'Brand awareness'];
-  const promotionTypes = ['Social media posts', 'Flyers', 'Videos', 'Event coverage'];
-  const promoterTypes = ['Students', 'Local influencers', 'Professional Creators'];
+  const platformOptions = ['Instagram', 'TikTok', 'YouTube', 'LinkedIn'];
+  const businessGoals = ['More customers', 'Online visibility', 'Product promotion', 'Brand awareness', 'Lead generation', 'Launch / relaunch'];
+  const promotionTypes = ['Short-form video (Reels/TikTok)', 'Static posts & carousels', 'Stories & UGC', 'Live or event coverage', 'Reviews & testimonials', 'Affiliate / codes'];
+  const promoterTypes = ['Micro creators (10K–100K)', 'Mid-tier creators', 'Local / niche creators', 'Professional creators'];
+  const brandVoiceOptions = ['Professional', 'Friendly', 'Bold & premium', 'Educational', 'Playful'];
+  const kpiOptions = ['Sales / orders', 'Leads & inquiries', 'Brand awareness', 'App installs', 'Store foot traffic'];
+  const MONTHLY_BUDGET_MIN_ETB = 5_000;
+  const MONTHLY_BUDGET_MAX_ETB = 2_000_000;
+  const MONTHLY_BUDGET_STEP_ETB = 5_000;
 
   /* ── Computed ── */
   const profileCompletion = useMemo(() => {
     if (isBusiness) {
       let filled = 0;
-      const total = 7;
+      const total = 12;
       if (businessName) filled++;
       if (industry) filled++;
       if (businessLocation) filled++;
-      if (websiteUrl) filled++;
+      if (servicesOffered) filled++;
       if (companySize) filled++;
-      if (targetAudienceTags.length > 0) filled++;
       if (brandDescription) filled++;
+      if (targetAudienceTags.length > 0) filled++;
+      if (monthlyBudget >= MONTHLY_BUDGET_MIN_ETB) filled++;
+      if (maxSpendPerPostETB > 0) filled++;
+      if (selectedPlatforms.length > 0) filled++;
+      if (tradeLicenseUrl) filled++;
+      if (promotionGoals.length > 0 || primaryKpis.length > 0) filled++;
       return Math.round((filled / total) * 100);
     } else {
       let filled = 0;
@@ -670,10 +706,17 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
     businessName,
     industry,
     businessLocation,
-    websiteUrl,
+    servicesOffered,
     companySize,
     targetAudienceTags,
     brandDescription,
+    monthlyBudget,
+    maxSpendPerPostETB,
+    selectedPlatforms,
+    tradeLicenseUrl,
+    promotionGoals,
+    primaryKpis,
+    MONTHLY_BUDGET_MIN_ETB,
     youtubeConnected,
     tiktokConnected,
     followers,
@@ -721,6 +764,11 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
         : [...prev, platform]
     );
 
+  const toggleAudienceAgeRange = (range: string) =>
+    setTargetAudienceAgeRanges((prev) =>
+      prev.includes(range) ? prev.filter((r) => r !== range) : [...prev, range]
+    );
+
   const addGeoTag = useCallback(() => {
     if (newGeo.trim()) {
       setGeoTags((prev) => [...prev, { label: newGeo.trim(), removable: true }]);
@@ -753,19 +801,28 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
     try {
       let profileData;
       if (isBusiness) {
+        const minEng = Math.min(50, Math.max(0, parseFloat(minEngagementPercent) || 0));
+        const avgOrder = avgOrderValueETB.replace(/,/g, '').trim();
         profileData = {
           businessName,
-          businessType,
           website: websiteUrl,
           industry,
+          category: industry,
+          niche: industry,
           bio: brandDescription,
           businessLocation,
-          openingHours,
-          priceRange,
           servicesOffered,
           companySize,
           targetAudienceTags: targetAudienceTags.map((t) => t.label),
+          targetAudienceAgeRanges,
           monthlyBudget,
+          currency: 'ETB',
+          /** Used by recommendation “budget fit” vs creator proposed rates */
+          budget: maxSpendPerPostETB,
+          minEngagement: minEng,
+          avgOrderValueETB: avgOrder ? Number(avgOrder) : undefined,
+          brandVoice,
+          primaryKpis,
           selectedPlatforms,
           tradeLicenseUrl,
           promotionGoals,
@@ -898,8 +955,8 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
                 Business Profile
               </h1>
               <p className="text-gray-500 dark:text-gray-400 text-sm max-w-md mx-auto leading-relaxed">
-                Craft your brand's digital identity to connect with creators who
-                share your organic vision.
+                Tell us who you sell to, how you market, and what you can invest in ETB (Birr). These fields
+                directly power AI marketing analysis and creator recommendations.
               </p>
             </>
           ) : (
@@ -925,7 +982,7 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
       {/* ── Main Form ── */}
       <div className="max-w-[620px] mx-auto px-4 pb-32 space-y-6">
         {/* ━━ SHARED: PERSONAL INFORMATION ━━ */}
-        <SectionCard icon={<Users size={20} />} title="Personal Information">
+        <SectionCard icon={<Users size={20} />} title={isBusiness ? 'Primary contact' : 'Personal Information'}>
           <div className="flex flex-col items-center mb-8">
             <div className="relative group">
               <div className="w-24 h-24 rounded-full border-4 border-emerald-500/20 overflow-hidden bg-gray-100 dark:bg-white/5 shadow-xl">
@@ -976,7 +1033,8 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
           <InputField label="Phone" value={phone} onChange={setPhone} placeholder="+251 ..." icon={<CheckCircle2 size={16} className="opacity-0" />} />
         </SectionCard>
 
-        {/* Social Connections Section */}
+        {/* Social Connections — creators only (not used for business-owner AI signals) */}
+        {!isBusiness && (
         <SectionCard icon={<Sparkles size={20} />} title="Social Connections">
           <p className="text-xs text-gray-500 dark:text-gray-400 -mt-4 mb-6">
             Connect your social media accounts to sync metrics and verify your presence.
@@ -1073,6 +1131,7 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
             })}
           </div>
         </SectionCard>
+        )}
 
         {/* ── Token Input Modal ── */}
         <AnimatePresence>
@@ -1152,143 +1211,83 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
         {isBusiness ? (
           /* ━━ BUSINESS PROFILE ━━ */
           <>
-            {/* Business Information */}
-            <SectionCard
-              icon={<Building2 size={20} />}
-              title="Business Information"
-            >
+            {/* Business & brand (AI + matching context) */}
+            <SectionCard icon={<Building2 size={20} />} title="Business & brand">
               <p className="text-xs text-gray-500 dark:text-gray-400 -mt-4 mb-6">
-                The core details that define your brand identity.
+                Identity and offer — used to align campaigns, creator recommendations, and marketing analysis with your real business.
               </p>
-
               <div className="space-y-5">
                 <InputField
-                  label="Business Name"
-                  placeholder="e.g. Verdant Ventures"
+                  label="Registered / trading name"
+                  placeholder="e.g. Green Bloom Trading PLC"
                   value={businessName}
                   onChange={setBusinessName}
                 />
-
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                  <SelectField
-                    label="Business Type"
-                    value={businessType}
-                    onChange={setBusinessType}
-                    options={businessTypes}
-                  />
-                  <SelectField
-                    label="Category / Industry"
-                    value={industry}
-                    onChange={setIndustry}
-                    options={industries}
-                  />
+                  <SelectField label="Industry / vertical" value={industry} onChange={setIndustry} options={industries} />
+                  <div className="space-y-2">
+                    <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">
+                      Company size
+                    </label>
+                    <div className="flex gap-2 flex-wrap">
+                      {companySizes.map((size) => (
+                        <TagPill
+                          key={size}
+                          label={size}
+                          selected={companySize === size}
+                          onClick={() => setCompanySize(size)}
+                        />
+                      ))}
+                    </div>
+                  </div>
                 </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                  <InputField
-                    label="Location"
-                    placeholder="City, Country"
-                    value={businessLocation}
-                    onChange={setBusinessLocation}
-                    icon={<MapPin size={16} />}
-                  />
-                  <InputField
-                    label="Opening Hours"
-                    placeholder="e.g. Mon-Fri 9AM-5PM"
-                    value={openingHours}
-                    onChange={setOpeningHours}
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                  <InputField
-                    label="Website URL"
-                    placeholder="www.yourbrand.com"
-                    value={websiteUrl}
-                    onChange={setWebsiteUrl}
-                    prefix="https://"
-                  />
-                  <SelectField
-                    label="Price Range"
-                    value={priceRange}
-                    onChange={setPriceRange}
-                    options={priceRanges}
-                  />
-                </div>
-
                 <InputField
-                  label="Services or Products Offered"
-                  placeholder="e.g. Organic Coffee, Vegan Pastries"
-                  value={servicesOffered}
-                  onChange={setServicesOffered}
+                  label="City & country (HQ or main market)"
+                  placeholder="e.g. Addis Ababa, Ethiopia"
+                  value={businessLocation}
+                  onChange={setBusinessLocation}
+                  icon={<MapPin size={16} />}
                 />
-
-                {/* Company Size */}
+                <InputField
+                  label="Website (optional)"
+                  placeholder="www.yourbrand.com"
+                  value={websiteUrl}
+                  onChange={setWebsiteUrl}
+                  prefix="https://"
+                />
                 <div className="space-y-2">
                   <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">
-                    Company Size
+                    Key products or services
                   </label>
-                  <div className="flex gap-2 flex-wrap">
-                    {companySizes.map((size) => (
-                      <TagPill
-                        key={size}
-                        label={size}
-                        selected={companySize === size}
-                        onClick={() => setCompanySize(size)}
-                      />
-                    ))}
+                  <textarea
+                    rows={3}
+                    value={servicesOffered}
+                    onChange={(e) => setServicesOffered(e.target.value)}
+                    placeholder="What you sell: SKUs, packages, or core services (helps AI match messaging and creators)."
+                    className="w-full bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl p-4 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30 resize-none"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">
+                    Brand story & positioning (for AI)
+                  </label>
+                  <div className="relative">
+                    <textarea
+                      rows={5}
+                      value={brandDescription}
+                      onChange={(e) => setBrandDescription(e.target.value)}
+                      placeholder="Mission, differentiators, ideal customer, tone, and what success looks like for you…"
+                      maxLength={900}
+                      className="w-full bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl p-4 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30 resize-none"
+                    />
+                    <span className="absolute bottom-3 right-3 text-[10px] text-gray-400">
+                      {brandDescription.length} / 900
+                    </span>
                   </div>
                 </div>
               </div>
             </SectionCard>
 
-            {/* Promotion Needs */}
-            <SectionCard
-              icon={<BarChart3 size={20} />}
-              title="Promotion Needs"
-            >
-              <div className="space-y-6">
-                <div className="space-y-3">
-                  <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">
-                    Primary Goals
-                  </label>
-                  <div className="flex flex-wrap gap-2">
-                    {businessGoals.map((goal) => (
-                      <TagPill
-                        key={goal}
-                        label={goal}
-                        selected={promotionGoals.includes(goal)}
-                        onClick={() =>
-                          setPromotionGoals(prev =>
-                            prev.includes(goal) ? prev.filter(g => g !== goal) : [...prev, goal]
-                          )
-                        }
-                      />
-                    ))}
-                  </div>
-                </div>
-
-                <div className="space-y-3">
-                  <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">
-                    Preferred Promotion Types
-                  </label>
-                  <div className="flex flex-wrap gap-2">
-                    {promotionTypes.map((type) => (
-                      <TagPill
-                        key={type}
-                        label={type}
-                        selected={preferredPromotionTypes.includes(type)}
-                        onClick={() =>
-                          setPreferredPromotionTypes(prev =>
-                            prev.includes(type) ? prev.filter(t => t !== type) : [...prev, type]
-                          )
-                        }
-                      />
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </SectionCard>
             {/* Trade License Verification */}
             <SectionCard
               icon={<ShieldCheck size={20} />}
@@ -1360,30 +1359,123 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
               </div>
             </SectionCard>
 
-            {/* Campaign Preferences */}
-            <SectionCard
-              icon={<Target size={20} />}
-              title="Campaign Preferences"
-            >
+            {/* Marketing, budgets & AI matching */}
+            <SectionCard icon={<BarChart3 size={20} />} title="Marketing, budgets & AI matching">
               <p className="text-xs text-gray-500 dark:text-gray-400 -mt-4 mb-6">
-                Define your target audience and engagement channels.
+                Goals, audience, and spend in Ethiopian Birr (ETB). These fields tune creator recommendations and profitability-style analysis.
               </p>
 
-              <div className="space-y-6">
-                {/* Target Audience Tags */}
+              <div className="space-y-8">
+                <div className="space-y-3">
+                  <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">
+                    Marketing goals
+                  </label>
+                  <div className="flex flex-wrap gap-2">
+                    {businessGoals.map((goal) => (
+                      <TagPill
+                        key={goal}
+                        label={goal}
+                        selected={promotionGoals.includes(goal)}
+                        onClick={() =>
+                          setPromotionGoals((prev) =>
+                            prev.includes(goal) ? prev.filter((g) => g !== goal) : [...prev, goal]
+                          )
+                        }
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">
+                    Primary KPIs (what we optimize for)
+                  </label>
+                  <div className="flex flex-wrap gap-2">
+                    {kpiOptions.map((kpi) => (
+                      <TagPill
+                        key={kpi}
+                        label={kpi}
+                        selected={primaryKpis.includes(kpi)}
+                        onClick={() =>
+                          setPrimaryKpis((prev) =>
+                            prev.includes(kpi) ? prev.filter((k) => k !== kpi) : [...prev, kpi]
+                          )
+                        }
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                  <SelectField label="Brand voice (for content briefs)" value={brandVoice} onChange={setBrandVoice} options={brandVoiceOptions} />
+                  <InputField
+                    label="Minimum creator engagement you expect (%)"
+                    placeholder="e.g. 3"
+                    value={minEngagementPercent}
+                    onChange={setMinEngagementPercent}
+                    type="text"
+                  />
+                </div>
+
+                <div className="space-y-3">
+                  <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">
+                    Content & promotion formats you want
+                  </label>
+                  <div className="flex flex-wrap gap-2">
+                    {promotionTypes.map((type) => (
+                      <TagPill
+                        key={type}
+                        label={type}
+                        selected={preferredPromotionTypes.includes(type)}
+                        onClick={() =>
+                          setPreferredPromotionTypes((prev) =>
+                            prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type]
+                          )
+                        }
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">
+                    Creator tiers you prefer
+                  </label>
+                  <div className="flex flex-wrap gap-2">
+                    {promoterTypes.map((type) => (
+                      <TagPill
+                        key={type}
+                        label={type}
+                        selected={preferredPromoterTypes.includes(type)}
+                        onClick={() =>
+                          setPreferredPromoterTypes((prev) =>
+                            prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type]
+                          )
+                        }
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                <InputField
+                  label="How many creators do you want to work with in the next 90 days? (approx.)"
+                  placeholder="e.g. 3"
+                  value={promotersNeededCount}
+                  onChange={setPromotersNeededCount}
+                />
+
                 <div className="space-y-2">
                   <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">
-                    Target Audience
+                    Target customer profile (tags)
                   </label>
+                  <p className="text-[10px] text-gray-500 dark:text-gray-500 mb-2">Examples: young parents, university students, B2B buyers, English speakers in Addis…</p>
                   <div className="flex flex-wrap gap-2 items-center">
                     {targetAudienceTags.map((tag) => (
                       <RemovableTag
                         key={tag.label}
                         label={tag.label}
                         onRemove={() =>
-                          setTargetAudienceTags((prev) =>
-                            prev.filter((t) => t.label !== tag.label)
-                          )
+                          setTargetAudienceTags((prev) => prev.filter((t) => t.label !== tag.label))
                         }
                       />
                     ))}
@@ -1393,133 +1485,135 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
                           autoFocus
                           value={newAudienceTag}
                           onChange={(e) => setNewAudienceTag(e.target.value)}
-                          onKeyDown={(e) =>
-                            e.key === 'Enter' && addAudienceTag()
-                          }
+                          onKeyDown={(e) => e.key === 'Enter' && addAudienceTag()}
                           placeholder="Add tag"
-                          className="w-28 bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:border-emerald-500 text-gray-900 dark:text-white"
+                          className="w-36 bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:border-emerald-500 text-gray-900 dark:text-white"
                         />
-                        <button
-                          onClick={addAudienceTag}
-                          className="text-emerald-500 hover:text-emerald-400 transition-colors"
-                        >
+                        <button type="button" onClick={addAudienceTag} className="text-emerald-500 hover:text-emerald-400 transition-colors">
                           <CheckCircle2 size={18} />
                         </button>
-                        <button
-                          onClick={() => setShowAudienceInput(false)}
-                          className="text-gray-400 hover:text-gray-600 transition-colors"
-                        >
+                        <button type="button" onClick={() => setShowAudienceInput(false)} className="text-gray-400 hover:text-gray-600 transition-colors">
                           <X size={16} />
                         </button>
                       </div>
                     ) : (
                       <button
+                        type="button"
                         onClick={() => setShowAudienceInput(true)}
                         className="flex items-center gap-1 px-3 py-1.5 border border-dashed border-gray-300 dark:border-white/15 rounded-full text-xs font-semibold text-gray-500 dark:text-gray-400 hover:border-emerald-400 hover:text-emerald-500 transition-all"
                       >
-                        <Plus size={14} /> Add Tag
+                        <Plus size={14} /> Add tag
                       </button>
                     )}
                   </div>
                 </div>
 
-                {/* Monthly Budget Slider */}
+                <div className="space-y-2">
+                  <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">
+                    Target audience age ranges
+                  </label>
+                  <div className="flex flex-wrap gap-2">
+                    {ageRanges.map((range) => (
+                      <TagPill
+                        key={range}
+                        label={range}
+                        selected={targetAudienceAgeRanges.includes(range)}
+                        onClick={() => toggleAudienceAgeRange(range)}
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                  <div className="space-y-2">
+                    <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">
+                      Typical order or sale value (ETB)
+                    </label>
+                    <p className="text-[10px] text-gray-500 dark:text-gray-500 mb-1">Used when estimating return from campaigns.</p>
+                    <input
+                      type="number"
+                      min={0}
+                      step={100}
+                      value={avgOrderValueETB}
+                      onChange={(e) => setAvgOrderValueETB(e.target.value)}
+                      placeholder="e.g. 2500"
+                      className="w-full bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl py-3 px-4 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">
+                      Max. pay per creator post (ETB)
+                    </label>
+                    <p className="text-[10px] text-gray-500 dark:text-gray-500 mb-1">Compared to creator rates when we rank matches.</p>
+                    <input
+                      type="number"
+                      min={500}
+                      step={500}
+                      value={maxSpendPerPostETB || ''}
+                      onChange={(e) => setMaxSpendPerPostETB(Number(e.target.value) || 0)}
+                      className="w-full bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl py-3 px-4 text-sm text-gray-900 dark:text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30"
+                    />
+                  </div>
+                </div>
+
                 <div className="bg-gray-50 dark:bg-black/30 rounded-2xl p-5 border border-gray-100 dark:border-white/5">
                   <div className="flex items-center justify-between mb-4">
                     <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">
-                      Monthly Budget
+                      Monthly marketing budget (ETB / Br)
                     </label>
-                    <span className="text-2xl font-black text-emerald-600 dark:text-emerald-400">
-                      ${monthlyBudget.toLocaleString()}
+                    <span className="text-xl sm:text-2xl font-black text-emerald-600 dark:text-emerald-400 tabular-nums">
+                      Br {monthlyBudget.toLocaleString()}
                     </span>
                   </div>
                   <input
                     type="range"
-                    min={100}
-                    max={20000}
-                    step={100}
-                    value={monthlyBudget}
-                    onChange={(e) =>
-                      setMonthlyBudget(Number(e.target.value))
-                    }
+                    min={MONTHLY_BUDGET_MIN_ETB}
+                    max={MONTHLY_BUDGET_MAX_ETB}
+                    step={MONTHLY_BUDGET_STEP_ETB}
+                    value={Math.min(MONTHLY_BUDGET_MAX_ETB, Math.max(MONTHLY_BUDGET_MIN_ETB, monthlyBudget))}
+                    onChange={(e) => setMonthlyBudget(Number(e.target.value))}
                     className="w-full h-2 bg-gray-200 dark:bg-white/10 rounded-full appearance-none cursor-pointer accent-emerald-500 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-emerald-500 [&::-webkit-slider-thumb]:shadow-lg [&::-webkit-slider-thumb]:shadow-emerald-500/30 [&::-webkit-slider-thumb]:cursor-pointer"
                   />
                   <div className="flex justify-between mt-2 text-[10px] text-gray-400">
-                    <span>$100</span>
-                    <span>$20,000</span>
+                    <span>Br {MONTHLY_BUDGET_MIN_ETB.toLocaleString()}</span>
+                    <span>Br {MONTHLY_BUDGET_MAX_ETB.toLocaleString()}</span>
                   </div>
                 </div>
 
-                {/* Primary Platforms */}
                 <div className="space-y-3">
                   <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">
-                    Primary Platforms
+                    Primary platforms for campaigns
                   </label>
-                  <div className="grid grid-cols-3 gap-3">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                     {platformOptions.map((platform) => {
-                      const isSelected =
-                        selectedPlatforms.includes(platform);
+                      const isSelected = selectedPlatforms.includes(platform);
                       const Icon =
                         platform === 'Instagram'
                           ? FaInstagram
                           : platform === 'TikTok'
-                            ? Music2
-                            : FaLinkedin;
+                            ? FaTiktok
+                            : platform === 'YouTube'
+                              ? FaYoutube
+                              : FaLinkedin;
                       return (
                         <button
                           key={platform}
                           type="button"
                           onClick={() => togglePlatform(platform)}
                           className={cn(
-                            'flex items-center gap-2 px-4 py-3 rounded-xl border text-sm font-semibold transition-all',
+                            'flex items-center gap-2 px-3 py-3 rounded-xl border text-xs sm:text-sm font-semibold transition-all',
                             isSelected
                               ? 'bg-emerald-50 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/30 text-gray-900 dark:text-white'
                               : 'bg-white dark:bg-black/40 border-gray-200 dark:border-white/10 text-gray-500 dark:text-gray-400 hover:border-emerald-300'
                           )}
                         >
-                          {isSelected && (
-                            <CheckCircle2
-                              size={16}
-                              className="text-emerald-500"
-                            />
-                          )}
-                          {!isSelected && (
-                            <div className="w-4 h-4 rounded-full border-2 border-gray-300 dark:border-white/20" />
-                          )}
-                          <Icon size={16} />
-                          {platform}
+                          {isSelected ? <CheckCircle2 size={16} className="text-emerald-500 shrink-0" /> : <div className="w-4 h-4 rounded-full border-2 border-gray-300 dark:border-white/20 shrink-0" />}
+                          <Icon size={16} className="shrink-0" />
+                          <span className="truncate">{platform}</span>
                         </button>
                       );
                     })}
                   </div>
-                </div>
-              </div>
-            </SectionCard>
-
-            {/* About the Brand */}
-            <SectionCard
-              icon={<Palette size={20} />}
-              title="About the Brand"
-            >
-              <p className="text-xs text-gray-500 dark:text-gray-400 -mt-4 mb-6">
-                Share your mission and brand narrative.
-              </p>
-              <div className="space-y-2">
-                <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">
-                  Brand Description
-                </label>
-                <div className="relative">
-                  <textarea
-                    rows={5}
-                    value={brandDescription}
-                    onChange={(e) => setBrandDescription(e.target.value)}
-                    placeholder="Tell us your story..."
-                    maxLength={500}
-                    className="w-full bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl p-4 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30 transition-all resize-none"
-                  />
-                  <span className="absolute bottom-3 right-3 text-[10px] text-gray-400">
-                    {brandDescription.length} / 500 characters
-                  </span>
                 </div>
               </div>
             </SectionCard>
@@ -1972,7 +2066,7 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
 
       {/* ── Bottom Bar (Business) ── */}
       {isBusiness && (
-        <div className="fixed bottom-0 left-0 right-0 bg-white/90 dark:bg-[#111]/90 backdrop-blur-xl border-t border-gray-100 dark:border-white/[0.06 px-4 py-4 z-50">
+        <div className="fixed bottom-0 left-0 right-0 bg-white/90 dark:bg-[#111]/90 backdrop-blur-xl border-t border-gray-100 dark:border-white/10 px-4 py-4 z-50">
           <div className="max-w-[620px] mx-auto flex items-center gap-4">
             {/* Progress */}
             <div className="flex-1">
