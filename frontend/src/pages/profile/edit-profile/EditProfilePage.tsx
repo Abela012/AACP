@@ -162,28 +162,34 @@ export default function EditProfilePage() {
     }
   }, [api, updateProfile]);
   
-   const handleCoverChange = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
-     const file = e.target.files?.[0];
-     if (!file) return;
-     
-     setIsSaving(true);
-     try {
-       const formData = new FormData();
-       formData.append('image', file);
-       const res = await api.post('/users/profile/picture?type=cover', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
+    const handleCoverChange = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
       
-      const newUrl = res.data.user.coverImage;
-      setCoverPreview(newUrl);
-      updateProfile({ coverImageUrl: newUrl });
-     } catch (error) {
-       console.error('Failed to upload cover:', error);
-       alert('Failed to upload image.');
-     } finally {
-       setIsSaving(false);
-     }
-   }, [api, updateProfile]);
+      console.log('[EditProfile] Starting cover upload for file:', file.name);
+      setIsSaving(true);
+      try {
+        const formData = new FormData();
+        formData.append('image', file);
+        const res = await api.post('/users/profile/picture?type=cover', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
+        
+        console.log('[EditProfile] Cover upload response:', res.data);
+        const newUrl = res.data.user.coverImage;
+        if (newUrl) {
+          setCoverPreview(newUrl);
+          updateProfile({ coverImageUrl: newUrl, coverImage: newUrl });
+          console.log('[EditProfile] Updated cover preview and profile context with:', newUrl);
+        }
+      } catch (error) {
+        console.error('[EditProfile] Failed to upload cover:', error);
+        alert('Failed to upload image. Please check your connection or file size.');
+      } finally {
+        setIsSaving(false);
+        if (e.target) e.target.value = ''; // Reset input to allow re-uploading same file
+      }
+    }, [api, updateProfile]);
 
   const handleRemoveAvatar = () => {
     setAvatarPreview('');
@@ -421,17 +427,19 @@ export default function EditProfilePage() {
                           ? 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2672&auto=format&fit=crop' 
                           : 'https://images.unsplash.com/photo-1557683316-973673baf926?q=80&w=2629&auto=format&fit=crop')} 
                         alt="Cover" 
-                        className="w-full h-full object-cover" 
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
                       />
-                      <div 
+                      <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors" />
+                      
+                      <button 
+                        type="button"
                         onClick={() => coverInputRef.current?.click()}
-                        className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                        className="absolute bottom-4 right-4 bg-white/20 backdrop-blur-md hover:bg-white/40 text-white px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 border border-white/30 transition-all active:scale-95 shadow-xl"
                       >
-                        <div className="bg-white/20 backdrop-blur-md px-4 py-2 rounded-xl text-white font-bold text-xs flex items-center gap-2 border border-white/20">
-                           <ImageIcon size={16} />
-                           Change Cover
-                        </div>
-                      </div>
+                         <ImageIcon size={16} />
+                         Change Cover
+                      </button>
+
                       <input 
                         ref={coverInputRef}
                         type="file"

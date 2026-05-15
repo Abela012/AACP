@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react';
+import { useState, useEffect, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   ArrowLeft, 
@@ -16,6 +16,7 @@ import { motion } from 'framer-motion';
 import { cn } from '@/src/shared/utils/cn';
 import BusinessLayout from '@/src/shared/components/layouts/BusinessLayout';
 import { useCreateOpportunity } from '@/src/hooks/useOpportunities';
+import { useProfile } from '@/src/shared/context/ProfileContext';
 
 const CATEGORIES = [
   'Technology', 'Fashion', 'Beauty', 'Gaming', 
@@ -26,6 +27,7 @@ const PLATFORMS = ['Instagram', 'TikTok', 'YouTube'];
 
 export default function CreateCampaignPage() {
   const navigate = useNavigate();
+  const { profile } = useProfile();
   const { mutateAsync: createOpportunity, isPending } = useCreateOpportunity();
 
   const [title, setTitle] = useState('');
@@ -40,6 +42,21 @@ export default function CreateCampaignPage() {
   const [deliverables, setDeliverables] = useState<string[]>([]);
   const [newDeliverable, setNewDeliverable] = useState('');
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (profile) {
+      if (profile.industry && CATEGORIES.includes(profile.industry)) {
+        setCategory(profile.industry);
+      } else if (profile.industry) {
+        setCategory('Other');
+        setCustomCategory(profile.industry);
+      }
+      
+      if (profile.monthlyBudget) {
+        setBudgetAmount(profile.monthlyBudget.toString());
+      }
+    }
+  }, [profile]);
 
   const togglePlatform = (platform: string) => {
     setSelectedPlatforms(prev => 

@@ -15,7 +15,26 @@ const onlineUsers = new Map<string, string>();
 export const initSocket = (httpServer: HttpServer): SocketServer => {
     const io = new SocketServer(httpServer, {
         cors: {
-            origin: process.env.FRONTEND_URL || 'https://aacp-frontend-delta.vercel.app',
+            origin: (origin, callback) => {
+                // In development, allow localhost/127.0.0.1 with any port
+                const isDev = process.env.NODE_ENV === 'development';
+                const isLocal = origin && /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
+                
+                if (isDev && (isLocal || !origin)) {
+                    return callback(null, true);
+                }
+
+                const allowedOrigins = [
+                    process.env.FRONTEND_URL,
+                    'https://aacp-frontend-delta.vercel.app'
+                ].filter(Boolean);
+
+                if (allowedOrigins.includes(origin as string)) {
+                    return callback(null, true);
+                }
+                
+                callback(new Error('Not allowed by CORS'));
+            },
             methods: ['GET', 'POST'],
             credentials: true,
         },

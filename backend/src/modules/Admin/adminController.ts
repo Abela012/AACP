@@ -169,6 +169,17 @@ export const banUser = async (req: Request, res: Response) => {
         
         user.status = status;
         if (status === 'active' || status === 'approved') {
+            // Apply pending root field updates
+            if ((user as any).pendingUpdates) {
+                const pu = (user as any).pendingUpdates;
+                for (const key in pu) {
+                    (user as any)[key] = pu[key];
+                }
+                (user as any).pendingUpdates = null;
+                user.markModified('pendingUpdates');
+            }
+
+            // Apply pending profileData updates
             if (user.pendingProfileData) {
                 user.profileData = {
                     ...(user.profileData || {}),

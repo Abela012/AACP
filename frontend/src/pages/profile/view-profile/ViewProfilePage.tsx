@@ -1,5 +1,7 @@
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { motion, type Variants } from 'framer-motion';
+import { useQuery } from '@tanstack/react-query';
+import { useApiClient } from '@/src/api/apiClient';
 import {
   Building2,
   MapPin,
@@ -14,6 +16,7 @@ import {
   Briefcase,
   Edit,
 } from 'lucide-react';
+import { cn } from '@/src/shared/utils/cn';
 import AdvertiserLayout from '@/src/shared/components/layouts/AdvertiserLayout';
 import BusinessLayout from '@/src/shared/components/layouts/BusinessLayout';
 import { useUser } from '@/src/shared/context/UserContext';
@@ -21,34 +24,64 @@ import { useProfile } from '@/src/shared/context/ProfileContext';
 
 export default function ViewProfilePage() {
   const { userRole, onboardingStatus } = useUser();
-  const { profile } = useProfile();
+  const { profile: myProfile } = useProfile();
+  const { id: urlProfileId } = useParams();
+  const profileId = urlProfileId;
+  const api = useApiClient();
   const location = useLocation();
   const navigate = useNavigate();
 
-  const isBusiness = location.pathname.includes('/business') || userRole === 'business_owner';
-  const Layout = isBusiness ? BusinessLayout : AdvertiserLayout;
+  // Fetch target profile if viewing someone else's
+  const { data: targetProfileData, isLoading: isFetchingProfile } = useQuery({
+    queryKey: ['userProfile', profileId],
+    queryFn: async () => {
+      if (!profileId) return null;
+      const res = await api.get(`/users/${profileId}`);
+      return res.data.user;
+    },
+    enabled: !!profileId,
+  });
 
-  const isApproved = onboardingStatus === 'approved';
+  const profile = profileId ? targetProfileData : myProfile;
+
+  if (profileId && isFetchingProfile) {
+    return (
+      <div className="h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500"></div>
+      </div>
+    );
+  }
+
+  if (!profile) return null;
+
+  const isViewerBusiness = userRole === 'business_owner';
+  const Layout = isViewerBusiness ? BusinessLayout : AdvertiserLayout;
+
+  const isTargetProfileBusiness = profile.role === 'business_owner';
+
+  const isPending = onboardingStatus === 'pending' || (profile as any).pendingProfileData;
+  const statusLabel = onboardingStatus === 'approved' ? 'Approved Profile' : onboardingStatus === 'pending' ? 'Pending Review' : 'Incomplete Profile';
+  const statusColor = onboardingStatus === 'approved' ? 'bg-emerald-500' : onboardingStatus === 'pending' ? 'bg-amber-500' : 'bg-gray-500';
 
   // Build profile display data from context
   const profileData = {
-    name: profile.businessName || `${profile.firstName} ${profile.lastName}`,
-    type: isBusiness ? profile.industry || 'B2B Software' : 'Premium Content Creator',
+    name: profile.businessName || `${profile.firstName} ${profile.lastName}` || 'User Profile',
+    type: isTargetProfileBusiness ? profile.industry || 'Business' : 'Premium Content Creator',
     bio: profile.bio || 'No bio provided yet.',
     established: '2024',
     rating: '5.0',
-    reviews: isBusiness ? 0 : 0,
-    location: profile.businessLocation || (isBusiness ? 'Not Set' : (profile.geoTags?.[0] || 'Global')),
+    reviews: isTargetProfileBusiness ? 0 : 0,
+    location: profile.businessLocation || profile.location || (isTargetProfileBusiness ? 'Not Set' : (profile.geoTags?.[0] || 'Global')),
     website: profile.website || 'No website',
     email: profile.email,
     phone: profile.phone,
-    coverImage: profile.coverImageUrl || (isBusiness
+    coverImage: profile.coverImageUrl || profile.coverImage || (isTargetProfileBusiness
       ? 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2672&auto=format&fit=crop'
       : 'https://images.unsplash.com/photo-1557683316-973673baf926?q=80&w=2629&auto=format&fit=crop'),
-    avatarImage: profile.avatarUrl,
-    badges: isBusiness
-      ? (profile as any).promotionGoals || ['Verified Business', 'Direct Advertiser']
-      : profile.selectedStyles || ['Content Creator', 'Social Media'],
+    avatarImage: profile.avatarUrl || profile.profilePicture,
+    badges: isTargetProfileBusiness
+      ? (profile as any).promotionGoals?.length > 0 ? (profile as any).promotionGoals : ['Verified Business', 'Direct Advertiser']
+      : profile.selectedStyles?.length > 0 ? profile.selectedStyles : ['Content Creator', 'Social Media'],
     
     // Extended Business Data
     businessDetails: {
@@ -65,7 +98,7 @@ export default function ViewProfilePage() {
       minEng: (profile as any).minEngagement ? `${(profile as any).minEngagement}%` : 'Not set',
     },
 
-    stats: isBusiness
+    stats: isTargetProfileBusiness
       ? [
         { label: 'Monthly Budget', value: profile.monthlyBudget ? `${profile.monthlyBudget.toLocaleString()} ETB` : 'Flexible' },
         { label: 'Platforms', value: profile.selectedPlatforms?.length.toString() || '0' },
@@ -122,9 +155,12 @@ export default function ViewProfilePage() {
               <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/20 to-transparent z-10" />
               <img src={profileData.coverImage} alt="Cover" className="w-full h-full object-cover" />
               <div className="absolute bottom-6 right-6 z-20 flex gap-2">
-                <span className="bg-emerald-500 text-black text-xs font-bold px-4 py-2 rounded-full flex items-center gap-1.5 shadow-xl">
+                <span className={cn(
+                  "text-black text-xs font-bold px-4 py-2 rounded-full flex items-center gap-1.5 shadow-xl",
+                  statusColor
+                )}>
                   <ShieldCheck size={14} />
-                  Approved Profile
+                  {statusLabel}
                 </span>
                 <span className="bg-white/10 backdrop-blur-md text-white border border-white/20 text-xs font-bold px-4 py-2 rounded-full flex items-center gap-1.5 shadow-xl">
                   <Star size={14} className="fill-amber-400 text-amber-400" />
@@ -150,7 +186,7 @@ export default function ViewProfilePage() {
                   </h1>
                   <div className="flex flex-wrap items-center gap-4 mb-6">
                     <p className="text-emerald-500 font-bold text-base md:text-lg flex items-center gap-2">
-                      {isBusiness ? <Building2 size={20} /> : <Briefcase size={20} />}
+                      {isTargetProfileBusiness ? <Building2 size={20} /> : <Briefcase size={20} />}
                       {profileData.type}
                     </p>
                     <div className="w-1.5 h-1.5 rounded-full bg-gray-300 dark:bg-white/10 hidden md:block" />
@@ -173,15 +209,17 @@ export default function ViewProfilePage() {
                 </div>
 
                 <div className="flex flex-col gap-3 min-w-[240px]">
-                  <button
-                    onClick={() =>
-                      navigate(isBusiness ? '/profile/edit/business' : '/profile/edit/advertiser')
-                    }
-                    className="w-full bg-gray-900 dark:bg-white text-white dark:text-black font-black uppercase tracking-widest text-xs py-4 rounded-2xl mb-1 hover:bg-gray-800 dark:hover:bg-gray-200 transition-all shadow-xl flex items-center justify-center gap-3 active:scale-[0.98]"
-                  >
-                    <Edit size={16} />
-                    Edit Profile
-                  </button>
+                  {!profileId && (
+                    <button
+                      onClick={() =>
+                        navigate(isViewerBusiness ? '/profile/edit/business' : '/profile/edit/advertiser')
+                      }
+                      className="w-full bg-gray-900 dark:bg-white text-white dark:text-black font-black uppercase tracking-widest text-xs py-4 rounded-2xl mb-1 hover:bg-gray-800 dark:hover:bg-gray-200 transition-all shadow-xl flex items-center justify-center gap-3 active:scale-[0.98]"
+                    >
+                      <Edit size={16} />
+                      Edit Profile
+                    </button>
+                  )}
                   <a
                     href={`http://${profileData.website}`}
                     target="_blank"
@@ -208,7 +246,7 @@ export default function ViewProfilePage() {
                 >
                   <h3 className="text-xs font-black text-gray-400 uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
                     <Award size={14} className="text-emerald-500" />
-                    Brand Description
+                    {isTargetProfileBusiness ? 'Brand Description' : 'About Creator'}
                   </h3>
                   <p className="text-gray-600 dark:text-gray-300 leading-relaxed font-medium">
                     {profileData.bio}
@@ -221,15 +259,29 @@ export default function ViewProfilePage() {
                 >
                   <h3 className="text-xs font-black text-gray-400 uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
                     <Sparkles size={14} className="text-amber-500" />
-                    Products & Services
+                    {isTargetProfileBusiness ? 'Products & Services' : 'Content Niches & Styles'}
                   </h3>
-                  <p className="text-gray-600 dark:text-gray-300 leading-relaxed font-medium">
-                    {profileData.businessDetails.services}
-                  </p>
-                  <div className="mt-6 flex items-center gap-2">
-                    <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Brand Voice:</span>
-                    <DataTag label={profileData.businessDetails.voice} />
-                  </div>
+                  {isTargetProfileBusiness ? (
+                    <>
+                      <p className="text-gray-600 dark:text-gray-300 leading-relaxed font-medium">
+                        {profileData.businessDetails.services}
+                      </p>
+                      <div className="mt-6 flex items-center gap-2">
+                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Brand Voice:</span>
+                        <DataTag label={profileData.businessDetails.voice} />
+                      </div>
+                    </>
+                  ) : (
+                    <div className="flex flex-wrap gap-2">
+                      {profileData.badges.length > 0 ? (
+                        profileData.badges.map((badge: string, i: number) => (
+                          <DataTag key={i} label={badge} />
+                        ))
+                      ) : (
+                        <span className="text-sm text-gray-500 font-medium">No specific niches listed</span>
+                      )}
+                    </div>
+                  )}
                 </motion.div>
               </div>
 
@@ -249,7 +301,7 @@ export default function ViewProfilePage() {
               </motion.div>
 
               {/* Marketing & Goals (Business Only) */}
-              {isBusiness && (
+              {isTargetProfileBusiness && (
                 <motion.div
                   variants={itemVariants}
                   className="bg-white dark:bg-[#111] p-10 rounded-[3rem] border border-gray-100 dark:border-white/5 shadow-sm"
@@ -297,7 +349,7 @@ export default function ViewProfilePage() {
             <motion.div variants={itemVariants} className="lg:col-span-4 space-y-8">
               
               {/* Target Audience */}
-              {isBusiness && (
+              {isTargetProfileBusiness && (
                 <div className="bg-gray-900 dark:bg-white p-10 rounded-[3rem] text-white dark:text-black shadow-xl">
                   <h3 className="text-xs font-black text-white/50 dark:text-black/50 uppercase tracking-[0.2em] mb-6">Target Audience</h3>
                   <div className="space-y-6">
@@ -358,11 +410,39 @@ export default function ViewProfilePage() {
                 <div className="mt-8 pt-8 border-t border-gray-50 dark:border-white/5">
                    <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-4">Social Ecosystem</p>
                    <div className="flex gap-3">
-                      {profile.selectedPlatforms?.map((p: string) => (
-                        <div key={p} className="w-10 h-10 rounded-xl bg-gray-50 dark:bg-white/5 flex items-center justify-center text-gray-400 hover:text-emerald-500 transition-colors border border-gray-100 dark:border-white/5">
-                          {p[0]}
+                      {isTargetProfileBusiness ? (
+                        profile.selectedPlatforms?.map((p: string) => (
+                          <div key={p} className="w-10 h-10 rounded-xl bg-gray-50 dark:bg-white/5 flex items-center justify-center text-gray-400 hover:text-emerald-500 transition-colors border border-gray-100 dark:border-white/5">
+                            {p[0]}
+                          </div>
+                        ))
+                      ) : (
+                        <div className="flex flex-wrap gap-3">
+                          {profile.youtubeHandle && (
+                            <a href={`https://youtube.com/${profile.youtubeHandle}`} target="_blank" rel="noreferrer" className="flex items-center gap-2 px-4 py-2 bg-red-500/10 text-red-600 rounded-xl text-xs font-bold hover:bg-red-500/20 transition-colors">
+                              YT
+                            </a>
+                          )}
+                          {profile.tiktokHandle && (
+                            <a href={`https://tiktok.com/@${profile.tiktokHandle.replace('@', '')}`} target="_blank" rel="noreferrer" className="flex items-center gap-2 px-4 py-2 bg-gray-900/10 dark:bg-white/10 text-gray-900 dark:text-white rounded-xl text-xs font-bold hover:bg-gray-900/20 dark:hover:bg-white/20 transition-colors">
+                              TikTok
+                            </a>
+                          )}
+                          {profile.instagramHandle && (
+                            <a href={`https://instagram.com/${profile.instagramHandle.replace('@', '')}`} target="_blank" rel="noreferrer" className="flex items-center gap-2 px-4 py-2 bg-pink-500/10 text-pink-600 rounded-xl text-xs font-bold hover:bg-pink-500/20 transition-colors">
+                              IG
+                            </a>
+                          )}
+                          {profile.xHandle && (
+                            <a href={`https://x.com/${profile.xHandle.replace('@', '')}`} target="_blank" rel="noreferrer" className="flex items-center gap-2 px-4 py-2 bg-blue-500/10 text-blue-600 rounded-xl text-xs font-bold hover:bg-blue-500/20 transition-colors">
+                              X
+                            </a>
+                          )}
+                          {!profile.youtubeHandle && !profile.tiktokHandle && !profile.instagramHandle && !profile.xHandle && (
+                            <span className="text-sm text-gray-500 font-medium">No linked socials</span>
+                          )}
                         </div>
-                      ))}
+                      )}
                    </div>
                 </div>
               </div>

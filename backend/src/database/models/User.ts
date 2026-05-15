@@ -17,6 +17,7 @@ export interface IUser extends Document {
     isVerified: boolean;
     profileData?: any;
     pendingProfileData?: any;
+    pendingUpdates?: any;
     totalPosts: number;
     averageRating: number;
     totalReviews: number;
@@ -96,6 +97,10 @@ const userSchema: Schema = new Schema(
             default: {},
         },
         pendingProfileData: {
+            type: Schema.Types.Mixed,
+            default: null,
+        },
+        pendingUpdates: {
             type: Schema.Types.Mixed,
             default: null,
         },

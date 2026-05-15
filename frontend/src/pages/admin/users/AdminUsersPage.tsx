@@ -219,11 +219,18 @@ export default function AdminUsersPage() {
                         </span>
                       </td>
                       <td className="py-6 px-8">
-                        <span className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest ${
-                          (user.role === 'admin' || user.role === 'super_admin') ? statusStyle('active') : statusStyle(user.status)
-                        }`}>
-                          {(user.role === 'admin' || user.role === 'super_admin') ? 'active' : user.status}
-                        </span>
+                        <div className="flex flex-col gap-1.5 items-start">
+                          <span className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest ${
+                            (user.role === 'admin' || user.role === 'super_admin') ? statusStyle('active') : statusStyle(user.status)
+                          }`}>
+                            {(user.role === 'admin' || user.role === 'super_admin') ? 'active' : user.status}
+                          </span>
+                          {(user.status === 'active' || user.status === 'approved') && (user.pendingProfileData || user.pendingUpdates) && (
+                            <span className="px-2 py-0.5 bg-amber-500/10 text-amber-600 rounded text-[9px] font-black uppercase tracking-tighter ring-1 ring-amber-500/20">
+                              Update Pending
+                            </span>
+                          )}
+                        </div>
                       </td>
                       <td className="py-6 px-8">
                         <span className="text-xs font-medium text-[#9A9FA5]">
@@ -240,11 +247,11 @@ export default function AdminUsersPage() {
                             >
                               <Eye size={18} />
                             </Link>
-                            {!user.isVerified && (
+                            {(!user.isVerified || user.pendingProfileData || user.pendingUpdates) && (
                               <Link
                                 to={`/admin/verification/${user._id}`}
-                                className="p-2 hover:bg-white dark:hover:bg-white/10 rounded-xl transition-all text-[#9A9FA5] hover:text-[#14a800]"
-                                title="Review Verification"
+                                className="p-2 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 rounded-xl transition-all text-emerald-500"
+                                title="Review Changes"
                               >
                                 <ShieldCheck size={18} />
                               </Link>

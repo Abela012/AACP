@@ -30,8 +30,8 @@ export const uploadProfilePicture = async (
       return new Promise((resolve, reject) => {
         const stream = cloudinary.uploader.upload_stream(
           {
-            folder: "aacp/images",
-            resource_type: "image",
+            folder: "aacp/uploads",
+            resource_type: "auto",
           },
           (error, result) => {
             if (result) resolve(result);
@@ -65,6 +65,43 @@ export const uploadProfilePicture = async (
     });
   } catch (error: any) {
     console.error("Error uploading profile picture:", error);
+    res.status(500).json({ message: "Upload failed", error: error.message });
+  }
+};
+
+export const uploadFile = async (
+  req: MulterRequest,
+  res: Response
+): Promise<void> => {
+  if (!req.file) {
+    res.status(400).json({ message: "No file uploaded" });
+    return;
+  }
+
+  try {
+    const uploadFromBuffer = (buffer: Buffer) => {
+      return new Promise((resolve, reject) => {
+        const stream = cloudinary.uploader.upload_stream(
+          {
+            folder: "aacp/uploads",
+            resource_type: "auto",
+          },
+          (error, result) => {
+            if (result) resolve(result);
+            else reject(error);
+          }
+        );
+        stream.end(buffer);
+      });
+    };
+
+    const result: any = await uploadFromBuffer(req.file.buffer);
+    res.status(200).json({
+      message: "File uploaded successfully",
+      url: result.secure_url,
+    });
+  } catch (error: any) {
+    console.error("Error uploading file:", error);
     res.status(500).json({ message: "Upload failed", error: error.message });
   }
 };
@@ -209,28 +246,57 @@ export const submitProfileForReview = async (
       return;
     }
 
+    const isAlreadyApproved = user.status === "active" || user.status === "approved";
     const updates: any = {};
 
-    for (const key of ALLOWED_FIELDS) {
-      if (req.body[key] !== undefined) {
-        updates[key] = req.body[key];
+    if (isAlreadyApproved) {
+      // 🚀 For approved users: don't lock them out. Keep status as is.
+      // Store all root field changes in pendingUpdates
+      const rootUpdates: any = {};
+      for (const key of ALLOWED_FIELDS) {
+        if (key !== "profileData" && req.body[key] !== undefined) {
+          rootUpdates[key] = req.body[key];
+        }
       }
-    }
+      if (Object.keys(rootUpdates).length > 0) {
+        user.pendingUpdates = {
+          ...(user.pendingUpdates || {}),
+          ...rootUpdates,
+        };
+      }
 
-    // Only set status to pending if the user is not already active
-    // This allows active users to edit their profile without being locked out
-    if (user.status !== "active") {
+      // Store profileData changes in pendingProfileData
+      if (req.body.profileData && typeof req.body.profileData === "object") {
+        user.pendingProfileData = {
+          ...(user.profileData || {}),
+          ...(user.pendingProfileData || {}),
+          ...req.body.profileData,
+        };
+      }
+      
+      // Mark modified for Mixed types
+      user.markModified("pendingUpdates");
+      user.markModified("pendingProfileData");
+    } else {
+      // 🆕 For new or incomplete users: set status to pending
       updates.status = "pending";
-    }
 
-    // 🧠 Safely merge profileData into pendingProfileData
-    if (updates.profileData && typeof updates.profileData === "object") {
-      updates.pendingProfileData = {
-        ...(user.profileData || {}),
-        ...(user.pendingProfileData || {}),
-        ...updates.profileData,
-      };
-      delete updates.profileData;
+      for (const key of ALLOWED_FIELDS) {
+        if (req.body[key] !== undefined) {
+          updates[key] = req.body[key];
+        }
+      }
+
+      // Merge profileData into pendingProfileData
+      if (updates.profileData && typeof updates.profileData === "object") {
+        updates.pendingProfileData = {
+          ...(user.profileData || {}),
+          ...(user.pendingProfileData || {}),
+          ...updates.profileData,
+        };
+        delete updates.profileData;
+      }
+      user.set(updates);
     }
 
     user.set(updates);
@@ -265,6 +331,23 @@ export const getCurrentUser = async (
     return;
   }
   res.status(200).json({ user });
+};
+
+export const getUserById = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const user = await User.findById(id).lean();
+    if (!user) {
+      res.status(404).json({ message: "User not found" });
+      return;
+    }
+    res.status(200).json({ user });
+  } catch (error) {
+    res.status(500).json({ message: "Internal server error" });
+  }
 };
 
 export const syncUser = async (req: Request, res: Response): Promise<void> => {

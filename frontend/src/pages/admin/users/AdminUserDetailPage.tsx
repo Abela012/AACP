@@ -41,6 +41,13 @@ export default function AdminUserDetailPage() {
     enabled: !!id,
   });
 
+  const hasPendingChanges = !!user?.pendingProfileData || !!user?.pendingUpdates;
+
+  const displayUser = user ? {
+    ...user,
+    ...(user.pendingUpdates || {})
+  } : user;
+
   const displayProfileData = user ? {
     ...(user.profileData || {}),
     ...(user.pendingProfileData || {})
@@ -150,7 +157,7 @@ export default function AdminUserDetailPage() {
 
             <div className="flex-1">
               <div className="flex items-center gap-3 mb-4">
-                <h2 className="text-3xl font-black">{user.firstName} {user.lastName}</h2>
+                <h2 className="text-3xl font-black">{displayUser.firstName} {displayUser.lastName}</h2>
                 <div className="flex gap-2">
                   <span className="text-[10px] font-black uppercase tracking-widest px-2 py-1 bg-gray-100 dark:bg-white/10 text-gray-500 rounded">{user.role.replace('_', ' ')}</span>
                   <span className={`text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded ${
@@ -177,7 +184,7 @@ export default function AdminUserDetailPage() {
                 </div>
                 <div>
                   <label className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest mb-1 block">Location</label>
-                  <p className="text-xs font-bold">{displayProfileData?.businessLocation || user.location || 'Remote'}</p>
+                  <p className="text-xs font-bold">{displayProfileData?.businessLocation || displayUser.location || 'Remote'}</p>
                 </div>
               </div>
             </div>
@@ -206,13 +213,22 @@ export default function AdminUserDetailPage() {
 
                 {user.status === 'pending' ? (
                   <button 
-                    onClick={() => handleStatusChange('active')}
+                    onClick={() => handleStatusChange('approved')}
                     disabled={updateStatus.isPending}
                     className="bg-emerald-50 dark:bg-emerald-500/10 hover:bg-emerald-100 dark:hover:bg-emerald-500/20 rounded-[2.5rem] flex flex-col items-center justify-center gap-2 transition-all p-4 border border-emerald-100 dark:border-emerald-500/20 disabled:opacity-50"
                   >
                     <CheckCircle2 size={20} className="text-emerald-500" />
                     <span className="text-xs font-bold text-emerald-600">Approve</span>
                   </button>
+                ) : (user.status === 'active' || user.status === 'approved') && hasPendingChanges ? (
+                    <button 
+                      onClick={() => handleStatusChange('approved')}
+                      disabled={updateStatus.isPending}
+                      className="bg-amber-50 dark:bg-amber-500/10 hover:bg-amber-100 dark:hover:bg-amber-500/20 rounded-[2.5rem] flex flex-col items-center justify-center gap-2 transition-all p-4 border border-amber-100 dark:border-amber-500/20 disabled:opacity-50"
+                    >
+                      <Zap size={20} className="text-amber-500 animate-pulse" />
+                      <span className="text-xs font-bold text-amber-600">Approve Updates</span>
+                    </button>
                 ) : user.status === 'suspended' || user.status === 'banned' ? (
                   <button 
                     onClick={() => handleStatusChange('active')}

@@ -27,6 +27,8 @@ import { cn } from '@/src/shared/utils/cn';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 import MarketingAnalysisDashboard from '@/src/shared/components/analysis/MarketingAnalysisDashboard';
 
+import { ConfirmModal } from '@/src/shared/components/modal/ConfirmModal';
+
 export default function CampaignApplicantsPage() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -39,29 +41,66 @@ export default function CampaignApplicantsPage() {
   const rejectMutation = useRejectApplication();
   const startCollaborationMutation = useStartCollaboration();
 
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+    type: 'success' | 'danger' | 'warning';
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: () => {},
+    type: 'success'
+  });
 
-  const handleAccept = async (appId: string) => {
-    if (!window.confirm('Are you sure you want to accept this creator? This will initiate the collaboration.')) return;
-    try {
-      await acceptMutation.mutateAsync(appId);
-      // Automatically start collaboration
-      await startCollaborationMutation.mutateAsync(appId);
-      alert('Application accepted! A new collaboration has been created.');
-      navigate('/messages');
-    } catch (err: any) {
-      alert(err.message || 'Failed to accept application');
-    }
+  const [toast, setToast] = useState<{ show: boolean, message: string, type: 'success' | 'error' }>({
+    show: false,
+    message: '',
+    type: 'success'
+  });
+
+  const showToast = (message: string, type: 'success' | 'error' = 'success') => {
+    setToast({ show: true, message, type });
+    setTimeout(() => setToast({ show: false, message: '', type: 'success' }), 3000);
   };
 
-  const handleReject = async (appId: string) => {
-    const reason = window.prompt('Please provide a reason for rejection (optional):');
-    if (reason === null) return;
-    try {
-      await rejectMutation.mutateAsync(appId);
-      alert('Application rejected.');
-    } catch (err: any) {
-      alert(err.message || 'Failed to reject application');
-    }
+
+  const handleAccept = (appId: string) => {
+    setConfirmModal({
+      isOpen: true,
+      title: 'Accept Proposal?',
+      message: 'Are you sure you want to accept this creator? This will initiate the collaboration and open a chat room.',
+      type: 'success',
+      onConfirm: async () => {
+        try {
+          await acceptMutation.mutateAsync(appId);
+          await startCollaborationMutation.mutateAsync(appId);
+          showToast('Collaboration started! Redirecting to chat...');
+          setTimeout(() => navigate('/messages'), 1500);
+        } catch (err: any) {
+          showToast(err.message || 'Failed to accept application', 'error');
+        }
+      }
+    });
+  };
+
+  const handleReject = (appId: string) => {
+    setConfirmModal({
+      isOpen: true,
+      title: 'Reject Application?',
+      message: 'Are you sure you want to decline this proposal? This action cannot be undone.',
+      type: 'danger',
+      onConfirm: async () => {
+        try {
+          await rejectMutation.mutateAsync(appId);
+          showToast('Application rejected');
+        } catch (err: any) {
+          showToast(err.message || 'Failed to reject application', 'error');
+        }
+      }
+    });
   };
 
   if (oppLoading || appsLoading) {
@@ -234,16 +273,16 @@ export default function CampaignApplicantsPage() {
                               <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Professional Snapshot</p>
                               <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                  <p className="text-xs text-gray-500">Current Role</p>
-                                  <p className="text-sm font-bold text-gray-900 dark:text-white">{app.applicationData.currentTitle || 'N/A'} at {app.applicationData.currentCompany || 'N/A'}</p>
+                                  <p className="text-xs text-gray-500">Creative Role</p>
+                                  <p className="text-sm font-bold text-gray-900 dark:text-white">{app.applicationData.creativeRole || 'N/A'}</p>
                                 </div>
                                 <div>
                                   <p className="text-xs text-gray-500">Experience</p>
                                   <p className="text-sm font-bold text-gray-900 dark:text-white">{app.applicationData.experienceYears || 'N/A'} Years</p>
                                 </div>
                                 <div>
-                                  <p className="text-xs text-gray-500">Education Level</p>
-                                  <p className="text-sm font-bold text-gray-900 dark:text-white">{app.applicationData.educationLevel || 'N/A'}</p>
+                                  <p className="text-xs text-gray-500">Availability</p>
+                                  <p className="text-sm font-bold text-gray-900 dark:text-white">{app.applicationData.availability || 'N/A'}</p>
                                 </div>
                                 <div>
                                   <p className="text-xs text-gray-500">Work Preference</p>
@@ -266,9 +305,23 @@ export default function CampaignApplicantsPage() {
                             {app.applicationData.resumeUrl && (
                               <div>
                                 <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Attached Document</p>
-                                <div className="inline-flex items-center gap-2 text-sm font-bold text-emerald-500 hover:text-emerald-400 transition-colors bg-emerald-50 dark:bg-emerald-500/10 px-4 py-2 rounded-xl cursor-pointer">
-                                  <FileText size={16} /> {app.applicationData.resumeUrl}
-                                </div>
+                                {app.applicationData.resumeUrl.startsWith('http') ? (
+                                  <a 
+                                    href={app.applicationData.resumeUrl} 
+                                    target="_blank" 
+                                    rel="noreferrer"
+                                    className="inline-flex items-center gap-2 text-sm font-bold text-emerald-500 hover:text-emerald-400 transition-colors bg-emerald-50 dark:bg-emerald-500/10 px-4 py-2 rounded-xl"
+                                  >
+                                    <FileText size={16} /> {app.applicationData.resumeUrl.split('/').pop() || 'View CV'} <Download size={14} />
+                                  </a>
+                                ) : (
+                                  <button
+                                    onClick={() => alert(`This application contains a legacy file: ${app.applicationData.resumeUrl}. Please ask the applicant to re-submit with the new file upload feature.`)}
+                                    className="inline-flex items-center gap-2 text-sm font-bold text-amber-500 hover:text-amber-400 transition-colors bg-amber-50 dark:bg-amber-500/10 px-4 py-2 rounded-xl"
+                                  >
+                                    <FileText size={16} /> {app.applicationData.resumeUrl} <AlertCircle size={14} />
+                                  </button>
+                                )}
                               </div>
                             )}
                           </div>
@@ -334,7 +387,9 @@ export default function CampaignApplicantsPage() {
                       <div className="text-center p-4 bg-gray-50/50 dark:bg-white/2 rounded-2xl">
                         <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Proposed Rate</p>
                         <p className="text-sm font-black text-gray-900 dark:text-white">
-                          {app.proposedRate?.amount ? `${app.proposedRate.amount} ${app.proposedRate.currency || 'ETB'}` : 'N/A'}
+                          {app.applicationData?.expectedSalary 
+                            ? `${app.applicationData.expectedSalary}` 
+                            : (app.proposedRate?.amount ? `${app.proposedRate.amount} ${app.proposedRate.currency || 'ETB'}` : 'N/A')}
                         </p>
                       </div>
 
@@ -421,7 +476,10 @@ export default function CampaignApplicantsPage() {
                           Action Completed
                         </button>
                       )}
-                      <button className="w-full h-14 text-xs font-bold text-gray-400 hover:text-gray-900 transition-all flex items-center justify-center gap-2">
+                      <button 
+                        onClick={() => navigate(`/profile/${app.advertiser?._id || app.advertiser}`)}
+                        className="w-full h-14 text-xs font-bold text-gray-400 hover:text-gray-900 dark:hover:text-white transition-all flex items-center justify-center gap-2"
+                      >
                         <ExternalLink size={14} /> View Full Profile
                       </button>
                     </div>
@@ -444,6 +502,37 @@ export default function CampaignApplicantsPage() {
           </div>
         </section>
       </div>
+      
+      {/* Custom Confirmation Modal */}
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        onClose={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
+        onConfirm={confirmModal.onConfirm}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        type={confirmModal.type}
+        confirmText={confirmModal.type === 'danger' ? "Yes, Decline" : "Yes, Accept"}
+      />
+
+      {/* Toast Notification */}
+      <AnimatePresence>
+        {toast.show && (
+          <motion.div 
+            initial={{ opacity: 0, y: 50, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            className={cn(
+              "fixed bottom-8 left-1/2 -translate-x-1/2 z-[10000] px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3 border transition-all",
+              toast.type === 'success' 
+                ? "bg-emerald-500 text-black border-emerald-400" 
+                : "bg-red-500 text-white border-red-400"
+            )}
+          >
+            {toast.type === 'success' ? <CheckCircle2 size={18} /> : <AlertCircle size={18} />}
+            <span className="text-xs font-black uppercase tracking-widest">{toast.message}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </BusinessLayout>
   );
 }

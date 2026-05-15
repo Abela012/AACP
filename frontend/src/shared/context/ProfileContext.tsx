@@ -14,6 +14,7 @@ export interface ProfileData {
   industry: string;
   avatarUrl: string;
   coverImageUrl: string;
+  coverImage?: string;
   phone: string;
   businessLocation?: string;
   companySize?: string;
@@ -103,6 +104,8 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
         };
 
         const pd = userData.profileData || {};
+        const ppd = userData.pendingProfileData || {};
+        const pud = userData.pendingUpdates || {};
         const t = pd.tiktok || {};
         const i = pd.instagram || {};
 
@@ -133,14 +136,32 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
           businessLocation: userData.location || '',
           avatarUrl: userData.profilePicture || '',
           coverImageUrl: userData.coverImage || '',
+          coverImage: userData.coverImage || '', // Add alias for consistency
           _id: userData._id,
           clerkId: userData.clerkId,
           ...pd,
+          ...ppd, // Merge pending data so user sees their latest edits
+          ...pud, // Merge pending root updates
           // flattened convenience fields used by many components
           followers: followersTotal,
           avgViews: avgViewsTotal,
           engagementRate: parseFloat(maxER.toFixed(2)),
         };
+
+        // Sync special mappings
+        if (pud.location) mappedProfile.businessLocation = pud.location;
+        if (pud.profilePicture) mappedProfile.avatarUrl = pud.profilePicture;
+        if (pud.coverImage) {
+            mappedProfile.coverImageUrl = pud.coverImage;
+            mappedProfile.coverImage = pud.coverImage;
+        }
+
+        // Ensure coverImageUrl is always synced with coverImage if present in pd/ppd
+        if ((mappedProfile as any).coverImage && !(mappedProfile as any).coverImageUrl) {
+            (mappedProfile as any).coverImageUrl = (mappedProfile as any).coverImage;
+        } else if (!(mappedProfile as any).coverImage && (mappedProfile as any).coverImageUrl) {
+            (mappedProfile as any).coverImage = (mappedProfile as any).coverImageUrl;
+        }
 
         console.log('[ProfileContext] Mapped Profile State:', mappedProfile);
         setProfile(mappedProfile);

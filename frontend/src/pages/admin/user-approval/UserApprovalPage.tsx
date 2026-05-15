@@ -55,12 +55,17 @@ export default function UserApprovalPage() {
     );
   }
 
+  const displayUser = user ? {
+    ...user,
+    ...(user.pendingUpdates || {})
+  } : user;
+
   const displayProfileData = user ? {
     ...(user.profileData || {}),
     ...(user.pendingProfileData || {})
   } : {};
   
-  const hasPendingChanges = !!user?.pendingProfileData;
+  const hasPendingChanges = !!user?.pendingProfileData || !!user?.pendingUpdates;
   const isBusiness = user?.role === 'business_owner';
 
   const formatMetric = (num: number | undefined): string => {
@@ -108,7 +113,7 @@ export default function UserApprovalPage() {
           </div>
           <h1 className="text-3xl font-black text-[#1A1D1F] dark:text-white mb-2">Review {isBusiness ? 'Business' : 'Advertiser'} Profile</h1>
           <p className="text-sm font-medium text-[#6F767E] dark:text-gray-400">
-            {user.firstName} {user.lastName} — <span className="opacity-60">Applied {new Date(user.createdAt).toLocaleDateString()}</span>
+            {displayUser.firstName} {displayUser.lastName} — <span className="opacity-60">Applied {new Date(displayUser.createdAt).toLocaleDateString()}</span>
           </p>
         </div>
 
@@ -146,14 +151,14 @@ export default function UserApprovalPage() {
                   <label className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest mb-2 block">Location</label>
                   <div className="flex items-center gap-2 font-bold text-[#1A1D1F] dark:text-white">
                     <MapPin size={16} className="text-[#14a800]" />
-                    <span className="text-sm">{displayProfileData.businessLocation || displayProfileData.geoTags?.[0] || user.location || 'Remote'}</span>
+                    <span className="text-sm">{displayProfileData.businessLocation || displayProfileData.geoTags?.[0] || displayUser.location || 'Remote'}</span>
                   </div>
                 </div>
 
                 <div>
                   <label className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest mb-2 block">Bio / Pitch</label>
                   <p className="text-xs text-[#6F767E] dark:text-gray-400 font-medium leading-relaxed">
-                    {displayProfileData.bio || user.bio || 'No bio provided.'}
+                    {displayProfileData.bio || displayUser.bio || 'No bio provided.'}
                   </p>
                 </div>
 
@@ -512,14 +517,16 @@ export default function UserApprovalPage() {
 
               <div className="space-y-4">
                 <button
-                  onClick={() => updateStatus.mutate('active')}
-                  disabled={updateStatus.isPending || user.status === 'active'}
+                  onClick={() => updateStatus.mutate('approved')}
+                  disabled={updateStatus.isPending || ((user.status === 'approved' || user.status === 'active') && !hasPendingChanges)}
                   className="w-full h-16 bg-[#14a800] hover:bg-[#108a00] text-white rounded-1.5rem font-bold text-sm flex items-center justify-center gap-3 shadow-lg shadow-green-100 dark:shadow-none transition-all group disabled:opacity-50"
                 >
                   <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center ring-4 ring-white/10">
                     <ShieldCheck size={14} className="fill-current" />
                   </div>
-                  {user.status === 'active' ? 'Approved' : 'Approve Profile'}
+                  {(user.status === 'approved' || user.status === 'active')
+                    ? (hasPendingChanges ? 'Approve Updates' : 'Already Approved') 
+                    : 'Approve Profile'}
                 </button>
 
                 <button className="w-full h-16 bg-white dark:bg-white/5 hover:bg-gray-50 dark:hover:bg-white/10 text-[#1A1D1F] dark:text-white rounded-3xl font-bold text-sm flex items-center justify-center gap-3 border border-[#EFEFEF] dark:border-white/10 transition-all">
