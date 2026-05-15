@@ -37,6 +37,7 @@ export interface ProfileData {
   selectedStyles?: string[];
   _id?: string;
   clerkId?: string;
+  role?: string;
   tiktok?: any;
   instagram?: any;
   facebook?: any;
@@ -139,6 +140,7 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
           coverImage: userData.coverImage || '', // Add alias for consistency
           _id: userData._id,
           clerkId: userData.clerkId,
+          role: userData.role,
           ...pd,
           ...ppd, // Merge pending data so user sees their latest edits
           ...pud, // Merge pending root updates

@@ -42,7 +42,69 @@ export default function ViewProfilePage() {
     enabled: !!profileId,
   });
 
-  const profile = profileId ? targetProfileData : myProfile;
+  // When viewing someone else's profile, the backend returns raw user data with
+  // fields nested under profileData. We need to flatten it to match ProfileContext format.
+  const normalizeRawProfile = (raw: any) => {
+    if (!raw) return null;
+    // If already flattened (from ProfileContext), return as-is
+    if (!raw.profileData && raw.selectedStyles) return raw;
+    
+    const pd = raw.profileData || {};
+    const ppd = raw.pendingProfileData || {};
+    const pud = raw.pendingUpdates || {};
+
+    // Compute follower/view/engagement stats from platform data
+    const computeNum = (v: any) => {
+      if (typeof v === 'number') return v;
+      if (typeof v === 'string') return parseInt(v.replace(/[^0-9]/g, ''), 10) || 0;
+      return 0;
+    };
+    const t = pd.tiktok || {};
+    const i = pd.instagram || {};
+    const followersTotal = computeNum(t.followers) + computeNum(i.followers);
+    const avgViewsTotal = computeNum(t.avgViews) + computeNum(i.avgViews);
+    const computeER = (p: any) => {
+      const stored = computeNum(p.engagementRate);
+      if (stored > 0 && stored <= 100) return stored;
+      const f = computeNum(p.followers);
+      if (f <= 0) return 0;
+      const likes = computeNum(p.totalLikes);
+      const comments = computeNum(p.avgComments);
+      const shares = computeNum(p.avgShares);
+      const rawER = ((likes + comments + shares) / f) * 100;
+      return Math.min(rawER, 100);
+    };
+    const erTik = computeER(t);
+    const erIg = computeER(i);
+    const maxER = Math.max(erTik, erIg);
+
+    return {
+      firstName: raw.firstName || '',
+      lastName: raw.lastName || '',
+      email: raw.email || '',
+      bio: raw.bio || '',
+      businessLocation: raw.location || '',
+      avatarUrl: raw.profilePicture || '',
+      coverImageUrl: raw.coverImage || '',
+      coverImage: raw.coverImage || '',
+      profilePicture: raw.profilePicture || '',
+      _id: raw._id,
+      clerkId: raw.clerkId,
+      role: raw.role,
+      ...pd,
+      ...ppd,
+      ...pud,
+      followers: followersTotal,
+      avgViews: avgViewsTotal,
+      engagementRate: parseFloat(maxER.toFixed(2)),
+      // Ensure location syncs
+      ...(pud.location ? { businessLocation: pud.location } : {}),
+      ...(pud.profilePicture ? { avatarUrl: pud.profilePicture } : {}),
+      ...(pud.coverImage ? { coverImageUrl: pud.coverImage, coverImage: pud.coverImage } : {}),
+    };
+  };
+
+  const profile = profileId ? normalizeRawProfile(targetProfileData) : myProfile;
 
   if (profileId && isFetchingProfile) {
     return (
@@ -59,9 +121,14 @@ export default function ViewProfilePage() {
 
   const isTargetProfileBusiness = profile.role === 'business_owner';
 
-  const isPending = onboardingStatus === 'pending' || (profile as any).pendingProfileData;
-  const statusLabel = onboardingStatus === 'approved' ? 'Approved Profile' : onboardingStatus === 'pending' ? 'Pending Review' : 'Incomplete Profile';
-  const statusColor = onboardingStatus === 'approved' ? 'bg-emerald-500' : onboardingStatus === 'pending' ? 'bg-amber-500' : 'bg-gray-500';
+  // When viewing someone else's profile, derive status from their data
+  const targetStatus = profileId 
+    ? ((profile as any).status === 'active' || (profile as any).status === 'approved' ? 'approved' : (profile as any).status || 'incomplete')
+    : onboardingStatus;
+
+  const isPending = targetStatus === 'pending' || (profile as any).pendingProfileData;
+  const statusLabel = targetStatus === 'approved' || targetStatus === 'active' ? 'Approved Profile' : targetStatus === 'pending' ? 'Pending Review' : 'Incomplete Profile';
+  const statusColor = targetStatus === 'approved' || targetStatus === 'active' ? 'bg-emerald-500' : targetStatus === 'pending' ? 'bg-amber-500' : 'bg-gray-500';
 
   // Build profile display data from context
   const profileData = {
@@ -300,8 +367,8 @@ export default function ViewProfilePage() {
                 ))}
               </motion.div>
 
-              {/* Marketing & Goals (Business Only) */}
-              {isTargetProfileBusiness && (
+              {/* Marketing & Goals OR Professional Portfolio */}
+              {isTargetProfileBusiness ? (
                 <motion.div
                   variants={itemVariants}
                   className="bg-white dark:bg-[#111] p-10 rounded-[3rem] border border-gray-100 dark:border-white/5 shadow-sm"
@@ -339,6 +406,32 @@ export default function ViewProfilePage() {
                     <div>
                       <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Openings</p>
                       <p className="text-sm font-bold text-gray-900 dark:text-white">{profileData.businessDetails.promoterCount}</p>
+                    </div>
+                  </div>
+                </motion.div>
+              ) : (
+                <motion.div
+                  variants={itemVariants}
+                  className="bg-white dark:bg-[#111] p-10 rounded-[3rem] border border-gray-100 dark:border-white/5 shadow-sm"
+                >
+                  <h3 className="text-xs font-black text-gray-400 uppercase tracking-[0.2em] mb-8">Professional Portfolio</h3>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                    <div>
+                      <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">Base Rate (ETB)</h4>
+                      <p className="text-3xl font-black text-gray-900 dark:text-white">
+                        {profile.baseRate ? `${profile.baseRate} ETB` : 'Negotiable'}
+                      </p>
+                    </div>
+                    <div>
+                      <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">Portfolio Link</h4>
+                      {profileData.website && profileData.website !== 'No website' ? (
+                         <a href={profileData.website.startsWith('http') ? profileData.website : `https://${profileData.website}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 px-5 py-3 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-xl font-bold hover:bg-emerald-500/20 transition-colors">
+                           View Work <Globe size={16} />
+                         </a>
+                      ) : (
+                         <span className="text-sm font-medium text-gray-500">Not provided</span>
+                      )}
                     </div>
                   </div>
                 </motion.div>
