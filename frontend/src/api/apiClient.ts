@@ -12,6 +12,7 @@ export const useApiClient = (): AxiosInstance => {
     const instance = useMemo(() => {
         const client = axios.create({
             baseURL: import.meta.env.VITE_API_URL || 'https://aacp.onrender.com/api/v1',
+            timeout: 15000, // 15 second timeout to prevent hanging
             headers: {
                 'Content-Type': 'application/json',
             },

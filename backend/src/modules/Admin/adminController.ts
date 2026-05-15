@@ -190,11 +190,25 @@ export const banUser = async (req: Request, res: Response) => {
                 isVerified: user.isVerified 
             });
             
-            // Also send a formal notification
+            // Custom messages for better UX
+            let title = 'Account Update';
+            let message = `Your account status has been updated to: ${status}`;
+            
+            if (status === 'active' || status === 'approved') {
+                title = 'Profile Approved! 🎉';
+                message = 'Your profile update has been reviewed and approved. Your public profile is now updated.';
+            } else if (status === 'suspended') {
+                title = 'Account Suspended ⚠️';
+                message = 'Your account has been suspended due to a policy violation. Please contact support.';
+            } else if (status === 'banned') {
+                title = 'Account Banned 🚫';
+                message = 'Your account has been permanently banned.';
+            }
+
             io.to(`user:${user._id}`).emit('notification:new', {
                 type: 'system',
-                title: 'Account Status Updated',
-                message: `Your account status has been updated to: ${status}`,
+                title,
+                message,
                 createdAt: new Date().toISOString()
             });
         }

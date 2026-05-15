@@ -21,39 +21,49 @@ export const useUserSync = () => {
         mutationFn: async () => {
             const pendingRole = localStorage.getItem('pendingUserRole') || undefined;
             console.log("[useUserSync] Initiating sync with role:", pendingRole);
+            
+            // Set a timeout for the request to prevent hanging
             return await userApi.syncUser(api, pendingRole);
         },
+        retry: 3, // Automatically retry 3 times on failure
+        retryDelay: 2000,
         onSuccess: async (response: any) => {
-            console.log("[useUserSync] User synced success:", response.data?.message);
+            const status = response.data?.user?.status;
+            console.log("[useUserSync] Sync successful. Backend status:", status);
 
             // Clean up the pending role from localStorage
             localStorage.removeItem('pendingUserRole');
-
-            const status = response.data?.user?.status;
             
-            // Set onboarding status in context
+            // Set onboarding status in context based on backend status
             if (status === 'active' || status === 'approved') {
+                console.log("[useUserSync] Account is APPROVED. Transitioning UI...");
                 setOnboardingStatus('approved');
             } else if (status === 'pending') {
+                console.log("[useUserSync] Account is still PENDING.");
                 setOnboardingStatus('pending');
             } else {
+                console.log("[useUserSync] Account is INCOMPLETE.");
                 setOnboardingStatus('incomplete');
             }
 
-            // Refresh queries and profile
+            // Force a refresh of the authUser query to update other parts of the UI
             queryClient.invalidateQueries({ queryKey: ["authUser"] });
             await refreshProfile();
         },
         onError: (error: any) => {
-            console.error("[useUserSync] Sync failed:", error.response?.data || error.message);
+            console.error("[useUserSync] Sync failed definitively after retries:", error.response?.data || error.message);
             // Reset ref on error to allow retry if needed
             hasAttemptedSync.current = false;
+            
+            if (error.code === 'ECONNABORTED') {
+                console.error("[useUserSync] Request timed out. Backend might be down or slow.");
+            }
         },
     });
 
-    const triggerSync = useCallback(() => {
-        if (!hasAttemptedSync.current && !syncUserMutation.isPending) {
-            hasAttemptedSync.current = true;
+    const triggerSync = useCallback((force = false) => {
+        if (force || (!hasAttemptedSync.current && !syncUserMutation.isPending)) {
+            if (!force) hasAttemptedSync.current = true;
             syncUserMutation.mutate();
         }
     }, [syncUserMutation.isPending, syncUserMutation.mutate]);
@@ -66,7 +76,7 @@ export const useUserSync = () => {
     }, [isSignedIn, triggerSync]);
 
     return {
-        sync: triggerSync,
+        sync: () => triggerSync(true),
         isLoading: syncUserMutation.isPending,
         isSuccess: syncUserMutation.isSuccess,
         isError: syncUserMutation.isError

@@ -76,16 +76,21 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
       const response = await userApi.getMe(api);
       const userData = response.data.user;
       if (userData) {
-        setProfile({
+        console.log('[ProfileContext] Raw User Data from Backend:', userData);
+        const mappedProfile = {
           firstName: userData.firstName || '',
           lastName: userData.lastName || '',
           email: userData.email || '',
+          bio: userData.bio || '',
+          businessLocation: userData.location || '',
           avatarUrl: userData.profilePicture || '',
           coverImageUrl: userData.coverImage || '',
           _id: userData._id,
           clerkId: userData.clerkId,
           ...userData.profileData,
-        });
+        };
+        console.log('[ProfileContext] Mapped Profile State:', mappedProfile);
+        setProfile(mappedProfile);
       }
     } catch (error: any) {
       if (error?.response?.status === 404) {
