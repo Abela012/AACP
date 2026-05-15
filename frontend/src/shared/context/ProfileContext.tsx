@@ -1,7 +1,8 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import { useApiClient } from '@/src/api/apiClient';
 import { userApi } from '@/src/api/userApi';
-import { useUser } from '@clerk/clerk-react';
+import { useUser as useClerkUser } from '@clerk/clerk-react';
+import { useUser as useAppUser } from './UserContext';
 
 export interface ProfileData {
   firstName: string;
@@ -67,7 +68,8 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<ProfileData>(EMPTY_PROFILE);
   const [isLoading, setIsLoading] = useState(true);
   const api = useApiClient();
-  const { isLoaded, isSignedIn, user: clerkUser } = useUser();
+  const { isLoaded, isSignedIn, user: clerkUser } = useClerkUser();
+  const { setUserRole } = useAppUser();
 
   const refreshProfile = async () => {
     if (!isSignedIn) {
@@ -78,6 +80,10 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
       const response = await userApi.getMe(api);
       const userData = response.data.user;
       if (userData) {
+        if (userData.role) {
+          setUserRole(userData.role);
+          localStorage.setItem('userRole', userData.role);
+        }
         setProfile({
           firstName: userData.firstName || '',
           lastName: userData.lastName || '',
