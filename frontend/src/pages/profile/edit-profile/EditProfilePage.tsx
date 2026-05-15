@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   User,
   Building2,
@@ -17,6 +17,7 @@ import {
   LogOut,
   MapPin,
   Briefcase,
+  Info,
   Share2,
   Eye,
   EyeOff,
@@ -54,10 +55,19 @@ export default function EditProfilePage() {
   const [phone, setPhone] = useState(profile.phone || '');
   const [businessName, setBusinessName] = useState(profile.businessName || '');
   const [website, setWebsite] = useState(profile.website || '');
-  const [industry, setIndustry] = useState(profile.industry || 'B2B Software');
+  const [industry, setIndustry] = useState(profile.industry || 'Food & Beverage');
   const [businessLocation, setBusinessLocation] = useState(profile.businessLocation || '');
   const [companySize, setCompanySize] = useState(profile.companySize || '1-10');
-  const [monthlyBudget, setMonthlyBudget] = useState(profile.monthlyBudget || 0);
+  const [monthlyBudget, setMonthlyBudget] = useState(profile.monthlyBudget || 50000);
+  const [maxSpendPerPostETB, setMaxSpendPerPostETB] = useState((profile as any).budget || 15000);
+  const [minEngagementPercent, setMinEngagementPercent] = useState((profile as any).minEngagement || '3');
+  const [brandVoice, setBrandVoice] = useState((profile as any).brandVoice || 'Friendly');
+  const [servicesOffered, setServicesOffered] = useState((profile as any).servicesOffered || '');
+  const [primaryKpis, setPrimaryKpis] = useState<string[]>((profile as any).primaryKpis || []);
+  const [promotionGoals, setPromotionGoals] = useState<string[]>((profile as any).promotionGoals || []);
+  const [promotersNeededCount, setPromotersNeededCount] = useState((profile as any).promotersNeededCount || '');
+  const [targetAudienceAgeRanges, setTargetAudienceAgeRanges] = useState<string[]>((profile as any).targetAudienceAgeRanges || []);
+
   const [youtubeHandle, setYoutubeHandle] = useState(profile.youtubeHandle || '');
   const [tiktokHandle, setTiktokHandle] = useState(profile.tiktokHandle || '');
   const [instagramHandle, setInstagramHandle] = useState(profile.instagramHandle || '');
@@ -80,10 +90,19 @@ export default function EditProfilePage() {
       setPhone(profile.phone || '');
       setBusinessName(profile.businessName || '');
       setWebsite(profile.website || '');
-      setIndustry(profile.industry || 'B2B Software');
+      setIndustry(profile.industry || 'Food & Beverage');
       setBusinessLocation(profile.businessLocation || '');
       setCompanySize(profile.companySize || '1-10');
-      setMonthlyBudget(profile.monthlyBudget || 0);
+      setMonthlyBudget(profile.monthlyBudget || 50000);
+      setMaxSpendPerPostETB((profile as any).budget || 15000);
+      setMinEngagementPercent((profile as any).minEngagement || '3');
+      setBrandVoice((profile as any).brandVoice || 'Friendly');
+      setServicesOffered((profile as any).servicesOffered || '');
+      setPrimaryKpis((profile as any).primaryKpis || []);
+      setPromotionGoals((profile as any).promotionGoals || []);
+      setPromotersNeededCount((profile as any).promotersNeededCount || '');
+      setTargetAudienceAgeRanges((profile as any).targetAudienceAgeRanges || []);
+
       setYoutubeHandle(profile.youtubeHandle || '');
       setTiktokHandle(profile.tiktokHandle || '');
       setInstagramHandle(profile.instagramHandle || '');
@@ -96,8 +115,6 @@ export default function EditProfilePage() {
       setPortfolioUrl(profile.website || '');
       setCoverPreview(profile.coverImageUrl || '');
       
-      // Check if Facebook is connected (this is a simplified check)
-      // In a real app, you might have a specific flag in the profile or fetch it
       setIsFacebookConnected(!!profile.facebook || !!profile.facebookConnected);
     }
   }, [profile, isLoading]);
@@ -246,34 +263,42 @@ export default function EditProfilePage() {
       setIsSaving(false);
     }
   }, [api, updateProfile]);
- 
-   const handleCoverChange = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
-     const file = e.target.files?.[0];
-     if (!file) return;
-     
-     setIsSaving(true);
-     try {
-       const formData = new FormData();
-       formData.append('image', file);
-       const res = await api.post('/users/profile/picture?type=cover', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
+  
+    const handleCoverChange = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
       
-      const newUrl = res.data.user.coverImage;
-      setCoverPreview(newUrl);
-      updateProfile({ coverImageUrl: newUrl });
-     } catch (error) {
-       console.error('Failed to upload cover:', error);
-       alert('Failed to upload image.');
-     } finally {
-       setIsSaving(false);
-     }
-   }, [api, updateProfile]);
+      console.log('[EditProfile] Starting cover upload for file:', file.name);
+      setIsSaving(true);
+      try {
+        const formData = new FormData();
+        formData.append('image', file);
+        const res = await api.post('/users/profile/picture?type=cover', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
+        
+        console.log('[EditProfile] Cover upload response:', res.data);
+        const newUrl = res.data.user.coverImage;
+        if (newUrl) {
+          setCoverPreview(newUrl);
+          updateProfile({ coverImageUrl: newUrl, coverImage: newUrl });
+          console.log('[EditProfile] Updated cover preview and profile context with:', newUrl);
+        }
+      } catch (error) {
+        console.error('[EditProfile] Failed to upload cover:', error);
+        alert('Failed to upload image. Please check your connection or file size.');
+      } finally {
+        setIsSaving(false);
+        if (e.target) e.target.value = ''; // Reset input to allow re-uploading same file
+      }
+    }, [api, updateProfile]);
 
   const handleRemoveAvatar = () => {
-    setAvatarPreview('https://i.pravatar.cc/150?u=techvision');
+    setAvatarPreview('');
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
+
+  const [showSubmitModal, setShowSubmitModal] = useState(false);
 
   const handleSave = async () => {
     setIsSaving(true);
@@ -287,9 +312,13 @@ export default function EditProfilePage() {
         await userApi.updateProfile(api, {
           firstName,
           lastName,
+          bio,
+          location: businessLocation,
           profileData,
         });
-        updateProfile({ firstName, lastName, ...profileData });
+        updateProfile({ firstName, lastName, businessLocation, ...profileData });
+        setShowSuccess(true);
+        setTimeout(() => setShowSuccess(false), 3000);
       } else if (activeTab === 'company') {
         const profileData = {
           businessName,
@@ -298,6 +327,14 @@ export default function EditProfilePage() {
           businessLocation,
           companySize,
           monthlyBudget,
+          budget: maxSpendPerPostETB,
+          minEngagement: Number(minEngagementPercent),
+          brandVoice,
+          servicesOffered,
+          primaryKpis,
+          promotionGoals,
+          promotersNeededCount,
+          targetAudienceAgeRanges,
           youtubeHandle,
           tiktokHandle,
           instagramHandle,
@@ -315,12 +352,10 @@ export default function EditProfilePage() {
         await userApi.submitProfile(api, {
           profileData,
         });
-        alert('Your detailed information has been submitted for admin review! Changes will appear once approved.');
+        setShowSubmitModal(true);
       }
-      
+
       await refreshProfile();
-      setShowSuccess(true);
-      setTimeout(() => setShowSuccess(false), 3000);
     } catch (error) {
       console.error('Failed to save profile:', error);
     } finally {
@@ -348,7 +383,6 @@ export default function EditProfilePage() {
   };
 
   const handleConnectFacebook = () => {
-    // Redirect to the Facebook auth initiation endpoint
     window.location.href = `${import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1'}/social/initiate/facebook`;
   };
 
@@ -363,6 +397,38 @@ export default function EditProfilePage() {
   const profilePlaceholder = (value: string | number | undefined, fallback: string) =>
     value !== undefined && value !== null && String(value).trim() !== '' ? String(value) : fallback;
 
+  const ageRanges = ['13-17', '18-24', '25-34', '35-44', '45+'];
+  const companySizes = ['1-10', '11-50', '51-200', '200+'];
+  const industriesList = [
+    'Food & Beverage',
+    'Fashion',
+    'Technology',
+    'Beauty',
+    'Real Estate',
+    'Organic Agriculture',
+    'Healthcare',
+    'Education',
+    'E-commerce',
+    'Fintech',
+    'Other',
+  ];
+  const businessGoals = [
+    'More Customers',
+    'Brand Awareness',
+    'Product Promotion',
+    'Online Visibility',
+    'Lead Generation',
+    'Launch / Relaunch',
+  ];
+  const brandVoiceOptions = ['Professional', 'Friendly', 'Luxury', 'Fun', 'Modern'];
+  const kpiOptions = [
+    'Sales / Orders',
+    'Leads & Inquiries',
+    'Brand Awareness',
+    'Store Visits',
+    'App Installs',
+  ];
+
   if (isLoading) {
     return (
       <Layout>
@@ -373,9 +439,13 @@ export default function EditProfilePage() {
     );
   }
 
+  const toggleItem = (list: string[], setList: (val: string[]) => void, item: string) => {
+    setList(list.includes(item) ? list.filter(i => i !== item) : [...list, item]);
+  };
+
   return (
     <Layout>
-      <main className="p-4 sm:p-8 max-w-[1000px] mx-auto w-full">
+      <main className="p-4 sm:p-8 max-w-[1000px] mx-auto w-full pb-32">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
           <div>
             <h1 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight mb-2">Settings</h1>
@@ -459,17 +529,19 @@ export default function EditProfilePage() {
                           ? 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2672&auto=format&fit=crop' 
                           : 'https://images.unsplash.com/photo-1557683316-973673baf926?q=80&w=2629&auto=format&fit=crop')} 
                         alt="Cover" 
-                        className="w-full h-full object-cover" 
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
                       />
-                      <div 
+                      <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors" />
+                      
+                      <button 
+                        type="button"
                         onClick={() => coverInputRef.current?.click()}
-                        className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                        className="absolute bottom-4 right-4 bg-white/20 backdrop-blur-md hover:bg-white/40 text-white px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 border border-white/30 transition-all active:scale-95 shadow-xl"
                       >
-                        <div className="bg-white/20 backdrop-blur-md px-4 py-2 rounded-xl text-white font-bold text-xs flex items-center gap-2 border border-white/20">
-                          <ImageIcon size={16} />
-                          Change Cover
-                        </div>
-                      </div>
+                         <ImageIcon size={16} />
+                         Change Cover
+                      </button>
+
                       <input 
                         ref={coverInputRef}
                         type="file"
@@ -490,7 +562,6 @@ export default function EditProfilePage() {
                           className="w-full h-full object-cover"
                         />
                       </div>
-                      {/* Overlay on hover */}
                       <div
                         onClick={() => fileInputRef.current?.click()}
                         className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
@@ -564,7 +635,7 @@ export default function EditProfilePage() {
                       </div>
                     </div>
                     <div className="space-y-2 sm:col-span-2">
-                      <label className={labelCls}>Phone</label>
+                      <label className={labelCls}>Phone Number</label>
                       <div className="relative">
                         <Phone className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
                         <input
@@ -572,15 +643,17 @@ export default function EditProfilePage() {
                           value={phone}
                           onChange={(e) => setPhone(e.target.value)}
                           className={inputCls}
+                          placeholder="+251 ..."
                         />
                       </div>
                     </div>
                     <div className="space-y-2 sm:col-span-2">
-                      <label className={labelCls}>Public Bio</label>
+                      <label className={labelCls}>Brand Description</label>
                       <textarea
                         rows={4}
                         value={bio}
                         onChange={(e) => setBio(e.target.value)}
+                        placeholder="Describe your brand in a few sentences..."
                         className="w-full bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl p-4 text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all text-gray-900 dark:text-white resize-none"
                       />
                     </div>
@@ -590,11 +663,13 @@ export default function EditProfilePage() {
 
               {/* ── COMPANY DETAILS ── */}
               {activeTab === 'company' && (
-                <div className="space-y-6">
-                  <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6">
-                    {isBusiness ? 'Company Details' : 'Professional Details'}
+                <div className="space-y-8">
+                  <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+                    {isBusiness ? 'Business Profile' : 'Professional Details'}
                   </h2>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+                    {/* Basic Info */}
                     <div className="space-y-2 sm:col-span-2">
                       <label className={labelCls}>Business Name</label>
                       <div className="relative">
@@ -607,6 +682,18 @@ export default function EditProfilePage() {
                         />
                       </div>
                     </div>
+                    
+                    <div className="space-y-2">
+                      <label className={labelCls}>Industry</label>
+                      <select
+                        value={industry}
+                        onChange={(e) => setIndustry(e.target.value)}
+                        className="w-full bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-500 transition-all text-gray-900 dark:text-white appearance-none"
+                      >
+                        {industriesList.map(ind => <option key={ind} value={ind}>{ind}</option>)}
+                      </select>
+                    </div>
+
                     <div className="space-y-2">
                       <label className={labelCls}>Website URL</label>
                       <div className="relative">
@@ -616,28 +703,11 @@ export default function EditProfilePage() {
                           value={website}
                           onChange={(e) => setWebsite(e.target.value)}
                           className={inputCls}
+                          placeholder="https://..."
                         />
                       </div>
                     </div>
-                    <div className="space-y-2">
-                      <label className={labelCls}>Industry</label>
-                      <div className="relative">
-                        <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                        <select
-                          value={industry}
-                          onChange={(e) => setIndustry(e.target.value)}
-                          className="w-full bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl px-10 py-3 text-sm focus:outline-none focus:border-emerald-500 transition-all text-gray-900 dark:text-white appearance-none"
-                        >
-                          <option>B2B Software</option>
-                          <option>SaaS</option>
-                          <option>E-commerce</option>
-                          <option>Fintech</option>
-                          <option>Healthcare</option>
-                          <option>Education</option>
-                          <option>Other</option>
-                        </select>
-                      </div>
-                    </div>
+
                     <div className="space-y-2">
                       <label className={labelCls}>Location</label>
                       <div className="relative">
@@ -651,33 +721,148 @@ export default function EditProfilePage() {
                         />
                       </div>
                     </div>
+
+                    <div className="space-y-2">
+                      <label className={labelCls}>Company Size</label>
+                      <select
+                        value={companySize}
+                        onChange={(e) => setCompanySize(e.target.value)}
+                        className="w-full bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-500 transition-all text-gray-900 dark:text-white appearance-none"
+                      >
+                        {companySizes.map(cs => <option key={cs} value={cs}>{cs}</option>)}
+                      </select>
+                    </div>
+
                     {isBusiness ? (
                       <>
-                        <div className="space-y-2">
-                          <label className={labelCls}>Monthly Budget ($)</label>
-                          <input
-                            type="number"
-                            min="0"
-                            value={monthlyBudget}
-                            onChange={(e) => {
-                              const val = Math.max(0, Number(e.target.value));
-                              setMonthlyBudget(val);
-                            }}
-                            className={inputCls.replace('pl-10', 'pl-4')}
+                        <div className="space-y-2 sm:col-span-2">
+                          <label className={labelCls}>Products or Services</label>
+                          <textarea
+                            rows={3}
+                            value={servicesOffered}
+                            onChange={(e) => setServicesOffered(e.target.value)}
+                            placeholder="What do you offer? (e.g. Restaurant services, catering, etc.)"
+                            className="w-full bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl p-4 text-sm focus:outline-none focus:border-emerald-500 transition-all text-gray-900 dark:text-white resize-none"
                           />
                         </div>
-                        <div className="space-y-2 sm:col-span-2">
-                          <label className={labelCls}>Company Size</label>
-                          <select
-                            value={companySize}
-                            onChange={(e) => setCompanySize(e.target.value)}
-                            className="w-full bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-500 transition-all text-gray-900 dark:text-white appearance-none"
-                          >
-                            <option>1-10</option>
-                            <option>11-50</option>
-                            <option>51-200</option>
-                            <option>200+</option>
-                          </select>
+
+                        {/* Marketing Strategy */}
+                        <div className="sm:col-span-2 pt-4 border-t border-gray-100 dark:border-white/5 space-y-6">
+                           <h3 className="text-sm font-black text-gray-400 uppercase tracking-widest">Marketing Strategy</h3>
+                           
+                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                              <div className="space-y-2">
+                                <label className={labelCls}>Monthly Budget (ETB)</label>
+                                <input
+                                  type="number"
+                                  value={monthlyBudget}
+                                  onChange={(e) => setMonthlyBudget(Number(e.target.value))}
+                                  className={inputCls.replace('pl-10', 'pl-4')}
+                                />
+                              </div>
+                              <div className="space-y-2">
+                                <label className={labelCls}>Max Budget per Post (ETB)</label>
+                                <input
+                                  type="number"
+                                  value={maxSpendPerPostETB}
+                                  onChange={(e) => setMaxSpendPerPostETB(Number(e.target.value))}
+                                  className={inputCls.replace('pl-10', 'pl-4')}
+                                />
+                              </div>
+                              <div className="space-y-2">
+                                <label className={labelCls}>Min. Engagement (%)</label>
+                                <input
+                                  type="text"
+                                  value={minEngagementPercent}
+                                  onChange={(e) => setMinEngagementPercent(e.target.value)}
+                                  className={inputCls.replace('pl-10', 'pl-4')}
+                                />
+                              </div>
+                              <div className="space-y-2">
+                                <label className={labelCls}>Promoters Needed</label>
+                                <input
+                                  type="text"
+                                  value={promotersNeededCount}
+                                  onChange={(e) => setPromotersNeededCount(e.target.value)}
+                                  className={inputCls.replace('pl-10', 'pl-4')}
+                                  placeholder="e.g. 5"
+                                />
+                              </div>
+                              <div className="space-y-2">
+                                <label className={labelCls}>Brand Voice</label>
+                                <select
+                                  value={brandVoice}
+                                  onChange={(e) => setBrandVoice(e.target.value)}
+                                  className="w-full bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-500 transition-all text-gray-900 dark:text-white appearance-none"
+                                >
+                                  {brandVoiceOptions.map(bv => <option key={bv} value={bv}>{bv}</option>)}
+                                </select>
+                              </div>
+                           </div>
+                        </div>
+
+                        {/* Goals & KPIs */}
+                        <div className="sm:col-span-2 pt-4 border-t border-gray-100 dark:border-white/5 space-y-6">
+                           <div className="space-y-4">
+                              <label className={labelCls}>Promotion Goals</label>
+                              <div className="flex flex-wrap gap-2">
+                                {businessGoals.map(goal => (
+                                  <button
+                                    key={goal}
+                                    onClick={() => toggleItem(promotionGoals, setPromotionGoals, goal)}
+                                    className={cn(
+                                      "px-4 py-2 rounded-xl text-xs font-bold transition-all border",
+                                      promotionGoals.includes(goal)
+                                        ? "bg-emerald-500 text-black border-emerald-500"
+                                        : "bg-gray-100 dark:bg-white/5 text-gray-500 border-gray-200 dark:border-white/10 hover:border-emerald-500/50"
+                                    )}
+                                  >
+                                    {goal}
+                                  </button>
+                                ))}
+                              </div>
+                           </div>
+
+                           <div className="space-y-4">
+                              <label className={labelCls}>Primary Success Metrics (KPIs)</label>
+                              <div className="flex flex-wrap gap-2">
+                                {kpiOptions.map(kpi => (
+                                  <button
+                                    key={kpi}
+                                    onClick={() => toggleItem(primaryKpis, setPrimaryKpis, kpi)}
+                                    className={cn(
+                                      "px-4 py-2 rounded-xl text-xs font-bold transition-all border",
+                                      primaryKpis.includes(kpi)
+                                        ? "bg-cyan-500 text-white border-cyan-500"
+                                        : "bg-gray-100 dark:bg-white/5 text-gray-500 border-gray-200 dark:border-white/10 hover:border-cyan-500/50"
+                                    )}
+                                  >
+                                    {kpi}
+                                  </button>
+                                ))}
+                              </div>
+                           </div>
+                        </div>
+
+                        {/* Target Audience */}
+                        <div className="sm:col-span-2 pt-4 border-t border-gray-100 dark:border-white/5 space-y-6">
+                           <h3 className="text-sm font-black text-gray-400 uppercase tracking-widest">Target Audience</h3>
+                           <div className="flex flex-wrap gap-2">
+                              {ageRanges.map(age => (
+                                <button
+                                  key={age}
+                                  onClick={() => toggleItem(targetAudienceAgeRanges, setTargetAudienceAgeRanges, age)}
+                                  className={cn(
+                                    "px-4 py-2 rounded-xl text-xs font-bold transition-all border",
+                                    targetAudienceAgeRanges.includes(age)
+                                      ? "bg-amber-500 text-black border-amber-500"
+                                      : "bg-gray-100 dark:bg-white/5 text-gray-500 border-gray-200 dark:border-white/10 hover:border-amber-500/50"
+                                  )}
+                                >
+                                  {age}
+                                </button>
+                              ))}
+                           </div>
                         </div>
                       </>
                     ) : (
@@ -747,7 +932,7 @@ export default function EditProfilePage() {
                           <input
                             type="text"
                             value={tiktokHandle}
-                            onChange={(e) => setTiktokHandle(e.target.value)}
+                            onChange={(e) => setTikTokHandle(e.target.value)}
                             className={inputCls.replace('pl-10', 'pl-4')}
                             placeholder={profilePlaceholder(profile.tiktokHandle, '@handle')}
                           />
@@ -984,6 +1169,52 @@ export default function EditProfilePage() {
           </div>
         </div>
       </main>
+
+      {/* Submission Success Modal */}
+      <AnimatePresence>
+        {showSubmitModal && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowSubmitModal(false)}
+              className="absolute inset-0 bg-black/80 backdrop-blur-md"
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="relative w-full max-w-[440px] bg-white dark:bg-[#111] border border-gray-100 dark:border-white/10 rounded-[2.5rem] p-8 shadow-2xl text-center overflow-hidden"
+            >
+              <div className="absolute -top-24 -right-24 w-48 h-48 bg-emerald-500/10 rounded-full blur-3xl" />
+              
+              <div className="relative">
+                <div className="w-20 h-20 bg-emerald-500/10 rounded-3xl flex items-center justify-center mx-auto mb-6 rotate-3 border border-emerald-500/20">
+                  <Info className="text-emerald-500" size={32} />
+                </div>
+                
+                <h2 className="text-2xl font-black text-gray-900 dark:text-white mb-4 tracking-tight">
+                  Submission Received!
+                </h2>
+                <p className="text-gray-500 dark:text-gray-400 text-sm leading-relaxed mb-8">
+                  Your detailed business information has been submitted for admin review. 
+                  <br /><br />
+                  <span className="text-emerald-500 font-bold">What happens next?</span><br />
+                  Our team will verify the details, and once approved, your public profile will be updated automatically.
+                </p>
+
+                <button
+                  onClick={() => setShowSubmitModal(false)}
+                  className="w-full py-4 bg-emerald-500 hover:bg-emerald-400 text-black font-black rounded-2xl transition-all shadow-xl shadow-emerald-500/20 active:scale-95"
+                >
+                  Great, Thanks!
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </Layout>
   );
 }

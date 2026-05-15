@@ -430,6 +430,16 @@ function App() {
           element={<Navigate to="/dashboard" replace />}
         />
 
+        {/* Public/Shared Profile View */}
+        <Route
+          path="/profile/:id"
+          element={
+            <SignedIn>
+              <ViewProfilePage />
+            </SignedIn>
+          }
+        />
+
         {/* Admin Specific Routes */}
         <Route path="/dashboard/admin" element={<SignedIn><RoleGuard allowedRoles={['admin']}><AdminDashboardPage /></RoleGuard></SignedIn>} />
         <Route path="/admin/users" element={<SignedIn><RoleGuard allowedRoles={['admin']}><AdminUsersPage /></RoleGuard></SignedIn>} />

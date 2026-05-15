@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react';
+import { useState, useEffect, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   ArrowLeft, 
@@ -16,21 +16,24 @@ import { motion } from 'framer-motion';
 import { cn } from '@/src/shared/utils/cn';
 import BusinessLayout from '@/src/shared/components/layouts/BusinessLayout';
 import { useCreateOpportunity } from '@/src/hooks/useOpportunities';
+import { useProfile } from '@/src/shared/context/ProfileContext';
 
 const CATEGORIES = [
   'Technology', 'Fashion', 'Beauty', 'Gaming', 
-  'Fitness', 'Food', 'Travel', 'Education', 'Lifestyle'
+  'Fitness', 'Food', 'Travel', 'Education', 'Lifestyle', 'Other'
 ];
 
-const PLATFORMS = ['Instagram', 'TikTok', 'YouTube', 'Twitter', 'Twitch'];
+const PLATFORMS = ['Instagram', 'TikTok', 'YouTube'];
 
 export default function CreateCampaignPage() {
   const navigate = useNavigate();
+  const { profile } = useProfile();
   const { mutateAsync: createOpportunity, isPending } = useCreateOpportunity();
 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState(CATEGORIES[0]);
+  const [customCategory, setCustomCategory] = useState('');
   const [budgetAmount, setBudgetAmount] = useState('');
   const [minFollowers, setMinFollowers] = useState('');
   const [deadline, setDeadline] = useState('');
@@ -39,6 +42,21 @@ export default function CreateCampaignPage() {
   const [deliverables, setDeliverables] = useState<string[]>([]);
   const [newDeliverable, setNewDeliverable] = useState('');
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (profile) {
+      if (profile.industry && CATEGORIES.includes(profile.industry)) {
+        setCategory(profile.industry);
+      } else if (profile.industry) {
+        setCategory('Other');
+        setCustomCategory(profile.industry);
+      }
+      
+      if (profile.monthlyBudget) {
+        setBudgetAmount(profile.monthlyBudget.toString());
+      }
+    }
+  }, [profile]);
 
   const togglePlatform = (platform: string) => {
     setSelectedPlatforms(prev => 
@@ -68,6 +86,11 @@ export default function CreateCampaignPage() {
       return;
     }
 
+    if (category === 'Other' && !customCategory.trim()) {
+      setError('Please specify your category.');
+      return;
+    }
+
     if (selectedPlatforms.length === 0) {
       setError('Please select at least one platform.');
       return;
@@ -77,7 +100,7 @@ export default function CreateCampaignPage() {
       await createOpportunity({
         title,
         description,
-        category,
+        category: category === 'Other' ? customCategory.trim() : category,
         platforms: selectedPlatforms,
         deliverables,
         budget: {
@@ -87,7 +110,7 @@ export default function CreateCampaignPage() {
         deadline: deadline ? new Date(deadline).toISOString() : undefined,
         requirements: {
           minFollowers: Number(minFollowers) || 0,
-          preferredNiches: [category]
+          preferredNiches: [category === 'Other' ? customCategory.trim() : category]
         },
         status: 'open',
         maxApplicants: 10
@@ -170,10 +193,26 @@ export default function CreateCampaignPage() {
                   <select
                     value={category}
                     onChange={(e) => setCategory(e.target.value)}
-                    className="w-full bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm text-gray-900 dark:text-white focus:outline-none focus:border-emerald-500 transition-all"
+                    className="w-full bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm text-gray-900 dark:text-white focus:outline-none focus:border-emerald-500 transition-all mb-4"
                   >
                     {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
                   </select>
+
+                  {category === 'Other' && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                    >
+                      <input 
+                        type="text"
+                        value={customCategory}
+                        onChange={(e) => setCustomCategory(e.target.value)}
+                        placeholder="Type your category..."
+                        className="w-full bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-emerald-500 transition-all"
+                        required
+                      />
+                    </motion.div>
+                  )}
                 </div>
                 <div>
                   <label className="block text-sm font-bold text-gray-900 dark:text-white mb-2">Budget (USD) *</label>

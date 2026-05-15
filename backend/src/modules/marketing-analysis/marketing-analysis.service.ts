@@ -280,7 +280,17 @@ export const runMarketingAnalysis = async (
         .populate('advertiser', 'firstName lastName username profilePicture location profileData');
 
     if (!applications.length) {
-        throw new Error('No applicants found for this opportunity');
+        return {
+            summary: 'No applicants have applied to this campaign yet. Once creators apply, we will analyze their potential ROI for you.',
+            totalApplicants: 0,
+            bestChoice: null,
+            analysis: [],
+            aiInsights: null,
+            opportunityTitle: opp.title,
+            opportunityCategory: opp.category,
+            opportunityBudget: opp.budget?.amount || 0,
+            generatedAt: new Date(),
+        };
     }
 
     // Determine average product price

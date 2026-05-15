@@ -14,6 +14,7 @@ export interface ProfileData {
   industry: string;
   avatarUrl: string;
   coverImageUrl: string;
+  coverImage?: string;
   phone: string;
   businessLocation?: string;
   companySize?: string;
@@ -68,7 +69,7 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<ProfileData>(EMPTY_PROFILE);
   const [isLoading, setIsLoading] = useState(true);
   const api = useApiClient();
-  const { isLoaded, isSignedIn, user: clerkUser } = useClerkUser();
+  const { isLoaded, isSignedIn } = useClerkUser();
   const { setUserRole } = useAppUser();
 
   const refreshProfile = async () => {
@@ -80,10 +81,13 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
       const response = await userApi.getMe(api);
       const userData = response.data.user;
       if (userData) {
+        console.log('[ProfileContext] Raw User Data from Backend:', userData);
+        
         if (userData.role) {
           setUserRole(userData.role);
           localStorage.setItem('userRole', userData.role);
         }
+
         // Compute flattened metrics (followers, avgViews, engagementRate)
         const computeNum = (val: any) => {
           if (typeof val === 'number') return val;
@@ -100,6 +104,8 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
         };
 
         const pd = userData.profileData || {};
+        const ppd = userData.pendingProfileData || {};
+        const pud = userData.pendingUpdates || {};
         const t = pd.tiktok || {};
         const i = pd.instagram || {};
 
@@ -122,20 +128,43 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
         const erIg = computeER(i);
         const maxER = Math.max(erTik, erIg);
 
-        setProfile({
+        const mappedProfile = {
           firstName: userData.firstName || '',
           lastName: userData.lastName || '',
           email: userData.email || '',
+          bio: userData.bio || '',
+          businessLocation: userData.location || '',
           avatarUrl: userData.profilePicture || '',
           coverImageUrl: userData.coverImage || '',
+          coverImage: userData.coverImage || '', // Add alias for consistency
           _id: userData._id,
           clerkId: userData.clerkId,
           ...pd,
+          ...ppd, // Merge pending data so user sees their latest edits
+          ...pud, // Merge pending root updates
           // flattened convenience fields used by many components
           followers: followersTotal,
           avgViews: avgViewsTotal,
           engagementRate: parseFloat(maxER.toFixed(2)),
-        });
+        };
+
+        // Sync special mappings
+        if (pud.location) mappedProfile.businessLocation = pud.location;
+        if (pud.profilePicture) mappedProfile.avatarUrl = pud.profilePicture;
+        if (pud.coverImage) {
+            mappedProfile.coverImageUrl = pud.coverImage;
+            mappedProfile.coverImage = pud.coverImage;
+        }
+
+        // Ensure coverImageUrl is always synced with coverImage if present in pd/ppd
+        if ((mappedProfile as any).coverImage && !(mappedProfile as any).coverImageUrl) {
+            (mappedProfile as any).coverImageUrl = (mappedProfile as any).coverImage;
+        } else if (!(mappedProfile as any).coverImage && (mappedProfile as any).coverImageUrl) {
+            (mappedProfile as any).coverImage = (mappedProfile as any).coverImageUrl;
+        }
+
+        console.log('[ProfileContext] Mapped Profile State:', mappedProfile);
+        setProfile(mappedProfile);
       }
     } catch (error: any) {
       if (error?.response?.status === 404) {

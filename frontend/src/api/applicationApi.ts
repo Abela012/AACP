@@ -12,7 +12,13 @@ export interface Application {
 
 export const applicationApi = {
     /** POST /applications — Advertiser applies to an opportunity */
-    apply: (api: AxiosInstance, data: { opportunity: string; coverLetter?: string; applicationData?: any }) =>
+    apply: (api: AxiosInstance, data: { 
+        opportunity: string; 
+        coverLetter?: string; 
+        proposedPrice?: number;
+        proposedTimeline?: string;
+        applicationData?: any 
+    }) =>
         api.post<{ application: Application }>('/applications', data),
 
     /** DELETE /applications/:id — Withdraw an application */
