@@ -18,9 +18,11 @@ import {
   MapPin,
   Briefcase,
   Share2,
+  Eye,
+  EyeOff,
 } from 'lucide-react';
 import { FaFacebook } from 'react-icons/fa';
-import { useClerk } from '@clerk/clerk-react';
+import { useClerk, useUser as useClerkUser } from '@clerk/clerk-react';
 import AdvertiserLayout from '@/src/shared/components/layouts/AdvertiserLayout';
 import BusinessLayout from '@/src/shared/components/layouts/BusinessLayout';
 import { useUser } from '@/src/shared/context/UserContext';
@@ -33,6 +35,7 @@ export default function EditProfilePage() {
   const { userRole, logout: localLogout } = useUser();
   const { profile, updateProfile, refreshProfile, isLoading } = useProfile();
   const { signOut } = useClerk();
+  const { user: clerkUser } = useClerkUser();
   const api = useApiClient();
   const location = useLocation();
 
@@ -109,6 +112,105 @@ export default function EditProfilePage() {
   const [notifOpportunities, setNotifOpportunities] = useState(true);
   const [notifCampaignUpdates, setNotifCampaignUpdates] = useState(true);
   const [notifMarketing, setNotifMarketing] = useState(false);
+
+  // Password state
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+  const [passwordSuccess, setPasswordSuccess] = useState('');
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [needsReverify, setNeedsReverify] = useState(false);
+
+  const handleChangePassword = async () => {
+    setPasswordError('');
+    setPasswordSuccess('');
+
+    // Validation
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      setPasswordError('All password fields are required.');
+      return;
+    }
+    if (newPassword.length < 8) {
+      setPasswordError('New password must be at least 8 characters.');
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setPasswordError('New passwords do not match.');
+      return;
+    }
+    if (currentPassword === newPassword) {
+      setPasswordError('New password must be different from current password.');
+      return;
+    }
+
+    setIsChangingPassword(true);
+    try {
+      if (!clerkUser) {
+        console.error('Clerk user not found');
+        setPasswordError('User not authenticated. Please sign in again.');
+        return;
+      }
+
+      // Check if updatePassword method exists
+      if (!clerkUser.updatePassword || typeof clerkUser.updatePassword !== 'function') {
+        console.error('updatePassword method not available on user object', clerkUser);
+        setPasswordError('Password update is not available. Please try signing out and in again.');
+        return;
+      }
+
+      console.log('Attempting password update...');
+      
+      // Use Clerk's updatePassword method
+      const result = await clerkUser.updatePassword({
+        currentPassword,
+        newPassword,
+      });
+
+      console.log('Password update successful:', result);
+      
+      setPasswordSuccess('Password updated successfully!');
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+      setNeedsReverify(false);
+      setTimeout(() => setPasswordSuccess(''), 5000);
+    } catch (error: any) {
+      console.error('Password update error:', error);
+      
+      // Handle Clerk-specific errors
+      const clerkError = error?.errors?.[0];
+      const errorCode = clerkError?.code || error?.code;
+      const errorMsg = clerkError?.message || error?.message || 'Failed to update password.';
+      
+      console.error('Error details:', { errorCode, errorMsg, fullError: error });
+      
+      // Check if reverification is needed
+      if (
+        errorCode === 'session_reverification_required' || 
+        errorMsg.includes('reverification') || 
+        errorMsg.includes('re-verification') || 
+        errorMsg.includes('additional verification') ||
+        errorCode === 'verification_expired'
+      ) {
+        setNeedsReverify(true);
+        setPasswordError('⚠️ For security, please sign out and sign back in, then try updating your password again.');
+      } else if (errorCode === 'password_incorrect' || errorMsg.includes('current password') || errorMsg.includes('incorrect')) {
+        setPasswordError('Your current password is incorrect. Please try again.');
+      } else if (errorCode === 'user_session_expired' || errorMsg.includes('session')) {
+        setPasswordError('Your session has expired. Please sign out and sign in again to continue.');
+      } else if (errorMsg.includes('password_too_weak') || errorMsg.includes('weak')) {
+        setPasswordError('Your new password is too weak. Use a mix of uppercase, lowercase, numbers, and symbols.');
+      } else {
+        setPasswordError(errorMsg || 'Failed to update password. Please try again.');
+      }
+    } finally {
+      setIsChangingPassword(false);
+    }
+  };
 
   const tabs = [
     { id: 'general', label: 'General Info', icon: User },
@@ -680,29 +782,99 @@ export default function EditProfilePage() {
               {activeTab === 'security' && (
                 <div className="space-y-6">
                   <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6">Security Settings</h2>
-                  <div className="p-6 bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-2xl">
-                    <div className="flex items-center justify-between mb-4">
-                      <div>
-                        <h4 className="font-bold text-gray-900 dark:text-white text-sm">Two-Factor Authentication</h4>
-                        <p className="text-xs text-gray-500 mt-1">Add an extra layer of security to your account.</p>
-                      </div>
-                      <button className="px-4 py-2 bg-emerald-500 text-black text-sm font-bold rounded-xl hover:bg-emerald-400 transition-colors shadow-sm">
-                        Enable 2FA
-                      </button>
-                    </div>
-                  </div>
 
                   <div className="space-y-4 pt-6 border-t border-gray-100 dark:border-white/5">
                     <h4 className="font-bold text-gray-900 dark:text-white text-sm">Change Password</h4>
+                    {passwordError && (
+                      <div className="p-4 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 rounded-xl space-y-3">
+                        <p className="text-red-600 dark:text-red-400 text-sm">{passwordError}</p>
+                        {needsReverify && (
+                          <button
+                            onClick={async () => {
+                              try {
+                                setPasswordError('');
+                                setNeedsReverify(false);
+                                // Sign out with Clerk and redirect to login
+                                await signOut({ redirectUrl: '/login' });
+                              } catch (err) {
+                                console.error('Sign out error:', err);
+                                // Fallback: manually clear local state and redirect
+                                localLogout();
+                                window.location.href = '/login';
+                              }
+                            }}
+                            className="w-full px-4 py-3 bg-red-500 text-white rounded-lg font-semibold hover:bg-red-600 transition-colors"
+                          >
+                            ✓ Sign Out & Sign In Again
+                          </button>
+                        )}
+                      </div>
+                    )}
+                    {passwordSuccess && (
+                      <div className="p-3 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 rounded-xl text-emerald-600 dark:text-emerald-400 text-sm flex items-center gap-2">
+                        <CheckCircle2 size={16} />
+                        {passwordSuccess}
+                      </div>
+                    )}
                     <div className="space-y-4">
                       <div className="relative">
                         <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                        <input type="password" placeholder="Current Password" className={inputCls} />
+                        <input
+                          type={showCurrentPassword ? 'text' : 'password'}
+                          placeholder="Current Password"
+                          value={currentPassword}
+                          onChange={(e) => setCurrentPassword(e.target.value)}
+                          className={inputCls}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                        >
+                          {showCurrentPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                        </button>
                       </div>
                       <div className="relative">
                         <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                        <input type="password" placeholder="New Password" className={inputCls} />
+                        <input
+                          type={showNewPassword ? 'text' : 'password'}
+                          placeholder="New Password"
+                          value={newPassword}
+                          onChange={(e) => setNewPassword(e.target.value)}
+                          className={inputCls}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowNewPassword(!showNewPassword)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                        >
+                          {showNewPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                        </button>
                       </div>
+                      <div className="relative">
+                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                        <input
+                          type={showConfirmPassword ? 'text' : 'password'}
+                          placeholder="Confirm New Password"
+                          value={confirmPassword}
+                          onChange={(e) => setConfirmPassword(e.target.value)}
+                          className={inputCls}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                        >
+                          {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                        </button>
+                      </div>
+                      <button
+                        onClick={handleChangePassword}
+                        disabled={isChangingPassword}
+                        className="w-full mt-2 bg-emerald-500 text-black text-sm font-bold py-3 rounded-xl hover:bg-emerald-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-emerald-500/20"
+                      >
+                        {isChangingPassword ? 'Updating...' : 'Update Password'}
+                      </button>
                     </div>
                   </div>
                 </div>

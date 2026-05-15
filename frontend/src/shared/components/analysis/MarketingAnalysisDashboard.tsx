@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import {
     TrendingUp,
@@ -54,24 +54,32 @@ interface Props {
 const COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4'];
 
 export default function MarketingAnalysisDashboard({ data, onSelectApplicant }: Props) {
-    const topApplicant = data.bestChoice || data.analysis[0];
+    const [selectedPlatform, setSelectedPlatform] = useState<string | 'All'>('All');
+
+    // Collect unique platforms across the candidate pool
+    const allPlatforms = Array.from(new Set(data.analysis.flatMap(a => a.platforms || [])));
+
+    // Filter analysis by selected platform (or show all)
+    const filteredAnalysis = selectedPlatform === 'All' ? data.analysis : data.analysis.filter(a => (a.platforms || []).includes(selectedPlatform));
+
+    const topApplicant = data.bestChoice || filteredAnalysis[0] || data.analysis[0];
     const insights = data.aiInsights;
 
     // Chart Data Preparation
-    const reachVsEngagementData = data.analysis.slice(0, 6).map(a => ({
+    const reachVsEngagementData = filteredAnalysis.slice(0, 6).map(a => ({
         name: a.advertiserName.split(' ')[0],
         reach: a.estimatedReach,
         engagement: a.estimatedEngagement,
         score: a.aiMatchScore
     }));
 
-    const roiProfitData = data.analysis.slice(0, 8).map(a => ({
+    const roiProfitData = filteredAnalysis.slice(0, 8).map(a => ({
         name: a.advertiserName.split(' ')[0],
         roi: a.profitPercentage,
         profit: a.profit,
     }));
 
-    const audienceData = data.analysis.reduce((acc: any[], curr) => {
+    const audienceData = filteredAnalysis.reduce((acc: any[], curr) => {
         const country = curr.audienceCountry || 'Other';
         const existing = acc.find(item => item.name === country);
         if (existing) existing.value += 1;
@@ -79,8 +87,8 @@ export default function MarketingAnalysisDashboard({ data, onSelectApplicant }: 
         return acc;
     }, []).sort((a, b) => b.value - a.value).slice(0, 5);
 
-    const platformDistribution = data.analysis.reduce((acc: any[], curr) => {
-        curr.platforms.forEach(p => {
+    const platformDistribution = filteredAnalysis.reduce((acc: any[], curr) => {
+        (curr.platforms || []).forEach(p => {
             const existing = acc.find(item => item.name === p);
             if (existing) existing.value += 1;
             else acc.push({ name: p, value: 1 });
@@ -194,6 +202,27 @@ export default function MarketingAnalysisDashboard({ data, onSelectApplicant }: 
                     </div>
                 </motion.div>
             </div>
+
+            {/* Platform selector (when multiple platforms exist) */}
+            {allPlatforms.length > 1 && (
+                <div className="flex items-center gap-3 mb-4">
+                    <button
+                        onClick={() => setSelectedPlatform('All')}
+                        className={cn('px-3 py-1 rounded-full text-sm font-bold', selectedPlatform === 'All' ? 'bg-emerald-500 text-black' : 'bg-gray-100 dark:bg-white/5 text-gray-600')}
+                    >
+                        All Platforms
+                    </button>
+                    {allPlatforms.map((p) => (
+                        <button
+                            key={p}
+                            onClick={() => setSelectedPlatform(p)}
+                            className={cn('px-3 py-1 rounded-full text-sm font-bold', selectedPlatform === p ? 'bg-emerald-500 text-black' : 'bg-gray-100 dark:bg-white/5 text-gray-600')}
+                        >
+                            {p}
+                        </button>
+                    ))}
+                </div>
+            )}
 
             {/* 2. PERFORMANCE CHARTS */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
