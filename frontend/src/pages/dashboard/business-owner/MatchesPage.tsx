@@ -24,7 +24,7 @@ import { useRecommendations } from '@/src/hooks/useRecommendations';
 import { useQueryClient } from '@tanstack/react-query';
 import { Loader2 } from 'lucide-react';
 import { usePredictiveAnalysis } from '@/src/hooks/useMarketingAnalysis';
-import ROIPredictionChart from '@/src/shared/components/charts/ROIPredictionChart';
+import PredictiveAnalysisDashboard from '@/src/shared/components/analysis/PredictiveAnalysisDashboard';
 
 export default function MatchesPage() {
   const navigate = useNavigate();
@@ -122,48 +122,41 @@ export default function MatchesPage() {
                       <p>{selectedCreator.meta?.bio || "A passionate content creator focused on delivering high-quality visual stories and engaging community experiences."}</p>
                     </div>
 
-                    {/* AI Match Insight & ROI Graph */}
-                    <div className="bg-emerald-50/50 dark:bg-emerald-500/5 p-6 rounded-3xl border border-emerald-100 dark:border-emerald-500/10">
-                      <div className="flex items-center gap-2 mb-4">
-                        <div className="w-8 h-8 bg-emerald-500/20 rounded-xl flex items-center justify-center text-emerald-600">
-                          <Sparkles size={16} />
-                        </div>
-                        <h4 className="text-sm font-black text-gray-900 dark:text-white uppercase tracking-widest">AI Match Insight</h4>
-                      </div>
-
-                      {isLoadingPrediction ? (
-                        <div className="flex items-center gap-3 text-emerald-600/60 py-4">
-                          <Loader2 size={16} className="animate-spin" />
-                          <span className="text-xs font-bold">AI is generating ROI projections...</span>
-                        </div>
-                      ) : (
-                        <>
-                          <p className="text-sm text-gray-700 dark:text-gray-300 font-medium italic mb-6">
-                            "{predictionData?.aiInsight || "This creator shows strong potential for your brand's growth."}"
-                          </p>
-
-                          <div className="mt-8">
-                            <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">6-Month ROI Projection</h4>
-                            {predictionData?.projections && (
-                              <ROIPredictionChart data={predictionData.projections} />
-                            )}
-                            <div className="grid grid-cols-3 gap-4 mt-6">
-                              <div className="bg-white dark:bg-white/5 p-3 rounded-2xl border border-gray-100 dark:border-white/5">
-                                <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1">Est. Reach</p>
-                                <p className="text-xs font-black text-emerald-600">{predictionData?.metrics?.reach?.toLocaleString()}</p>
+                    {/* AI Match Insight & Premium Predictive Dashboard */}
+                    <div className="bg-white dark:bg-white/2 rounded-[2.5rem] border border-gray-100 dark:border-white/5 overflow-hidden shadow-sm">
+                      <div className="p-1 bg-linear-to-r from-emerald-500 to-blue-500">
+                        <div className="bg-white dark:bg-[#1a1a1a] rounded-[2.3rem] p-6">
+                          <div className="flex items-center justify-between mb-6">
+                            <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 bg-emerald-500/10 text-emerald-500 rounded-xl flex items-center justify-center">
+                                <Sparkles size={20} />
                               </div>
-                              <div className="bg-white dark:bg-white/5 p-3 rounded-2xl border border-gray-100 dark:border-white/5">
-                                <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1">Conv. Rate</p>
-                                <p className="text-xs font-black text-blue-600">{predictionData?.metrics?.conversionRate}</p>
-                              </div>
-                              <div className="bg-white dark:bg-white/5 p-3 rounded-2xl border border-gray-100 dark:border-white/5">
-                                <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1">Avg. Price</p>
-                                <p className="text-xs font-black text-amber-600">{predictionData?.metrics?.avgProductPrice} ETB</p>
+                              <div>
+                                <h4 className="text-sm font-black text-gray-900 dark:text-white uppercase tracking-widest">AI Market Analysis</h4>
+                                <p className="text-[10px] text-emerald-500 font-bold">Real-time Strategy Projection</p>
                               </div>
                             </div>
+                            <div className="text-right">
+                              <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Match Strength</p>
+                              <p className="text-xl font-black text-emerald-500">{selectedCreator.score}%</p>
+                            </div>
                           </div>
-                        </>
-                      )}
+
+                          {isLoadingPrediction ? (
+                            <div className="py-20 flex flex-col items-center justify-center gap-4">
+                              <Loader2 size={32} className="animate-spin text-emerald-500" />
+                              <p className="text-xs font-bold text-gray-400 animate-pulse">Gemini is analyzing market data...</p>
+                            </div>
+                          ) : predictionData ? (
+                            <PredictiveAnalysisDashboard data={predictionData} />
+                          ) : (
+                            <div className="py-10 text-center">
+                              <AlertCircle size={32} className="text-gray-300 mx-auto mb-2" />
+                              <p className="text-xs font-bold text-gray-400">Analysis unavailable</p>
+                            </div>
+                          )}
+                        </div>
+                      </div>
                     </div>
 
                     <div>

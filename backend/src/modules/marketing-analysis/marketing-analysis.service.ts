@@ -40,8 +40,10 @@ export const extractMetrics = (profileData: any): {
     platforms: string[];
     isMultiPlatform: boolean;
     audienceInfo: any;
+    primaryPlatform: string;
+    contentStyle: string;
 } => {
-    if (!profileData) return { followers: 0, engagementRate: 0, niche: 'General', platforms: [] as string[], allNiches: [], totalLikes: 0, avgViews: 0, avgComments: 0, avgShares: 0, isMultiPlatform: false, audienceInfo: {} };
+    if (!profileData) return { followers: 0, engagementRate: 0, niche: 'General', platforms: [] as string[], allNiches: [], totalLikes: 0, avgViews: 0, avgComments: 0, avgShares: 0, isMultiPlatform: false, audienceInfo: {}, primaryPlatform: 'N/A', contentStyle: 'N/A' };
 
     // Helper: compute ER from raw metrics if engagementRate is not stored
     const computeER = (platform: any): number => {
@@ -127,7 +129,38 @@ export const extractMetrics = (profileData: any): {
         }
     }
 
+    // Default audience info if none found
+    if (!audienceInfo.topCountry) audienceInfo.topCountry = 'Global';
+    if (!audienceInfo.ageRange) audienceInfo.ageRange = 'Mixed';
+    if (!audienceInfo.gender) audienceInfo.gender = 'Mixed';
+
     const isMultiPlatform = platforms.length > 1;
+
+    // Determine primary platform and content style
+    let primaryPlatform = 'N/A';
+    let contentStyle = 'N/A';
+    let maxPlatFollowers = -1;
+
+    if (profileData.tiktok) {
+        const f = parseNum(profileData.tiktok.followers);
+        if (f > maxPlatFollowers) {
+            maxPlatFollowers = f;
+            primaryPlatform = 'TikTok';
+            contentStyle = profileData.tiktok.contentStyle || 'N/A';
+        }
+    }
+    if (profileData.instagram) {
+        const f = parseNum(profileData.instagram.followers);
+        if (f > maxPlatFollowers) {
+            maxPlatFollowers = f;
+            primaryPlatform = 'Instagram';
+            contentStyle = profileData.instagram.contentStyle || 'N/A';
+        }
+    }
+
+    if (typeof contentStyle === 'object' && contentStyle !== null) {
+        contentStyle = Object.values(contentStyle).filter(Boolean).join(', ') || 'N/A';
+    }
 
     // 3. Fallbacks for legacy/flat data
     if (totalFollowers === 0 && profileData.followers) totalFollowers = parseNum(profileData.followers);
@@ -152,7 +185,9 @@ export const extractMetrics = (profileData: any): {
         allNiches: [...new Set(niches.filter(Boolean))],
         platforms,
         isMultiPlatform,
-        audienceInfo
+        audienceInfo,
+        primaryPlatform,
+        contentStyle
     };
 };
 
@@ -194,6 +229,8 @@ export interface ApplicantAnalysis {
     aiMatchScore?: number;
     // Advanced Metrics
     platforms: string[];
+    primaryPlatform: string;
+    contentStyle: string;
     avgViews: number;
     totalLikes: number;
     avgComments: number;
@@ -209,12 +246,10 @@ export interface MarketingAnalysisResult {
     bestChoice: ApplicantAnalysis | null;
     analysis: ApplicantAnalysis[];
     aiInsights: {
-        poolQuality: string;
-        selectionReasoning: string;
+        businessOutcome: any;
+        overallAnalysis: any;
+        topRecommendations: any;
         risks: string[];
-        strategicAdvice: string;
-        suggestedNextSteps: string;
-        marketFitScore: number; // 0-100
     } | null;
     opportunityTitle: string;
     opportunityCategory: string;
@@ -303,6 +338,8 @@ export const runMarketingAnalysis = async (
             profitPercentage: Number(profitPercentage.toFixed(2)),
             profitable: profit > 0,
             platforms: metrics.platforms,
+            primaryPlatform: metrics.primaryPlatform,
+            contentStyle: metrics.contentStyle,
             avgViews: metrics.avgViews,
             totalLikes: metrics.totalLikes,
             avgComments: metrics.avgComments || 0,
@@ -370,57 +407,82 @@ async function generateAISummary(opp: any, results: ApplicantAnalysis[]): Promis
     const forAnalysis = results.slice(0, 10);
 
     const prompt = `
-You are a senior influencer marketing strategist and campaign analyst.
+You are a senior influencer marketing strategist and ROI analyst.
 
-Your task is to analyze advertiser applicants for a campaign using PRE-CALCULATED business metrics provided by the backend system.
+Your task is to analyze advertiser applicants for a marketing campaign by comparing BOTH:
+
+1. Business Owner Campaign Data
+2. Advertiser Social Media Data
+
+Your goal is to determine:
+- Which advertiser is the best fit
+- Which advertiser is most profitable
+- Whether the business owner is likely to gain positive ROI
+- Whether audience alignment exists
+- Whether the campaign budget is efficient
 
 IMPORTANT RULES:
-- DO NOT generate or invent new scores.
-- Use ONLY the provided calculated metrics.
-- Your role is to explain and analyze the data professionally.
-- Keep the analysis realistic and business-oriented.
+- DO NOT generate fake metrics.
+- DO NOT invent scores.
+- Use ONLY provided calculated backend metrics.
+- Keep analysis realistic and business-focused.
+- Base conclusions on BOTH business owner data and advertiser data.
 
 ==================================================
-CAMPAIGN DETAILS
+BUSINESS OWNER DATA
 ==================================================
 
-Title:
-${opp.title}
+Business Industry:
+${(opp.businessOwner)?.profileData?.industry || "General"}
 
-Description:
-${opp.description || "No description"}
+Business Niche:
+${(opp.businessOwner)?.profileData?.niche || "N/A"}
 
-Category:
+Target Audience:
+${(opp.businessOwner)?.profileData?.targetAudience || "General"}
+
+Preferred Platform:
+${(opp.businessOwner)?.profileData?.preferredPlatform || "Any"}
+
+Business Location:
+${(opp.businessOwner)?.profileData?.location || "N/A"}
+
+Campaign Goal:
+${(opp as any).goal || "Brand Awareness"}
+
+Campaign Category:
 ${opp.category}
 
 Campaign Budget:
 ${opp.budget?.amount || "N/A"} ${opp.budget?.currency || "ETB"}
 
-Required Niches:
+Preferred Niches:
 ${opp.requirements?.preferredNiches?.join(", ") || "Any"}
 
 Minimum Followers:
 ${opp.requirements?.minFollowers || 0}
 
-Business Industry:
-${(opp.businessOwner)?.profileData?.industry || "General"}
-
 ==================================================
-APPLICANT ANALYSIS DATA
+ADVERTISER ANALYSIS DATA
 ==================================================
 
 ${forAnalysis.map((r, i) => `
 
+==================================================
 Applicant ${i + 1}
+==================================================
 
 Advertiser ID:
 ${r.advertiserId}
 
-Name:
+Advertiser Name:
 ${r.advertiserName}
 
 Platforms:
-${r.platforms.join(', ')}
+${r.platforms.join(", ")}
+
+Primary Platform:
+${r.primaryPlatform}
 
 Followers:
 ${r.followers.toLocaleString()}
@@ -440,11 +502,20 @@ ${r.totalLikes.toLocaleString()}
 Engagement Rate:
 ${r.engagementRate}%
 
-Audience:
-${r.audienceCountry || 'N/A'} | ${r.audienceAgeRange || 'N/A'} | ${r.audienceGender || 'N/A'}
+Audience Country:
+${r.audienceCountry || "N/A"}
 
-Niche:
+Audience Age Range:
+${r.audienceAgeRange || "N/A"}
+
+Audience Gender:
+${r.audienceGender || "N/A"}
+
+Advertiser Niche:
 ${r.niche}
+
+Content Style:
+${r.contentStyle || "N/A"}
 
 Campaign Price:
 ${r.cost} ${r.currency}
@@ -465,41 +536,53 @@ ROI Percentage:
 ${r.profitPercentage}%
 
 Calculated Match Score:
-${r.aiMatchScore || 'N/A'}
+${r.aiMatchScore}
 
-Profitability Status:
+Profitability:
 ${r.profitable ? "Profitable" : "Not Profitable"}
 
 `).join("\n")}
 
 ==================================================
-ANALYSIS TASKS
+ANALYSIS OBJECTIVES
 ==================================================
 
-1. Evaluate brand compatibility between the advertiser niche and campaign category.
+Analyze advertiser suitability by comparing:
 
-2. Analyze profitability and ROI realistically.
+- Business niche vs advertiser niche
+- Campaign budget vs advertiser pricing
+- Target audience vs advertiser audience demographics
+- Business preferred platform vs advertiser strongest platform
+- Location compatibility
+- Engagement quality
+- ROI potential
+- Audience reach quality
+- Growth potential
 
-3. Compare audience quality, engagement quality, and campaign value.
+==================================================
+TASKS
+==================================================
 
-4. Identify:
-   - Safest advertiser choice
+1. Identify which advertiser provides the BEST OVERALL VALUE.
+
+2. Determine whether the business owner is likely to make profit or loss with each advertiser.
+
+3. Compare ROI potential between advertisers.
+
+4. Evaluate audience alignment and campaign relevance.
+
+5. Identify:
+   - Safest investment
    - Highest growth potential
-   - Best ROI performer
-   - Most risky applicant
+   - Best audience targeting
+   - Best budget efficiency
+   - Highest long-term marketing value
+   - Most risky collaboration
 
-5. Explain WHY certain advertisers perform better than others.
+6. Explain WHY certain advertisers fit the campaign better.
 
-6. Use the provided "Calculated Match Score" exactly as given.
+7. Use the provided "Calculated Match Score" exactly as given.
 DO NOT modify or regenerate scores.
-
-7. Give realistic business insight based on:
-   - followers
-   - engagement
-   - audience quality
-   - content niche
-   - pricing
-   - profitability
 
 ==================================================
 RETURN FORMAT
@@ -508,18 +591,31 @@ RETURN FORMAT
 Return ONLY valid JSON.
 
 {
-  "summary": "Professional business summary of the advertiser pool.",
+  "summary": "Professional business summary of the campaign analysis and advertiser pool.",
+
+  "businessOutcomePrediction": {
+    "expectedCampaignOutcome": "Profitable / Moderate / Risky",
+    "estimatedBusinessImpact": "Expected business impact",
+    "budgetEfficiency": "Analysis of budget usage",
+    "audienceMatchQuality": "Quality of audience targeting",
+    "overallProfitability": "Overall profitability insight"
+  },
 
   "overallCampaignAnalysis": {
-    "poolQuality": "Overall quality assessment",
-    "competitionLevel": "Low/Medium/High",
-    "marketFit": "Analysis of audience and campaign alignment",
-    "budgetEfficiency": "Analysis of pricing vs expected return",
-    "strategicRecommendation": "Best overall strategic direction"
+    "poolQuality": "Overall applicant quality",
+    "competitionLevel": "Low / Medium / High",
+    "marketFit": "Market and audience fit analysis",
+    "strategicRecommendation": "Strategic business recommendation"
   },
 
   "topRecommendations": {
-    "safeChoice": {
+
+    "bestOverallChoice": {
+      "advertiserId": "",
+      "reason": ""
+    },
+
+    "safestInvestment": {
       "advertiserId": "",
       "reason": ""
     },
@@ -546,6 +642,8 @@ Return ONLY valid JSON.
       "matchScore": 0,
       "roi": 0,
       "profitability": "",
+      "audienceAlignment": "",
+      "platformCompatibility": "",
       "insight": ""
     }
   ]
@@ -564,7 +662,12 @@ Return ONLY valid JSON.
         const parsed = JSON.parse(text);
         return {
             summary: parsed.summary || generateFallbackSummary(results),
-            insights: parsed.insights || null,
+            insights: {
+                businessOutcome: parsed.businessOutcomePrediction || null,
+                overallAnalysis: parsed.overallCampaignAnalysis || null,
+                topRecommendations: parsed.topRecommendations || null,
+                risks: parsed.riskAnalysis || []
+            },
             applicantInsights: parsed.applicantInsights || []
         };
     } catch (e) {
@@ -609,49 +712,37 @@ export const predictAdvertiserROI = async (
     const ownerProfile = owner.profileData || {};
 
     // 2. Extract REAL metrics from nested profileData (tiktok/instagram)
-    const advMetrics = extractMetrics(advProfile);
-    const followers = advMetrics.followers;
-    const engagementRate = advMetrics.engagementRate;
-    const avgProductPrice = ownerProfile.monthlyBudget ? Math.round(ownerProfile.monthlyBudget / 50) : 50;
+    const metrics = extractMetrics(advProfile);
+    const followers = metrics.followers;
+    const engagementRate = metrics.engagementRate;
+    const productPrice = ownerProfile.monthlyBudget ? Math.round(ownerProfile.monthlyBudget / 50) : 50;
+    
+    // Default estimated cost for prediction (can be adjusted based on follower tier)
+    const estimatedCost = followers > 100000 ? 2500 : (followers > 10000 ? 1000 : 500);
 
     // 3. Generate AI Match Insight & Metrics with Smart Fallbacks
     let aiInsight = "Based on your niche, this creator offers strong growth potential.";
-
-    // Heuristic Fallback: Use engagement rate as a proxy for conversion quality
-    // Typically conversion rate is 1/10th to 1/20th of engagement rate
     let dynamicConvRate = Math.min(0.05, Math.max(0.005, (engagementRate / 100) * 0.4));
-
-    // Reach factor depends on platforms and followers (smaller creators often have higher reach relative to size)
     let dynamicReachFactor = followers > 100000 ? 0.25 : 0.35;
 
     try {
         const model = getGeminiModel();
         if (model) {
             const prompt = `
-                Analyze the potential brand partnership match between Business Owner "${owner.firstName}" and Advertiser "${adv.firstName}".
-                Owner Details:
-                - Industry: ${ownerProfile.industry || ownerProfile.category || 'General'}
-                - Target Audience: ${ownerProfile.targetAudienceTags?.join(', ') || 'N/A'}
-                
-                Advertiser Details:
-                - Niche: ${advMetrics.allNiches?.join(', ') || advMetrics.niche}
-                - Followers: ${followers.toLocaleString()}
-                - Engagement: ${engagementRate}%
-                - Avg Views: ${advMetrics.avgViews.toLocaleString()}
-                - Total Likes: ${advMetrics.totalLikes.toLocaleString()}
-                - Platforms: ${advMetrics.platforms.join(', ')}
-                - Multi-platform Presence: ${advMetrics.isMultiPlatform ? 'YES (Give advantage)' : 'NO'}
-                - Audience: ${advMetrics.audienceInfo?.topCountry || 'Global'}, ${advMetrics.audienceInfo?.ageRange || 'Mixed'}
-                
-                Based on this synergy, suggest:
-                1. A realistic "Conversion Rate" (as a decimal, e.g., 0.015 for 1.5%). High fit = higher rate.
-                2. A "Reach Factor" (how much of their audience will actually see the post, e.g., 0.25 for 25%).
-                3. A 2-sentence "Match Insight" about the synergy.
+                Analyze the brand synergy between Business Owner "${owner.firstName}" and Advertiser "${adv.firstName}".
+                Owner Industry: ${ownerProfile.industry || ownerProfile.category || 'General'}
+                Advertiser Niche: ${metrics.allNiches?.join(', ') || metrics.niche}
+                Followers: ${followers.toLocaleString()}
+                Engagement: ${engagementRate}%
+                Platforms: ${metrics.platforms.join(', ')}
+                Primary Platform: ${metrics.primaryPlatform}
+                Content Style: ${metrics.contentStyle}
+                Audience: ${metrics.audienceInfo?.topCountry || 'Global'}, ${metrics.audienceInfo?.ageRange || 'Mixed'}
 
-                Return your response in strict JSON format:
+                Return JSON:
                 {
-                  "conversionRate": 0.025,
-                  "reachFactor": 0.35,
+                  "conversionRate": 0.02,
+                  "reachFactor": 0.3,
                   "insight": "..."
                 }
             `;
@@ -665,34 +756,55 @@ export const predictAdvertiserROI = async (
             dynamicReachFactor = parsed.reachFactor || dynamicReachFactor;
         }
     } catch (err) {
-        logger.warn(`[MarketingAnalysis] Predictive AI insight failed: ${err}`);
+        logger.warn(`[MarketingAnalysis] Predictive AI failed: ${err}`);
     }
 
-    // 4. Generate 6-month projection data using dynamic metrics
-    const months = ['Month 1', 'Month 2', 'Month 3', 'Month 4', 'Month 5', 'Month 6'];
-    const projections = months.map((month, i) => {
-        const growthFactor = 1 + (i * 0.15); // Assume 15% monthly growth
-        const reach = followers * dynamicReachFactor * growthFactor;
-        const conversions = reach * (engagementRate / 100) * dynamicConvRate;
-        const revenue = conversions * avgProductPrice;
+    // 4. Projections & ROI
+    const reach = Math.round(followers * dynamicReachFactor);
+    const conversions = reach * (engagementRate / 100) * dynamicConvRate;
+    const revenue = conversions * productPrice;
+    const profit = revenue - estimatedCost;
+    const roi = (profit / estimatedCost) * 100;
 
+    const projections = ['Month 1', 'Month 2', 'Month 3', 'Month 4', 'Month 5', 'Month 6'].map((month, i) => {
+        const growth = 1 + (i * 0.12);
+        const r = reach * growth;
+        const c = r * (engagementRate / 100) * dynamicConvRate;
+        const rev = c * productPrice;
         return {
             month,
-            reach: Math.round(reach),
-            conversions: Math.round(conversions),
-            revenue: Math.round(revenue),
+            reach: Math.round(r),
+            conversions: Math.round(c),
+            revenue: Math.round(rev),
+            profit: Math.round(rev - estimatedCost)
         };
     });
 
     return {
-        advertiserName: `${adv.firstName} ${adv.lastName}`.trim(),
-        aiInsight,
-        projections,
+        summary: aiInsight,
         metrics: {
-            reach: Math.round(followers * dynamicReachFactor),
-            conversionRate: `${(dynamicConvRate * 100).toFixed(1)}%`,
-            reachFactor: `${(dynamicReachFactor * 100).toFixed(0)}%`,
-            avgProductPrice,
-        }
+            followers,
+            reach,
+            engagementRate,
+            conversionRate: Number((dynamicConvRate * 100).toFixed(1)),
+            estimatedConversions: Math.round(conversions),
+            revenue: Number(revenue.toFixed(2)),
+            avgProductPrice: productPrice,
+            cost: estimatedCost,
+            avgViews: metrics.avgViews,
+            totalLikes: metrics.totalLikes,
+            avgComments: metrics.avgComments,
+            avgShares: metrics.avgShares,
+        },
+        projections,
+        aiInsight,
+        niche: metrics.niche,
+        platforms: metrics.platforms,
+        primaryPlatform: metrics.primaryPlatform || 'N/A',
+        contentStyle: metrics.contentStyle || 'N/A',
+        profitable: profit > 0,
+        profit: Number(profit.toFixed(2)),
+        roi: Number(roi.toFixed(2)),
+        audienceInfo: metrics.audienceInfo || { topCountry: 'Global', ageRange: 'Mixed', gender: 'Mixed' }
     };
 };

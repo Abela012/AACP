@@ -25,6 +25,7 @@ import { useOpportunity } from '@/src/hooks/useOpportunities';
 import { useStartCollaboration } from '@/src/hooks/useCollaborations';
 import { cn } from '@/src/shared/utils/cn';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
+import MarketingAnalysisDashboard from '@/src/shared/components/analysis/MarketingAnalysisDashboard';
 
 export default function CampaignApplicantsPage() {
   const { id } = useParams();
@@ -146,114 +147,9 @@ export default function CampaignApplicantsPage() {
         {/* BOTTOM SECTION: Applied Advertisers */}
         <section className="space-y-8">
 
-          {/* AI Marketing Analysis Summary & Chart */}
-          {!analysisLoading && analysisData?.summary && (
-            <div className="space-y-6">
-              <div className="bg-linear-to-br from-emerald-50 to-white dark:from-emerald-900/10 dark:to-white/5 rounded-[2.5rem] border border-emerald-100 dark:border-emerald-500/20 shadow-lg p-8 relative overflow-hidden flex flex-col lg:flex-row gap-8">
-                <div className="absolute top-0 right-0 p-8 opacity-20 pointer-events-none">
-                  <Sparkles className="w-32 h-32 text-emerald-500" />
-                </div>
-
-                <div className="relative z-10 lg:w-1/2 flex flex-col">
-                  <div className="flex items-center gap-3 mb-6">
-                    <div className="w-12 h-12 bg-emerald-100 dark:bg-emerald-500/20 rounded-2xl flex items-center justify-center text-emerald-600">
-                      <Sparkles size={24} />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-black text-gray-900 dark:text-white">Gemini Intelligence</h3>
-                      <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Market Fit Analysis</p>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-                    <div className="bg-white/50 dark:bg-white/5 p-4 rounded-2xl border border-emerald-100/50 dark:border-emerald-500/10">
-                      <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Pool Quality</p>
-                      <p className="text-sm font-bold text-gray-900 dark:text-white">{analysisData.aiInsights?.poolQuality || 'Processing...'}</p>
-                    </div>
-                    <div className="bg-white/50 dark:bg-white/5 p-4 rounded-2xl border border-emerald-100/50 dark:border-emerald-500/10">
-                      <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Market Fit Score</p>
-                      <div className="flex items-center gap-2">
-                        <p className="text-xl font-black text-emerald-600">{analysisData.aiInsights?.marketFitScore || 0}%</p>
-                        <div className="flex-1 h-1.5 bg-gray-100 dark:bg-white/10 rounded-full overflow-hidden">
-                          <div className="h-full bg-emerald-500" style={{ width: `${analysisData.aiInsights?.marketFitScore || 0}%` }} />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="prose prose-sm dark:prose-invert max-w-none text-gray-700 dark:text-gray-300 font-medium whitespace-pre-line leading-relaxed mb-6">
-                    {analysisData.summary}
-                  </div>
-
-                  {analysisData.aiInsights?.suggestedNextSteps && (
-                    <div className="mt-auto p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl">
-                      <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-1">Recommended Action</p>
-                      <p className="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                        <CheckCircle2 size={16} /> {analysisData.aiInsights.suggestedNextSteps}
-                      </p>
-                    </div>
-                  )}
-                </div>
-
-                <div className="relative z-10 lg:w-1/2 flex flex-col gap-6">
-                  <div className="flex-1 min-h-[250px] bg-white/50 dark:bg-black/20 rounded-2xl p-6 border border-emerald-100/50 dark:border-emerald-500/10">
-                    <h4 className="text-sm font-bold text-gray-700 dark:text-gray-300 mb-6 flex items-center gap-2">
-                      <TrendingUp size={16} /> Projected ROI comparison
-                    </h4>
-                    <div className="h-48 w-full">
-                      <ResponsiveContainer width="100%" height={192}>
-                        <PieChart>
-                          <Pie
-                            data={analysisData.analysis.slice(0, 5)}
-                            cx="50%"
-                            cy="50%"
-                            innerRadius={40}
-                            outerRadius={70}
-                            paddingAngle={5}
-                            dataKey="profitPercentage"
-                            nameKey="advertiserName"
-                          >
-                            {analysisData.analysis.slice(0, 5).map((entry, index) => (
-                              <Cell 
-                                key={`cell-${index}`} 
-                                fill={['#10b981', '#3b82f6', '#f59e0b', '#8b5cf6', '#ec4899'][index % 5]} 
-                              />
-                            ))}
-                          </Pie>
-                          <Tooltip
-                            contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                            formatter={(value: any) => [`${value}% ROI`, 'Projected Profit']}
-                          />
-                        </PieChart>
-                      </ResponsiveContainer>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="bg-amber-500/5 p-4 rounded-2xl border border-amber-500/10">
-                      <p className="text-[10px] font-black text-amber-600 uppercase tracking-widest mb-2 flex items-center gap-1">
-                        <AlertCircle size={12} /> Key Risks
-                      </p>
-                      <ul className="space-y-1">
-                        {analysisData.aiInsights?.risks.map((risk: string, i: number) => (
-                          <li key={i} className="text-[11px] font-bold text-gray-600 dark:text-gray-400 flex items-start gap-2">
-                            <span className="w-1 h-1 rounded-full bg-amber-500 mt-1.5 shrink-0" /> {risk}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                    <div className="bg-blue-500/5 p-4 rounded-2xl border border-blue-500/10">
-                      <p className="text-[10px] font-black text-blue-600 uppercase tracking-widest mb-1 flex items-center gap-1">
-                        <Sparkles size={12} /> Strategic Advice
-                      </p>
-                      <p className="text-[11px] font-bold text-gray-600 dark:text-gray-400 leading-relaxed">
-                        {analysisData.aiInsights?.strategicAdvice}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+          {/* AI Marketing Analysis Dashboard */}
+          {!analysisLoading && analysisData && (
+            <MarketingAnalysisDashboard data={analysisData} />
           )}
 
           <div className="flex items-center justify-between">
@@ -400,6 +296,35 @@ export default function CampaignApplicantsPage() {
                                 </a>
                               </div>
                             )}
+
+                            {(() => {
+                              const applicantAnalysis = analysisData?.analysis?.find(
+                                (a: any) => a.advertiserId === (app.advertiser?._id || app.advertiser)
+                              );
+                              if (applicantAnalysis) {
+                                return (
+                                  <div className="mt-6 grid grid-cols-2 gap-4 border-t border-gray-100 dark:border-white/5 pt-6">
+                                    <div className="bg-gray-50 dark:bg-white/5 p-4 rounded-2xl">
+                                      <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Primary Platform</p>
+                                      <p className="text-sm font-bold text-gray-900 dark:text-white">{applicantAnalysis.primaryPlatform || 'N/A'}</p>
+                                    </div>
+                                    <div className="bg-gray-50 dark:bg-white/5 p-4 rounded-2xl">
+                                      <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Content Style</p>
+                                      <p className="text-sm font-bold text-gray-900 dark:text-white truncate">{applicantAnalysis.contentStyle || 'N/A'}</p>
+                                    </div>
+                                    <div className="bg-gray-50 dark:bg-white/5 p-4 rounded-2xl">
+                                      <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Avg. Views</p>
+                                      <p className="text-sm font-bold text-gray-900 dark:text-white">{applicantAnalysis.avgViews?.toLocaleString() || 0}</p>
+                                    </div>
+                                    <div className="bg-gray-50 dark:bg-white/5 p-4 rounded-2xl">
+                                      <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Audience Location</p>
+                                      <p className="text-sm font-bold text-gray-900 dark:text-white">{applicantAnalysis.audienceCountry || 'N/A'}</p>
+                                    </div>
+                                  </div>
+                                );
+                              }
+                              return null;
+                            })()}
                           </>
                         )}
                       </div>
