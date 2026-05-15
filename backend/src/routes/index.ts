@@ -15,6 +15,7 @@ import marketingAnalysisRoutes from '../modules/marketing-analysis/marketing-ana
 import socialRoutes from '../modules/social/social.routes';
 import searchRoutes from '../modules/search/search.routes';
 import facebookAnalyticsRoutes from '../modules/facebook-analytics/facebookAnalytics.routes';
+import facebookRoutes from '../modules/facebook/facebook.routes';
 import { maintenanceGate } from '../middlewares/maintenance.middleware';
 
 
@@ -363,6 +364,7 @@ router.use('/recommendations', recommendationRoutes);
 router.use('/marketing-analysis', marketingAnalysisRoutes);
 router.use('/social', socialRoutes);
 router.use('/search', searchRoutes);
+router.use('/facebook', facebookRoutes);
 
 // Facebook Analytics — mounted at root since route file has full paths
 router.use('/', facebookAnalyticsRoutes);

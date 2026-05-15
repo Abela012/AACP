@@ -18,7 +18,9 @@ import {
   MapPin,
   Briefcase,
   Info,
+  Share2,
 } from 'lucide-react';
+import { FaFacebook } from 'react-icons/fa';
 import { useClerk } from '@clerk/clerk-react';
 import AdvertiserLayout from '@/src/shared/components/layouts/AdvertiserLayout';
 import BusinessLayout from '@/src/shared/components/layouts/BusinessLayout';
@@ -73,6 +75,7 @@ export default function EditProfilePage() {
   const [engagementRate, setEngagementRate] = useState(profile.engagementRate || '');
   const [baseRate, setBaseRate] = useState(profile.baseRate || '');
   const [portfolioUrl, setPortfolioUrl] = useState(profile.website || '');
+  const [isFacebookConnected, setIsFacebookConnected] = useState(false);
 
   // Sync local state when profile loads/refreshes
   useEffect(() => {
@@ -107,8 +110,9 @@ export default function EditProfilePage() {
       setEngagementRate(profile.engagementRate || '');
       setBaseRate(profile.baseRate || '');
       setPortfolioUrl(profile.website || '');
-      setAvatarPreview(profile.avatarUrl || '');
       setCoverPreview(profile.coverImageUrl || '');
+      
+      setIsFacebookConnected(!!profile.facebook || !!profile.facebookConnected);
     }
   }, [profile, isLoading]);
 
@@ -128,6 +132,7 @@ export default function EditProfilePage() {
     { id: 'company', label: isBusiness ? 'Company Details' : 'Professional Details', icon: Building2 },
     { id: 'security', label: 'Security', icon: Shield },
     { id: 'notifications', label: 'Notifications', icon: Bell },
+    { id: 'social', label: 'Social Connections', icon: Share2 },
   ];
 
   const handleAvatarChange = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -181,7 +186,7 @@ export default function EditProfilePage() {
    }, [api, updateProfile]);
 
   const handleRemoveAvatar = () => {
-    setAvatarPreview('https://i.pravatar.cc/150?u=techvision');
+    setAvatarPreview('');
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
@@ -250,6 +255,29 @@ export default function EditProfilePage() {
     }
   };
 
+  const handleDisconnectFacebook = async () => {
+    if (!window.confirm('Are you sure you want to disconnect your Facebook account? This will remove all associated analytics and data.')) {
+      return;
+    }
+    
+    setIsSaving(true);
+    try {
+      await api.delete('/social/disconnect/facebook');
+      setIsFacebookConnected(false);
+      alert('Facebook account disconnected successfully.');
+      refreshProfile();
+    } catch (error) {
+      console.error('Failed to disconnect Facebook:', error);
+      alert('Failed to disconnect Facebook. Please try again.');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleConnectFacebook = () => {
+    window.location.href = `${import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1'}/social/initiate/facebook`;
+  };
+
   const containerVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.4 } },
@@ -258,8 +286,9 @@ export default function EditProfilePage() {
   const inputCls =
     'w-full bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl pl-10 pr-4 py-3 text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all text-gray-900 dark:text-white';
   const labelCls = 'text-xs font-bold text-gray-500 uppercase tracking-wider';
+  const profilePlaceholder = (value: string | number | undefined, fallback: string) =>
+    value !== undefined && value !== null && String(value).trim() !== '' ? String(value) : fallback;
 
-  /* ── Constants ── */
   const ageRanges = ['13-17', '18-24', '25-34', '35-44', '45+'];
   const companySizes = ['1-10', '11-50', '51-200', '200+'];
   const industriesList = [
@@ -399,8 +428,8 @@ export default function EditProfilePage() {
                         className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
                       >
                         <div className="bg-white/20 backdrop-blur-md px-4 py-2 rounded-xl text-white font-bold text-xs flex items-center gap-2 border border-white/20">
-                          <ImageIcon size={16} />
-                          Change Cover
+                           <ImageIcon size={16} />
+                           Change Cover
                         </div>
                       </div>
                       <input 
@@ -578,7 +607,7 @@ export default function EditProfilePage() {
                           value={businessLocation}
                           onChange={(e) => setBusinessLocation(e.target.value)}
                           className={inputCls}
-                          placeholder="City, Country"
+                          placeholder={profilePlaceholder(profile.businessLocation, 'City, Country')}
                         />
                       </div>
                     </div>
@@ -594,7 +623,7 @@ export default function EditProfilePage() {
                       </select>
                     </div>
 
-                    {isBusiness && (
+                    {isBusiness ? (
                       <>
                         <div className="space-y-2 sm:col-span-2">
                           <label className={labelCls}>Products or Services</label>
@@ -726,6 +755,99 @@ export default function EditProfilePage() {
                            </div>
                         </div>
                       </>
+                    ) : (
+                      <>
+                        <div className="space-y-2">
+                          <label className={labelCls}>Portfolio URL</label>
+                          <input
+                            type="url"
+                            value={portfolioUrl}
+                            onChange={(e) => setPortfolioUrl(e.target.value)}
+                            className={inputCls.replace('pl-10', 'pl-4')}
+                            placeholder={profilePlaceholder(profile.website, 'https://')}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className={labelCls}>Base Rate (USD)</label>
+                          <input
+                            type="number"
+                            value={baseRate}
+                            onChange={(e) => setBaseRate(e.target.value)}
+                            className={inputCls.replace('pl-10', 'pl-4')}
+                            placeholder={profilePlaceholder(profile.baseRate, '500')}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className={labelCls}>Followers</label>
+                          <input
+                            type="text"
+                            value={followers}
+                            onChange={(e) => setFollowers(e.target.value)}
+                            className={inputCls.replace('pl-10', 'pl-4')}
+                            placeholder={profilePlaceholder(profile.followers, '1.2M')}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className={labelCls}>Avg Views</label>
+                          <input
+                            type="text"
+                            value={avgViews}
+                            onChange={(e) => setAvgViews(e.target.value)}
+                            className={inputCls.replace('pl-10', 'pl-4')}
+                            placeholder={profilePlaceholder(profile.avgViews, '450k')}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className={labelCls}>Engagement Rate (%)</label>
+                          <input
+                            type="text"
+                            value={engagementRate}
+                            onChange={(e) => setEngagementRate(e.target.value)}
+                            className={inputCls.replace('pl-10', 'pl-4')}
+                            placeholder={profilePlaceholder(profile.engagementRate, '4.2%')}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className={labelCls}>YouTube Handle</label>
+                          <input
+                            type="text"
+                            value={youtubeHandle}
+                            onChange={(e) => setYoutubeHandle(e.target.value)}
+                            className={inputCls.replace('pl-10', 'pl-4')}
+                            placeholder={profilePlaceholder(profile.youtubeHandle, '@handle')}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className={labelCls}>TikTok Handle</label>
+                          <input
+                            type="text"
+                            value={tiktokHandle}
+                            onChange={(e) => setTikTokHandle(e.target.value)}
+                            className={inputCls.replace('pl-10', 'pl-4')}
+                            placeholder={profilePlaceholder(profile.tiktokHandle, '@handle')}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className={labelCls}>Instagram Handle</label>
+                          <input
+                            type="text"
+                            value={instagramHandle}
+                            onChange={(e) => setInstagramHandle(e.target.value)}
+                            className={inputCls.replace('pl-10', 'pl-4')}
+                            placeholder={profilePlaceholder(profile.instagramHandle, '@handle')}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className={labelCls}>X (Twitter) Handle</label>
+                          <input
+                            type="text"
+                            value={xHandle}
+                            onChange={(e) => setXHandle(e.target.value)}
+                            className={inputCls.replace('pl-10', 'pl-4')}
+                            placeholder={profilePlaceholder(profile.xHandle, '@handle')}
+                          />
+                        </div>
+                      </>
                     )}
                   </div>
                 </div>
@@ -811,6 +933,58 @@ export default function EditProfilePage() {
                   </div>
                 </div>
               )}
+
+              {/* ── SOCIAL CONNECTIONS ── */}
+              {activeTab === 'social' && (
+                <div className="space-y-6">
+                  <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6">Connected Accounts</h2>
+                  <div className="space-y-4">
+                    {/* Facebook Connection */}
+                    <div className="flex items-center justify-between p-6 bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-2xl">
+                      <div className="flex items-center gap-4">
+                        <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-xl">
+                          <FaFacebook className="text-blue-600 dark:text-blue-400" size={24} />
+                        </div>
+                        <div>
+                          <h4 className="font-bold text-gray-900 dark:text-white text-sm">Facebook</h4>
+                          <p className="text-xs text-gray-500 mt-1">
+                            Used for analytics and ad campaign management.
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        {isFacebookConnected ? (
+                          <button 
+                            onClick={handleDisconnectFacebook}
+                            disabled={isSaving}
+                            className="px-4 py-2 bg-red-100 text-red-600 text-xs font-bold rounded-xl hover:bg-red-200 transition-colors disabled:opacity-50"
+                          >
+                            Disconnect
+                          </button>
+                        ) : (
+                          <button 
+                            onClick={handleConnectFacebook}
+                            disabled={isSaving}
+                            className="px-4 py-2 bg-blue-600 text-white text-xs font-bold rounded-xl hover:bg-blue-700 transition-colors disabled:opacity-50"
+                          >
+                            Connect
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                    
+                    {/* Link to Data Deletion Instructions */}
+                    <div className="p-4 bg-gray-50 dark:bg-black/50 border border-dashed border-gray-300 dark:border-white/10 rounded-xl">
+                      <p className="text-xs text-gray-500 text-center">
+                        Want to delete your Facebook data? See our{' '}
+                        <a href="/data-deletion" className="text-blue-600 hover:underline font-semibold">
+                          Data Deletion Instructions
+                        </a>.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
             </motion.div>
           </div>
         </div>
@@ -833,7 +1007,6 @@ export default function EditProfilePage() {
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
               className="relative w-full max-w-[440px] bg-white dark:bg-[#111] border border-gray-100 dark:border-white/10 rounded-[2.5rem] p-8 shadow-2xl text-center overflow-hidden"
             >
-              {/* Decorative Circle */}
               <div className="absolute -top-24 -right-24 w-48 h-48 bg-emerald-500/10 rounded-full blur-3xl" />
               
               <div className="relative">

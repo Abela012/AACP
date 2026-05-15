@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { getAuth } from '@clerk/express';
 import User from '../../database/models/User';
 import SocialConnection from '../../database/models/SocialConnection';
+import FacebookAnalyticsConnection from '../../database/models/FacebookAnalyticsConnection';
 import { SocialAuthService } from './socialAuth.service';
 import logger from '../../utils/logger';
 
@@ -154,6 +155,10 @@ export const disconnectPlatform = async (req: Request, res: Response) => {
         if (!user) return res.status(404).json({ success: false, message: 'User not found' });
 
         await SocialConnection.findOneAndDelete({ userId: user._id, platform });
+
+        if (platform === 'facebook') {
+            await FacebookAnalyticsConnection.findOneAndDelete({ userId: user._id });
+        }
 
         res.json({ success: true, message: `Successfully disconnected ${platform}` });
     } catch (error: any) {

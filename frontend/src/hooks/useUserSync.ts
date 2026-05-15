@@ -1,84 +1,111 @@
 import { useAuth } from "@clerk/clerk-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useCallback } from "react";
+import type { AxiosResponse } from "axios";
+import { isAxiosError } from "axios";
 import { useApiClient } from "../api/apiClient";
 import { userApi } from "../api/userApi";
 import { useUser } from "../shared/context/UserContext";
 import { useProfile } from "../shared/context/ProfileContext";
 
+type AppUserRole = 'business_owner' | 'advertiser' | 'admin' | 'super_admin';
+
+type SyncUserPayload = {
+    message?: string;
+    user?: {
+        role?: AppUserRole;
+        status?: string;
+    };
+};
+
+const applySyncedUser = (
+    user: SyncUserPayload['user'],
+    setUserRole: (role: AppUserRole | null) => void,
+    setOnboardingStatus: (status: 'incomplete' | 'pending' | 'approved') => void,
+) => {
+    if (!user?.role) return;
+
+    setUserRole(user.role);
+    localStorage.setItem('userRole', user.role);
+
+    const { status } = user;
+    if (user.role === 'admin' || user.role === 'super_admin' || status === 'active' || status === 'approved') {
+        setOnboardingStatus('approved');
+    } else if (status === 'pending') {
+        setOnboardingStatus('pending');
+    } else {
+        setOnboardingStatus('incomplete');
+    }
+};
+
 export const useUserSync = () => {
     const { isSignedIn } = useAuth();
     const api = useApiClient();
-    const { setOnboardingStatus } = useUser();
+    const { setOnboardingStatus, setUserRole } = useUser();
     const { refreshProfile } = useProfile();
     const queryClient = useQueryClient();
-    
-    // Use a ref to ensure sync only runs once per component mount, 
-    // even in React Strict Mode which double-invokes useEffect.
+
+    // Ensures sync runs once per mount (React Strict Mode double-invokes effects).
     const hasAttemptedSync = useRef(false);
 
     const syncUserMutation = useMutation({
         mutationFn: async () => {
             const pendingRole = localStorage.getItem('pendingUserRole') || undefined;
-            console.log("[useUserSync] Initiating sync with role:", pendingRole);
-            
-            // Set a timeout for the request to prevent hanging
+            if (pendingRole) {
+                console.log("[useUserSync] Initiating sync with role:", pendingRole);
+            }
             return await userApi.syncUser(api, pendingRole);
         },
-        retry: 3, // Automatically retry 3 times on failure
+        retry: 3, 
         retryDelay: 2000,
-        onSuccess: async (response: any) => {
-            const status = response.data?.user?.status;
-            console.log("[useUserSync] Sync successful. Backend status:", status);
+        onSuccess: async (response: AxiosResponse<SyncUserPayload>) => {
+            const syncedUser = response.data?.user;
+            console.log(
+                "[useUserSync] User synced successfully. Backend status:",
+                syncedUser?.status,
+                syncedUser?.role ? `role=${syncedUser.role}` : '',
+            );
 
-            // Clean up the pending role from localStorage
             localStorage.removeItem('pendingUserRole');
-            
-            // Set onboarding status in context based on backend status
-            if (status === 'active' || status === 'approved') {
-                console.log("[useUserSync] Account is APPROVED. Transitioning UI...");
-                setOnboardingStatus('approved');
-            } else if (status === 'pending') {
-                console.log("[useUserSync] Account is still PENDING.");
-                setOnboardingStatus('pending');
-            } else {
-                console.log("[useUserSync] Account is INCOMPLETE.");
-                setOnboardingStatus('incomplete');
-            }
+            applySyncedUser(syncedUser, setUserRole, setOnboardingStatus);
 
             // Force a refresh of the authUser query to update other parts of the UI
             queryClient.invalidateQueries({ queryKey: ["authUser"] });
             await refreshProfile();
         },
-        onError: (error: any) => {
-            console.error("[useUserSync] Sync failed definitively after retries:", error.response?.data || error.message);
+        onError: (error: unknown) => {
+            const detail = isAxiosError(error)
+                ? error.response?.data ?? error.message
+                : error instanceof Error
+                  ? error.message
+                  : error;
+            
+            console.error("[useUserSync] Sync failed definitively after retries:", detail);
+            
             // Reset ref on error to allow retry if needed
             hasAttemptedSync.current = false;
-            
-            if (error.code === 'ECONNABORTED') {
-                console.error("[useUserSync] Request timed out. Backend might be down or slow.");
-            }
         },
     });
 
-    const triggerSync = useCallback((force = false) => {
-        if (force || (!hasAttemptedSync.current && !syncUserMutation.isPending)) {
-            if (!force) hasAttemptedSync.current = true;
-            syncUserMutation.mutate();
-        }
-    }, [syncUserMutation.isPending, syncUserMutation.mutate]);
+    const { mutate, isPending, isSuccess, isError } = syncUserMutation;
 
-    // Auto-sync user when signed in
-    useEffect(() => {
-        if (isSignedIn && !hasAttemptedSync.current) {
-            triggerSync();
+    const triggerSync = useCallback((force = false) => {
+        if (force || (!hasAttemptedSync.current && !isPending)) {
+            if (!force) hasAttemptedSync.current = true;
+            mutate();
         }
-    }, [isSignedIn, triggerSync]);
+    }, [isPending, mutate]);
+
+    useEffect(() => {
+        if (!isSignedIn || hasAttemptedSync.current || isPending) return;
+        hasAttemptedSync.current = true;
+        mutate();
+    }, [isSignedIn, isPending, mutate]);
 
     return {
         sync: () => triggerSync(true),
-        isLoading: syncUserMutation.isPending,
-        isSuccess: syncUserMutation.isSuccess,
-        isError: syncUserMutation.isError
+        isLoading: isPending,
+        isSuccess,
+        isError,
     };
 };

@@ -59,6 +59,7 @@ import PrivacyPolicy from './pages/legal/PrivacyPolicy'
 import CollaborationsPage from './pages/collaboration/list/CollaborationsPage'
 import CollaborationDetailsPage from './pages/collaboration/details/CollaborationDetailsPage'
 import FacebookAnalyticsPage from './pages/social/facebook-analytics/FacebookAnalyticsPage'
+import DataDeletionPage from './pages/social/DataDeletionPage'
 import './App.css'
 
 function App() {
@@ -484,6 +485,7 @@ function App() {
         {/* Legal Pages */}
         <Route path="/terms-of-service" element={<TermsOfService />} />
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+        <Route path="/data-deletion" element={<DataDeletionPage />} />
 
         {/* Catch-all Redirect */}
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
