@@ -1,6 +1,6 @@
 import { Navigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { useApiClient } from "../../api/apiClient";
 import { userApi } from "../../api/userApi";
 import { useUserSync } from "../../hooks/useUserSync";
@@ -84,13 +84,13 @@ export default function RoleDashboardRedirectPage() {
 
   const normalizedRole = String(rawRole || "")
     .toLowerCase()
-    .replace(/[-\s]/g, "_") as any;
+    .replace(/[-\s]/g, "_") as UserRole;
 
-  useEffect(() => {
-    if (normalizedRole && normalizedRole !== (localStorage.getItem('userRole'))) {
-      console.log("[RoleDashboardRedirectPage] Updating UserContext role to:", normalizedRole);
-      // Map roles to context types
-      setUserRole(normalizedRole as any);
+  useLayoutEffect(() => {
+    if (!normalizedRole || normalizedRole === 'null') return;
+    const stored = localStorage.getItem('userRole');
+    if (stored !== normalizedRole) {
+      setUserRole(normalizedRole);
       localStorage.setItem('userRole', normalizedRole);
     }
   }, [normalizedRole, setUserRole]);
