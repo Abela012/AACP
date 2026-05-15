@@ -37,6 +37,8 @@ export interface ProfileData {
   clerkId?: string;
   tiktok?: any;
   instagram?: any;
+  facebook?: any;
+  facebookConnected?: boolean;
 }
 
 interface ProfileContextType {
