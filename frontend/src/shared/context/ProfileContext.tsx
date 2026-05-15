@@ -25,9 +25,9 @@ export interface ProfileData {
   instagramHandle?: string;
   xHandle?: string;
 
-  followers?: string;
-  avgViews?: string;
-  engagementRate?: string;
+  followers?: string | number;
+  avgViews?: number;
+  engagementRate?: number;
   geoTags?: string[];
   niches?: string[];
   ageRanges?: string[];
@@ -84,6 +84,44 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
           setUserRole(userData.role);
           localStorage.setItem('userRole', userData.role);
         }
+        // Compute flattened metrics (followers, avgViews, engagementRate)
+        const computeNum = (val: any) => {
+          if (typeof val === 'number') return val;
+          if (typeof val === 'string') {
+            const cleaned = val.toUpperCase().replace(/[^0-9.KMB]/g, '');
+            let multiplier = 1;
+            if (cleaned.endsWith('K')) multiplier = 1000;
+            else if (cleaned.endsWith('M')) multiplier = 1000000;
+            else if (cleaned.endsWith('B')) multiplier = 1000000000;
+            const num = parseFloat(cleaned.replace(/[KMB]/g, ''));
+            return isNaN(num) ? 0 : num * multiplier;
+          }
+          return 0;
+        };
+
+        const pd = userData.profileData || {};
+        const t = pd.tiktok || {};
+        const i = pd.instagram || {};
+
+        const followersTotal = computeNum(t.followers) + computeNum(i.followers);
+        const avgViewsTotal = computeNum(t.avgViews) + computeNum(i.avgViews);
+
+        const computeER = (p: any) => {
+          const stored = computeNum(p.engagementRate);
+          if (stored > 0 && stored <= 100) return stored;
+          const f = computeNum(p.followers);
+          if (f <= 0) return 0;
+          const likes = computeNum(p.totalLikes);
+          const comments = computeNum(p.avgComments);
+          const shares = computeNum(p.avgShares);
+          const raw = ((likes + comments + shares) / f) * 100;
+          return Math.min(raw, 100);
+        };
+
+        const erTik = computeER(t);
+        const erIg = computeER(i);
+        const maxER = Math.max(erTik, erIg);
+
         setProfile({
           firstName: userData.firstName || '',
           lastName: userData.lastName || '',
@@ -92,7 +130,11 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
           coverImageUrl: userData.coverImage || '',
           _id: userData._id,
           clerkId: userData.clerkId,
-          ...userData.profileData,
+          ...pd,
+          // flattened convenience fields used by many components
+          followers: followersTotal,
+          avgViews: avgViewsTotal,
+          engagementRate: parseFloat(maxER.toFixed(2)),
         });
       }
     } catch (error: any) {

@@ -258,6 +258,8 @@ export default function EditProfilePage() {
   const inputCls =
     'w-full bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl pl-10 pr-4 py-3 text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all text-gray-900 dark:text-white';
   const labelCls = 'text-xs font-bold text-gray-500 uppercase tracking-wider';
+  const profilePlaceholder = (value: string | number | undefined, fallback: string) =>
+    value !== undefined && value !== null && String(value).trim() !== '' ? String(value) : fallback;
 
   if (isLoading) {
     return (
@@ -543,7 +545,7 @@ export default function EditProfilePage() {
                           value={businessLocation}
                           onChange={(e) => setBusinessLocation(e.target.value)}
                           className={inputCls}
-                          placeholder="City, Country"
+                          placeholder={profilePlaceholder(profile.businessLocation, 'City, Country')}
                         />
                       </div>
                     </div>
@@ -585,7 +587,7 @@ export default function EditProfilePage() {
                             value={portfolioUrl}
                             onChange={(e) => setPortfolioUrl(e.target.value)}
                             className={inputCls.replace('pl-10', 'pl-4')}
-                            placeholder="https://"
+                            placeholder={profilePlaceholder(profile.website, 'https://')}
                           />
                         </div>
                         <div className="space-y-2">
@@ -595,7 +597,7 @@ export default function EditProfilePage() {
                             value={baseRate}
                             onChange={(e) => setBaseRate(e.target.value)}
                             className={inputCls.replace('pl-10', 'pl-4')}
-                            placeholder="500"
+                            placeholder={profilePlaceholder(profile.baseRate, '500')}
                           />
                         </div>
                         <div className="space-y-2">
@@ -605,7 +607,7 @@ export default function EditProfilePage() {
                             value={followers}
                             onChange={(e) => setFollowers(e.target.value)}
                             className={inputCls.replace('pl-10', 'pl-4')}
-                            placeholder="e.g. 1.2M"
+                            placeholder={profilePlaceholder(profile.followers, '1.2M')}
                           />
                         </div>
                         <div className="space-y-2">
@@ -615,7 +617,7 @@ export default function EditProfilePage() {
                             value={avgViews}
                             onChange={(e) => setAvgViews(e.target.value)}
                             className={inputCls.replace('pl-10', 'pl-4')}
-                            placeholder="e.g. 450k"
+                            placeholder={profilePlaceholder(profile.avgViews, '450k')}
                           />
                         </div>
                         <div className="space-y-2">
@@ -625,7 +627,7 @@ export default function EditProfilePage() {
                             value={engagementRate}
                             onChange={(e) => setEngagementRate(e.target.value)}
                             className={inputCls.replace('pl-10', 'pl-4')}
-                            placeholder="e.g. 4.2%"
+                            placeholder={profilePlaceholder(profile.engagementRate, '4.2%')}
                           />
                         </div>
                         <div className="space-y-2">
@@ -635,7 +637,7 @@ export default function EditProfilePage() {
                             value={youtubeHandle}
                             onChange={(e) => setYoutubeHandle(e.target.value)}
                             className={inputCls.replace('pl-10', 'pl-4')}
-                            placeholder="@handle"
+                            placeholder={profilePlaceholder(profile.youtubeHandle, '@handle')}
                           />
                         </div>
                         <div className="space-y-2">
@@ -645,7 +647,7 @@ export default function EditProfilePage() {
                             value={tiktokHandle}
                             onChange={(e) => setTiktokHandle(e.target.value)}
                             className={inputCls.replace('pl-10', 'pl-4')}
-                            placeholder="@handle"
+                            placeholder={profilePlaceholder(profile.tiktokHandle, '@handle')}
                           />
                         </div>
                         <div className="space-y-2">
@@ -655,7 +657,7 @@ export default function EditProfilePage() {
                             value={instagramHandle}
                             onChange={(e) => setInstagramHandle(e.target.value)}
                             className={inputCls.replace('pl-10', 'pl-4')}
-                            placeholder="@handle"
+                            placeholder={profilePlaceholder(profile.instagramHandle, '@handle')}
                           />
                         </div>
                         <div className="space-y-2">
@@ -665,7 +667,7 @@ export default function EditProfilePage() {
                             value={xHandle}
                             onChange={(e) => setXHandle(e.target.value)}
                             className={inputCls.replace('pl-10', 'pl-4')}
-                            placeholder="@handle"
+                            placeholder={profilePlaceholder(profile.xHandle, '@handle')}
                           />
                         </div>
                       </>
