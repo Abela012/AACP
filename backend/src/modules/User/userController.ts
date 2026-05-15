@@ -217,8 +217,11 @@ export const submitProfileForReview = async (
       }
     }
 
-    // Force status to pending for review
-    updates.status = "pending";
+    // Only set status to pending if the user is not already active
+    // This allows active users to edit their profile without being locked out
+    if (user.status !== "active") {
+      updates.status = "pending";
+    }
 
     // 🧠 Safely merge profileData into pendingProfileData
     if (updates.profileData && typeof updates.profileData === "object") {

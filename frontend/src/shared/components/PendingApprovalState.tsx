@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Clock, ShieldCheck, Mail, RefreshCw, Loader2 } from 'lucide-react';
 
@@ -7,6 +8,19 @@ interface PendingApprovalStateProps {
 }
 
 export default function PendingApprovalState({ onRefresh, isRefreshing }: PendingApprovalStateProps) {
+  // Automatic polling every minute (60s) to detect approval without manual refresh
+  useEffect(() => {
+    console.log("[PendingApprovalState] Polling interval initialized (60s)");
+    const interval = setInterval(() => {
+      if (!isRefreshing) {
+        console.log("[PendingApprovalState] Triggering automatic status check...");
+        onRefresh();
+      }
+    }, 60000); // Changed to 1 minute as requested
+
+    return () => clearInterval(interval);
+  }, [onRefresh, isRefreshing]);
+
   return (
     <div className="flex flex-col items-center justify-center py-20 px-4 max-w-2xl mx-auto">
       <motion.div
