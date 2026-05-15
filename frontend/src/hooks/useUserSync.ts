@@ -81,7 +81,7 @@ export const useUserSync = () => {
         },
     });
 
-    const { mutate, isPending, isSuccess, isError } = syncUserMutation;
+    const { mutate, isPending, isSuccess, isError, error } = syncUserMutation;
 
     const triggerSync = () => {
         if (!hasAttemptedSync.current && !isPending) {
@@ -101,5 +101,6 @@ export const useUserSync = () => {
         isLoading: isPending,
         isSuccess,
         isError,
+        error,
     };
 };

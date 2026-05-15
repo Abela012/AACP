@@ -7,7 +7,10 @@ import { useCreateAdminUser, useSuperAdmins, useUpdateAdminUser } from '@/src/ho
 export default function SuperAdminAdminManagementPage() {
   const [search, setSearch] = useState('');
   const [inviteEmail, setInviteEmail] = useState('');
+  const [inviteFirstName, setInviteFirstName] = useState('');
+  const [inviteLastName, setInviteLastName] = useState('');
   const [invitePassword, setInvitePassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [toast, setToast] = useState<{ show: boolean; message: string; type: 'success' | 'error' }>({ show: false, message: '', type: 'success' });
   const { data, isLoading, isError, refetch } = useSuperAdmins({ search: search || undefined });
   const createAdmin = useCreateAdminUser();
@@ -31,6 +34,10 @@ export default function SuperAdminAdminManagementPage() {
       showToast('Enter admin email first', 'error');
       return;
     }
+    if (!inviteFirstName.trim() || !inviteLastName.trim()) {
+      showToast('First and last names are required', 'error');
+      return;
+    }
     if (!invitePassword.trim() || invitePassword.trim().length < 8) {
       showToast('Password must be at least 8 characters', 'error');
       return;
@@ -38,9 +45,13 @@ export default function SuperAdminAdminManagementPage() {
     try {
       await createAdmin.mutateAsync({
         email: inviteEmail.trim().toLowerCase(),
+        firstName: inviteFirstName.trim(),
+        lastName: inviteLastName.trim(),
         password: invitePassword.trim(),
       });
       setInviteEmail('');
+      setInviteFirstName('');
+      setInviteLastName('');
       setInvitePassword('');
       showToast('Admin account created successfully');
     } catch (error: any) {
@@ -79,28 +90,64 @@ export default function SuperAdminAdminManagementPage() {
               Orchestrate platform governance and access controls.
             </p>
           </div>
-          <div className="flex gap-3">
-            <input
-              value={inviteEmail}
-              onChange={(e) => setInviteEmail(e.target.value)}
-              placeholder="Admin email"
-              className="bg-white dark:bg-white/5 border border-[#EFEFEF] dark:border-white/10 rounded-2xl px-4 py-3 text-sm w-64 outline-none"
-            />
-            <input
-              type="password"
-              value={invitePassword}
-              onChange={(e) => setInvitePassword(e.target.value)}
-              placeholder="Temporary password"
-              className="bg-white dark:bg-white/5 border border-[#EFEFEF] dark:border-white/10 rounded-2xl px-4 py-3 text-sm w-56 outline-none"
-            />
-            <button
-              onClick={handleCreateAdmin}
-              disabled={createAdmin.isPending}
-              className="px-5 py-3 bg-[#14a800] hover:bg-[#108a00] text-white rounded-2xl text-xs font-black uppercase tracking-widest shadow-lg shadow-green-100 dark:shadow-none flex items-center gap-2 disabled:opacity-60"
-            >
-              {createAdmin.isPending ? <Loader2 size={16} className="animate-spin" /> : <UserPlus size={16} />}
-              Create Admin
-            </button>
+          <div className="bg-white dark:bg-[#111111] p-6 rounded-[2.5rem] border border-[#EFEFEF] dark:border-white/5 shadow-sm w-full lg:w-auto">
+            <h3 className="text-sm font-black uppercase tracking-widest mb-4 flex items-center gap-2">
+              <UserPlus size={16} className="text-[#14a800]" />
+              Create New Admin
+            </h3>
+            <div className="flex flex-col sm:flex-row flex-wrap gap-3">
+              <input
+                value={inviteFirstName}
+                onChange={(e) => setInviteFirstName(e.target.value)}
+                placeholder="First Name"
+                className="bg-[#F4F4F4] dark:bg-white/5 border-none rounded-2xl px-4 py-3 text-sm w-full sm:w-40 outline-none focus:ring-2 focus:ring-[#14a800]/20"
+              />
+              <input
+                value={inviteLastName}
+                onChange={(e) => setInviteLastName(e.target.value)}
+                placeholder="Last Name"
+                className="bg-[#F4F4F4] dark:bg-white/5 border-none rounded-2xl px-4 py-3 text-sm w-full sm:w-40 outline-none focus:ring-2 focus:ring-[#14a800]/20"
+              />
+              <input
+                value={inviteEmail}
+                onChange={(e) => setInviteEmail(e.target.value)}
+                placeholder="Admin Email"
+                className="bg-[#F4F4F4] dark:bg-white/5 border-none rounded-2xl px-4 py-3 text-sm w-full sm:w-64 outline-none focus:ring-2 focus:ring-[#14a800]/20"
+              />
+              <div className="relative w-full sm:w-56">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  value={invitePassword}
+                  onChange={(e) => setInvitePassword(e.target.value)}
+                  placeholder="Temporary Password"
+                  className="bg-[#F4F4F4] dark:bg-white/5 border-none rounded-2xl px-4 py-3 text-sm w-full outline-none focus:ring-2 focus:ring-[#14a800]/20 pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9A9FA5] hover:text-[#14a800] transition-colors"
+                >
+                  {showPassword ? (
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.888 9.888L3.636 3.636m16.728 16.728L14.121 14.121M16.5 16.5A10.05 10.05 0 0019.5 12c-1.275-4.057-5.065-7-9.542-7-1.274 0-2.483.245-3.588.691m4.773 4.773L16.5 16.5" />
+                    </svg>
+                  ) : (
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                  )}
+                </button>
+              </div>
+              <button
+                onClick={handleCreateAdmin}
+                disabled={createAdmin.isPending}
+                className="px-6 py-3 bg-[#14a800] hover:bg-[#108a00] text-white rounded-2xl text-xs font-black uppercase tracking-widest shadow-lg shadow-green-100 dark:shadow-none flex items-center justify-center gap-2 disabled:opacity-60 min-w-[140px]"
+              >
+                {createAdmin.isPending ? <Loader2 size={16} className="animate-spin" /> : <UserPlus size={16} />}
+                Create Admin
+              </button>
+            </div>
           </div>
         </div>
 

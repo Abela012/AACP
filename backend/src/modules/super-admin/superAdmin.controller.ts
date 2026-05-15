@@ -148,10 +148,12 @@ export const promoteExistingUserToAdmin = async (req: Request, res: Response, ne
 export const createAdminUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const actor = (req as any).currentUser || (req as any).user;
-        const { email, password, role } = req.body as {
+        const { email, password, role, firstName, lastName } = req.body as {
             email?: string;
             password?: string;
             role?: 'admin' | 'super_admin';
+            firstName?: string;
+            lastName?: string;
         };
 
         const normalizedEmail = String(email || '').trim().toLowerCase();
@@ -177,8 +179,8 @@ export const createAdminUser = async (req: Request, res: Response, next: NextFun
             clerkUser = await clerkClient.users.createUser({
                 emailAddress: [normalizedEmail],
                 password,
-                firstName: displayFirst,
-                lastName: 'Admin',
+                firstName: firstName || displayFirst,
+                lastName: lastName || 'Admin',
                 publicMetadata: { role: normalizedRole },
                 skipLegalChecks: true,
             });
@@ -206,8 +208,8 @@ export const createAdminUser = async (req: Request, res: Response, next: NextFun
             user = await User.create({
                 clerkId: clerkUser.id,
                 email: normalizedEmail,
-                firstName: clerkUser.firstName || displayFirst,
-                lastName: clerkUser.lastName || 'Admin',
+                firstName: clerkUser.firstName || firstName || displayFirst,
+                lastName: clerkUser.lastName || lastName || 'Admin',
                 username,
                 profilePicture: clerkUser.imageUrl || '',
                 role: normalizedRole,
