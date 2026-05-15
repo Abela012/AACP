@@ -148,13 +148,14 @@ export const promoteExistingUserToAdmin = async (req: Request, res: Response, ne
 export const createAdminUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const actor = (req as any).currentUser || (req as any).user;
-        const { email, password } = req.body as {
+        const { email, password, role } = req.body as {
             email?: string;
             password?: string;
+            role?: 'admin' | 'super_admin';
         };
 
         const normalizedEmail = String(email || '').trim().toLowerCase();
-        const normalizedRole: 'admin' = 'admin';
+        const normalizedRole = role === 'super_admin' ? 'super_admin' : 'admin';
 
         if (!normalizedEmail) {
             return res.status(400).json({ error: 'email is required' });
