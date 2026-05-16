@@ -72,7 +72,7 @@ export default function SuperAdminPlatformPage() {
             <button
               onClick={handleSave}
               disabled={updateConfig.isPending}
-              className="px-5 py-2.5 bg-[#14a800] text-white rounded-2xl text-xs font-bold hover:bg-[#108a00] transition-all shadow-lg shadow-green-100 dark:shadow-none flex items-center gap-2 disabled:opacity-60"
+              className="px-5 py-2.5 bg-emerald-600 text-white rounded-2xl text-xs font-bold hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-100 dark:shadow-none flex items-center gap-2 disabled:opacity-60"
             >
               {updateConfig.isPending ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
               Save All Configurations
@@ -82,7 +82,7 @@ export default function SuperAdminPlatformPage() {
 
         {isLoading ? (
           <div className="flex items-center justify-center h-80">
-            <Loader2 className="w-10 h-10 text-[#14a800] animate-spin" />
+            <Loader2 className="w-10 h-10 text-emerald-600 animate-spin" />
           </div>
         ) : isError ? (
           <div className="bg-white dark:bg-[#111111] p-10 rounded-[2.5rem] border border-[#EFEFEF] dark:border-white/5 shadow-sm text-center">
@@ -90,7 +90,7 @@ export default function SuperAdminPlatformPage() {
           </div>
         ) : (
           <>
-            <div className="bg-[#F1FFF0] dark:bg-[#14a800]/10 p-8 rounded-[2.5rem] border border-green-100 dark:border-green-500/20 flex items-center justify-between gap-6">
+            <div className="bg-[#F1FFF0] dark:bg-emerald-600/10 p-8 rounded-[2.5rem] border border-emerald-100 dark:border-emerald-500/20 flex items-center justify-between gap-6">
               <div>
                 <h2 className="text-2xl font-black mb-2">Maintenance Mode</h2>
                 <p className="text-sm font-medium text-[#6F767E] dark:text-gray-300 max-w-2xl">
@@ -100,7 +100,7 @@ export default function SuperAdminPlatformPage() {
               <button
                 onClick={() => setForm(prev => ({ ...prev, maintenanceMode: !prev.maintenanceMode }))}
                 className={`w-28 h-14 rounded-2xl px-3 flex items-center justify-between transition-all ${
-                  form.maintenanceMode ? 'bg-[#14a800] text-white' : 'bg-white text-[#6F767E]'
+                  form.maintenanceMode ? 'bg-emerald-600 text-white' : 'bg-white text-[#6F767E]'
                 }`}
               >
                 <span className="text-xs font-black uppercase tracking-widest">
@@ -113,7 +113,7 @@ export default function SuperAdminPlatformPage() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
               <div className="lg:col-span-7 bg-white dark:bg-[#111111] p-8 rounded-[2.5rem] border border-[#EFEFEF] dark:border-white/5 shadow-sm">
                 <div className="flex items-center gap-3 mb-8">
-                  <Coins className="text-[#14a800]" size={20} />
+                  <Coins className="text-emerald-600" size={20} />
                   <h3 className="text-xl font-black">Platform Economics</h3>
                 </div>
                 <div className="space-y-6">
@@ -178,10 +178,10 @@ export default function SuperAdminPlatformPage() {
             <div className="bg-white dark:bg-[#111111] p-8 rounded-[2.5rem] border border-[#EFEFEF] dark:border-white/5 shadow-sm">
               <div className="flex items-center justify-between mb-8">
                 <div className="flex items-center gap-3">
-                  <Mail className="text-[#14a800]" size={20} />
+                  <Mail className="text-emerald-600" size={20} />
                   <h3 className="text-xl font-black">Email Templates</h3>
                 </div>
-                <button className="text-xs font-black text-[#14a800] uppercase tracking-widest">Create New Template</button>
+                <button className="text-xs font-black text-emerald-600 uppercase tracking-widest">Create New Template</button>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {emailCards.map((item, idx) => (
@@ -192,7 +192,7 @@ export default function SuperAdminPlatformPage() {
                     transition={{ delay: idx * 0.05 }}
                     className="bg-[#FAFAFD] dark:bg-white/5 p-6 rounded-4xl border border-[#F0F0F5] dark:border-white/10"
                   >
-                    <div className="w-10 h-10 bg-green-100 dark:bg-green-500/20 rounded-xl flex items-center justify-center text-[#14a800] mb-5">
+                    <div className="w-10 h-10 bg-emerald-100 dark:bg-emerald-500/20 rounded-xl flex items-center justify-center text-emerald-600 mb-5">
                       <Settings2 size={18} />
                     </div>
                     <h4 className="font-black mb-2">{item.title}</h4>
@@ -214,7 +214,7 @@ export default function SuperAdminPlatformPage() {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
               className={`fixed bottom-8 left-1/2 -translate-x-1/2 z-50 px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3 border ${
-                toast.type === 'success' ? 'bg-[#14a800] text-white border-green-400' : 'bg-red-500 text-white border-red-400'
+                toast.type === 'success' ? 'bg-emerald-600 text-white border-emerald-400' : 'bg-red-500 text-white border-red-400'
               }`}
             >
               <span className="text-xs font-black uppercase tracking-widest">{toast.message}</span>

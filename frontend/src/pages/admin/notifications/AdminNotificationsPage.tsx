@@ -42,10 +42,10 @@ export default function AdminNotificationsPage() {
                   transition={{ delay: idx * 0.1 }}
                   onClick={() => handleMarkRead(notif.id)}
                   className={`flex gap-6 p-5 hover:bg-gray-50 dark:hover:bg-white/5 rounded-2xl transition-all cursor-pointer border border-transparent hover:border-[#EFEFEF] dark:hover:border-white/5 ${
-                    !notif.read ? 'bg-green-50/30 dark:bg-green-500/5' : ''
+                    !notif.read ? 'bg-emerald-50/30 dark:bg-emerald-500/5' : ''
                   }`}
                 >
-                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${notif.bg} ${notif.color} ${!notif.read ? 'ring-2 ring-green-500/20' : ''}`}>
+                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${notif.bg} ${notif.color} ${!notif.read ? 'ring-2 ring-emerald-500/20' : ''}`}>
                     <notif.icon size={20} />
                   </div>
                   <div className="flex-1">

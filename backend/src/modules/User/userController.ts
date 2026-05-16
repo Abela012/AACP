@@ -305,6 +305,17 @@ export const submitProfileForReview = async (
     const userResponse = updatedUser.toObject();
     delete (userResponse as any).__v;
 
+    // Notify admins
+    const io = (req.app as any).io;
+    if (io) {
+      io.to('admins').emit('notification:new', {
+        type: 'system',
+        title: 'Profile Pending Approval',
+        message: `User ${user.firstName} ${user.lastName} has submitted profile updates for review.`,
+        createdAt: new Date().toISOString()
+      });
+    }
+
     res.status(200).json({
       message: "Profile submitted for review successfully",
       user: userResponse,

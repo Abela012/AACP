@@ -87,7 +87,7 @@ export default function AdminSettingsPage() {
               type="button"
               onClick={() => saveMutation.mutate()}
               disabled={saveMutation.isPending || isLoading}
-              className="px-5 py-2.5 bg-[#14a800] text-white rounded-2xl text-xs font-bold hover:bg-[#108a00] transition-all shadow-lg shadow-green-100 dark:shadow-none disabled:opacity-50"
+              className="px-5 py-2.5 bg-emerald-600 text-white rounded-2xl text-xs font-bold hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-100 dark:shadow-none disabled:opacity-50"
             >
               {saveMutation.isPending ? 'Saving…' : 'Save changes'}
             </button>
@@ -148,7 +148,7 @@ export default function AdminSettingsPage() {
           <div className="lg:col-span-5 bg-white dark:bg-[#111111] p-8 rounded-[3rem] border border-[#EFEFEF] dark:border-white/5 shadow-sm">
             <div className="flex justify-between items-center mb-8">
               <h3 className="font-extrabold text-lg text-[#1A1D1F] dark:text-white">Support contact</h3>
-              <div className="w-10 h-10 bg-gray-100 dark:bg-white/10 rounded-xl flex items-center justify-center text-[#14a800]">
+              <div className="w-10 h-10 bg-gray-100 dark:bg-white/10 rounded-xl flex items-center justify-center text-emerald-600">
                 <Mail size={18} />
               </div>
             </div>
@@ -163,7 +163,7 @@ export default function AdminSettingsPage() {
               value={supportContactEmail}
               onChange={(e) => setSupportContactEmail(e.target.value)}
               placeholder="support@yourdomain.com"
-              className="w-full rounded-2xl border border-[#EFEFEF] dark:border-white/10 bg-[#F8F8FD] dark:bg-black/30 px-4 py-3 text-sm text-[#1A1D1F] dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#14a800]/30"
+              className="w-full rounded-2xl border border-[#EFEFEF] dark:border-white/10 bg-[#F8F8FD] dark:bg-black/30 px-4 py-3 text-sm text-[#1A1D1F] dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-600/30"
             />
           </div>
 
@@ -209,7 +209,7 @@ export default function AdminSettingsPage() {
         <div className="bg-white dark:bg-[#111111] p-8 rounded-[3rem] border border-[#EFEFEF] dark:border-white/5 shadow-sm">
           <div className="flex justify-between items-center mb-8">
             <div className="flex items-center gap-2">
-              <Zap className="text-[#14a800]" size={20} />
+              <Zap className="text-emerald-600" size={20} />
               <h3 className="font-extrabold text-lg text-[#1A1D1F] dark:text-white">Recent audit activity</h3>
             </div>
             <span className="text-[10px] font-bold text-[#9A9FA5] uppercase tracking-widest">Last 30 entries</span>

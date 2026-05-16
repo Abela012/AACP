@@ -14,6 +14,7 @@ import {
   LogOut,
   Layout,
   Activity,
+  Zap
 } from 'lucide-react';
 import { cn } from '@/src/shared/utils/cn';
 import ThemeToggle from '@/src/shared/components/ThemeToggle';
@@ -59,12 +60,12 @@ export default function SuperAdminLayout({ children }: Props) {
       >
         <div className="p-8 pb-4">
           <Link to="/dashboard/super-admin" className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-[#14a800] rounded-xl flex items-center justify-center shadow-lg shadow-green-200 dark:shadow-none">
-              <Layout className="text-white w-6 h-6" />
+            <div className="w-10 h-10 bg-emerald-600 rounded-full flex items-center justify-center shadow-lg shadow-emerald-200 dark:shadow-none">
+              <Zap className="text-white w-6 h-6 fill-white" />
             </div>
             <div>
               <h1 className="text-sm font-black uppercase tracking-tight leading-none">AACP Velocity</h1>
-              <span className="text-[10px] font-bold text-[#14a800] uppercase tracking-widest leading-none">
+              <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest leading-none">
                 Super Admin Panel
               </span>
             </div>
@@ -82,14 +83,14 @@ export default function SuperAdminLayout({ children }: Props) {
                   className={cn(
                     'flex items-center gap-4 px-4 py-3.5 rounded-2xl text-sm font-semibold transition-all relative group',
                     isActive
-                      ? 'text-[#14a800] bg-[#F1FFF0] dark:bg-[#14a800]/10'
+                      ? 'text-emerald-600 bg-[#F1FFF0] dark:bg-emerald-600/10'
                       : 'text-[#6F767E] hover:text-[#1A1D1F] dark:hover:text-white'
                   )}
                 >
-                  <item.icon size={20} className={cn(isActive ? 'text-[#14a800]' : 'text-[#9A9FA5]')} />
+                  <item.icon size={20} className={cn(isActive ? 'text-emerald-600' : 'text-[#9A9FA5]')} />
                   {item.name}
                   {isActive && (
-                    <motion.div layoutId="super-active" className="absolute left-0 w-1 h-6 bg-[#14a800] rounded-r-full" />
+                    <motion.div layoutId="super-active" className="absolute left-0 w-1 h-6 bg-emerald-600 rounded-r-full" />
                   )}
                 </Link>
               );
@@ -99,7 +100,7 @@ export default function SuperAdminLayout({ children }: Props) {
           <div className="pt-6 border-t border-[#EFEFEF] dark:border-white/5">
             <Link
               to="/super-admin/audit-trail"
-              className="w-full h-12 bg-[#14a800] hover:bg-[#108a00] text-white rounded-2xl text-sm font-bold shadow-lg shadow-green-100 dark:shadow-none transition-all flex items-center justify-center gap-2"
+              className="w-full h-12 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl text-sm font-bold shadow-lg shadow-emerald-100 dark:shadow-none transition-all flex items-center justify-center gap-2"
             >
               <Activity size={18} />
               Activity
@@ -134,7 +135,7 @@ export default function SuperAdminLayout({ children }: Props) {
               <input
                 type="text"
                 placeholder="Search admins..."
-                className="bg-[#F4F4F4] dark:bg-white/5 rounded-2xl pl-11 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#14a800]/20 w-[420px] transition-all border-none"
+                className="bg-[#F4F4F4] dark:bg-white/5 rounded-2xl pl-11 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-600/20 w-[420px] transition-all border-none"
               />
             </div>
           </div>
@@ -149,9 +150,9 @@ export default function SuperAdminLayout({ children }: Props) {
             <Link to="/super-admin/profile" className="flex items-center gap-3 ml-2 pl-4 border-l border-[#EFEFEF] dark:border-white/5 hover:opacity-80 transition-opacity">
               <div className="text-right hidden sm:block">
                 <p className="text-xs font-bold leading-none mb-1">{clerkUser?.fullName || 'Super Admin'}</p>
-                <p className="text-[10px] font-bold text-[#14a800] uppercase tracking-widest leading-none">Velocity Root</p>
+                <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest leading-none">Velocity Root</p>
               </div>
-              <div className="w-10 h-10 rounded-full bg-linear-to-tr from-[#14a800] to-green-400 overflow-hidden shadow-lg border-2 border-white dark:border-[#0A0A0A]">
+              <div className="w-10 h-10 rounded-full bg-linear-to-tr from-emerald-600 to-emerald-400 overflow-hidden shadow-lg border-2 border-white dark:border-[#0A0A0A]">
                 {clerkUser?.imageUrl ? (
                   <img src={clerkUser.imageUrl} alt="User" className="w-full h-full object-cover" />
                 ) : (

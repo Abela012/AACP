@@ -138,7 +138,7 @@ export default function UserApprovalPage() {
                   <label className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest mb-2 block">{isBusiness ? 'Industry' : 'Primary Niche'}</label>
                   <div className="flex flex-wrap gap-2">
                     {isBusiness ? (
-                      <span className="px-4 py-2 bg-green-50 dark:bg-green-500/10 text-[#14a800] rounded-xl text-xs font-bold ring-1 ring-green-100 dark:ring-green-500/20">{displayProfileData.industry || 'General'}</span>
+                      <span className="px-4 py-2 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 rounded-xl text-xs font-bold ring-1 ring-emerald-100 dark:ring-emerald-500/20">{displayProfileData.industry || 'General'}</span>
                     ) : (
                       (displayProfileData.selectedStyles || ['Lifestyle']).map((style: string) => (
                         <span key={style} className="px-4 py-2 bg-gray-50 dark:bg-white/5 text-[#6F767E] dark:text-gray-400 rounded-xl text-xs font-bold border border-gray-100 dark:border-white/10">{style}</span>
@@ -150,7 +150,7 @@ export default function UserApprovalPage() {
                 <div>
                   <label className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest mb-2 block">Location</label>
                   <div className="flex items-center gap-2 font-bold text-[#1A1D1F] dark:text-white">
-                    <MapPin size={16} className="text-[#14a800]" />
+                    <MapPin size={16} className="text-emerald-600" />
                     <span className="text-sm">{displayProfileData.businessLocation || displayProfileData.geoTags?.[0] || displayUser.location || 'Remote'}</span>
                   </div>
                 </div>
@@ -176,7 +176,7 @@ export default function UserApprovalPage() {
               </div>
             </div>
 
-            <div className="bg-[#14a800] p-8 rounded-[2.5rem] text-white shadow-xl">
+            <div className="bg-emerald-600 p-8 rounded-[2.5rem] text-white shadow-xl">
               <h3 className="font-bold mb-8">Application Score</h3>
               <div className="flex items-baseline gap-2 mb-4">
                 <span className="text-6xl font-black">94</span>
@@ -245,7 +245,7 @@ export default function UserApprovalPage() {
                     className="w-full p-4 bg-[#F4F4F4]/50 dark:bg-white/5 hover:bg-white dark:hover:bg-white/10 transition-all rounded-2xl flex items-center justify-between group border border-transparent hover:border-[#EFEFEF] dark:hover:border-white/5"
                   >
                     <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 rounded-xl bg-green-100 dark:bg-green-500/20 text-[#14a800] flex items-center justify-center">
+                      <div className="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 flex items-center justify-center">
                         <Globe size={18} />
                       </div>
                       <div className="text-left">
@@ -508,7 +508,7 @@ export default function UserApprovalPage() {
           <div className="lg:col-span-3 space-y-6 lg:sticky lg:top-28">
             <div className="bg-[#F1FFF0] dark:bg-white/5 p-8 rounded-[3rem] text-center border border-white dark:border-white/5 shadow-inner">
               <div className="w-12 h-12 bg-white dark:bg-white/10 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-sm">
-                <ShieldCheck size={24} className="text-[#14a800]" />
+                <ShieldCheck size={24} className="text-emerald-600" />
               </div>
               <h3 className="font-black text-xl mb-2">Approval<br />Controls</h3>
               <p className="text-xs text-[#6F767E] dark:text-gray-400 font-medium mb-8 leading-relaxed">
@@ -519,7 +519,7 @@ export default function UserApprovalPage() {
                 <button
                   onClick={() => updateStatus.mutate('approved')}
                   disabled={updateStatus.isPending || ((user.status === 'approved' || user.status === 'active') && !hasPendingChanges)}
-                  className="w-full h-16 bg-[#14a800] hover:bg-[#108a00] text-white rounded-1.5rem font-bold text-sm flex items-center justify-center gap-3 shadow-lg shadow-green-100 dark:shadow-none transition-all group disabled:opacity-50"
+                  className="w-full h-16 bg-emerald-600 hover:bg-emerald-700 text-white rounded-1.5rem font-bold text-sm flex items-center justify-center gap-3 shadow-lg shadow-emerald-100 dark:shadow-none transition-all group disabled:opacity-50"
                 >
                   <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center ring-4 ring-white/10">
                     <ShieldCheck size={14} className="fill-current" />

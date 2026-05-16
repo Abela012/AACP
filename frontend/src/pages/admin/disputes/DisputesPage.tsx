@@ -143,7 +143,7 @@ export default function DisputesPage() {
                 placeholder="Search disputes..." 
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="bg-white dark:bg-white/5 border border-[#EFEFEF] dark:border-white/10 rounded-2xl pl-11 pr-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#14a800]/20 w-64 transition-all"
+                className="bg-white dark:bg-white/5 border border-[#EFEFEF] dark:border-white/10 rounded-2xl pl-11 pr-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-600/20 w-64 transition-all"
               />
             </div>
             <div className="relative">
@@ -217,7 +217,7 @@ export default function DisputesPage() {
               onClick={() => setActiveTab(tab.key)}
               className={`px-5 py-2.5 rounded-2xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-2 ${
                 activeTab === tab.key
-                  ? 'bg-[#14a800] text-white shadow-lg shadow-green-100 dark:shadow-none'
+                  ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-100 dark:shadow-none'
                   : 'bg-white dark:bg-white/5 border border-[#EFEFEF] dark:border-white/10 text-[#6F767E] hover:bg-gray-50 dark:hover:bg-white/10'
               }`}
             >
@@ -251,7 +251,7 @@ export default function DisputesPage() {
                 {isLoading ? (
                   <tr>
                     <td colSpan={6} className="py-20 text-center">
-                      <Loader2 size={32} className="text-[#14a800] animate-spin mx-auto mb-4" />
+                      <Loader2 size={32} className="text-emerald-600 animate-spin mx-auto mb-4" />
                       <p className="text-sm font-bold text-[#6F767E]">Loading disputes...</p>
                     </td>
                   </tr>
@@ -310,7 +310,7 @@ export default function DisputesPage() {
                       <div className="flex justify-end gap-2">
                         <button 
                           onClick={() => handleAction(dispute.id, 'view')}
-                          className="p-2 hover:bg-white dark:hover:bg-white/10 rounded-xl transition-all text-[#9A9FA5] hover:text-[#14a800]"
+                          className="p-2 hover:bg-white dark:hover:bg-white/10 rounded-xl transition-all text-[#9A9FA5] hover:text-emerald-600"
                         >
                           <Eye size={18} />
                         </button>
@@ -363,7 +363,7 @@ export default function DisputesPage() {
                 <div className="flex justify-between items-center mb-8">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-[#F4F4F4] dark:bg-white/5 rounded-xl flex items-center justify-center">
-                      <Scale size={20} className="text-[#14a800]" />
+                      <Scale size={20} className="text-emerald-600" />
                     </div>
                     <div>
                       <h2 className="text-lg font-black text-[#1A1D1F] dark:text-white leading-none mb-1">Case Detail</h2>
@@ -420,7 +420,7 @@ export default function DisputesPage() {
                             <p className="text-[10px] font-bold text-[#9A9FA5]">REPORTER ({selectedDispute.reporterRole})</p>
                           </div>
                         </div>
-                        <Link to={`/admin/users/${selectedDispute.id}`} className="p-2 text-[#9A9FA5] hover:text-[#14a800]">
+                        <Link to={`/admin/users/${selectedDispute.id}`} className="p-2 text-[#9A9FA5] hover:text-emerald-600">
                           <ArrowRight size={18} />
                         </Link>
                       </div>
@@ -442,7 +442,7 @@ export default function DisputesPage() {
                   <div>
                     <div className="flex justify-between items-center mb-4">
                       <h3 className="text-sm font-black text-[#1A1D1F] dark:text-white">Case Timeline</h3>
-                      <button className="text-[10px] font-black text-[#14a800] uppercase tracking-widest">Full Log</button>
+                      <button className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Full Log</button>
                     </div>
                     <div className="space-y-4 relative before:absolute before:left-[19px] before:top-2 before:bottom-2 before:w-0.5 before:bg-[#EFEFEF] dark:before:bg-white/10">
                       {[
@@ -468,7 +468,7 @@ export default function DisputesPage() {
                     {selectedDispute.status !== 'RESOLVED' && (
                       <button 
                         onClick={() => handleAction(selectedDispute.id, 'resolve')}
-                        className="flex-1 py-4 bg-[#14a800] hover:bg-[#14a800]/90 text-white rounded-2xl text-xs font-black uppercase tracking-widest transition-all shadow-lg shadow-green-100 dark:shadow-none"
+                        className="flex-1 py-4 bg-emerald-600 hover:bg-emerald-600/90 text-white rounded-2xl text-xs font-black uppercase tracking-widest transition-all shadow-lg shadow-emerald-100 dark:shadow-none"
                       >
                         Resolve Case
                       </button>
@@ -498,7 +498,7 @@ export default function DisputesPage() {
             exit={{ opacity: 0, scale: 0.9 }}
             className={`fixed bottom-8 left-1/2 -translate-x-1/2 z-[100] px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3 border ${
               toast.type === 'success' 
-                ? 'bg-[#14a800] text-white border-green-400' 
+                ? 'bg-emerald-600 text-white border-emerald-400' 
                 : 'bg-red-500 text-white border-red-400'
             }`}
           >
