@@ -898,6 +898,7 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
     setIsSubmitting(true);
     try {
       let profileData;
+      let socialProfiles: any[] = [];
       if (isBusiness) {
         const minEng = Math.min(50, Math.max(0, parseFloat(minEngagementPercent) || 0));
         const avgOrder = avgOrderValueETB.replace(/,/g, '').trim();
@@ -937,46 +938,64 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
           return;
         }
 
-        // For Advertisers, only save platform-specific analytics to profileData
-        profileData = {
-          // TikTok Analytics
-          tiktok: {
+        // For Advertisers, save platform-specific analytics to socialProfiles array
+        if (isTiktokFormComplete) {
+          socialProfiles.push({
+            platform: "TikTok",
             username: tiktokUsername,
-            followers: parseMetric(tiktokFollowers),
-            totalLikes: parseMetric(tiktokTotalLikes),
-            avgViews: parseMetric(tiktokAvgViews),
-            avgComments: parseMetric(tiktokAvgComments),
-            avgShares: parseMetric(tiktokAvgShares),
-            engagementRate: tiktokER.hasErrors ? 0 : parseFloat(computedTiktokER),
-            accountType: tiktokAccountType,
             profileLink: tiktokProfileLink,
+            verified: false,
+            engagementRate: tiktokER.hasErrors ? 0 : parseFloat(computedTiktokER),
             postingFrequency: tiktokPostingFrequency,
-            niche: tiktokNiche,
-            audienceGender: tiktokAudienceGender,
-            audienceTopCountry: tiktokAudienceTopCountry,
-            audienceAgeRange: tiktokAudienceAgeRange,
-            contentStyle: tiktokContentStyle,
-          },
+            niches: tiktokNiche,
+            contentStyles: tiktokContentStyle,
+            tiktokAnalytics: {
+              followers: parseMetric(tiktokFollowers),
+              following: 0,
+              avgViews: parseMetric(tiktokAvgViews),
+              avgLikes: parseMetric(tiktokTotalLikes),
+              avgComments: parseMetric(tiktokAvgComments),
+              avgShares: parseMetric(tiktokAvgShares),
+              averageWatchTime: 0,
+              completionRate: 0,
+              totalLikes: parseMetric(tiktokTotalLikes),
+              viralVideoPercentage: 0
+            },
+            audience: {
+              topCountries: [{ country: tiktokAudienceTopCountry, percentage: 100 }]
+            }
+          });
+        }
 
-          // Instagram Analytics
-          instagram: {
+        // Map existing Instagram fields to YouTube format based on backend update
+        if (isInstagramFormComplete) {
+          socialProfiles.push({
+            platform: "YouTube",
             username: instagramUsername,
-            followers: parseMetric(instagramFollowers),
-            totalLikes: parseMetric(instagramTotalLikes),
-            avgViews: parseMetric(instagramAvgViews),
-            avgComments: parseMetric(instagramAvgComments),
-            avgShares: parseMetric(instagramAvgShares),
-            engagementRate: instagramER.hasErrors ? 0 : parseFloat(computedInstagramER),
-            accountType: instagramAccountType,
             profileLink: instagramProfileLink,
+            verified: false,
+            engagementRate: instagramER.hasErrors ? 0 : parseFloat(computedInstagramER),
             postingFrequency: instagramPostingFrequency,
-            niche: instagramNiche,
-            audienceGender: instagramAudienceGender,
-            audienceTopCountry: instagramAudienceTopCountry,
-            audienceAgeRange: instagramAudienceAgeRange,
-            contentStyle: instagramContentStyle,
-          },
-        };
+            niches: instagramNiche,
+            contentStyles: instagramContentStyle,
+            youtubeAnalytics: {
+              subscribers: parseMetric(instagramFollowers),
+              watchHours: 0,
+              ctr: 0,
+              impressions: 0,
+              averageViewDuration: 0,
+              totalVideos: 0,
+              engagementMetrics: {
+                likes: parseMetric(instagramTotalLikes),
+                comments: parseMetric(instagramAvgComments),
+                shares: parseMetric(instagramAvgShares)
+              }
+            },
+            audience: {
+              topCountries: [{ country: instagramAudienceTopCountry, percentage: 100 }]
+            }
+          });
+        }
       }
 
       await userApi.submitProfile(api, {
@@ -987,12 +1006,14 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
         location: isBusiness ? businessLocation : "",
         tradeLicenseUrl,
         profileData,
+        socialProfiles,
       });
 
       updateProfile({
         firstName,
         lastName,
         avatarUrl: profilePicture,
+        socialProfiles,
         ...profileData
       });
       setSubmitted(true);
@@ -1937,18 +1958,18 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
                           <div className="space-y-2">
                             <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">Followers</label>
                             <div className="relative">
-                              <input type="text" value={tiktokFollowers} onChange={e => setTiktokFollowers(e.target.value)} placeholder="e.g. 50K"
+                              <input type="text" value={tiktokFollowers} onChange={e => setTiktokFollowers(e.target.value.replace(/[^0-9]/g, ''))} placeholder="e.g. 50000"
                                 className="w-full bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl py-3 pl-4 pr-4 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30 transition-all" />
                             </div>
                           </div>
                           <div className="space-y-2">
                             <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">Avg. Likes</label>
-                            <input type="text" value={tiktokTotalLikes} onChange={e => setTiktokTotalLikes(e.target.value)} placeholder="e.g. 1.2M"
+                            <input type="text" value={tiktokTotalLikes} onChange={e => setTiktokTotalLikes(e.target.value.replace(/[^0-9]/g, ''))} placeholder="e.g. 1200000"
                               className="w-full bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl py-3 px-4 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30 transition-all" />
                           </div>
                           <div className="space-y-2">
                             <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">Avg. Views</label>
-                            <input type="text" value={tiktokAvgViews} onChange={e => setTiktokAvgViews(e.target.value)} placeholder="e.g. 10K"
+                            <input type="text" value={tiktokAvgViews} onChange={e => setTiktokAvgViews(e.target.value.replace(/[^0-9]/g, ''))} placeholder="e.g. 10000"
                               className="w-full bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl py-3 px-4 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30 transition-all" />
                           </div>
                           <div className="space-y-2">
@@ -1981,12 +2002,12 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
                           </div>
                           <div className="space-y-2">
                             <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">Avg. Comments</label>
-                            <input type="text" value={tiktokAvgComments} onChange={e => setTiktokAvgComments(e.target.value)} placeholder="e.g. 200"
+                            <input type="text" value={tiktokAvgComments} onChange={e => setTiktokAvgComments(e.target.value.replace(/[^0-9]/g, ''))} placeholder="e.g. 200"
                               className="w-full bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl py-3 px-4 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30 transition-all" />
                           </div>
                           <div className="space-y-2">
                             <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">Avg. Shares</label>
-                            <input type="text" value={tiktokAvgShares} onChange={e => setTiktokAvgShares(e.target.value)} placeholder="e.g. 50"
+                            <input type="text" value={tiktokAvgShares} onChange={e => setTiktokAvgShares(e.target.value.replace(/[^0-9]/g, ''))} placeholder="e.g. 50"
                               className="w-full bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl py-3 px-4 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30 transition-all" />
                           </div>
                         </div>
@@ -2128,18 +2149,18 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
                           <div className="space-y-2">
                             <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">Followers</label>
                             <div className="relative">
-                              <input type="text" value={instagramFollowers} onChange={e => setInstagramFollowers(e.target.value)} placeholder="e.g. 50K"
+                              <input type="text" value={instagramFollowers} onChange={e => setInstagramFollowers(e.target.value.replace(/[^0-9]/g, ''))} placeholder="e.g. 50000"
                                 className="w-full bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl py-3 pl-4 pr-4 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-pink-500 focus:ring-1 focus:ring-pink-500/30 transition-all" />
                             </div>
                           </div>
                           <div className="space-y-2">
                             <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">Avg. Likes</label>
-                            <input type="text" value={instagramTotalLikes} onChange={e => setInstagramTotalLikes(e.target.value)} placeholder="e.g. 1.2M"
+                            <input type="text" value={instagramTotalLikes} onChange={e => setInstagramTotalLikes(e.target.value.replace(/[^0-9]/g, ''))} placeholder="e.g. 1200000"
                               className="w-full bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl py-3 px-4 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-pink-500 focus:ring-1 focus:ring-pink-500/30 transition-all" />
                           </div>
                           <div className="space-y-2">
                             <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">Avg. Views (Reels)</label>
-                            <input type="text" value={instagramAvgViews} onChange={e => setInstagramAvgViews(e.target.value)} placeholder="e.g. 10K"
+                            <input type="text" value={instagramAvgViews} onChange={e => setInstagramAvgViews(e.target.value.replace(/[^0-9]/g, ''))} placeholder="e.g. 10000"
                               className="w-full bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl py-3 px-4 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-pink-500 focus:ring-1 focus:ring-pink-500/30 transition-all" />
                           </div>
                           <div className="space-y-2">
@@ -2172,12 +2193,12 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
                           </div>
                           <div className="space-y-2">
                             <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">Avg. Comments</label>
-                            <input type="text" value={instagramAvgComments} onChange={e => setInstagramAvgComments(e.target.value)} placeholder="e.g. 200"
+                            <input type="text" value={instagramAvgComments} onChange={e => setInstagramAvgComments(e.target.value.replace(/[^0-9]/g, ''))} placeholder="e.g. 200"
                               className="w-full bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl py-3 px-4 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-pink-500 focus:ring-1 focus:ring-pink-500/30 transition-all" />
                           </div>
                           <div className="space-y-2">
                             <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">Avg. Shares</label>
-                            <input type="text" value={instagramAvgShares} onChange={e => setInstagramAvgShares(e.target.value)} placeholder="e.g. 50"
+                            <input type="text" value={instagramAvgShares} onChange={e => setInstagramAvgShares(e.target.value.replace(/[^0-9]/g, ''))} placeholder="e.g. 50"
                               className="w-full bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl py-3 px-4 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-pink-500 focus:ring-1 focus:ring-pink-500/30 transition-all" />
                           </div>
                         </div>

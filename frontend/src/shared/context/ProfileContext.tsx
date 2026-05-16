@@ -42,6 +42,7 @@ export interface ProfileData {
   instagram?: any;
   facebook?: any;
   facebookConnected?: boolean;
+  socialProfiles?: any[];
 }
 
 interface ProfileContextType {
@@ -82,8 +83,6 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
       const response = await userApi.getMe(api);
       const userData = response.data.user;
       if (userData) {
-        console.log('[ProfileContext] Raw User Data from Backend:', userData);
-        
         if (userData.role) {
           setUserRole(userData.role);
           localStorage.setItem('userRole', userData.role);
@@ -154,18 +153,16 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
         if (pud.location) mappedProfile.businessLocation = pud.location;
         if (pud.profilePicture) mappedProfile.avatarUrl = pud.profilePicture;
         if (pud.coverImage) {
-            mappedProfile.coverImageUrl = pud.coverImage;
-            mappedProfile.coverImage = pud.coverImage;
+          mappedProfile.coverImageUrl = pud.coverImage;
+          mappedProfile.coverImage = pud.coverImage;
         }
 
         // Ensure coverImageUrl is always synced with coverImage if present in pd/ppd
         if ((mappedProfile as any).coverImage && !(mappedProfile as any).coverImageUrl) {
-            (mappedProfile as any).coverImageUrl = (mappedProfile as any).coverImage;
+          (mappedProfile as any).coverImageUrl = (mappedProfile as any).coverImage;
         } else if (!(mappedProfile as any).coverImage && (mappedProfile as any).coverImageUrl) {
-            (mappedProfile as any).coverImage = (mappedProfile as any).coverImageUrl;
+          (mappedProfile as any).coverImage = (mappedProfile as any).coverImageUrl;
         }
-
-        console.log('[ProfileContext] Mapped Profile State:', mappedProfile);
         setProfile(mappedProfile);
       }
     } catch (error: any) {

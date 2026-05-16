@@ -1,50 +1,63 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import {
   Search,
   Filter,
   Star,
-  ArrowRight,
-  Sparkles,
-  X,
-  DollarSign,
-  Zap,
-  Building2,
+  ThumbsDown,
+  Heart,
   MapPin,
-  Clock,
-  CheckCircle2
+  CheckCircle,
+  Loader2,
+  Briefcase
 } from 'lucide-react';
 import { cn } from '@/src/shared/utils/cn';
 import AdvertiserLayout from '@/src/shared/components/layouts/AdvertiserLayout';
-
-type PlatformString = 'TikTok' | 'Instagram' | 'YouTube';
-
-export interface JobOpportunity {
-  id: number;
-  brand: string;
-  campaign: string;
-  match: string;
-  budget: string;
-  platform: PlatformString;
-  image: string;
-  location?: string;
-  description?: string;
-  requirements?: string[];
-}
-
 import { useRecommendations } from '@/src/hooks/useRecommendations';
-import { Loader2 } from 'lucide-react';
+import { useSavedOpportunities, useToggleSaveOpportunity } from '@/src/hooks/useSavedOpportunities';
+
+const TABS = ['Recommended Campaigns', 'Recently Posted', 'Campaign Feed', 'Bookmarked Campaigns'];
+
+function formatTimeAgo(dateString: string | undefined) {
+  if (!dateString) return 'Just now';
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+
+  if (diffInSeconds < 60) return 'Just now';
+  if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} minutes ago`;
+  if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} hours ago`;
+  return `${Math.floor(diffInSeconds / 86400)} days ago`;
+}
 
 export default function AdvertiserMatchesPage() {
   const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState('Recommended Campaigns');
+  const [searchQuery, setSearchQuery] = useState('');
   const [selectedPlatform, setSelectedPlatform] = useState('All Platforms');
   const [selectedBudgetRange, setSelectedBudgetRange] = useState('All Budgets');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedJob, setSelectedJob] = useState<any | null>(null);
-  const [appliedJobs, setAppliedJobs] = useState<any[]>([]);
+  
+  const { data: recoData, isLoading: isLoadingRecos } = useRecommendations();
+  const { data: savedJobs = [], isLoading: isLoadingSaved } = useSavedOpportunities();
+  const toggleSave = useToggleSaveOpportunity();
 
-  const { data: recoData, isLoading } = useRecommendations();
+  const isLoading = activeTab === 'Bookmarked Campaigns' ? isLoadingSaved : isLoadingRecos;
+
+  const isJobSaved = (jobId: string) => {
+    if (!jobId || !savedJobs) return false;
+    return savedJobs.some((j: any) => {
+      const id = typeof j === 'string' ? j : (j._id || j.id);
+      return id?.toString() === jobId.toString();
+    });
+  };
+
+  const handleToggleSave = (e: React.MouseEvent, jobId: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toggleSave.mutate(jobId);
+  };
+  
   const opportunities = (recoData?.recommendations || []).map((r: any) => ({
     _id: r.targetId,
     title: r.name,
@@ -56,23 +69,18 @@ export default function AdvertiserMatchesPage() {
       ...r.meta.businessOwner,
       firstName: r.meta.businessOwner.name.split(' ')[0] || 'Business'
     } : undefined,
-    // Add compatibility fields for UI
     brand: r.meta?.businessOwner?.name || 'Business',
     campaign: r.name,
     budget: r.meta?.budget,
-    image: r.meta?.businessOwner?.profilePicture || `https://ui-avatars.com/api/?name=${r.name}&background=10b981&color=fff`
+    createdAt: r.meta?.createdAt,
+    description: r.meta?.description || 'No description provided.',
+    requirements: r.meta?.requirements || [],
+    deliverables: r.meta?.deliverables || [],
+    platforms: r.meta?.platforms || [r.category].filter(Boolean),
+    applicants: r.meta?.applicants || [],
+    paymentType: r.meta?.paymentType || 'Fixed-price',
+    experienceLevel: r.meta?.experienceLevel || 'Expert'
   }));
-
-  useEffect(() => {
-    const stored = localStorage.getItem('appliedJobs');
-    if (stored) {
-      setAppliedJobs(JSON.parse(stored));
-    }
-  }, []);
-
-  const isApplied = (job: any) => {
-    return appliedJobs.some(aj => aj.title === job.title);
-  };
 
   const filteredOpportunities = opportunities.filter((o: any) => {
     const matchesPlatform = selectedPlatform === 'All Platforms' ||
@@ -85,7 +93,7 @@ export default function AdvertiserMatchesPage() {
 
     let matchesBudget = true;
     if (selectedBudgetRange !== 'All Budgets') {
-      const budget = o.budget?.amount || 0;
+      const budget = typeof o.budget === 'object' ? o.budget.amount : (o.budget || 0);
       if (selectedBudgetRange === 'Under $1,000') matchesBudget = budget < 1000;
       else if (selectedBudgetRange === '$1,000 - $3,000') matchesBudget = budget >= 1000 && budget <= 3000;
       else if (selectedBudgetRange === '$3,000 - $5,000') matchesBudget = budget >= 3000 && budget <= 5000;
@@ -95,230 +103,186 @@ export default function AdvertiserMatchesPage() {
     return matchesPlatform && matchesSearch && matchesBudget;
   });
 
-  const handleApply = (e: React.MouseEvent, job: any) => {
-    e.stopPropagation();
-    navigate(`/advertiser/matches/${job._id}/apply`, { state: { job } });
-  };
+  const displayOpportunities = activeTab === 'Bookmarked Campaigns'
+    ? savedJobs
+    : filteredOpportunities;
 
   return (
     <AdvertiserLayout>
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 relative">
+      <div className="max-w-[1000px] mx-auto pb-12 pt-8 px-4 sm:px-0">
+        
+        {/* Search Bar matching screenshot */}
+        <div className="relative mb-2">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+          <input
+            type="text"
+            placeholder="Search for jobs"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-transparent focus:border-[#14a800] dark:focus:border-[#14a800] outline-none text-gray-900 dark:text-white"
+          />
+        </div>
+        <div className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-8 flex items-center gap-2">
+          Saved Searches: <span className="text-[#14a800]">audio transcription</span>
+        </div>
 
-        {/* Modal Overlay for Job Details */}
-        <AnimatePresence>
-          {selectedJob && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-              <motion.div
-                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                onClick={() => setSelectedJob(null)}
-                className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-              />
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                className="relative bg-white dark:bg-[#1a1a1a] w-full max-w-2xl rounded-[2.5rem] overflow-hidden shadow-2xl border border-gray-100 dark:border-white/10 z-10 flex flex-col max-h-[90vh]"
+        <h1 className="text-3xl font-semibold text-[#1A1D1F] dark:text-white mb-6">
+          Jobs you might like
+        </h1>
+
+        <div className="flex justify-between items-start border-b border-gray-200 dark:border-gray-700/50 mb-6">
+          {/* Tabs */}
+          <div className="flex gap-6 overflow-x-auto">
+            {TABS.map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={cn(
+                  "pb-3 font-semibold whitespace-nowrap transition-colors border-b-2",
+                  activeTab === tab
+                    ? 'text-[#1A1D1F] dark:text-white border-[#1A1D1F] dark:border-white'
+                    : 'text-gray-500 hover:text-[#1A1D1F] dark:text-gray-400 dark:hover:text-white border-transparent'
+                )}
               >
-                <div className="h-48 relative shrink-0">
-                  <img src={selectedJob.image} alt={selectedJob.brand} className="w-full h-full object-cover" />
-                  <div className="absolute inset-0 bg-linear-to-t from-black/80 to-transparent"></div>
-                  <button onClick={() => setSelectedJob(null)} className="absolute top-4 right-4 bg-white/10 hover:bg-white/20 backdrop-blur-md text-white p-2 rounded-full transition-colors">
-                    <X size={20} />
-                  </button>
-                  <div className="absolute bottom-6 left-8">
-                    <h2 className="text-3xl font-black text-white mb-1">{selectedJob.title}</h2>
-                    <p className="text-emerald-400 font-bold flex items-center gap-2"><Building2 size={16} />{selectedJob.owner?.firstName || 'Business Owner'}</p>
-                  </div>
-                </div>
+                {tab === 'Bookmarked Campaigns' ? `${tab} (${savedJobs.length})` : tab}
+              </button>
+            ))}
+          </div>
 
-                <div className="p-8 overflow-y-auto">
-                  <div className="flex flex-wrap gap-4 mb-8">
-                    <span className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold px-4 py-2 rounded-xl text-sm flex items-center gap-2"><DollarSign size={16} />${(typeof selectedJob.budget === 'object' ? selectedJob.budget.amount : (selectedJob.budget || 0)).toLocaleString()}</span>
-                    <span className="bg-blue-500/10 text-blue-600 dark:text-blue-400 font-bold px-4 py-2 rounded-xl text-sm flex items-center gap-2"><Zap size={16} />{selectedJob.category || 'Any'}</span>
-                    <span className="bg-gray-100 dark:bg-white/5 text-gray-700 dark:text-gray-300 font-bold px-4 py-2 rounded-xl text-sm flex items-center gap-2"><MapPin size={16} />Remote</span>
+          <button className="flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#14a800] text-[#14a800] text-sm font-medium hover:bg-[#14a800]/10 transition-colors">
+            <Filter size={16} />
+            Filters
+          </button>
+        </div>
+
+        <div className="mb-8">
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            Browse jobs that match your experience to a client's hiring preferences. Ordered by most relevant.
+          </p>
+        </div>
+
+        {/* List */}
+        {isLoading ? (
+          <div className="flex flex-col items-center py-32">
+            <Loader2 size={40} className="text-[#14a800] animate-spin mb-4" />
+            <p className="text-sm font-bold text-gray-500">Loading opportunities...</p>
+          </div>
+        ) : displayOpportunities.length === 0 ? (
+          <div className="text-center py-32">
+            <Briefcase size={48} className="text-[#9A9FA5] mx-auto mb-4" />
+            <p className="text-sm font-bold text-[#1A1D1F] dark:text-white">
+              {activeTab === 'Bookmarked Campaigns' ? 'No bookmarked campaigns found' : 'No opportunities found'}
+            </p>
+            <p className="text-xs text-gray-500">
+              {activeTab === 'Bookmarked Campaigns' ? 'Campaigns you bookmark will appear here.' : 'Try adjusting your search or filters.'}
+            </p>
+          </div>
+        ) : (
+          <div className="flex flex-col">
+            {displayOpportunities.map((opp: any, idx: number) => {
+              const tags = [
+                ...(opp.deliverables || []),
+                ...(opp.platforms || []),
+                opp.category
+              ].filter(Boolean);
+
+              const applicantCount = Array.isArray(opp.applicants) ? opp.applicants.length : 0;
+              const proposalText = applicantCount < 5 ? "Less than 5" : applicantCount.toString();
+              const budgetAmount = typeof opp.budget === 'object' ? (opp.budget.amount || 0) : (opp.budget || 0);
+              const paymentType = opp.paymentType || 'Fixed-price';
+              const expLevel = opp.experienceLevel || 'Expert';
+              const locationText = opp.location || opp.requirements?.location || "Global";
+
+              return (
+                <motion.div
+                  key={opp._id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: idx * 0.05 }}
+                  className="py-8 border-b border-gray-200 dark:border-gray-700/50 group"
+                >
+                  <div className="flex items-center gap-3 text-xs font-medium text-gray-500 dark:text-gray-400 mb-4">
+                    <span className="font-bold">
+                      Posted {formatTimeAgo(opp.createdAt)}
+                    </span>
+                    <span className="w-1 h-1 bg-gray-400 rounded-full"></span>
+                    <span className="font-bold">
+                      Proposals: {proposalText}
+                    </span>
                   </div>
 
-                  <div className="space-y-6 text-gray-600 dark:text-gray-300 text-sm leading-relaxed mb-8">
-                    <div>
-                      <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">Campaign Overview</h3>
-                      <p>{selectedJob.description}</p>
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">Requirements</h3>
-                      <ul className="space-y-2">
-                        {selectedJob.requirements && selectedJob.requirements.length > 0 ? (
-                          selectedJob.requirements.map((req: string, idx: number) => (
-                            <li key={idx} className="flex items-center gap-2">
-                              <CheckCircle2 className="text-emerald-500 shrink-0" size={16} /> {req}
-                            </li>
-                          ))
-                        ) : (
-                          <>
-                            <li className="flex items-center gap-2"><CheckCircle2 className="text-emerald-500 shrink-0" size={16} /> High engagement rate</li>
-                            <li className="flex items-center gap-2"><CheckCircle2 className="text-emerald-500 shrink-0" size={16} /> Content alignment</li>
-                          </>
+                  <div className="flex justify-between items-start mb-2">
+                    <Link to={`/advertiser/matches/${opp._id}/apply`}>
+                      <h3 className="text-xl font-semibold text-[#1A1D1F] dark:text-white hover:text-[#14a800] dark:hover:text-[#14a800] cursor-pointer transition-colors line-clamp-2">
+                        {opp.title}
+                      </h3>
+                    </Link>
+                    <div className="flex gap-2 ml-4 shrink-0">
+                      <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-white/10 text-gray-400 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">
+                        <ThumbsDown size={20} />
+                      </button>
+                      <button 
+                        onClick={(e) => handleToggleSave(e, opp._id)}
+                        className={cn(
+                          "p-2 rounded-full transition-colors",
+                          isJobSaved(opp._id)
+                            ? "bg-red-50 dark:bg-red-500/10 text-red-500 hover:bg-red-100 dark:hover:bg-red-500/20"
+                            : "hover:bg-gray-100 dark:hover:bg-white/10 text-gray-400 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
                         )}
-                      </ul>
+                      >
+                        <Heart size={20} className={isJobSaved(opp._id) ? "fill-current" : ""} />
+                      </button>
                     </div>
                   </div>
 
-                  <div className="flex gap-4 pt-6 border-t border-gray-100 dark:border-white/10">
-                    <button
-                      onClick={(e) => !isApplied(selectedJob) && handleApply(e, selectedJob)}
-                      disabled={isApplied(selectedJob)}
-                      className={cn(
-                        "flex-1 py-4 rounded-2xl font-bold text-lg transition-all shadow-lg flex items-center justify-center gap-2",
-                        isApplied(selectedJob)
-                          ? "bg-gray-100 dark:bg-white/5 text-gray-400 cursor-not-allowed shadow-none"
-                          : "bg-emerald-500 text-black hover:bg-emerald-400 shadow-emerald-500/20"
-                      )}
-                    >
-                      {isApplied(selectedJob) ? 'Already Applied' : 'Apply for Campaign'}
-                      {!isApplied(selectedJob) && <ArrowRight size={20} />}
-                      {isApplied(selectedJob) && <CheckCircle2 size={20} />}
-                    </button>
+                  <div className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-4">
+                    {paymentType} - {expLevel} - Est. Budget: ${budgetAmount.toLocaleString()}
                   </div>
-                </div>
-              </motion.div>
-            </div>
-          )}
-        </AnimatePresence>
 
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-1">New Opportunities</h1>
-            <p className="text-gray-500 dark:text-gray-400 text-sm">Our AI has matched you with these high-synergy brand opportunities.</p>
-          </div>
-          <div className="flex gap-3">
-            <button className="bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-500 px-6 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-emerald-100 dark:hover:bg-emerald-500/20 transition-all">
-              <Sparkles size={18} />
-              Refine My Profile
-            </button>
-          </div>
-        </div>
-
-        {/* Filters & Search */}
-        <div className="bg-white dark:bg-white/5 p-4 rounded-2xl border border-gray-100 dark:border-white/5 shadow-sm dark:shadow-none mb-8 flex flex-col sm:flex-row gap-4 justify-between">
-          <div className="relative flex-1">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 w-4 h-4" />
-            <input
-              type="text"
-              placeholder="Search brands or campaigns..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 rounded-xl border border-gray-100 dark:border-white/10 bg-white dark:bg-white/5 focus:border-emerald-500 dark:focus:border-emerald-500 outline-none text-sm dark:text-white"
-            />
-          </div>
-          <div className="flex gap-3">
-            <select
-              value={selectedBudgetRange}
-              onChange={(e) => setSelectedBudgetRange(e.target.value)}
-              className="px-4 py-2 rounded-xl border border-gray-100 dark:border-white/10 text-sm font-medium text-gray-600 dark:text-gray-400 outline-none bg-white dark:bg-white/5"
-            >
-              <option>All Budgets</option>
-              <option>Under $1,000</option>
-              <option>$1,000 - $3,000</option>
-              <option>$3,000 - $5,000</option>
-              <option>Over $5,000</option>
-            </select>
-            <select
-              value={selectedPlatform}
-              onChange={(e) => setSelectedPlatform(e.target.value)}
-              className="px-4 py-2 rounded-xl border border-gray-100 dark:border-white/10 text-sm font-medium text-gray-600 dark:text-gray-400 outline-none bg-white dark:bg-white/5"
-            >
-              <option>All Platforms</option>
-              <option>TikTok</option>
-              <option>Instagram</option>
-              <option>YouTube</option>
-            </select>
-          </div>
-        </div>
-
-        {/* Matches Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {isLoading ? (
-            <div className="col-span-full py-20 text-center">
-              <Loader2 size={48} className="animate-spin text-emerald-500 mx-auto mb-4" />
-              <p className="text-gray-500 font-bold">Finding best matches...</p>
-            </div>
-          ) : filteredOpportunities.length > 0 ? (
-            filteredOpportunities.map((o: any) => (
-              <motion.div
-                key={o._id}
-                whileHover={{ y: -5 }}
-                onClick={() => setSelectedJob(o)}
-                className="bg-white dark:bg-white/5 rounded-[2.5rem] border border-gray-100 dark:border-white/5 shadow-sm dark:shadow-none overflow-hidden group cursor-pointer"
-              >
-                <div className="h-48 relative">
-                  <div className="w-full h-full bg-gray-200 dark:bg-white/5 flex items-center justify-center text-gray-400">
-                    <Building2 size={48} />
+                  <div className="text-sm text-gray-700 dark:text-gray-300 mb-6 relative leading-relaxed">
+                    <span className="line-clamp-3 md:line-clamp-4">
+                      {opp.description}
+                    </span>
+                    <Link to={`/advertiser/matches/${opp._id}/apply`} className="text-[#14a800] hover:underline font-medium inline-block mt-1">
+                      more
+                    </Link>
                   </div>
-                  <div className="absolute top-4 right-4 bg-emerald-500/90 backdrop-blur-md text-black text-[10px] font-bold px-3 py-1.5 rounded-full uppercase tracking-widest shadow-lg flex items-center gap-1">
-                    <Sparkles size={10} />
-                    {o.score}% Match
+
+                  <div className="flex flex-wrap gap-2 mb-6">
+                    {tags.map((tag: string, i: number) => (
+                      <span key={i} className="px-3 py-1.5 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-xs font-medium rounded-full">
+                        {tag}
+                      </span>
+                    ))}
                   </div>
-                </div>
-                <div className="p-8">
-                  <div className="flex justify-between items-start mb-6">
-                    <div>
-                      <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-1 line-clamp-1">{o.owner?.firstName || 'Business'}</h3>
-                      <p className="text-xs text-emerald-600 dark:text-emerald-500 font-bold uppercase tracking-widest line-clamp-1">{o.title}</p>
+
+                  <div className="flex flex-wrap items-center gap-y-2 gap-x-6 text-sm font-medium text-gray-600 dark:text-gray-400">
+                    <div className="flex items-center gap-1.5">
+                      <CheckCircle size={16} className="text-blue-500 fill-blue-500/20" />
+                      <span className="text-gray-900 dark:text-white">Payment verified</span>
                     </div>
-                    <div className="flex items-center gap-1 text-amber-400">
-                      <Star size={14} fill="currentColor" />
-                      <span className="text-xs font-bold text-gray-900 dark:text-white">4.9</span>
-                    </div>
-                  </div>
 
-                  <div className="space-y-4 mb-8">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 bg-emerald-50 dark:bg-emerald-500/10 rounded-lg flex items-center justify-center text-emerald-600 dark:text-emerald-500">
-                        <DollarSign size={16} />
-                      </div>
-                      <div>
-                        <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Budget</p>
-                        <p className="text-sm font-bold text-gray-900 dark:text-white">${(typeof o.budget === 'object' ? o.budget.amount : (o.budget || 0)).toLocaleString()}</p>
+                    <div className="flex items-center gap-1">
+                      <div className="flex text-yellow-500 gap-0.5">
+                        {[...Array(5)].map((_, i) => (
+                          <Star key={i} size={14} className="fill-yellow-500" />
+                        ))}
                       </div>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 bg-blue-50 dark:bg-blue-500/10 rounded-lg flex items-center justify-center text-blue-600 dark:text-blue-400">
-                        <Zap size={16} />
-                      </div>
-                      <div>
-                        <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Platform</p>
-                        <p className="text-sm font-bold text-gray-900 dark:text-white">{o.category || 'Any'}</p>
-                      </div>
+
+                    <div>$40K+ spent</div>
+
+                    <div className="flex items-center gap-1.5">
+                      <MapPin size={16} />
+                      <span>{locationText}</span>
                     </div>
                   </div>
-
-                  <div className="flex gap-3">
-                    <button
-                      onClick={(e) => !isApplied(o) && handleApply(e, o)}
-                      disabled={isApplied(o)}
-                      className={cn(
-                        "flex-1 py-4 rounded-2xl font-bold text-sm transition-all shadow-lg flex items-center justify-center gap-2",
-                        isApplied(o)
-                          ? "bg-gray-100 dark:bg-white/5 text-gray-400 cursor-not-allowed shadow-none"
-                          : "bg-emerald-500 text-black hover:bg-emerald-400 shadow-emerald-100 dark:shadow-none"
-                      )}
-                    >
-                      {isApplied(o) ? 'Applied' : 'Apply Now'}
-                      {!isApplied(o) && <ArrowRight size={18} />}
-                      {isApplied(o) && <CheckCircle2 size={18} />}
-                    </button>
-                  </div>
-                </div>
-              </motion.div>
-            ))
-          ) : (
-            <div className="col-span-full py-20 text-center">
-              <div className="w-16 h-16 bg-gray-50 dark:bg-white/5 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <Search className="text-gray-400 dark:text-gray-500 w-8 h-8" />
-              </div>
-              <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">No matches found</h3>
-              <p className="text-gray-500 dark:text-gray-400 text-sm">Try adjusting your filters or search query.</p>
-            </div>
-          )}
-        </div>
-      </main>
+                </motion.div>
+              );
+            })}
+          </div>
+        )}
+      </div>
     </AdvertiserLayout>
   );
 }

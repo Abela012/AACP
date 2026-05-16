@@ -21,7 +21,8 @@ import {
   Clock,
   ArrowRight,
   MapPin,
-  X
+  X,
+  Heart
 } from 'lucide-react';
 import OnboardingBanner from '../../../shared/components/OnboardingBanner';
 import { cn } from '@/src/shared/utils/cn';
@@ -33,6 +34,7 @@ import { useUserSync } from '@/src/hooks/useUserSync';
 import { useMyApplications } from '@/src/hooks/useApplications';
 import { useWalletBalance } from '@/src/hooks/useWallet';
 import { useOpportunities } from '@/src/hooks/useOpportunities';
+import { useSavedOpportunities, useToggleSaveOpportunity } from '@/src/hooks/useSavedOpportunities';
 
 export default function AdvertiserDashboardPage() {
   const navigate = useNavigate();
@@ -48,6 +50,22 @@ export default function AdvertiserDashboardPage() {
   const { data: appsData, isLoading: isLoadingApps } = useMyApplications(myId);
   const { data: walletData, isLoading: isLoadingWallet } = useWalletBalance();
   const { data: oppsData, isLoading: isLoadingOpps } = useOpportunities();
+  const { data: savedJobs = [] } = useSavedOpportunities();
+  const toggleSave = useToggleSaveOpportunity();
+
+  const isJobSaved = (jobId: string) => {
+    if (!jobId || !savedJobs) return false;
+    return savedJobs.some((j: any) => {
+      const id = typeof j === 'string' ? j : (j._id || j.id);
+      return id?.toString() === jobId.toString();
+    });
+  };
+
+  const handleToggleSave = (e: React.MouseEvent, jobId: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toggleSave.mutate(jobId);
+  };
 
   const applications = appsData?.applications ?? [];
   const activeCount = applications.filter((a: any) => a.status === 'accepted').length;
@@ -158,78 +176,120 @@ export default function AdvertiserDashboardPage() {
                 </div>
               )}
 
-              <div className={cn("grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8", !isApproved && "opacity-50 pointer-events-none")}>
+              <div className={cn("flex flex-col", !isApproved && "opacity-50 pointer-events-none")}>
                 {isLoadingOpps ? (
-                  <div className="col-span-full py-20 text-center">
-                    <Loader2 size={48} className="animate-spin text-emerald-500 mx-auto mb-4" />
-                    <p className="text-gray-500 font-bold">Fetching opportunities...</p>
+                  <div className="flex flex-col items-center py-20">
+                    <Loader2 size={40} className="text-emerald-500 animate-spin mb-4" />
+                    <p className="text-sm font-bold text-gray-500">Fetching opportunities...</p>
                   </div>
                 ) : opportunities.length > 0 ? (
-                  opportunities.slice(0, 6).map((o: any) => (
-                    <motion.div
-                      key={o._id}
-                      whileHover={{ y: -5 }}
-                      onClick={() => navigate(`/advertiser/matches`)}
-                      className="bg-white dark:bg-white/5 rounded-[2.5rem] border border-gray-100 dark:border-white/5 shadow-sm dark:shadow-none overflow-hidden group cursor-pointer"
-                    >
-                      <div className="h-48 relative">
-                        {o.businessOwner?.profilePicture ? (
-                          <img
-                            src={o.businessOwner.profilePicture}
-                            alt={o.businessOwner.fullName}
-                            className="w-full h-full object-cover transition-transform group-hover:scale-110 duration-700"
-                          />
-                        ) : (
-                          <div className="w-full h-full bg-gray-200 dark:bg-white/5 flex items-center justify-center text-gray-400">
-                            <Building2 size={48} />
-                          </div>
-                        )}
-                        <div className="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent opacity-60"></div>
-                        <div className="absolute top-4 right-4 bg-emerald-500/90 backdrop-blur-md text-black text-[10px] font-bold px-3 py-1.5 rounded-full uppercase tracking-widest shadow-lg">
-                          {o.category || 'Campaign'}
-                        </div>
-                      </div>
-                      <div className="p-8">
-                        <div className="flex justify-between items-start mb-6">
-                          <div>
-                            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-1 line-clamp-1">{o.businessOwner?.fullName || 'Brand'}</h3>
-                            <p className="text-xs text-emerald-600 dark:text-emerald-500 font-bold uppercase tracking-widest line-clamp-1">{o.title}</p>
-                          </div>
+                  opportunities.slice(0, 6).map((opp: any, idx: number) => {
+                    const tags = [
+                      ...(opp.deliverables || []),
+                      ...(opp.platforms || []),
+                      opp.category
+                    ].filter(Boolean);
+
+                    const applicantCount = Array.isArray(opp.applicants) ? opp.applicants.length : 0;
+                    const proposalText = applicantCount < 5 ? "Less than 5" : applicantCount.toString();
+                    const budgetAmount = typeof opp.budget === 'object' ? (opp.budget.amount || 0) : (opp.budget || 0);
+                    const paymentType = opp.paymentType || 'Fixed-price';
+                    const expLevel = opp.experienceLevel || 'Expert';
+                    const locationText = opp.location || opp.requirements?.location || "Global";
+                    
+                    const timeAgo = opp.createdAt ? (() => {
+                      const diff = Math.floor((new Date().getTime() - new Date(opp.createdAt).getTime()) / 1000);
+                      if (diff < 60) return 'Just now';
+                      if (diff < 3600) return `${Math.floor(diff / 60)} minutes ago`;
+                      if (diff < 86400) return `${Math.floor(diff / 3600)} hours ago`;
+                      return `${Math.floor(diff / 86400)} days ago`;
+                    })() : 'Just now';
+
+                    return (
+                      <motion.div
+                        key={opp._id}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: idx * 0.05 }}
+                        className="py-8 border-b border-gray-200 dark:border-gray-700/50 group"
+                      >
+                        <div className="flex items-center gap-3 text-xs font-medium text-gray-500 dark:text-gray-400 mb-4">
+                          <span className="font-bold">
+                            Posted {timeAgo}
+                          </span>
+                          <span className="w-1 h-1 bg-gray-400 rounded-full"></span>
+                          <span className="font-bold">
+                            Proposals: {proposalText}
+                          </span>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-4 mb-8">
-                          <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 bg-emerald-50 dark:bg-emerald-500/10 rounded-lg flex items-center justify-center text-emerald-600 dark:text-emerald-500">
-                              <DollarSign size={16} />
-                            </div>
-                            <div>
-                              <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Budget</p>
-                              <p className="text-sm font-bold text-gray-900 dark:text-white">
-                                ${(typeof o.budget === 'object' ? (o.budget.amount || 0) : (o.budget || 0)).toLocaleString()}
-                              </p>
-                            </div>
+                        <div className="flex justify-between items-start mb-2">
+                          <div 
+                            onClick={() => navigate(`/advertiser/matches/${opp._id}/apply`)}
+                            className="cursor-pointer flex-1"
+                          >
+                            <h3 className="text-xl font-semibold text-[#1A1D1F] dark:text-white hover:text-emerald-500 dark:hover:text-emerald-500 transition-colors line-clamp-2">
+                              {opp.title}
+                            </h3>
                           </div>
-                          <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 bg-blue-50 dark:bg-blue-500/10 rounded-lg flex items-center justify-center text-blue-600 dark:text-blue-400">
-                              <Clock size={16} />
-                            </div>
-                            <div>
-                              <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Deadline</p>
-                              <p className="text-sm font-bold text-gray-900 dark:text-white">
-                                {o.deadline ? new Date(o.deadline).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : 'Flexible'}
-                              </p>
-                            </div>
-                          </div>
+                          <button 
+                            onClick={(e) => handleToggleSave(e, opp._id)}
+                            className={cn(
+                              "p-2 rounded-full transition-colors shrink-0",
+                              isJobSaved(opp._id)
+                                ? "bg-red-50 dark:bg-red-500/10 text-red-500"
+                                : "hover:bg-gray-100 dark:hover:bg-white/10 text-gray-400"
+                            )}
+                          >
+                            <Heart size={20} className={isJobSaved(opp._id) ? "fill-current" : ""} />
+                          </button>
                         </div>
 
-                        <button
-                          className="w-full py-4 rounded-2xl bg-emerald-500 text-black hover:bg-emerald-400 font-bold text-sm transition-all shadow-lg shadow-emerald-500/10 flex items-center justify-center gap-2"
-                        >
-                          View Details <ArrowRight size={18} />
-                        </button>
-                      </div>
-                    </motion.div>
-                  ))
+                        <div className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-4">
+                          {paymentType} - {expLevel} - Est. Budget: ${budgetAmount.toLocaleString()}
+                        </div>
+
+                        <div className="text-sm text-gray-700 dark:text-gray-300 mb-6 relative leading-relaxed">
+                          <span className="line-clamp-3 md:line-clamp-4">
+                            {opp.description}
+                          </span>
+                          <button onClick={() => navigate(`/advertiser/matches/${opp._id}/apply`)} className="text-emerald-500 hover:underline font-medium inline-block mt-1">
+                            more
+                          </button>
+                        </div>
+
+                        <div className="flex flex-wrap gap-2 mb-6">
+                          {tags.map((tag: string, i: number) => (
+                            <span key={i} className="px-3 py-1.5 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-xs font-medium rounded-full">
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+
+                        <div className="flex flex-wrap items-center gap-y-2 gap-x-6 text-sm font-medium text-gray-600 dark:text-gray-400">
+                          <div className="flex items-center gap-1.5">
+                            <ShieldCheck size={16} className="text-blue-500 fill-blue-500/20" />
+                            <span className="text-gray-900 dark:text-white">Payment verified</span>
+                          </div>
+
+                          <div className="flex items-center gap-1">
+                            <div className="flex text-yellow-500 gap-0.5">
+                              {[...Array(5)].map((_, i) => (
+                                <Star key={i} size={14} className="fill-yellow-500" />
+                              ))}
+                            </div>
+                          </div>
+
+                          <div>$40K+ spent</div>
+
+                          <div className="flex items-center gap-1.5">
+                            <MapPin size={16} />
+                            <span>{locationText}</span>
+                          </div>
+                        </div>
+                      </motion.div>
+                    );
+                  })
                 ) : (
                   <div className="col-span-full py-20 text-center">
                     <div className="w-16 h-16 bg-gray-50 dark:bg-white/5 rounded-2xl flex items-center justify-center mx-auto mb-4">

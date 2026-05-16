@@ -122,6 +122,7 @@ export const updateUserProfile = async (
     "location",
     "tradeLicenseUrl",
     "idVerificationUrl",
+    "socialProfiles",
     "profileData"
   ];
 
@@ -228,6 +229,7 @@ export const submitProfileForReview = async (
     "location",
     "tradeLicenseUrl",
     "idVerificationUrl",
+    "socialProfiles",
     "profileData",
   ];
 
@@ -295,8 +297,7 @@ export const submitProfileForReview = async (
           ...updates.profileData,
         };
         delete updates.profileData;
-      }
-      user.set(updates);
+      }      user.set(updates);
     }
 
     user.set(updates);
@@ -456,5 +457,148 @@ export const syncUser = async (req: Request, res: Response): Promise<void> => {
     res
       .status(500)
       .json({ message: "Failed to sync user", error: error.message });
+  }
+};
+
+export const toggleSavedOpportunity = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const { userId } = getAuth(req);
+    const { opportunityId } = req.body;
+
+    if (!userId) {
+      res.status(401).json({ message: "Unauthorized" });
+      return;
+    }
+
+    if (!opportunityId) {
+      res.status(400).json({ message: "Opportunity ID is required" });
+      return;
+    }
+
+    const user = await User.findOne({ clerkId: userId });
+
+    if (!user) {
+      res.status(404).json({ message: "User not found" });
+      return;
+    }
+
+    const isSaved = user.savedOpportunities.some(id => id.toString() === opportunityId.toString());
+
+    if (isSaved) {
+      // Unsave
+      user.savedOpportunities = user.savedOpportunities.filter(
+        (id) => id.toString() !== opportunityId.toString()
+      );
+    } else {
+      // Save
+      user.savedOpportunities.push(opportunityId);
+    }
+
+    await user.save();
+
+    res.status(200).json({
+      message: isSaved ? "Opportunity removed from saved" : "Opportunity saved successfully",
+      isSaved: !isSaved,
+      savedOpportunities: user.savedOpportunities
+    });
+  } catch (error: any) {
+    console.error("Toggle saved opportunity error:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export const getSavedOpportunities = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const { userId } = getAuth(req);
+
+    if (!userId) {
+      res.status(401).json({ message: "Unauthorized" });
+      return;
+    }
+
+    const user = await User.findOne({ clerkId: userId }).populate('savedOpportunities');
+
+    if (!user) {
+      res.status(404).json({ message: "User not found" });
+      return;
+    }
+
+    res.status(200).json({
+      savedOpportunities: user.savedOpportunities
+    });
+  } catch (error: any) {
+    console.error("Get saved opportunities error:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export const toggleSavedCreator = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const { userId } = getAuth(req);
+    const { creatorId } = req.body;
+
+    if (!userId || !creatorId) {
+      res.status(400).json({ message: "User ID and Creator ID are required" });
+      return;
+    }
+
+    const user = await User.findOne({ clerkId: userId });
+    if (!user) {
+      res.status(404).json({ message: "User not found" });
+      return;
+    }
+
+    const isSaved = user.savedCreators.some(id => id.toString() === creatorId.toString());
+
+    if (isSaved) {
+      user.savedCreators = user.savedCreators.filter(id => id.toString() !== creatorId.toString());
+    } else {
+      user.savedCreators.push(creatorId);
+    }
+
+    await user.save();
+    res.status(200).json({
+      message: isSaved ? "Creator removed from bookmarks" : "Creator bookmarked successfully",
+      isSaved: !isSaved,
+      savedCreators: user.savedCreators
+    });
+  } catch (error: any) {
+    console.error("Toggle saved creator error:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export const getSavedCreators = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const { userId } = getAuth(req);
+    if (!userId) {
+      res.status(401).json({ message: "Unauthorized" });
+      return;
+    }
+
+    const user = await User.findOne({ clerkId: userId }).populate('savedCreators');
+    if (!user) {
+      res.status(404).json({ message: "User not found" });
+      return;
+    }
+
+    res.status(200).json({
+      savedCreators: user.savedCreators
+    });
+  } catch (error: any) {
+    console.error("Get saved creators error:", error);
+    res.status(500).json({ message: "Internal server error" });
   }
 };
