@@ -16,15 +16,20 @@ import {
   Users,
   ShieldCheck,
   ExternalLink,
-  Target
+  Target,
+  Loader2,
+  Heart,
+  AlertCircle
 } from 'lucide-react';
 import { cn } from '@/src/shared/utils/cn';
 import BusinessLayout from '@/src/shared/components/layouts/BusinessLayout';
 import { useRecommendations } from '@/src/hooks/useRecommendations';
 import { useQueryClient } from '@tanstack/react-query';
-import { Loader2 } from 'lucide-react';
 import { usePredictiveAnalysis } from '@/src/hooks/useMarketingAnalysis';
 import PredictiveAnalysisDashboard from '@/src/shared/components/analysis/PredictiveAnalysisDashboard';
+import { useSavedCreators, useToggleSaveCreator } from '@/src/hooks/useSavedCreators';
+
+const TABS = ['Recommended Creators', 'Recently Joined', 'Creator Feed', 'Bookmarked Creators'];
 
 export default function MatchesPage() {
   const navigate = useNavigate();
@@ -33,14 +38,32 @@ export default function MatchesPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCreator, setSelectedCreator] = useState<any | null>(null);
   const [isSyncing, setIsSyncing] = useState(false);
+  const [activeTab, setActiveTab] = useState('Recommended Creators');
 
   const { data: recoData, isLoading } = useRecommendations();
   const recommendations = (recoData as any)?.recommendations || [];
+
+  const { data: bookmarkedCreators = [], isLoading: isLoadingBookmarks } = useSavedCreators();
+  const toggleBookmark = useToggleSaveCreator();
 
   // Predictive Analysis Hook (must be top-level)
   const { data: predictionData, isLoading: isLoadingPrediction } = usePredictiveAnalysis(
     selectedCreator?.targetId || null
   );
+
+  const isCreatorBookmarked = (creatorId: string) => {
+    if (!creatorId || !bookmarkedCreators) return false;
+    return bookmarkedCreators.some((c: any) => {
+      const id = typeof c === 'string' ? c : (c._id || c.targetId || c.id);
+      return id?.toString() === creatorId.toString();
+    });
+  };
+
+  const handleToggleBookmark = (e: React.MouseEvent, creatorId: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toggleBookmark.mutate(creatorId);
+  };
 
   const handleSync = async () => {
     setIsSyncing(true);
@@ -60,11 +83,21 @@ export default function MatchesPage() {
     return matchesNiche && matchesSearch;
   });
 
+  const displayCreators = (() => {
+    if (activeTab === 'Bookmarked Creators') return bookmarkedCreators;
+    if (activeTab === 'Recently Joined') {
+      return [...filteredCreators].sort((a, b) => new Date(b.meta?.createdAt || 0).getTime() - new Date(a.meta?.createdAt || 0).getTime());
+    }
+    if (activeTab === 'Creator Feed') {
+       // Just a shuffle or alternative sort for 'Feed'
+       return [...filteredCreators].reverse();
+    }
+    return filteredCreators;
+  })();
+
   return (
     <BusinessLayout>
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 relative">
-
-        {/* Modal Overlay for Creator Details */}
         <AnimatePresence>
           {selectedCreator && (
             <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -122,7 +155,6 @@ export default function MatchesPage() {
                       <p>{selectedCreator.meta?.bio || "A passionate content creator focused on delivering high-quality visual stories and engaging community experiences."}</p>
                     </div>
 
-                    {/* AI Match Insight & Premium Predictive Dashboard */}
                     <div className="bg-white dark:bg-white/2 rounded-[2.5rem] border border-gray-100 dark:border-white/5 overflow-hidden shadow-sm">
                       <div className="p-1 bg-linear-to-r from-emerald-500 to-blue-500">
                         <div className="bg-white dark:bg-[#1a1a1a] rounded-[2.3rem] p-6">
@@ -195,19 +227,32 @@ export default function MatchesPage() {
             <h1 className="text-3xl font-black text-gray-900 dark:text-white mb-1">Discover Creators</h1>
             <p className="text-gray-500 dark:text-gray-400 text-sm font-medium">Our AI has identified the best creators for your brand's unique niche.</p>
           </div>
-          <div className="flex gap-3">
-            <button
-              onClick={handleSync}
-              disabled={isSyncing}
-              className="bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-500 px-6 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-emerald-100 dark:hover:bg-emerald-500/20 transition-all border border-emerald-100 dark:border-emerald-500/20 disabled:opacity-50"
-            >
-              <Sparkles size={18} className={isSyncing ? "animate-spin" : ""} />
-              {isSyncing ? 'Syncing...' : 'Refine AI'}
-            </button>
-          </div>
         </div>
 
-        {/* Filters & Search */}
+        <div className="flex justify-between items-start border-b border-gray-200 dark:border-gray-700/50 mb-6">
+          <div className="flex gap-6 overflow-x-auto">
+            {TABS.map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={cn(
+                  "pb-3 font-semibold whitespace-nowrap transition-colors border-b-2",
+                  activeTab === tab
+                    ? 'text-gray-900 dark:text-white border-gray-900 dark:border-white'
+                    : 'text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white border-transparent'
+                )}
+              >
+                {tab === 'Bookmarked Creators' ? `${tab} (${bookmarkedCreators.length})` : tab}
+              </button>
+            ))}
+          </div>
+
+          <button className="flex items-center gap-2 px-4 py-1.5 rounded-full border border-emerald-500 text-emerald-600 dark:text-emerald-500 text-sm font-medium hover:bg-emerald-500/10 transition-colors">
+            <Filter size={16} />
+            Filters
+          </button>
+        </div>
+
         <div className="bg-white dark:bg-white/5 p-4 rounded-2xl border border-gray-100 dark:border-white/5 shadow-sm dark:shadow-none mb-8 flex flex-col sm:flex-row gap-4 justify-between">
           <div className="relative flex-1">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 w-4 h-4" />
@@ -235,39 +280,49 @@ export default function MatchesPage() {
           </div>
         </div>
 
-        {/* Matches Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {isLoading ? (
             <div className="col-span-full py-24 text-center">
               <Loader2 size={48} className="animate-spin text-emerald-500 mx-auto mb-4" />
               <p className="text-gray-500 font-black uppercase tracking-widest text-xs">Finding best matches...</p>
             </div>
-          ) : filteredCreators.length > 0 ? (
-            filteredCreators.map((c: any) => (
+          ) : displayCreators.length > 0 ? (
+            displayCreators.map((c: any) => (
               <motion.div
-                key={c.targetId}
+                key={c.targetId || c._id}
                 whileHover={{ y: -5 }}
                 onClick={() => setSelectedCreator(c)}
                 className="bg-white dark:bg-[#0d0d0d] rounded-[2.5rem] border border-gray-100 dark:border-white/5 shadow-sm hover:shadow-2xl transition-all overflow-hidden group cursor-pointer"
               >
                 <div className="h-48 relative">
                   <img
-                    src={c.meta?.profilePicture || `https://ui-avatars.com/api/?name=${c.name}&background=10b981&color=fff`}
-                    alt={c.name}
+                    src={c.meta?.profilePicture || c.profilePicture || `https://ui-avatars.com/api/?name=${c.name || c.firstName}&background=10b981&color=fff`}
+                    alt={c.name || c.firstName}
                     className="w-full h-full object-cover transition-transform group-hover:scale-110 duration-700"
                   />
                   <div className="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent opacity-60"></div>
                   <div className="absolute top-4 right-4 bg-emerald-500 text-black text-[10px] font-black px-3 py-1.5 rounded-full uppercase tracking-widest shadow-lg flex items-center gap-1">
                     <Sparkles size={10} />
-                    {c.score}% Match
+                    {c.score || '95'}% Match
                   </div>
+                  <button 
+                    onClick={(e) => handleToggleBookmark(e, c.targetId || c._id)}
+                    className={cn(
+                      "absolute bottom-4 right-4 p-2 rounded-full backdrop-blur-md transition-all shadow-lg z-20",
+                      isCreatorBookmarked(c.targetId || c._id)
+                        ? "bg-red-500 text-white"
+                        : "bg-white/10 text-white hover:bg-white/20"
+                    )}
+                  >
+                    <Heart size={18} className={isCreatorBookmarked(c.targetId || c._id) ? "fill-current" : ""} />
+                  </button>
                 </div>
                 <div className="p-8">
                   <div className="flex justify-between items-start mb-6">
                     <div>
-                      <h3 className="text-xl font-black text-gray-900 dark:text-white mb-1 line-clamp-1">{c.name}</h3>
+                      <h3 className="text-xl font-black text-gray-900 dark:text-white mb-1 line-clamp-1">{c.name || `${c.firstName} ${c.lastName}`}</h3>
                       <div className="flex gap-1 overflow-hidden">
-                        {(c.meta?.niches || [c.category]).slice(0, 2).map((n: string) => (
+                        {(c.meta?.niches || c.profileData?.niches || [c.category]).slice(0, 2).map((n: string) => (
                           <span key={n} className="text-[9px] text-emerald-600 dark:text-emerald-500 font-black uppercase tracking-widest bg-emerald-50 dark:bg-emerald-500/10 px-1.5 py-0.5 rounded-md whitespace-nowrap">
                             {n}
                           </span>
@@ -277,7 +332,7 @@ export default function MatchesPage() {
                     <div className="flex items-center gap-1 text-amber-400">
                       <Star size={14} fill="currentColor" />
                       <span className="text-xs font-black text-gray-900 dark:text-white">
-                        {c.meta?.averageRating > 0 ? c.meta.averageRating.toFixed(1) : 'New'}
+                        {c.meta?.averageRating > 0 ? c.meta.averageRating.toFixed(1) : c.averageRating > 0 ? c.averageRating.toFixed(1) : 'New'}
                       </span>
                     </div>
                   </div>
@@ -289,7 +344,7 @@ export default function MatchesPage() {
                       </div>
                       <div>
                         <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Reach</p>
-                        <p className="text-sm font-black text-gray-900 dark:text-white">{c.meta?.followers?.toLocaleString() || '10K+'}</p>
+                        <p className="text-sm font-black text-gray-900 dark:text-white">{(c.meta?.followers || c.profileData?.followers)?.toLocaleString() || '10K+'}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
@@ -298,7 +353,7 @@ export default function MatchesPage() {
                       </div>
                       <div>
                         <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Engagement</p>
-                        <p className={cn("text-sm font-black", (c.meta?.engagementRate || 0) > 20 ? "text-amber-600" : "text-gray-900 dark:text-white")}>{typeof c.meta?.engagementRate === 'number' ? Math.min(c.meta.engagementRate, 100).toFixed(1) : (c.meta?.engagementRate || '4.5')}%</p>
+                        <p className={cn("text-sm font-black", (c.meta?.engagementRate || 0) > 20 ? "text-amber-600" : "text-gray-900 dark:text-white")}>{typeof (c.meta?.engagementRate || c.profileData?.engagementRate) === 'number' ? Math.min((c.meta?.engagementRate || c.profileData?.engagementRate), 100).toFixed(1) : '4.5'}%</p>
                       </div>
                     </div>
                   </div>
@@ -312,7 +367,7 @@ export default function MatchesPage() {
                       <ArrowRight size={18} />
                     </button>
                     <button
-                      onClick={(e) => e.stopPropagation()}
+                      onClick={(e) => handleToggleBookmark(e, c.targetId || c._id)}
                       className="w-14 h-14 border border-gray-100 dark:border-white/10 rounded-2xl flex items-center justify-center text-gray-400 dark:text-gray-500 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-all"
                     >
                       <X size={20} />

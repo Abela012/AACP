@@ -161,8 +161,8 @@ export default function AdvertiserApplyMatchPage() {
 
       await applyMutation.mutateAsync({
         opportunity: id!,
-        coverLetter: formData.proposalMessage,
-        proposedPrice: formData.expectedSalary,
+        coverLetter: formData.coverLetter,
+        proposedPrice: Number(formData.expectedSalary) || 0,
         proposedTimeline: formData.availability,
         applicationData: {
           ...formData,
@@ -171,12 +171,12 @@ export default function AdvertiserApplyMatchPage() {
       });
       setIsSuccess(true);
     } catch (error: any) {
-      toast.error('Failed to submit application. Please try again.');
       console.error('Failed to apply:', error);
-      let msg = error?.response?.data?.message || error?.message || 'Failed to submit application.';
+      let msg = error?.response?.data?.message || error?.message || 'Failed to submit application. Please try again.';
       if (error?.response?.data?.errors && Array.isArray(error.response.data.errors) && error.response.data.errors.length > 0) {
         msg = error.response.data.errors[0].message;
       }
+      toast.error(msg);
       setSubmitError(msg);
     } finally {
       setIsUploading(false);

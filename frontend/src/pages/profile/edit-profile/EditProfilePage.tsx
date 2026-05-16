@@ -322,7 +322,7 @@ export default function EditProfilePage() {
       } else if (activeTab === 'company') {
         const profileData = {
           businessName,
-          website,
+          website: isBusiness ? website : portfolioUrl,
           industry,
           businessLocation,
           companySize,
@@ -669,69 +669,72 @@ export default function EditProfilePage() {
                   </h2>
                   
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
-                    {/* Basic Info */}
-                    <div className="space-y-2 sm:col-span-2">
-                      <label className={labelCls}>Business Name</label>
-                      <div className="relative">
-                        <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                        <input
-                          type="text"
-                          value={businessName}
-                          onChange={(e) => setBusinessName(e.target.value)}
-                          className={inputCls}
-                        />
-                      </div>
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <label className={labelCls}>Industry</label>
-                      <select
-                        value={industry}
-                        onChange={(e) => setIndustry(e.target.value)}
-                        className="w-full bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-500 transition-all text-gray-900 dark:text-white appearance-none"
-                      >
-                        {industriesList.map(ind => <option key={ind} value={ind}>{ind}</option>)}
-                      </select>
-                    </div>
+                    {isBusiness && (
+                      <>
+                        <div className="space-y-2 sm:col-span-2">
+                          <label className={labelCls}>Business Name</label>
+                          <div className="relative">
+                            <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                            <input
+                              type="text"
+                              value={businessName}
+                              onChange={(e) => setBusinessName(e.target.value)}
+                              className={inputCls}
+                            />
+                          </div>
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <label className={labelCls}>Industry</label>
+                          <select
+                            value={industry}
+                            onChange={(e) => setIndustry(e.target.value)}
+                            className="w-full bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-500 transition-all text-gray-900 dark:text-white appearance-none"
+                          >
+                            {industriesList.map(ind => <option key={ind} value={ind}>{ind}</option>)}
+                          </select>
+                        </div>
 
-                    <div className="space-y-2">
-                      <label className={labelCls}>Website URL</label>
-                      <div className="relative">
-                        <Globe className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                        <input
-                          type="url"
-                          value={website}
-                          onChange={(e) => setWebsite(e.target.value)}
-                          className={inputCls}
-                          placeholder="https://..."
-                        />
-                      </div>
-                    </div>
+                        <div className="space-y-2">
+                          <label className={labelCls}>Website URL</label>
+                          <div className="relative">
+                            <Globe className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                            <input
+                              type="url"
+                              value={website}
+                              onChange={(e) => setWebsite(e.target.value)}
+                              className={inputCls}
+                              placeholder="https://..."
+                            />
+                          </div>
+                        </div>
 
-                    <div className="space-y-2">
-                      <label className={labelCls}>Location</label>
-                      <div className="relative">
-                        <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                        <input
-                          type="text"
-                          value={businessLocation}
-                          onChange={(e) => setBusinessLocation(e.target.value)}
-                          className={inputCls}
-                          placeholder={profilePlaceholder(profile.businessLocation, 'City, Country')}
-                        />
-                      </div>
-                    </div>
+                        <div className="space-y-2">
+                          <label className={labelCls}>Location</label>
+                          <div className="relative">
+                            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                            <input
+                              type="text"
+                              value={businessLocation}
+                              onChange={(e) => setBusinessLocation(e.target.value)}
+                              className={inputCls}
+                              placeholder={profilePlaceholder(profile.businessLocation, 'City, Country')}
+                            />
+                          </div>
+                        </div>
 
-                    <div className="space-y-2">
-                      <label className={labelCls}>Company Size</label>
-                      <select
-                        value={companySize}
-                        onChange={(e) => setCompanySize(e.target.value)}
-                        className="w-full bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-500 transition-all text-gray-900 dark:text-white appearance-none"
-                      >
-                        {companySizes.map(cs => <option key={cs} value={cs}>{cs}</option>)}
-                      </select>
-                    </div>
+                        <div className="space-y-2">
+                          <label className={labelCls}>Company Size</label>
+                          <select
+                            value={companySize}
+                            onChange={(e) => setCompanySize(e.target.value)}
+                            className="w-full bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-500 transition-all text-gray-900 dark:text-white appearance-none"
+                          >
+                            {companySizes.map(cs => <option key={cs} value={cs}>{cs}</option>)}
+                          </select>
+                        </div>
+                      </>
+                    )}
 
                     {isBusiness ? (
                       <>
@@ -878,7 +881,7 @@ export default function EditProfilePage() {
                           />
                         </div>
                         <div className="space-y-2">
-                          <label className={labelCls}>Base Rate (USD)</label>
+                          <label className={labelCls}>Base Rate (ETB)</label>
                           <input
                             type="number"
                             value={baseRate}

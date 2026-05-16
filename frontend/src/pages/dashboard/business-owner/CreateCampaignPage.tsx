@@ -37,6 +37,9 @@ export default function CreateCampaignPage() {
   const [budgetAmount, setBudgetAmount] = useState('');
   const [minFollowers, setMinFollowers] = useState('');
   const [deadline, setDeadline] = useState('');
+  const [paymentType, setPaymentType] = useState<'Fixed-price' | 'Hourly'>('Fixed-price');
+  const [experienceLevel, setExperienceLevel] = useState<'Beginner' | 'Intermediate' | 'Expert'>('Expert');
+  const [locationReq, setLocationReq] = useState('Global');
   
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
   const [deliverables, setDeliverables] = useState<string[]>([]);
@@ -103,6 +106,8 @@ export default function CreateCampaignPage() {
         category: category === 'Other' ? customCategory.trim() : category,
         platforms: selectedPlatforms,
         deliverables,
+        paymentType,
+        experienceLevel,
         budget: {
           amount: Number(budgetAmount),
           currency: 'USD'
@@ -110,7 +115,8 @@ export default function CreateCampaignPage() {
         deadline: deadline ? new Date(deadline).toISOString() : undefined,
         requirements: {
           minFollowers: Number(minFollowers) || 0,
-          preferredNiches: [category === 'Other' ? customCategory.trim() : category]
+          preferredNiches: [category === 'Other' ? customCategory.trim() : category],
+          location: locationReq
         },
         status: 'open',
         maxApplicants: 10
@@ -243,6 +249,29 @@ export default function CreateCampaignPage() {
                     />
                   </div>
                 </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-900 dark:text-white mb-2">Payment Type *</label>
+                  <select
+                    value={paymentType}
+                    onChange={(e) => setPaymentType(e.target.value as 'Fixed-price' | 'Hourly')}
+                    className="w-full bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm text-gray-900 dark:text-white focus:outline-none focus:border-emerald-500 transition-all"
+                  >
+                    <option value="Fixed-price">Fixed-price</option>
+                    <option value="Hourly">Hourly</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-900 dark:text-white mb-2">Experience Level *</label>
+                  <select
+                    value={experienceLevel}
+                    onChange={(e) => setExperienceLevel(e.target.value as 'Beginner' | 'Intermediate' | 'Expert')}
+                    className="w-full bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm text-gray-900 dark:text-white focus:outline-none focus:border-emerald-500 transition-all"
+                  >
+                    <option value="Beginner">Beginner</option>
+                    <option value="Intermediate">Intermediate</option>
+                    <option value="Expert">Expert</option>
+                  </select>
+                </div>
               </div>
             </div>
           </section>
@@ -289,6 +318,17 @@ export default function CreateCampaignPage() {
                     className="w-full bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl pl-10 pr-4 py-3 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-emerald-500 transition-all"
                   />
                 </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-bold text-gray-900 dark:text-white mb-2">Location Requirement</label>
+                <input 
+                  type="text"
+                  value={locationReq}
+                  onChange={(e) => setLocationReq(e.target.value)}
+                  placeholder="e.g. Global, US Only, UK Only"
+                  className="w-full max-w-xs bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-emerald-500 transition-all"
+                />
               </div>
 
               <div>

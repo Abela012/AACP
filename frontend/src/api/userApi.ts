@@ -50,4 +50,36 @@ export const userApi = {
             throw error;
         }
     },
+    toggleSave: async (api: AxiosInstance, opportunityId: string) => {
+        try {
+            return await api.post('/users/toggle-save', { opportunityId });
+        } catch (error) {
+            console.warn('ToggleSave API call failed:', error);
+            throw error;
+        }
+    },
+    getSavedOpportunities: async (api: AxiosInstance) => {
+        try {
+            return await api.get('/users/saved-opportunities');
+        } catch (error) {
+            console.warn('GetSavedOpportunities API call failed:', error);
+            throw error;
+        }
+    },
+    toggleCreator: async (api: AxiosInstance, creatorId: string) => {
+        try {
+            return await api.post('/users/toggle-creator', { creatorId });
+        } catch (error) {
+            console.warn('ToggleCreator API call failed:', error);
+            throw error;
+        }
+    },
+    getSavedCreators: async (api: AxiosInstance) => {
+        try {
+            return await api.get('/users/saved-creators');
+        } catch (error) {
+            console.warn('GetSavedCreators API call failed:', error);
+            throw error;
+        }
+    },
 };

@@ -12,6 +12,8 @@ export interface IOpportunity extends Document {
     category: string;
     platforms: string[];
     deliverables: string[];
+    paymentType?: 'Fixed-price' | 'Hourly';
+    experienceLevel?: 'Beginner' | 'Intermediate' | 'Expert';
     budget: {
         amount: number;
         currency: string;
@@ -58,6 +60,16 @@ const opportunitySchema: Schema<IOpportunity> = new Schema(
         },
         platforms: [{ type: String }],
         deliverables: [{ type: String }],
+        paymentType: {
+            type: String,
+            enum: ['Fixed-price', 'Hourly'],
+            default: 'Fixed-price',
+        },
+        experienceLevel: {
+            type: String,
+            enum: ['Beginner', 'Intermediate', 'Expert'],
+            default: 'Expert',
+        },
         budget: {
             amount: { type: Number, required: true },
             currency: { type: String, default: 'ETB' },
