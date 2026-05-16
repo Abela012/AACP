@@ -18,6 +18,8 @@ import AdvertiserLayout from '@/src/shared/components/layouts/AdvertiserLayout';
 import BusinessLayout from '@/src/shared/components/layouts/BusinessLayout';
 import { useUser } from '@/src/shared/context/UserContext';
 import { useProfile } from '@/src/shared/context/ProfileContext';
+import BusinessProfileInsights from '@/src/components/profile/BusinessProfileInsights';
+import { formatBirr } from '@/src/features/business-onboarding/constants';
 
 export default function ViewProfilePage() {
   const { userRole, onboardingStatus } = useUser();
@@ -51,9 +53,12 @@ export default function ViewProfilePage() {
       : profile.selectedStyles || ['Content Creator', 'Social Media'],
     stats: isBusiness
       ? [
-        { label: 'Monthly Budget', value: profile.monthlyBudget ? `$${profile.monthlyBudget.toLocaleString()}` : '$0' },
+        {
+          label: 'Monthly Budget',
+          value: profile.monthlyBudget ? formatBirr(profile.monthlyBudget) : '—',
+        },
         { label: 'Platforms', value: profile.selectedPlatforms?.length.toString() || '0' },
-        { label: 'Company Size', value: profile.companySize || 'Private' },
+        { label: 'Company Size', value: profile.companySize || '—' },
       ]
       : [
         { label: 'Followers', value: profile.followers || '0' },
@@ -202,6 +207,8 @@ export default function ViewProfilePage() {
                   </div>
                 ))}
               </motion.div>
+
+              {isBusiness && <BusinessProfileInsights />}
             </div>
 
             {/* Right Column */}

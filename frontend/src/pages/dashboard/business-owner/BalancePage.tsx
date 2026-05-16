@@ -19,6 +19,7 @@ import BusinessLayout from '@/src/shared/components/layouts/BusinessLayout';
 
 import { useFinalizeChapaTopupOnReturn, useWalletBalance, useWalletHistory } from '@/src/hooks/useWallet';
 import { Loader2 } from 'lucide-react';
+import { COIN_PACK_LIST, formatBirr } from '@/src/shared/constants/coinPacks';
 
 export default function BalancePage() {
   const navigate = useNavigate();
@@ -36,11 +37,13 @@ export default function BalancePage() {
 
   const isLoading = balanceLoading || historyLoading;
 
-  const coinPackages = [
-    { id: 1, name: 'Starter Pack', coins: 100, price: '$10.00', bonus: '0%' },
-    { id: 2, name: 'Growth Pack', coins: 500, price: '$45.00', bonus: '10%', popular: true },
-    { id: 3, name: 'Enterprise Pack', coins: 2500, price: '$200.00', bonus: '25%' },
-  ];
+  const coinPackages = COIN_PACK_LIST.map((p) => ({
+    id: p.id,
+    name: `${p.title} pack`,
+    coins: p.coins,
+    priceLabel: formatBirr(p.priceEtb),
+    popular: p.popular,
+  }));
 
   return (
     <BusinessLayout>
@@ -170,19 +173,25 @@ export default function BalancePage() {
                       )}
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-xl font-bold text-emerald-600 dark:text-emerald-400">{pkg.price}</span>
-                      <button className={cn(
+                      <span className="text-xl font-bold text-emerald-600 dark:text-emerald-400">{pkg.priceLabel}</span>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate('/business/buy-coins');
+                        }}
+                        className={cn(
                         "px-4 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all",
                         pkg.popular ? "bg-emerald-600 text-white" : "bg-gray-100 dark:bg-white/10 text-gray-500 dark:text-gray-400 group-hover:bg-emerald-600 group-hover:text-white"
                       )}>
-                        Buy Now
+                        Buy now
                       </button>
                     </div>
                   </div>
                 ))}
               </div>
               <p className="text-[10px] text-gray-400 dark:text-gray-500 text-center mt-8 leading-relaxed">
-                Secure payments powered by Stripe. Coins are non-refundable and expire after 12 months.
+                Secure payments powered by Chapa (ETB). Coins are credited after payment confirmation.
               </p>
             </div>
 

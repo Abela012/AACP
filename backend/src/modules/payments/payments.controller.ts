@@ -5,9 +5,19 @@ import * as paymentsService from './payments.service';
 export const initializeTopup = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const userId = (req as any).user?._id;
+        const amount = Number(req.body.amount);
+        const coins = Number(req.body.coins);
+        if (!Number.isFinite(amount) || amount <= 0 || !Number.isFinite(coins) || coins <= 0) {
+            return res.status(400).json({
+                success: false,
+                message: 'Valid amount (ETB) and coins are required',
+            });
+        }
+
         const payload = {
             userId,
-            amount: Number(req.body.amount),
+            amount,
+            coins,
             currency: req.body.currency,
             callbackUrl: req.body.callbackUrl,
             returnUrl: req.body.returnUrl,

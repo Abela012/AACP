@@ -33,13 +33,15 @@ export class SocialAuthService {
         return response.data;
     }
 
+    /** Login Kit / profile — minimal scope only (no Clerk). */
+    static readonly TIKTOK_BASIC_SCOPE = 'user.info.basic';
+
     /**
-     * Get TikTok Auth URL
+     * TikTok OAuth URL (user.info.basic only).
      */
     static getTikTokAuthUrl(redirectUri: string, state: string) {
-        const scopes = ['user.info.basic', 'video.list', 'video.upload'];
         const clientKey = process.env.TIKTOK_CLIENT_KEY || '';
-        return `${this.TIKTOK_OAUTH_URL}?client_key=${clientKey}&scope=${scopes.join(',')}&response_type=code&redirect_uri=${encodeURIComponent(redirectUri)}&state=${state}`;
+        return `${this.TIKTOK_OAUTH_URL}?client_key=${clientKey}&scope=${this.TIKTOK_BASIC_SCOPE}&response_type=code&redirect_uri=${encodeURIComponent(redirectUri)}&state=${state}`;
     }
 
     /**

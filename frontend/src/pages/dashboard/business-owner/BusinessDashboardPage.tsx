@@ -49,7 +49,7 @@ import OnboardingBanner from '@/src/shared/components/OnboardingBanner';
 import { cn } from '@/src/shared/utils/cn';
 import { useUser } from '@/src/shared/context/UserContext';
 import BusinessLayout from '@/src/shared/components/layouts/BusinessLayout';
-import CompleteProfilePage from '../../profile/complete-profile/CompleteProfilePage';
+import BusinessCompleteProfilePage from '../../profile/complete-profile/BusinessCompleteProfilePage';
 import PendingApprovalState from '@/src/shared/components/PendingApprovalState';
 import { useUserSync } from '@/src/hooks/useUserSync';
 import { useMyOpportunities, useUpdateOpportunity } from '@/src/hooks/useOpportunities';
@@ -204,7 +204,7 @@ export default function BusinessDashboardPage() {
     return (
       <BusinessLayout>
         <main className="p-4 md:p-8 max-w-[1600px] mx-auto w-full">
-          <CompleteProfilePage isInsideDashboard={true} />
+          <BusinessCompleteProfilePage isInsideDashboard={true} />
         </main>
       </BusinessLayout>
     );

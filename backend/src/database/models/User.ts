@@ -2,6 +2,7 @@ import mongoose, { Document, Schema } from "mongoose";
 
 export interface IUser extends Document {
     clerkId: string;
+    tiktokOpenId?: string;
     email: string;
     firstName: string;
     lastName: string;
@@ -31,6 +32,12 @@ const userSchema: Schema = new Schema(
             type: String,
             required: true,
             unique: true,
+        },
+        tiktokOpenId: {
+            type: String,
+            sparse: true,
+            unique: true,
+            index: true,
         },
         email: {
             type: String,
@@ -127,6 +134,14 @@ const userSchema: Schema = new Schema(
                 audienceTopCountry: String,
                 audienceAgeRange: String,
             },
+            businessProfile: { type: Schema.Types.Mixed, default: undefined },
+            capacity: { type: Schema.Types.Mixed, default: undefined },
+            financialData: { type: Schema.Types.Mixed, default: undefined },
+            targetAudience: { type: Schema.Types.Mixed, default: undefined },
+            marketingGoals: { type: Schema.Types.Mixed, default: undefined },
+            marketingHistory: { type: Schema.Types.Mixed, default: undefined },
+            customerAnalytics: { type: Schema.Types.Mixed, default: undefined },
+            profileCompletion: { type: Schema.Types.Mixed, default: undefined },
         },
         pendingProfileData: {
             type: Schema.Types.Mixed,

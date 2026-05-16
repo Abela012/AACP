@@ -1,7 +1,27 @@
 {
-  "rewrites": [
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "framework": "vite",
+  "headers": [
     {
-      "source": "/(.*)",
+      "source": "/(terms-of-service|privacy-policy)(\\.html)?",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=3600, must-revalidate" },
+        { "key": "X-Content-Type-Options", "value": "nosniff" }
+      ]
+    }
+  ],
+  "redirects": [
+    { "source": "/terms", "destination": "/terms-of-service", "permanent": true },
+    { "source": "/privacy", "destination": "/privacy-policy", "permanent": true },
+    { "source": "/terms-of-service/", "destination": "/terms-of-service", "permanent": true },
+    { "source": "/privacy-policy/", "destination": "/privacy-policy", "permanent": true }
+  ],
+  "rewrites": [
+    { "source": "/terms-of-service", "destination": "/terms-of-service.html" },
+    { "source": "/privacy-policy", "destination": "/privacy-policy.html" },
+    {
+      "source": "/((?!assets/|.*\\..*).*)",
       "destination": "/index.html"
     }
   ]

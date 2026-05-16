@@ -5,6 +5,7 @@ import AuthLayout from './pages/auth/AuthLayout'
 import LoginPage from './pages/auth/login/LoginPage'
 import RegisterPage from './pages/auth/register/RegisterPage'
 import ForgotPasswordPage from './pages/auth/forgot-password/ForgotPasswordPage'
+import TikTokAuthCompletePage from './pages/auth/tiktok/TikTokAuthCompletePage'
 import RoleDashboardRedirectPage from './pages/dashboard/RoleDashboardRedirectPage'
 import BusinessDashboardPage from './pages/dashboard/business-owner/BusinessDashboardPage'
 import AdvertiserDashboardPage from './pages/dashboard/advertiser/AdvertiserDashboardPage'
@@ -26,6 +27,7 @@ import AdvertiserManualCheckoutPage from './pages/dashboard/advertiser/Advertise
 import ViewProfilePage from './pages/profile/view-profile/ViewProfilePage'
 import EditProfilePage from './pages/profile/edit-profile/EditProfilePage'
 import CompleteProfilePage from './pages/profile/complete-profile/CompleteProfilePage'
+import BusinessCompleteProfilePage from './pages/profile/complete-profile/BusinessCompleteProfilePage'
 import LandingPage from './pages/landing/LandingPage'
 import ConversationPage from './pages/chat/conversation/ConversationPage'
 import AdminDashboardPage from './pages/dashboard/admin/AdminDashboardPage'
@@ -111,6 +113,14 @@ function App() {
                 <Navigate to="/dashboard" replace />
               </SignedIn>
             </>
+          }
+        />
+        <Route
+          path="/auth/tiktok/complete"
+          element={
+            <AuthLayout>
+              <TikTokAuthCompletePage />
+            </AuthLayout>
           }
         />
         <Route
@@ -419,7 +429,7 @@ function App() {
         {/* Profile Completion / Common Redirects */}
         <Route
           path="/profile/complete/business"
-          element={<CompleteProfilePage />}
+          element={<BusinessCompleteProfilePage />}
         />
         <Route
           path="/profile/complete/advertiser"
@@ -484,7 +494,9 @@ function App() {
 
         {/* Legal Pages */}
         <Route path="/terms-of-service" element={<TermsOfService />} />
+        <Route path="/terms" element={<Navigate to="/terms-of-service" replace />} />
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+        <Route path="/privacy" element={<Navigate to="/privacy-policy" replace />} />
         <Route path="/data-deletion" element={<DataDeletionPage />} />
 
         {/* Catch-all Redirect */}

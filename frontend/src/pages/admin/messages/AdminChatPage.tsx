@@ -4,8 +4,6 @@ import {
   Paperclip,
   MoreVertical,
   Search,
-  Phone,
-  Video,
   Smile,
   CheckCheck,
   Users,
@@ -123,24 +121,12 @@ export default function AdminChatPage() {
                     </div>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <div className="flex -space-x-3 mr-4">
-                    {[...Array(3)].map((_, i) => (
-                      <div key={i} className="w-8 h-8 rounded-full border-2 border-white dark:border-[#111111] bg-gray-200 overflow-hidden">
-                        <img src={`https://i.pravatar.cc/100?u=${i + 10}`} alt="participant" />
-                      </div>
-                    ))}
-                  </div>
-                  <button className="p-2.5 text-[#9A9FA5] hover:text-[#1A1D1F] dark:hover:text-white transition-colors rounded-xl hover:bg-gray-50 dark:hover:bg-white/5">
-                    <Phone size={18} />
-                  </button>
-                  <button className="p-2.5 text-[#9A9FA5] hover:text-[#1A1D1F] dark:hover:text-white transition-colors rounded-xl hover:bg-gray-50 dark:hover:bg-white/5">
-                    <Video size={18} />
-                  </button>
-                  <button className="p-2.5 text-[#9A9FA5] hover:text-[#1A1D1F] dark:hover:text-white transition-colors rounded-xl hover:bg-gray-50 dark:hover:bg-white/5 ml-2">
-                    <MoreVertical size={18} />
-                  </button>
-                </div>
+                <button
+                  type="button"
+                  className="p-2.5 text-[#9A9FA5] hover:text-[#1A1D1F] dark:hover:text-white transition-colors rounded-xl hover:bg-gray-50 dark:hover:bg-white/5"
+                >
+                  <MoreVertical size={18} />
+                </button>
               </header>
 
               {/* Messages */}

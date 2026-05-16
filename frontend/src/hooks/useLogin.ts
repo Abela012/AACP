@@ -1,6 +1,7 @@
 import { useSignIn } from "@clerk/clerk-react";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { startTikTokOAuth } from "./useTikTokAuth";
 
 type SecondFactorStrategy = "email_code" | "phone_code" | "totp";
 
@@ -153,18 +154,16 @@ export const useLogin = () => {
         }
     };
 
-    const handleSocialAuth = async (strategy: "oauth_google" | "oauth_facebook" | "oauth_tiktok") => {
+    const handleSocialAuth = async (strategy: "oauth_google" | "oauth_facebook") => {
         if (!isLoaded) return;
         setError(null);
 
-        // Require role selection before SSO login
         if (!role) {
             setError("Please select a role (Business or Advertiser) before continuing with social login.");
             return;
         }
 
         try {
-            // Store role in localStorage so useUserSync can send it to backend
             localStorage.setItem('pendingUserRole', role);
             await signIn.authenticateWithRedirect({
                 strategy,
@@ -175,6 +174,15 @@ export const useLogin = () => {
             const clerkErr = err as { errors?: { message?: string }[] };
             setError(clerkErr.errors?.[0]?.message || "An error occurred during social auth.");
         }
+    };
+
+    const handleTikTokAuth = () => {
+        setError(null);
+        if (!role) {
+            setError("Please select a role (Business or Advertiser) before continuing with TikTok.");
+            return;
+        }
+        startTikTokOAuth('signin', role);
     };
 
     return {
@@ -190,6 +198,7 @@ export const useLogin = () => {
         setRole,
         onSignInPress,
         handleSocialAuth,
+        handleTikTokAuth,
         status,
         verificationCode,
         setVerificationCode,
