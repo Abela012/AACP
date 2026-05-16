@@ -169,18 +169,9 @@ export default function ViewProfilePage() {
 
     stats: isTargetProfileBusiness
       ? [
-<<<<<<< HEAD
-        {
-          label: 'Monthly Budget',
-          value: profile.monthlyBudget ? formatBirr(profile.monthlyBudget) : '—',
-        },
-        { label: 'Platforms', value: profile.selectedPlatforms?.length.toString() || '0' },
-        { label: 'Company Size', value: profile.companySize || '—' },
-=======
         { label: 'Monthly Budget', value: profile.monthlyBudget ? `${profile.monthlyBudget.toLocaleString()} ETB` : 'Flexible' },
         { label: 'Platforms', value: profile.selectedPlatforms?.length.toString() || '0' },
         { label: 'Company Size', value: (profile as any).companySize || 'Private' },
->>>>>>> c3552367c98769c8e42b81de918ba693404496dc
       ]
       : [
         { label: 'Followers', value: profile.followers || '0' },
@@ -378,9 +369,6 @@ export default function ViewProfilePage() {
                 ))}
               </motion.div>
 
-<<<<<<< HEAD
-              {isBusiness && <BusinessProfileInsights />}
-=======
               {/* Marketing & Goals OR Professional Portfolio */}
               {isTargetProfileBusiness ? (
                 <motion.div
@@ -450,7 +438,6 @@ export default function ViewProfilePage() {
                   </div>
                 </motion.div>
               )}
->>>>>>> c3552367c98769c8e42b81de918ba693404496dc
             </div>
 
             {/* Right Sidebar (4 Columns) */}

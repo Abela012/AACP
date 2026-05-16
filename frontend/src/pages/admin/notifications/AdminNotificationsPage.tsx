@@ -116,7 +116,6 @@ export default function AdminNotificationsPage() {
         </div>
 
         <div className="bg-white dark:bg-[#111111] p-8 rounded-[3rem] border border-[#EFEFEF] dark:border-white/5 shadow-sm">
-<<<<<<< HEAD
           {isLoading ? (
             <div className="py-20 text-center">
               <Bell className="w-10 h-10 text-[#14a800] mx-auto mb-4 animate-pulse" />
@@ -157,28 +156,7 @@ export default function AdminNotificationsPage() {
                       } ${!notif.read ? 'ring-2 ring-green-500/20' : ''}`}
                     >
                       <Icon size={20} />
-=======
-          <div className="space-y-4">
-            {notifications.length > 0 ? (
-              notifications.map((notif, idx) => (
-                <motion.div
-                  key={notif.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: idx * 0.1 }}
-                  onClick={() => handleMarkRead(notif.id)}
-                  className={`flex gap-6 p-5 hover:bg-gray-50 dark:hover:bg-white/5 rounded-2xl transition-all cursor-pointer border border-transparent hover:border-[#EFEFEF] dark:hover:border-white/5 ${
-                    !notif.read ? 'bg-emerald-50/30 dark:bg-emerald-500/5' : ''
-                  }`}
-                >
-                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${notif.bg} ${notif.color} ${!notif.read ? 'ring-2 ring-emerald-500/20' : ''}`}>
-                    <notif.icon size={20} />
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex justify-between items-start mb-1">
-                      <h3 className="font-bold text-[#1A1D1F] dark:text-white">{notif.title}</h3>
-                      <span className="text-[10px] font-bold text-[#9A9FA5] whitespace-nowrap">{notif.time}</span>
->>>>>>> c3552367c98769c8e42b81de918ba693404496dc
+                    </div>
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex justify-between items-start gap-4 mb-1">

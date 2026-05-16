@@ -1,11 +1,6 @@
-<<<<<<< HEAD
-import { useState, useRef } from 'react';
-import { Mail, History, CreditCard, Camera, CheckCircle2, AlertCircle } from 'lucide-react';
-=======
 import { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { User, Mail, Shield, Key, History, CreditCard, Camera, CheckCircle2, AlertCircle } from 'lucide-react';
->>>>>>> c3552367c98769c8e42b81de918ba693404496dc
 import AdminLayout from '@/src/shared/components/layouts/AdminLayout';
 import { useUser as useClerkUser } from '@clerk/clerk-react';
 import { useApiClient } from '@/src/api/apiClient';
@@ -17,16 +12,6 @@ export default function AdminProfilePage() {
   const api = useApiClient();
   const { profile, updateProfile, isLoading } = useProfile();
   const [isEditing, setIsEditing] = useState(false);
-<<<<<<< HEAD
-  const [profileName, setProfileName] = useState(clerkUser?.fullName || 'Administrator');
-  const [tempName, setTempName] = useState(profileName);
-  const [profileImage, setProfileImage] = useState(clerkUser?.imageUrl || '');
-  const [toast, setToast] = useState<{ show: boolean; message: string; type: 'success' | 'error' }>({
-    show: false,
-    message: '',
-    type: 'success',
-  });
-=======
   const [is2FAEnabled, setIs2FAEnabled] = useState(false);
   const [profileName, setProfileName] = useState(profile.firstName ? `${profile.firstName} ${profile.lastName}`.trim() : clerkUser?.fullName || 'Administrator');
   const [tempName, setTempName] = useState(profileName);
@@ -35,7 +20,6 @@ export default function AdminProfilePage() {
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [passwordData, setPasswordData] = useState({ old: '', new: '', confirm: '' });
   const [toast, setToast] = useState<{ show: boolean, message: string, type: 'success' | 'error' }>({ show: false, message: '', type: 'success' });
->>>>>>> c3552367c98769c8e42b81de918ba693404496dc
   const fileInputRef = useRef<HTMLInputElement>(null);
   useEffect(() => {
     if (profile && !isLoading) {
