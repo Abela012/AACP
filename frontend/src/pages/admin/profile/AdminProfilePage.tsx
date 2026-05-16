@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { User, Mail, Shield, Key, History, CreditCard, Camera, CheckCircle2, AlertCircle } from 'lucide-react';
+import { User, Mail, Shield, Key, History, CreditCard, Camera, CheckCircle2, AlertCircle, Sparkles } from 'lucide-react';
 import AdminLayout from '@/src/shared/components/layouts/AdminLayout';
 import { useUser as useClerkUser } from '@clerk/clerk-react';
 import { useApiClient } from '@/src/api/apiClient';
@@ -11,23 +11,29 @@ export default function AdminProfilePage() {
   const { user: clerkUser } = useClerkUser();
   const api = useApiClient();
   const { profile, updateProfile, isLoading } = useProfile();
+  
   const [isEditing, setIsEditing] = useState(false);
   const [is2FAEnabled, setIs2FAEnabled] = useState(false);
-  const [profileName, setProfileName] = useState(profile.firstName ? `${profile.firstName} ${profile.lastName}`.trim() : clerkUser?.fullName || 'Administrator');
-  const [tempName, setTempName] = useState(profileName);
-  const [profileImage, setProfileImage] = useState(profile.avatarUrl || clerkUser?.imageUrl || "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=200");
-
+  const [profileName, setProfileName] = useState('');
+  const [tempName, setTempName] = useState('');
+  const [profileImage, setProfileImage] = useState('');
+  
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [passwordData, setPasswordData] = useState({ old: '', new: '', confirm: '' });
-  const [toast, setToast] = useState<{ show: boolean, message: string, type: 'success' | 'error' }>({ show: false, message: '', type: 'success' });
+  const [toast, setToast] = useState<{ show: boolean, message: string, type: 'success' | 'error' }>({ 
+    show: false, 
+    message: '', 
+    type: 'success' 
+  });
+  
   const fileInputRef = useRef<HTMLInputElement>(null);
+
   useEffect(() => {
     if (profile && !isLoading) {
-      setProfileName(profile.firstName ? `${profile.firstName} ${profile.lastName}`.trim() : clerkUser?.fullName || 'Administrator');
-      setTempName(profile.firstName ? `${profile.firstName} ${profile.lastName}`.trim() : clerkUser?.fullName || 'Administrator');
-      if (profile.avatarUrl) {
-        setProfileImage(profile.avatarUrl);
-      }
+      const name = profile.firstName ? `${profile.firstName} ${profile.lastName}`.trim() : clerkUser?.fullName || 'Administrator';
+      setProfileName(name);
+      setTempName(name);
+      setProfileImage(profile.avatarUrl || clerkUser?.imageUrl || "https://ui-avatars.com/api/?name=Admin&background=10b981&color=fff");
     }
   }, [profile, isLoading, clerkUser]);
 
@@ -46,7 +52,6 @@ export default function AdminProfilePage() {
       const reader = new FileReader();
       reader.onloadend = () => {
         setProfileImage(reader.result as string);
-        showToast('Profile photo updated successfully!');
       };
       reader.readAsDataURL(file);
 
@@ -69,12 +74,29 @@ export default function AdminProfilePage() {
   const handleSave = () => {
     setProfileName(tempName);
     setIsEditing(false);
+    // In a real app, you'd call an API here to update the name
     showToast('Profile details updated successfully!');
   };
 
   const handleCancel = () => {
     setTempName(profileName);
     setIsEditing(false);
+  };
+
+  const handleToggle2FA = () => {
+    setIs2FAEnabled(!is2FAEnabled);
+    showToast(is2FAEnabled ? '2FA disabled' : '2FA enabled successfully!');
+  };
+
+  const handleUpdatePassword = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (passwordData.new !== passwordData.confirm) {
+      showToast('Passwords do not match', 'error');
+      return;
+    }
+    showToast('Password updated successfully!');
+    setIsChangingPassword(false);
+    setPasswordData({ old: '', new: '', confirm: '' });
   };
 
   return (
@@ -121,23 +143,12 @@ export default function AdminProfilePage() {
           <div className="lg:col-span-1">
             <div className="bg-white dark:bg-[#111111] p-8 rounded-[3rem] border border-[#EFEFEF] dark:border-white/5 shadow-sm text-center relative overflow-hidden group">
               <div className="relative w-32 h-32 mx-auto mb-6">
-<<<<<<< HEAD
-                <div className="w-full h-full rounded-full border-4 border-green-100 dark:border-green-500/20 flex items-center justify-center overflow-hidden bg-[#14a800]/10">
-                  {profileImage ? (
-                    <img src={profileImage} alt="Admin" className="w-full h-full object-cover" />
-                  ) : (
-                    <span className="text-3xl font-black text-[#14a800]">
-                      {(profileName || 'A').charAt(0).toUpperCase()}
-                    </span>
-                  )}
-=======
                 <div className="w-full h-full rounded-full border-4 border-emerald-100 dark:border-emerald-500/20 flex items-center justify-center overflow-hidden">
                   <img 
                     src={profileImage} 
                     alt="Admin" 
                     className="w-full h-full object-cover"
                   />
->>>>>>> c3552367c98769c8e42b81de918ba693404496dc
                 </div>
                 <button
                   type="button"
@@ -166,13 +177,8 @@ export default function AdminProfilePage() {
               ) : (
                 <h3 className="text-xl font-bold mb-1">{profileName}</h3>
               )}
-<<<<<<< HEAD
-              <p className="text-[10px] font-black text-[#14a800] uppercase tracking-widest mb-6">Senior Administrator</p>
-              <div className="w-full h-px bg-[#EFEFEF] dark:bg-white/5 mb-6" />
-=======
               <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-6">Senior Administrator</p>
               <div className="w-full h-[1px] bg-[#EFEFEF] dark:bg-white/5 mb-6" />
->>>>>>> c3552367c98769c8e42b81de918ba693404496dc
               <div className="space-y-4 text-left">
                 <div className="flex items-center gap-3">
                   <Mail size={16} className="text-[#9A9FA5]" />
@@ -192,8 +198,6 @@ export default function AdminProfilePage() {
 
           <div className="lg:col-span-2 space-y-8">
             <div className="bg-white dark:bg-[#111111] p-8 rounded-[3rem] border border-[#EFEFEF] dark:border-white/5 shadow-sm">
-<<<<<<< HEAD
-=======
               <div className="flex items-center gap-2 mb-8">
                 <Shield className="text-emerald-600" size={20} />
                 <h3 className="font-bold text-lg">Security & Privacy</h3>
@@ -290,19 +294,14 @@ export default function AdminProfilePage() {
             </div>
 
             <div className="bg-white dark:bg-[#111111] p-8 rounded-[3rem] border border-[#EFEFEF] dark:border-white/5 shadow-sm">
->>>>>>> c3552367c98769c8e42b81de918ba693404496dc
               <div className="flex justify-between items-center mb-8">
                 <div className="flex items-center gap-2">
                   <History className="text-[#9A9FA5]" size={20} />
                   <h3 className="font-bold text-lg">Login History</h3>
                 </div>
-<<<<<<< HEAD
-                <button type="button" className="text-[10px] font-black text-[#14a800] uppercase tracking-widest hover:underline">
+                <button type="button" className="text-[10px] font-black text-emerald-600 uppercase tracking-widest hover:underline">
                   View All
                 </button>
-=======
-                <button className="text-[10px] font-black text-emerald-600 uppercase tracking-widest hover:underline">View All</button>
->>>>>>> c3552367c98769c8e42b81de918ba693404496dc
               </div>
               <div className="space-y-4">
                 {[...Array(3)].map((_, idx) => (
@@ -339,13 +338,8 @@ export default function AdminProfilePage() {
       {toast.show && (
         <div
           className={`fixed bottom-8 left-1/2 -translate-x-1/2 z-50 px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3 border ${
-<<<<<<< HEAD
             toast.type === 'success'
-              ? 'bg-[#14a800] text-white border-green-400'
-=======
-            toast.type === 'success' 
-              ? 'bg-emerald-600 text-white border-emerald-400' 
->>>>>>> c3552367c98769c8e42b81de918ba693404496dc
+              ? 'bg-emerald-600 text-white border-emerald-400'
               : 'bg-red-500 text-white border-red-400'
           }`}
         >
