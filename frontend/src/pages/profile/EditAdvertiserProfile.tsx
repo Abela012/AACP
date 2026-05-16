@@ -7,7 +7,7 @@ import {
   AlertCircle,
   Copy,
   ExternalLink,
-  Instagram,
+  Camera,
   TrendingUp,
   Users,
   Heart,
@@ -201,7 +201,7 @@ const EditAdvertiserProfile: React.FC = () => {
                   {platform === 'tiktok' ? (
                     <span className="text-lg">♪</span>
                   ) : (
-                    <Instagram size={20} />
+                    <Camera size={20} />
                   )}
                   {platform.charAt(0).toUpperCase() + platform.slice(1)}
                 </motion.button>
