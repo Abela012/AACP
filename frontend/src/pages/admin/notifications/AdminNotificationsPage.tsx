@@ -157,7 +157,6 @@ export default function AdminNotificationsPage() {
                     >
                       <Icon size={20} />
                     </div>
-                    </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex justify-between items-start gap-4 mb-1">
                         <h3 className="font-bold text-[#1A1D1F] dark:text-white">{notif.title}</h3>
