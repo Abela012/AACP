@@ -88,7 +88,7 @@ export const initSocket = (httpServer: HttpServer): SocketServer => {
         const clerkId = (socket as any).clerkId;
         
         // Resolve user from DB once at connection start (outside of handshake to prevent timeouts)
-        const user = await User.findOne({ clerkId }).select('_id firstName lastName profilePicture role');
+        const user = await User.findOne({ clerkId }).select('_id clerkId firstName lastName profilePicture role');
         if (!user) {
             logger.warn(`User not found for clerkId: ${clerkId}. Disconnecting socket.`);
             socket.disconnect();
@@ -159,6 +159,7 @@ export const initSocket = (httpServer: HttpServer): SocketServer => {
                     text: payload.text,
                     sender: {
                         _id: userId,
+                        clerkId: user.clerkId,
                         firstName: user.firstName,
                         lastName: user.lastName,
                         profilePicture: user.profilePicture,

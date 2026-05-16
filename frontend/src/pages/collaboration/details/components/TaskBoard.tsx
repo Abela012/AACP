@@ -14,10 +14,11 @@ import {
 import { cn } from '@/src/shared/utils/cn';
 
 interface Task {
-  id: string;
+  _id?: string;
+  id?: string;
   title: string;
-  description: string;
-  dueDate: string;
+  description?: string;
+  dueDate?: string;
   priority: 'low' | 'medium' | 'high' | 'urgent';
   status: 'pending' | 'in_progress' | 'submitted' | 'approved';
 }
@@ -84,10 +85,10 @@ export const TaskBoard: React.FC<TaskBoardProps> = ({ tasks, userRole, onAddTask
              </p>
           </div>
         ) : (
-          tasks?.map((task) => (
+          tasks?.map((task, index) => (
             <motion.div 
               layout
-              key={task.id}
+              key={task._id || task.id || `task-${index}`}
               className={cn(
                 "group bg-white dark:bg-[#0a0a0a] border rounded-3xl p-5 transition-all hover:shadow-xl hover:shadow-gray-100 dark:hover:shadow-none",
                 task.status === 'approved' ? "border-emerald-100 dark:border-emerald-500/10" : "border-gray-100 dark:border-white/5"
@@ -116,7 +117,7 @@ export const TaskBoard: React.FC<TaskBoardProps> = ({ tasks, userRole, onAddTask
                       </span>
                       <span className="text-[10px] font-bold text-gray-400 flex items-center gap-1">
                         <Calendar size={12} />
-                        Due {new Date(task.dueDate).toLocaleDateString()}
+                        Due {task.dueDate ? new Date(task.dueDate).toLocaleDateString() : 'N/A'}
                       </span>
                       <span className={cn(
                         "text-[10px] font-bold flex items-center gap-1 px-2 py-0.5 rounded-full capitalize",
@@ -134,7 +135,7 @@ export const TaskBoard: React.FC<TaskBoardProps> = ({ tasks, userRole, onAddTask
                 <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all">
                   {userRole === 'advertiser' && task.status === 'pending' && (
                     <button 
-                      onClick={() => onUpdateStatus(task.id, 'in_progress')}
+                      onClick={() => onUpdateStatus((task._id || task.id)!, 'in_progress')}
                       className="px-3 py-1.5 bg-gray-900 dark:bg-white text-white dark:text-black text-[10px] font-black rounded-lg uppercase"
                     >
                       Start Task
@@ -142,7 +143,7 @@ export const TaskBoard: React.FC<TaskBoardProps> = ({ tasks, userRole, onAddTask
                   )}
                   {userRole === 'advertiser' && (task.status === 'in_progress' || task.status === 'pending') && (
                     <button 
-                      onClick={() => onUpdateStatus(task.id, 'submitted')}
+                      onClick={() => onUpdateStatus((task._id || task.id)!, 'submitted')}
                       className="px-3 py-1.5 bg-blue-600 text-white text-[10px] font-black rounded-lg uppercase"
                     >
                       Submit
@@ -150,7 +151,7 @@ export const TaskBoard: React.FC<TaskBoardProps> = ({ tasks, userRole, onAddTask
                   )}
                   {userRole === 'business_owner' && task.status === 'submitted' && (
                     <button 
-                      onClick={() => onUpdateStatus(task.id, 'approved')}
+                      onClick={() => onUpdateStatus((task._id || task.id)!, 'approved')}
                       className="px-3 py-1.5 bg-emerald-600 text-white text-[10px] font-black rounded-lg uppercase"
                     >
                       Approve
@@ -216,6 +217,7 @@ export const TaskBoard: React.FC<TaskBoardProps> = ({ tasks, userRole, onAddTask
                     <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 block px-1">Due Date</label>
                     <input 
                       type="date" 
+                      min={new Date().toISOString().split('T')[0]}
                       className="w-full bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-500"
                       value={newTask.dueDate}
                       onChange={(e) => setNewTask({...newTask, dueDate: e.target.value})}

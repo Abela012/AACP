@@ -18,7 +18,14 @@ import {
   BarChart3,
   Info
 } from 'lucide-react';
-import { useCollaborationDetails, useCompleteCollaboration } from '@/src/hooks/useCollaborations';
+import { 
+  useCollaborationDetails, 
+  useCompleteCollaboration,
+  useAddTask,
+  useUpdateTask,
+  useSubmitDeliverable,
+  useReviewDeliverable
+} from '@/src/hooks/useCollaborations';
 import { useCollaborationReviews } from '@/src/hooks/useReviews';
 import { useUser } from '@/src/shared/context/UserContext';
 import { useProfile } from '@/src/shared/context/ProfileContext';
@@ -46,8 +53,14 @@ export default function CollaborationDetailsPage() {
   const navigate = useNavigate();
   const { userRole } = useUser();
   const { profile } = useProfile();
+  
   const { data: collab, isLoading, error, refetch } = useCollaborationDetails(id!);
   const { data: reviews } = useCollaborationReviews(id!);
+  
+  const addTaskMutation = useAddTask();
+  const updateTaskMutation = useUpdateTask();
+  const submitDeliverableMutation = useSubmitDeliverable();
+  const reviewDeliverableMutation = useReviewDeliverable();
   
   const [activeTab, setActiveTab] = useState<TabType>('overview');
 
@@ -244,17 +257,60 @@ export default function CollaborationDetailsPage() {
                 <TaskBoard 
                   tasks={collab.tasks || []} 
                   userRole={userRole!} 
-                  onAddTask={() => {}} // TODO: Implement API call
-                  onUpdateStatus={() => {}} // TODO: Implement API call
+                  onAddTask={async (task) => {
+                    try {
+                      await addTaskMutation.mutateAsync({ id: collab._id, task });
+                      toast.success('Task created successfully');
+                    } catch (err: any) {
+                      toast.error(err.message || 'Failed to create task');
+                    }
+                  }}
+                  onUpdateStatus={async (taskId, status) => {
+                    try {
+                      await updateTaskMutation.mutateAsync({ id: collab._id, taskId, status });
+                      toast.success('Status updated');
+                    } catch (err: any) {
+                      toast.error(err.message || 'Failed to update status');
+                    }
+                  }}
                 />
               )}
 
               {activeTab === 'deliverables' && (
                 <DeliverablesManager 
-                  deliverables={collab.deliverables || []} 
+                  deliverables={collab.milestones?.flatMap((m: any) => m.submissions) || []} 
                   userRole={userRole!} 
-                  onUpload={() => {}} // TODO: Implement API call
-                  onAction={() => {}} // TODO: Implement API call
+                  onUpload={async (deliverable) => {
+                    try {
+                      const formData = new FormData();
+                      if (deliverable.file) formData.append('file', deliverable.file);
+                      if (deliverable.title) formData.append('title', deliverable.title);
+                      if (deliverable.description) formData.append('description', deliverable.description);
+                      if (deliverable.notes) formData.append('notes', deliverable.notes);
+                      if (deliverable.type) formData.append('type', deliverable.type);
+
+                      await submitDeliverableMutation.mutateAsync({ 
+                        id: collab._id, 
+                        deliverable: formData,
+                        onProgress: deliverable.onProgress
+                      });
+                      toast.success('Deliverable submitted');
+                    } catch (err: any) {
+                      toast.error(err.message || 'Failed to submit');
+                    }
+                  }}
+                  onAction={async (submissionId, action, feedback) => {
+                    try {
+                      await reviewDeliverableMutation.mutateAsync({ 
+                        id: collab._id, 
+                        submissionId, 
+                        review: { status: action, feedback: feedback || '' } 
+                      });
+                      toast.success(`Deliverable ${action.replace('_', ' ')}`);
+                    } catch (err: any) {
+                      toast.error(err.message || 'Failed to update review');
+                    }
+                  }}
                 />
               )}
 
@@ -266,7 +322,7 @@ export default function CollaborationDetailsPage() {
                     senderName: `${m.sender.firstName} ${m.sender.lastName}`,
                     text: m.text,
                     timestamp: m.createdAt,
-                    isSelf: m.sender.clerkId === profile.clerkId
+                    isSelf: m.sender._id === profile._id
                   }))}
                   currentUser={profile}
                   onSendMessage={(text: string) => sendMessage(text)}

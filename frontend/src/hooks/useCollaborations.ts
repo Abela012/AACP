@@ -53,3 +53,66 @@ export const useCompleteCollaboration = () => {
         },
     });
 };
+
+/** Add task to collaboration */
+export const useAddTask = () => {
+    const api = useApiClient();
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: ({ id, task }: { id: string; task: any }) => collaborationApi.addTask(api, id, task).then(r => r.data),
+        onSuccess: (data) => {
+            if (data?.data?._id) {
+                queryClient.invalidateQueries({ queryKey: ['collaborations', data.data._id] });
+            }
+        },
+    });
+};
+
+/** Update task status */
+export const useUpdateTask = () => {
+    const api = useApiClient();
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: ({ id, taskId, status }: { id: string; taskId: string; status: string }) => 
+            collaborationApi.updateTask(api, id, taskId, status).then(r => r.data),
+        onSuccess: (data) => {
+            if (data?.data?._id) {
+                queryClient.invalidateQueries({ queryKey: ['collaborations', data.data._id] });
+            }
+        },
+    });
+};
+
+/** Submit deliverable */
+export const useSubmitDeliverable = () => {
+    const api = useApiClient();
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: ({ id, deliverable, onProgress }: { id: string; deliverable: any; onProgress?: (p: number) => void }) => 
+            collaborationApi.submitDeliverable(api, id, deliverable, onProgress).then(r => r.data),
+        onSuccess: (data) => {
+            if (data?.data?._id) {
+                queryClient.invalidateQueries({ queryKey: ['collaborations', data.data._id] });
+            }
+        },
+    });
+};
+
+/** Review deliverable */
+export const useReviewDeliverable = () => {
+    const api = useApiClient();
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: ({ id, submissionId, review }: { id: string; submissionId: string; review: { status: string; feedback: string } }) => 
+            collaborationApi.reviewDeliverable(api, id, submissionId, review).then(r => r.data),
+        onSuccess: (data) => {
+            if (data?.data?._id) {
+                queryClient.invalidateQueries({ queryKey: ['collaborations', data.data._id] });
+            }
+        },
+    });
+};

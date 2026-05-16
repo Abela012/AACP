@@ -172,15 +172,15 @@ export const useChat = (roomId: string, recipientId?: string): UseChat => {
     // ── Typing debounce ──
     const typingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-    const sendMessage = useCallback((text: string, recipientId?: string) => {
+    const sendMessage = useCallback((text: string, overrideRecipientId?: string) => {
         const effectiveRoomId = conversationId || roomId;
         if (!text.trim() || !effectiveRoomId) return;
-        emitMessage(effectiveRoomId, text.trim(), recipientId);
+        emitMessage(effectiveRoomId, text.trim(), overrideRecipientId || recipientId);
 
         // Stop typing after sending
         stopTyping(effectiveRoomId);
         if (typingTimerRef.current) clearTimeout(typingTimerRef.current);
-    }, [roomId, conversationId]);
+    }, [roomId, conversationId, recipientId]);
 
     /** Call this on every keystroke to emit typing events */
     const handleTyping = useCallback(() => {

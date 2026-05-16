@@ -102,9 +102,54 @@ export const updateTask = async (req: Request, res: Response) => {
  */
 export const submitDeliverable = async (req: Request, res: Response) => {
     try {
-        const collaboration = await collaborationService.addDeliverable(req.params.id, req.body, req.user?._id?.toString() as string);
+        let deliverableData = { ...req.body };
+
+        console.log('[Deliverable] req.body:', req.body);
+        console.log('[Deliverable] req.file:', req.file ? `${req.file.originalname} (${req.file.mimetype}, ${req.file.size} bytes)` : 'NO FILE');
+        
+        // Require a file for submission
+        if (!req.file) {
+            return error(res, 'A file is required to submit a deliverable', 400);
+        }
+
+        // Upload to Cloudinary — use explicit resource_type to ensure correct handling
+        const cloudinary = (await import('../../config/cloudinary')).default;
+        const isVideo = req.file.mimetype.startsWith('video/');
+        const isImage = req.file.mimetype.startsWith('image/');
+        const resourceType = isVideo ? 'video' : isImage ? 'image' : 'raw';
+        
+        const uploadPromise = new Promise((resolve, reject) => {
+            const stream = cloudinary.uploader.upload_stream(
+                { 
+                    folder: 'aacp/deliverables', 
+                    resource_type: resourceType,
+                    // Generate a thumbnail for videos
+                    ...(isVideo && { eager: [{ format: 'jpg', transformation: [{ start_offset: '0' }] }] })
+                },
+                (err: any, result: any) => {
+                    if (err) {
+                        console.error('[Deliverable] Cloudinary error:', err);
+                        reject(err);
+                    } else {
+                        resolve(result);
+                    }
+                }
+            );
+            stream.end(req.file!.buffer);
+        });
+
+        const result = (await uploadPromise) as any;
+        console.log('[Deliverable] Cloudinary URL:', result.secure_url, '| type:', result.resource_type);
+
+        deliverableData.fileUrl = result.secure_url;
+        deliverableData.fileName = req.file.originalname;
+        deliverableData.fileType = req.file.mimetype;    // e.g. "video/mp4"
+        deliverableData.thumbnailUrl = result.eager?.[0]?.secure_url || result.secure_url;
+
+        const collaboration = await collaborationService.addDeliverable(req.params.id, deliverableData, req.user?._id?.toString() as string);
         return success(res, 'Deliverable submitted successfully', collaboration);
     } catch (err: any) {
+        console.error('[Deliverable] Error:', err.message);
         return error(res, err.message, 400);
     }
 };
