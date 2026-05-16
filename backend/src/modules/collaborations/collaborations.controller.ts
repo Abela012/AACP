@@ -69,3 +69,56 @@ export const getCollaborationById = async (req: Request, res: Response) => {
         return error(res, err.message, 500);
     }
 };
+
+/**
+ * @desc    Add task to collaboration
+ * @route   POST /api/v1/collaborations/:id/tasks
+ */
+export const addTask = async (req: Request, res: Response) => {
+    try {
+        const collaboration = await collaborationService.addTask(req.params.id, req.body, req.user?._id?.toString() as string);
+        return success(res, 'Task added successfully', collaboration);
+    } catch (err: any) {
+        return error(res, err.message, 400);
+    }
+};
+
+/**
+ * @desc    Update task status
+ * @route   PUT /api/v1/collaborations/:id/tasks/:taskId
+ */
+export const updateTask = async (req: Request, res: Response) => {
+    try {
+        const collaboration = await collaborationService.updateTaskStatus(req.params.id, req.params.taskId, req.body.status, req.user?._id?.toString() as string);
+        return success(res, 'Task updated successfully', collaboration);
+    } catch (err: any) {
+        return error(res, err.message, 400);
+    }
+};
+
+/**
+ * @desc    Submit deliverable
+ * @route   POST /api/v1/collaborations/:id/deliverables
+ */
+export const submitDeliverable = async (req: Request, res: Response) => {
+    try {
+        const collaboration = await collaborationService.addDeliverable(req.params.id, req.body, req.user?._id?.toString() as string);
+        return success(res, 'Deliverable submitted successfully', collaboration);
+    } catch (err: any) {
+        return error(res, err.message, 400);
+    }
+};
+
+/**
+ * @desc    Review deliverable
+ * @route   PUT /api/v1/collaborations/:id/deliverables/:submissionId/review
+ */
+export const reviewDeliverable = async (req: Request, res: Response) => {
+    try {
+        const { status, feedback } = req.body;
+        const collaboration = await collaborationService.updateDeliverableStatus(req.params.id, req.params.submissionId, status, feedback, req.user?._id?.toString() as string);
+        return success(res, 'Deliverable reviewed successfully', collaboration);
+    } catch (err: any) {
+        return error(res, err.message, 400);
+    }
+};

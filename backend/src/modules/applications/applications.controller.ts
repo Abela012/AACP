@@ -5,6 +5,7 @@ import { success, error } from '../../utils/response';
 import Opportunity from '../../database/models/Opportunity';
 import User from '../../database/models/User';
 import * as chatService from '../chat/chat.service';
+import * as collaborationService from '../collaborations/collaborations.service';
 
 /**
  * Application Controller
@@ -222,6 +223,18 @@ export const acceptApplication = async (req: Request, res: Response) => {
             req.user?._id?.toString() as string,
             'accepted'
         );
+
+        // --- PHASE 1: Automatic Collaboration Workspace Creation ---
+        let collaboration;
+        try {
+            const userId = req.user?._id?.toString() as string;
+            collaboration = await collaborationService.startCollaboration(req.params.id as string, userId);
+            console.log(`[Accept] Collaboration workspace auto-created: ${collaboration._id}`);
+        } catch (collabErr: any) {
+            console.error('[Accept] Failed to auto-create collaboration:', collabErr.message);
+            // We don't fail the whole request, but we log the error
+        }
+
         // Emit Notification to Advertiser
         const io = (req.app as any).io;
         if (io && application.advertiser) {
