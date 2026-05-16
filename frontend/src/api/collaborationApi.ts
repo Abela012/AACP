@@ -14,7 +14,11 @@ export interface Collaboration {
     startDate: string;
     completedDate?: string;
     overallProgress: number;
+    tasks: any[];
+    deliverables: any[];
+    activities: any[];
     createdAt: string;
+    updatedAt: string;
 }
 
 export const collaborationApi = {
