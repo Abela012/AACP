@@ -53,20 +53,32 @@ app.use(express.urlencoded({ extended: true }));
 app.use(helmet());
 app.use(cors({
     origin: (origin, callback) => {
+        // Log the origin for debugging
+        if (process.env.NODE_ENV === 'development') {
+            console.log(`[CORS] Request from origin: ${origin}`);
+        }
+
         // Allow requests with no origin (mobile apps, Postman, etc.)
         if (!origin) return callback(null, true);
-        // In development, allow all localhost origins regardless of port
-        if (env.NODE_ENV === 'development' && /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) {
+
+        // In development, allow all localhost origins
+        if (process.env.NODE_ENV === 'development' && origin.includes('localhost')) {
             return callback(null, true);
         }
-        // Production whitelist from env
+
+        // Whitelist from env and common dev ports
         const allowedOrigins = [
             env.CORS_ORIGIN,
             process.env.FRONTEND_URL,
+            'http://localhost:5173',
+            'http://localhost:3000',
+            'https://aacp-frontend-delta.vercel.app'
         ].filter(Boolean);
+
         if (allowedOrigins.includes(origin)) {
             return callback(null, true);
         }
+
         callback(new Error(`CORS: origin ${origin} not allowed`));
     },
     credentials: true,

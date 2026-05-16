@@ -24,6 +24,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/src/shared/utils/cn';
 import ThemeToggle from '@/src/shared/components/ThemeToggle';
 import { useUser } from '@/src/shared/context/UserContext';
+import { useProfile } from '@/src/shared/context/ProfileContext';
 
 interface AdminLayoutProps {
   children: ReactNode;
@@ -42,6 +43,7 @@ const navigation = [
 export default function AdminLayout({ children }: AdminLayoutProps) {
   const { signOut } = useClerk();
   const { user: clerkUser } = useClerkUser();
+  const { profile } = useProfile();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const location = useLocation();
   const { logout: localLogout } = useUser();
@@ -202,12 +204,12 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
             <Link to="/admin/profile" className="flex items-center gap-3 ml-4 pl-4 border-l border-[#EFEFEF] dark:border-white/5 hover:opacity-80 transition-opacity">
               <div className="text-right hidden sm:block">
-                <p className="text-xs font-bold text-[#1A1D1F] dark:text-white leading-none mb-1">{clerkUser?.fullName || 'Administrator'}</p>
+                <p className="text-xs font-bold text-[#1A1D1F] dark:text-white leading-none mb-1">{profile.firstName ? `${profile.firstName} ${profile.lastName}`.trim() : clerkUser?.fullName || 'Administrator'}</p>
                 <p className="text-[10px] font-bold text-[#14a800] uppercase tracking-widest leading-none">Profile</p>
               </div>
               <div className="w-10 h-10 rounded-full bg-linear-to-tr from-[#14a800] to-green-500 overflow-hidden shadow-lg border-2 border-white dark:border-[#0A0A0A]">
-                {clerkUser?.imageUrl ? (
-                  <img src={clerkUser.imageUrl} alt="User" className="w-full h-full object-cover" />
+                {(profile.avatarUrl || clerkUser?.imageUrl) ? (
+                  <img src={profile.avatarUrl || clerkUser?.imageUrl} alt="User" className="w-full h-full object-cover" />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-white font-bold text-xs">
                     AD

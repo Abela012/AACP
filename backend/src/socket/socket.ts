@@ -16,16 +16,21 @@ export const initSocket = (httpServer: HttpServer): SocketServer => {
     const io = new SocketServer(httpServer, {
         cors: {
             origin: (origin, callback) => {
-                // In development, allow localhost/127.0.0.1 with any port
+                // Allow requests with no origin (mobile apps, Postman, etc.)
+                if (!origin) return callback(null, true);
+
+                // In development, allow all localhost origins regardless of port
+                const isLocalhost = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
                 const isDev = process.env.NODE_ENV === 'development';
-                const isLocal = origin && /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
                 
-                if (isDev && (isLocal || !origin)) {
+                if (isDev && isLocalhost) {
                     return callback(null, true);
                 }
 
                 const allowedOrigins = [
                     process.env.FRONTEND_URL,
+                    'http://localhost:5173',
+                    'http://localhost:3000',
                     'https://aacp-frontend-delta.vercel.app'
                 ].filter(Boolean);
 

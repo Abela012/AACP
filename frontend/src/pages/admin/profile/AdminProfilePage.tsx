@@ -1,23 +1,35 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { User, Mail, Shield, Key, History, CreditCard, Camera, CheckCircle2, AlertCircle } from 'lucide-react';
 import AdminLayout from '@/src/shared/components/layouts/AdminLayout';
 import { useUser as useClerkUser } from '@clerk/clerk-react';
 import { useApiClient } from '@/src/api/apiClient';
 import { userApi } from '@/src/api/userApi';
+import { useProfile } from '@/src/shared/context/ProfileContext';
 
 export default function AdminProfilePage() {
   const { user: clerkUser } = useClerkUser();
   const api = useApiClient();
+  const { profile, updateProfile, isLoading } = useProfile();
   const [isEditing, setIsEditing] = useState(false);
   const [is2FAEnabled, setIs2FAEnabled] = useState(false);
-  const [profileName, setProfileName] = useState(clerkUser?.fullName || 'Administrator');
+  const [profileName, setProfileName] = useState(profile.firstName ? `${profile.firstName} ${profile.lastName}`.trim() : clerkUser?.fullName || 'Administrator');
   const [tempName, setTempName] = useState(profileName);
-  const [profileImage, setProfileImage] = useState(clerkUser?.imageUrl || "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=200");
+  const [profileImage, setProfileImage] = useState(profile.avatarUrl || clerkUser?.imageUrl || "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=200");
+
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [passwordData, setPasswordData] = useState({ old: '', new: '', confirm: '' });
   const [toast, setToast] = useState<{ show: boolean, message: string, type: 'success' | 'error' }>({ show: false, message: '', type: 'success' });
   const fileInputRef = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    if (profile && !isLoading) {
+      setProfileName(profile.firstName ? `${profile.firstName} ${profile.lastName}`.trim() : clerkUser?.fullName || 'Administrator');
+      setTempName(profile.firstName ? `${profile.firstName} ${profile.lastName}`.trim() : clerkUser?.fullName || 'Administrator');
+      if (profile.avatarUrl) {
+        setProfileImage(profile.avatarUrl);
+      }
+    }
+  }, [profile, isLoading, clerkUser]);
 
   const showToast = (message: string, type: 'success' | 'error' = 'success') => {
     setToast({ show: true, message, type });
@@ -42,7 +54,10 @@ export default function AdminProfilePage() {
       userApi.uploadProfilePicture(api, file)
         .then((res: any) => {
           const url = res?.data?.user?.profilePicture;
-          if (url) setProfileImage(url);
+          if (url) {
+            setProfileImage(url);
+            updateProfile({ avatarUrl: url });
+          }
           showToast('Profile photo saved successfully!');
         })
         .catch(() => {
