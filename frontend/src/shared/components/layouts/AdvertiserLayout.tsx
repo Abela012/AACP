@@ -70,6 +70,7 @@ export default function AdvertiserLayout({ children }: AdvertiserLayoutProps) {
     { name: 'Overview', icon: LayoutDashboard, path: '/dashboard/advertiser' },
     { name: 'Campaigns', icon: Megaphone, path: '/advertiser/campaigns' },
     { name: 'AI Matches', icon: Sparkles, path: '/advertiser/matches', badge: matchCount > 0 ? matchCount.toString() : undefined },
+    { name: 'Partnerships', icon: Briefcase, path: '/advertiser/collaborations' },
     { name: 'Reports', icon: BarChart3, path: '/advertiser/analytics' },
     { name: 'Messages', icon: MessageSquare, path: '/messages' },
   ];
@@ -82,7 +83,7 @@ export default function AdvertiserLayout({ children }: AdvertiserLayoutProps) {
   const headerNav = [
     { name: 'Dashboard', path: '/dashboard/advertiser' },
     { name: 'Opportunities', path: '/advertiser/matches' },
-    { name: 'Collaborations', path: '/advertiser/collaborations' },
+    { name: 'Partnerships', path: '/advertiser/collaborations' },
     { name: 'Analytics', path: '/advertiser/analytics' },
     { name: 'Campaigns', path: '/advertiser/campaigns' },
   ];
