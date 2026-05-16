@@ -20,10 +20,10 @@ import { toast } from 'react-hot-toast';
 
 const CATEGORIES = [
   'Technology', 'Fashion', 'Beauty', 'Gaming', 
-  'Fitness', 'Food', 'Travel', 'Education', 'Lifestyle'
+  'Fitness', 'Food', 'Travel', 'Education', 'Lifestyle', 'Other'
 ];
 
-const PLATFORMS = ['Instagram', 'TikTok', 'YouTube', 'Twitter', 'Twitch'];
+const PLATFORMS = ['Instagram', 'TikTok', 'YouTube'];
 
 export default function EditCampaignPage() {
   const { id } = useParams();
@@ -34,6 +34,7 @@ export default function EditCampaignPage() {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState(CATEGORIES[0]);
+  const [customCategory, setCustomCategory] = useState('');
   const [budgetAmount, setBudgetAmount] = useState('');
   const [minFollowers, setMinFollowers] = useState('');
   const [deadline, setDeadline] = useState('');
@@ -48,7 +49,16 @@ export default function EditCampaignPage() {
       const opp = oppData.opportunity;
       setTitle(opp.title || '');
       setDescription(opp.description || '');
-      setCategory(opp.category || CATEGORIES[0]);
+      
+      const isPredefinedCategory = CATEGORIES.includes(opp.category || '');
+      if (opp.category && !isPredefinedCategory) {
+        setCategory('Other');
+        setCustomCategory(opp.category);
+      } else {
+        setCategory(opp.category || CATEGORIES[0]);
+        setCustomCategory('');
+      }
+
       setBudgetAmount(String(opp.budget?.amount || opp.budget || ''));
       setMinFollowers(String(opp.requirements?.minFollowers || ''));
       if (opp.deadline) {
@@ -82,8 +92,8 @@ export default function EditCampaignPage() {
     e.preventDefault();
     setError(null);
 
-    if (!title || !description || !budgetAmount) {
-      setError('Please fill in all required fields.');
+    if (category === 'Other' && !customCategory.trim()) {
+      setError('Please specify your category.');
       return;
     }
 
@@ -93,7 +103,7 @@ export default function EditCampaignPage() {
         data: {
           title,
           description,
-          category,
+          category: category === 'Other' ? customCategory.trim() : category,
           platforms: selectedPlatforms,
           deliverables,
           budget: {
@@ -103,7 +113,7 @@ export default function EditCampaignPage() {
           deadline: deadline ? new Date(deadline).toISOString() : undefined,
           requirements: {
             minFollowers: Number(minFollowers) || 0,
-            preferredNiches: [category]
+            preferredNiches: [category === 'Other' ? customCategory.trim() : category]
           }
         }
       });
@@ -186,10 +196,26 @@ export default function EditCampaignPage() {
                   <select
                     value={category}
                     onChange={(e) => setCategory(e.target.value)}
-                    className="w-full bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm text-gray-900 dark:text-white focus:outline-none focus:border-emerald-500 transition-all"
+                    className="w-full bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm text-gray-900 dark:text-white focus:outline-none focus:border-emerald-500 transition-all mb-4"
                   >
                     {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
                   </select>
+
+                  {category === 'Other' && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                    >
+                      <input 
+                        type="text"
+                        value={customCategory}
+                        onChange={(e) => setCustomCategory(e.target.value)}
+                        placeholder="Type your category..."
+                        className="w-full bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-emerald-500 transition-all"
+                        required
+                      />
+                    </motion.div>
+                  )}
                 </div>
                 <div>
                   <label className="block text-sm font-bold text-gray-900 dark:text-white mb-2">Budget (USD) *</label>

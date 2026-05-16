@@ -40,8 +40,14 @@ export const useApply = () => {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: ({ opportunity, coverLetter, applicationData }: { opportunity: string; coverLetter?: string; applicationData?: any }) =>
-            applicationApi.apply(api, { opportunity, coverLetter, applicationData }).then(r => r.data),
+        mutationFn: (data: { 
+            opportunity: string; 
+            coverLetter?: string; 
+            proposedPrice?: number;
+            proposedTimeline?: string;
+            applicationData?: any 
+        }) =>
+            applicationApi.apply(api, data).then(r => r.data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['applications'] });
             // Refresh wallet balance since 50 coins were deducted

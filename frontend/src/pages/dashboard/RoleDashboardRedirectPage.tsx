@@ -21,9 +21,10 @@ export default function RoleDashboardRedirectPage() {
   const { setUserRole } = useUser();
   const [selectedRole, setSelectedRole] = useState<'business_owner' | 'advertiser' | null>(null);
   const [roleError, setRoleError] = useState<string | null>(null);
+  const [isLongLoading, setIsLongLoading] = useState(false);
 
   // Ensure social-login role is synced before we resolve redirect.
-  const { isSuccess: isSyncSuccess, isLoading: isSyncLoading } = useUserSync();
+  const { isSuccess: isSyncSuccess, isLoading: isSyncLoading, isError: isSyncError, error: syncError } = useUserSync();
 
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["authUser"],
@@ -59,8 +60,12 @@ export default function RoleDashboardRedirectPage() {
   });
 
   useEffect(() => {
-    const timer = window.setTimeout(() => setTimedOut(true), 15000); // Increased timeout
-    return () => window.clearTimeout(timer);
+    const timer = window.setTimeout(() => setTimedOut(true), 60000); // 60s for Render cold start
+    const longLoadTimer = window.setTimeout(() => setIsLongLoading(true), 10000);
+    return () => {
+      window.clearTimeout(timer);
+      window.clearTimeout(longLoadTimer);
+    };
   }, []);
 
   const fallbackRole = useMemo(() => {
@@ -82,12 +87,14 @@ export default function RoleDashboardRedirectPage() {
     (data as any)?.status ??
     (data as any)?.data?.status;
 
-  const normalizedRole = String(rawRole || "")
-    .toLowerCase()
-    .replace(/[-\s]/g, "_") as UserRole;
+  const normalizedRole = (rawRole && String(rawRole) !== 'null')
+    ? String(rawRole)
+        .toLowerCase()
+        .replace(/[-\s]/g, "_") as UserRole
+    : null;
 
   useLayoutEffect(() => {
-    if (!normalizedRole || normalizedRole === 'null') return;
+    if (!normalizedRole) return;
     const stored = localStorage.getItem('userRole');
     if (stored !== normalizedRole) {
       setUserRole(normalizedRole);
@@ -95,14 +102,18 @@ export default function RoleDashboardRedirectPage() {
     }
   }, [normalizedRole, setUserRole]);
 
-  const isCurrentlyLoading = isLoading || isSyncLoading || (!isSyncSuccess);
+  const isCurrentlyLoading = (isLoading || isSyncLoading || !isSyncSuccess) && !isSyncError && !isError;
 
   if (isCurrentlyLoading && !timedOut) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen p-6 bg-gray-50">
-        <div className="w-12 h-12 border-4 border-[#14a800] border-t-transparent rounded-full animate-spin mb-4"></div>
+      <div className="flex flex-col items-center justify-center min-h-screen p-6 bg-gray-50 text-center">
+        <div className="w-12 h-12 border-4 border-[#14a800] border-t-transparent rounded-full animate-spin mb-4 mx-auto"></div>
         <div className="text-lg font-medium text-gray-700">Verifying access permissions...</div>
-        <div className="mt-2 text-sm text-gray-400">Connecting to secure database</div>
+        <div className="mt-2 text-sm text-gray-400">
+          {isLongLoading 
+            ? "The server is taking a bit longer to wake up. Please wait..." 
+            : "Connecting to secure database"}
+        </div>
       </div>
     );
   }
@@ -132,14 +143,20 @@ export default function RoleDashboardRedirectPage() {
     return <Navigate to="/dashboard/advertiser" replace />;
   }
 
-  if (isError) {
+  if (isError || isSyncError) {
+    const errorMessage = (isError as any)?.message || 
+                        (isError as any)?.response?.data?.message || 
+                        (syncError as any)?.message || 
+                        (syncError as any)?.response?.data?.message || 
+                        "Unknown error during synchronization";
+
     return (
       <div className="flex flex-col items-center justify-center min-h-screen p-6 bg-red-50">
         <div className="bg-white p-8 rounded-3xl shadow-xl max-w-md w-full text-center">
           <h2 className="text-2xl font-bold text-red-600 mb-2">Sync Error</h2>
           <p className="text-gray-600 mb-6">We couldn't synchronize your account with our database.</p>
           <div className="text-left bg-gray-50 p-4 rounded-xl mb-6 font-mono text-[10px] overflow-auto max-h-32">
-            {(isError as any)?.message || (isError as any)?.response?.data?.message || "Unknown error"}
+            {errorMessage}
           </div>
           <button
             onClick={() => window.location.reload()}
@@ -153,8 +170,32 @@ export default function RoleDashboardRedirectPage() {
   }
 
   if (timedOut) {
-    console.warn("[RoleDashboardRedirectPage] Redirection timed out, defaulting to advertiser");
-    return <Navigate to="/dashboard/advertiser" replace />;
+    console.warn("[RoleDashboardRedirectPage] Redirection timed out after 60s");
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen p-6 bg-orange-50">
+        <div className="bg-white p-8 rounded-3xl shadow-xl max-w-md w-full text-center border-t-4 border-orange-500">
+          <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Loader2 className="w-8 h-8 text-orange-500" />
+          </div>
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">Connection Timeout</h2>
+          <p className="text-gray-600 mb-6">The server is taking too long to respond. This usually happens if the system is waking up from standby.</p>
+          <div className="flex flex-col gap-3">
+            <button
+              onClick={() => window.location.reload()}
+              className="w-full py-3 bg-[#14a800] text-white rounded-full font-bold shadow-lg hover:bg-[#108a00] transition-all"
+            >
+              Try Again
+            </button>
+            <button
+              onClick={() => window.location.href = "/dashboard/advertiser"}
+              className="w-full py-3 bg-white border border-gray-200 text-gray-600 rounded-full font-medium hover:bg-gray-50 transition-all"
+            >
+              Skip to Default Dashboard
+            </button>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   // Show role selection UI when the user has no role assigned

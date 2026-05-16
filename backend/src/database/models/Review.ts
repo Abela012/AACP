@@ -1,81 +1,118 @@
-import mongoose, { Schema, Document, Model } from 'mongoose';
+import mongoose, { Document, Schema, Model } from "mongoose";
+import User from "./User";
 
-/**
- * Review Model
- * Owner: Backend Developer 2
- * Module: reviews
- */
 export interface IReview extends Document {
-    collaboration: mongoose.Types.ObjectId;
-    reviewer: mongoose.Types.ObjectId;
-    reviewee: mongoose.Types.ObjectId;
-    reviewerRole: 'business_owner' | 'advertiser';
+    reviewerId: mongoose.Types.ObjectId;
+    targetUserId: mongoose.Types.ObjectId;
+    opportunityId: mongoose.Types.ObjectId; // Referencing the opportunity/campaign
     rating: number;
-    comment?: string;
-    categories?: {
-        communication?: number;
-        quality?: number;
-        timeliness?: number;
-        professionalism?: number;
-    };
-    isPublic: boolean;
-    response?: {
-        text: string;
-        respondedAt: Date;
-    };
+    comment: string;
+    collaborationType: 'fixed-price' | 'hourly' | 'product-based' | 'other';
+    isVerified: boolean;
+    trustScore: number;
+    aiFraudDetected: boolean;
     createdAt: Date;
     updatedAt: Date;
 }
 
 const reviewSchema: Schema<IReview> = new Schema(
     {
-        collaboration: {
-            type: Schema.Types.ObjectId,
-            ref: 'Collaboration',
-            required: true,
-        },
-        reviewer: {
+        reviewerId: {
             type: Schema.Types.ObjectId,
             ref: 'User',
-            required: true,
+            required: [true, 'Reviewer ID is required'],
         },
-        reviewee: {
+        targetUserId: {
             type: Schema.Types.ObjectId,
             ref: 'User',
-            required: true,
+            required: [true, 'Target User ID is required'],
         },
-        reviewerRole: {
-            type: String,
-            enum: ['business_owner', 'advertiser'],
-            required: true,
+        opportunityId: {
+            type: Schema.Types.ObjectId,
+            ref: 'Opportunity',
+            required: [true, 'Opportunity ID is required'],
         },
         rating: {
             type: Number,
-            required: true,
-            min: 1,
-            max: 5,
+            required: [true, 'Rating is required'],
+            min: [1, 'Rating must be at least 1'],
+            max: [5, 'Rating cannot exceed 5'],
         },
         comment: {
             type: String,
-            maxlength: 2000,
+            required: [true, 'Review comment is required'],
+            maxlength: [1000, 'Comment cannot exceed 1000 characters'],
+            trim: true,
         },
-        categories: {
-            communication: { type: Number, min: 1, max: 5 },
-            quality: { type: Number, min: 1, max: 5 },
-            timeliness: { type: Number, min: 1, max: 5 },
-            professionalism: { type: Number, min: 1, max: 5 },
+        collaborationType: {
+            type: String,
+            enum: ['fixed-price', 'hourly', 'product-based', 'other'],
+            default: 'fixed-price',
         },
-        isPublic: { type: Boolean, default: true },
-        response: {
-            text: String,
-            respondedAt: Date,
+        isVerified: {
+            type: Boolean,
+            default: false,
         },
+        trustScore: {
+            type: Number,
+            default: 1.0,
+        },
+        aiFraudDetected: {
+            type: Boolean,
+            default: false,
+        }
     },
     { timestamps: true }
 );
 
-reviewSchema.index({ collaboration: 1, reviewer: 1 }, { unique: true });
-reviewSchema.index({ reviewee: 1 });
+// Ensure one user can only submit one review per collaboration
+reviewSchema.index({ reviewerId: 1, opportunityId: 1 }, { unique: true });
+reviewSchema.index({ targetUserId: 1 });
+reviewSchema.index({ opportunityId: 1 });
 
-const Review: Model<IReview> = mongoose.model<IReview>('Review', reviewSchema);
+/**
+ * Static method to calculate and update user's average rating
+ */
+reviewSchema.statics.calculateAverageRating = async function(userId: mongoose.Types.ObjectId) {
+    const stats = await this.aggregate([
+        {
+            $match: { targetUserId: userId }
+        },
+        {
+            $group: {
+                _id: '$targetUserId',
+                totalReviews: { $sum: 1 },
+                avgRating: { $avg: '$rating' }
+            }
+        }
+    ]);
+
+    if (stats.length > 0) {
+        await User.findByIdAndUpdate(userId, {
+            averageRating: parseFloat(stats[0].avgRating.toFixed(2)),
+            totalReviews: stats[0].totalReviews
+        });
+    } else {
+        await User.findByIdAndUpdate(userId, {
+            averageRating: 0,
+            totalReviews: 0
+        });
+    }
+};
+
+// Call calculateAverageRating after save
+reviewSchema.post('save', async function() {
+    // @ts-ignore
+    await (this.constructor as any).calculateAverageRating(this.targetUserId);
+});
+
+// Call calculateAverageRating after remove
+reviewSchema.post('findOneAndDelete', async function(doc) {
+    if (doc) {
+        await (doc.constructor as any).calculateAverageRating(doc.targetUserId);
+    }
+});
+
+const Review: Model<IReview> = mongoose.model<IReview>("Review", reviewSchema);
+
 export default Review;

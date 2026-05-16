@@ -71,7 +71,7 @@ export const withdrawApplication = async (id: string, advertiserId: string): Pro
  */
 export const getApplicationsByOpportunity = async (opportunityId: string): Promise<IApplication[]> => {
     const applications = await Application.find({ opportunity: opportunityId })
-        .populate('advertiser', 'firstName lastName email profilePicture')
+        .populate('advertiser', 'firstName lastName email profilePicture profileData')
         .sort({ createdAt: -1 });
 
     return applications;
@@ -127,7 +127,7 @@ export const getApplicationsForBusinessOwner = async (businessOwnerId: string): 
 
     // Then, find all applications for those opportunities
     const applications = await Application.find({ opportunity: { $in: opportunityIds } })
-        .populate('advertiser', 'firstName lastName email profilePicture')
+        .populate('advertiser', 'firstName lastName email profilePicture profileData')
         .populate('opportunity', 'title category platforms')
         .sort({ createdAt: -1 });
 

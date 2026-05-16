@@ -15,7 +15,31 @@ const onlineUsers = new Map<string, string>();
 export const initSocket = (httpServer: HttpServer): SocketServer => {
     const io = new SocketServer(httpServer, {
         cors: {
-            origin: process.env.FRONTEND_URL || 'https://aacp-frontend-delta.vercel.app',
+            origin: (origin, callback) => {
+                // Allow requests with no origin (mobile apps, Postman, etc.)
+                if (!origin) return callback(null, true);
+
+                // In development, allow all localhost origins regardless of port
+                const isLocalhost = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
+                const isDev = process.env.NODE_ENV === 'development';
+                
+                if (isDev && isLocalhost) {
+                    return callback(null, true);
+                }
+
+                const allowedOrigins = [
+                    process.env.FRONTEND_URL,
+                    'http://localhost:5173',
+                    'http://localhost:3000',
+                    'https://aacp-frontend-delta.vercel.app'
+                ].filter(Boolean);
+
+                if (allowedOrigins.includes(origin as string)) {
+                    return callback(null, true);
+                }
+                
+                callback(new Error('Not allowed by CORS'));
+            },
             methods: ['GET', 'POST'],
             credentials: true,
         },
@@ -64,7 +88,7 @@ export const initSocket = (httpServer: HttpServer): SocketServer => {
         const clerkId = (socket as any).clerkId;
         
         // Resolve user from DB once at connection start (outside of handshake to prevent timeouts)
-        const user = await User.findOne({ clerkId }).select('_id firstName lastName profilePicture');
+        const user = await User.findOne({ clerkId }).select('_id firstName lastName profilePicture role');
         if (!user) {
             logger.warn(`User not found for clerkId: ${clerkId}. Disconnecting socket.`);
             socket.disconnect();
@@ -80,6 +104,11 @@ export const initSocket = (httpServer: HttpServer): SocketServer => {
 
         // Join private room for targeted notifications
         socket.join(`user:${userId}`);
+
+        // Join admin room for system-wide alerts
+        if (user.role === 'admin' || user.role === 'super_admin') {
+            socket.join('admins');
+        }
 
         // Notify others that this user is online
         socket.broadcast.emit('user:online', { userId });

@@ -1,74 +1,61 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
   ArrowLeft, 
-  Calendar, 
-  DollarSign, 
   MessageSquare, 
   CheckCircle2, 
   Clock, 
   ShieldCheck,
   ExternalLink,
   ChevronRight,
-  MoreVertical,
   Flag,
   FileText,
   AlertCircle,
-  Star
+  Star,
+  LayoutDashboard,
+  ListTodo,
+  FolderKanban,
+  BarChart3,
+  Info
 } from 'lucide-react';
 import { useCollaborationDetails, useCompleteCollaboration } from '@/src/hooks/useCollaborations';
-import { useSubmitReview, useCollaborationReviews } from '@/src/hooks/useReviews';
+import { useCollaborationReviews } from '@/src/hooks/useReviews';
 import { useUser } from '@/src/shared/context/UserContext';
 import { useProfile } from '@/src/shared/context/ProfileContext';
 import BusinessLayout from '@/src/shared/components/layouts/BusinessLayout';
 import AdvertiserLayout from '@/src/shared/components/layouts/AdvertiserLayout';
-import { ReviewModal } from '@/src/shared/components/rating/ReviewModal';
 import { cn } from '@/src/shared/utils/cn';
 import { useState } from 'react';
 import { toast } from 'react-hot-toast';
+
+// New Components
+import { WorkspaceHeader } from './components/WorkspaceHeader';
+import { TaskBoard } from './components/TaskBoard';
+import { DeliverablesManager } from './components/DeliverablesManager';
+import { AnalyticsDashboard } from './components/AnalyticsDashboard';
+import { ActivityFeed } from './components/ActivityFeed';
+import { CollaborationChat } from './components/CollaborationChat';
+
+// Hooks
+import { useChat } from '@/src/hooks/useChat';
+
+type TabType = 'overview' | 'tasks' | 'deliverables' | 'chat' | 'analytics';
 
 export default function CollaborationDetailsPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { userRole } = useUser();
   const { profile } = useProfile();
-  const { data: collab, isLoading, error } = useCollaborationDetails(id!);
+  const { data: collab, isLoading, error, refetch } = useCollaborationDetails(id!);
   const { data: reviews } = useCollaborationReviews(id!);
-  const completeMutation = useCompleteCollaboration();
-  const submitReviewMutation = useSubmitReview();
+  
+  const [activeTab, setActiveTab] = useState<TabType>('overview');
 
-  const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
+  const partner = userRole === 'business_owner' ? collab?.advertiser : collab?.businessOwner;
+  const partnerName = partner?.fullName || partner?.firstName ? `${partner.firstName} ${partner.lastName}` : 'Partner';
 
-  // Check if the current user has reviewed
-  const hasReviewed = reviews?.some(r => r.reviewer === profile._id);
-
-  const handleComplete = async () => {
-    if (!window.confirm('Mark this collaboration as completed?')) return;
-    try {
-      await completeMutation.mutateAsync(id!);
-      toast.success('Collaboration marked as completed!');
-      // Automatically open review modal after completion
-      if (!hasReviewed) {
-        setIsReviewModalOpen(true);
-      }
-    } catch (err: any) {
-      toast.error(err.message || 'Failed to complete collaboration');
-    }
-  };
-
-  const handleReviewSubmit = async (rating: number, comment: string) => {
-    try {
-      await submitReviewMutation.mutateAsync({
-        collaborationId: id!,
-        rating,
-        comment
-      });
-      toast.success('Review submitted successfully!');
-    } catch (err: any) {
-      toast.error(err.message || 'Failed to submit review');
-      throw err;
-    }
-  };
+  // Initialize Chat
+  const { messages, sendMessage } = useChat('', partner?._id);
 
   const Layout = userRole === 'advertiser' ? AdvertiserLayout : BusinessLayout;
 
@@ -89,262 +76,213 @@ export default function CollaborationDetailsPage() {
           <div className="w-20 h-20 bg-red-500/10 rounded-full flex items-center justify-center mb-6">
             <AlertCircle className="text-red-500 w-10 h-10" />
           </div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Collaboration Not Found</h2>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Workspace Not Found</h2>
           <p className="text-gray-500 dark:text-gray-400 max-w-sm mb-8">
-            The collaboration you're looking for doesn't exist or you don't have permission to view it.
+            The workspace you're looking for doesn't exist or you don't have permission to access it.
           </p>
           <button 
-            onClick={() => navigate('/collaborations')}
+            onClick={() => navigate('/dashboard')}
             className="px-8 py-3 bg-gray-900 dark:bg-white text-white dark:text-black font-bold rounded-xl hover:opacity-90 transition-all"
           >
-            Back to Collaborations
+            Return to Dashboard
           </button>
         </div>
       </Layout>
     );
   }
 
-  const partner = userRole === 'business_owner' ? collab.advertiser : collab.businessOwner;
-  const partnerName = partner?.fullName || partner?.firstName ? `${partner.firstName} ${partner.lastName}` : 'Partner';
+  const tabs: { id: TabType; label: string; icon: any }[] = [
+    { id: 'overview', label: 'Overview', icon: LayoutDashboard },
+    { id: 'tasks', label: 'Tasks', icon: ListTodo },
+    { id: 'deliverables', label: 'Deliverables', icon: FolderKanban },
+    { id: 'chat', label: 'Messenger', icon: MessageSquare },
+    { id: 'analytics', label: 'Analytics', icon: BarChart3 },
+  ];
 
   return (
     <Layout>
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        {/* Header Navigation */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-6">
-          <div className="flex items-center gap-4">
-            <button 
-              onClick={() => navigate(-1)}
-              className="w-10 h-10 bg-white dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-xl flex items-center justify-center text-gray-500 hover:text-emerald-600 transition-all"
-            >
-              <ArrowLeft size={18} />
-            </button>
-            <div>
-              <div className="flex items-center gap-3 mb-1">
-                <span className={cn(
-                  "text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded",
-                  collab.status === 'active' ? "bg-emerald-500/10 text-emerald-600" : 
-                  collab.status === 'completed' ? "bg-blue-500/10 text-blue-600" :
-                  "bg-gray-100 text-gray-500"
-                )}>
-                  {collab.status}
-                </span>
-                <span className="text-xs text-gray-400 font-medium flex items-center gap-1">
-                  <Clock size={12} />
-                  Project ID: #{id?.slice(-6).toUpperCase()}
-                </span>
-              </div>
-              <h1 className="text-3xl font-black text-gray-900 dark:text-white">
-                {collab.opportunity?.title || 'Collaboration Details'}
-              </h1>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <button 
-              onClick={() => navigate(`/messages?collab=${id}`)}
-              className="px-6 py-3 bg-white dark:bg-white/5 border border-gray-100 dark:border-white/10 text-gray-700 dark:text-gray-300 font-bold rounded-2xl hover:bg-gray-50 dark:hover:bg-white/10 transition-all flex items-center gap-2"
-            >
-              <MessageSquare size={18} className="text-emerald-500" />
-              Messenger
-            </button>
-            {collab.status === 'active' && userRole === 'business_owner' && (
-              <button 
-                onClick={handleComplete}
-                className="px-8 py-3 bg-emerald-600 text-white font-bold rounded-2xl hover:bg-emerald-500 transition-all shadow-lg shadow-emerald-500/20 flex items-center gap-2"
-              >
-                <CheckCircle2 size={18} />
-                Finalize Project
-              </button>
-            )}
-            {collab.status === 'completed' && !hasReviewed && (
-              <button 
-                onClick={() => setIsReviewModalOpen(true)}
-                className="px-8 py-3 bg-amber-500 text-white font-bold rounded-2xl hover:bg-amber-400 transition-all shadow-lg shadow-amber-500/20 flex items-center gap-2"
-              >
-                <Star size={18} />
-                Rate Experience
-              </button>
-            )}
-          </div>
+        {/* Breadcrumb / Back */}
+        <div className="mb-8">
+           <button 
+            onClick={() => navigate(-1)}
+            className="flex items-center gap-2 text-xs font-black text-gray-400 uppercase tracking-widest hover:text-emerald-500 transition-all"
+           >
+             <ArrowLeft size={14} /> Back to My Campaigns
+           </button>
         </div>
 
-        <ReviewModal 
-          isOpen={isReviewModalOpen}
-          onClose={() => setIsReviewModalOpen(false)}
-          onSubmit={handleReviewSubmit}
-          targetName={partnerName}
+        {/* Global Header Component */}
+        <WorkspaceHeader 
+          campaign={collab.opportunity} 
+          collaboration={collab} 
+          status={collab.status} 
         />
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Main Info Column */}
-          <div className="lg:col-span-2 space-y-8">
-            {/* Project Overview */}
-            <section className="bg-white dark:bg-[#0a0a0a] rounded-[2.5rem] border border-gray-100 dark:border-white/5 p-8 shadow-sm">
-              <div className="flex items-center justify-between mb-8">
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                  <FileText className="text-emerald-500" size={20} />
-                  Overview
-                </h3>
-                <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">
-                  Started {new Date(collab.startDate).toLocaleDateString()}
-                </span>
-              </div>
+        {/* Dashboard Navigation */}
+        <div className="flex overflow-x-auto gap-2 mb-10 pb-2 no-scrollbar">
+           {tabs.map((tab) => (
+             <button
+               key={tab.id}
+               onClick={() => setActiveTab(tab.id)}
+               className={cn(
+                 "flex items-center gap-2 px-6 py-3 rounded-2xl text-sm font-bold transition-all shrink-0 border",
+                 activeTab === tab.id 
+                   ? "bg-gray-900 dark:bg-white text-white dark:text-black border-gray-900 dark:border-white shadow-xl shadow-gray-200 dark:shadow-none" 
+                   : "bg-white dark:bg-white/5 text-gray-500 dark:text-gray-400 border-gray-100 dark:border-white/5 hover:bg-gray-50 dark:hover:bg-white/10"
+               )}
+             >
+               <tab.icon size={18} />
+               {tab.label}
+             </button>
+           ))}
+        </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <div className="p-6 bg-gray-50/50 dark:bg-white/[0.02] rounded-3xl border border-gray-100/50 dark:border-white/5">
-                  <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Partner</p>
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-emerald-500 overflow-hidden">
-                      <img 
-                        src={partner?.profilePicture || `https://ui-avatars.com/api/?name=${partnerName}&background=10b981&color=fff`} 
-                        alt="" 
-                        className="w-full h-full object-cover" 
-                      />
-                    </div>
-                    <div>
-                      <p className="text-sm font-bold text-gray-900 dark:text-white">{partnerName}</p>
-                      <p className="text-[10px] font-medium text-gray-500">{userRole === 'business_owner' ? 'Influencer' : 'Brand'}</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="p-6 bg-gray-50/50 dark:bg-white/[0.02] rounded-3xl border border-gray-100/50 dark:border-white/5">
-                  <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Budget</p>
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-600">
-                      <DollarSign size={20} />
-                    </div>
-                    <div>
-                      <p className="text-sm font-black text-gray-900 dark:text-white">
-                        {collab.agreedBudget?.amount?.toLocaleString() || '0'} {collab.agreedBudget?.currency || 'AACP'}
+        {/* Dynamic Tab Content */}
+        <div className="min-h-[60vh]">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeTab}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
+            >
+              {activeTab === 'overview' && (
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                  <div className="lg:col-span-2 space-y-8">
+                    {/* Project Intro */}
+                    <section className="bg-white dark:bg-[#0a0a0a] rounded-[2.5rem] border border-gray-100 dark:border-white/5 p-8 shadow-sm">
+                      <div className="flex items-center justify-between mb-8">
+                        <h3 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                          <Info className="text-emerald-500" size={20} />
+                          Campaign Brief
+                        </h3>
+                        <div className="flex -space-x-2">
+                           {[1,2,3].map(i => (
+                             <div key={i} className="w-8 h-8 rounded-full border-2 border-white dark:border-black bg-gray-100 dark:bg-white/5 flex items-center justify-center text-[10px] font-bold">
+                               {i}
+                             </div>
+                           ))}
+                        </div>
+                      </div>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed font-medium mb-8">
+                        {collab.opportunity?.description || 'No detailed brief provided for this campaign yet.'}
                       </p>
-                      <p className="text-[10px] font-medium text-gray-500 italic">Fully Funded</p>
+                      
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                         <div className="p-4 bg-gray-50 dark:bg-white/5 rounded-2xl">
+                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Duration</p>
+                            <p className="text-xs font-bold text-gray-900 dark:text-white">30 Days</p>
+                         </div>
+                         <div className="p-4 bg-gray-50 dark:bg-white/5 rounded-2xl">
+                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Usage</p>
+                            <p className="text-xs font-bold text-gray-900 dark:text-white">6 Months</p>
+                         </div>
+                         <div className="p-4 bg-gray-50 dark:bg-white/5 rounded-2xl">
+                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Platform</p>
+                            <p className="text-xs font-bold text-gray-900 dark:text-white">{collab.opportunity?.platforms?.join(', ') || 'Global'}</p>
+                         </div>
+                         <div className="p-4 bg-gray-50 dark:bg-white/5 rounded-2xl">
+                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Target</p>
+                            <p className="text-xs font-bold text-gray-900 dark:text-white">Gen Z / Urban</p>
+                         </div>
+                      </div>
+                    </section>
+
+                    {/* Partner Card */}
+                    <section className="bg-gray-900 text-white rounded-[2.5rem] p-8 shadow-xl relative overflow-hidden group">
+                       <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl group-hover:bg-emerald-500/20 transition-all" />
+                       <div className="relative z-10 flex flex-col sm:flex-row items-center gap-8">
+                          <div className="w-24 h-24 rounded-3xl bg-white/10 p-1 shrink-0 overflow-hidden">
+                             <img 
+                               src={partner?.profilePicture || `https://ui-avatars.com/api/?name=${partnerName}&background=10b981&color=fff`} 
+                               alt="" 
+                               className="w-full h-full object-cover rounded-2xl" 
+                             />
+                          </div>
+                          <div className="text-center sm:text-left flex-1">
+                             <h4 className="text-xl font-black mb-1">{partnerName}</h4>
+                             <p className="text-sm font-medium text-white/50 mb-4">{userRole === 'business_owner' ? 'Professional Content Creator' : 'Brand Marketing Manager'}</p>
+                             <div className="flex flex-wrap justify-center sm:justify-start gap-4">
+                                <button onClick={() => navigate(`/profile/${partner._id}`)} className="px-5 py-2 bg-white/10 hover:bg-white/20 text-xs font-bold rounded-xl transition-all border border-white/5">View Profile</button>
+                                <button onClick={() => setActiveTab('chat')} className="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-xs font-bold rounded-xl transition-all shadow-lg shadow-emerald-500/20">Send Message</button>
+                             </div>
+                          </div>
+                       </div>
+                    </section>
+                  </div>
+
+                  <div className="space-y-8">
+                    <ActivityFeed activities={collab.activities || []} />
+                    
+                    <div className="bg-amber-500 rounded-[2.5rem] p-8 text-white shadow-xl shadow-amber-500/20 relative overflow-hidden">
+                       <div className="absolute -right-4 -top-4 w-24 h-24 bg-white/10 rounded-full blur-2xl" />
+                       <h3 className="text-lg font-black mb-6 flex items-center gap-2">
+                         <ShieldCheck size={20} />
+                         AACP Escrow
+                       </h3>
+                       <p className="text-xs font-medium text-white/80 mb-6 leading-relaxed">
+                         Funds are safely held in escrow and will be released automatically once milestones are approved.
+                       </p>
+                       <div className="space-y-3">
+                          <div className="flex justify-between items-center text-xs font-black">
+                             <span className="opacity-70">Secured Amount</span>
+                             <span>{collab.agreedBudget?.amount?.toLocaleString()} {collab.agreedBudget?.currency}</span>
+                          </div>
+                          <div className="flex justify-between items-center text-xs font-black">
+                             <span className="opacity-70">Dispute Window</span>
+                             <span>48 Hours</span>
+                          </div>
+                       </div>
                     </div>
                   </div>
                 </div>
+              )}
 
-                <div className="p-6 bg-gray-50/50 dark:bg-white/[0.02] rounded-3xl border border-gray-100/50 dark:border-white/5">
-                  <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Progress</p>
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-600">
-                      <Flag size={20} />
-                    </div>
-                    <div>
-                      <p className="text-sm font-black text-gray-900 dark:text-white">{collab.overallProgress || 0}%</p>
-                      <div className="w-16 h-1 bg-gray-100 dark:bg-white/10 rounded-full mt-1 overflow-hidden">
-                        <div className="h-full bg-blue-500" style={{ width: `${collab.overallProgress || 0}%` }} />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              {activeTab === 'tasks' && (
+                <TaskBoard 
+                  tasks={collab.tasks || []} 
+                  userRole={userRole!} 
+                  onAddTask={() => {}} // TODO: Implement API call
+                  onUpdateStatus={() => {}} // TODO: Implement API call
+                />
+              )}
 
-              <div className="space-y-4">
-                <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed font-medium">
-                  {collab.opportunity?.description || 'No description provided.'}
-                </p>
-                
-                <div className="flex flex-wrap gap-2 pt-4">
-                  {collab.opportunity?.platforms?.map((p: string) => (
-                    <span key={p} className="text-[10px] font-bold px-3 py-1 bg-gray-100 dark:bg-white/10 text-gray-500 dark:text-gray-400 rounded-lg">
-                      {p}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </section>
+              {activeTab === 'deliverables' && (
+                <DeliverablesManager 
+                  deliverables={collab.deliverables || []} 
+                  userRole={userRole!} 
+                  onUpload={() => {}} // TODO: Implement API call
+                  onAction={() => {}} // TODO: Implement API call
+                />
+              )}
 
-            {/* Milestones / Timeline */}
-            <section className="bg-white dark:bg-[#0a0a0a] rounded-[2.5rem] border border-gray-100 dark:border-white/5 p-8 shadow-sm">
-              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-8 flex items-center gap-2">
-                <Flag className="text-emerald-500" size={20} />
-                Project Milestones
-              </h3>
+              {activeTab === 'chat' && (
+                <CollaborationChat 
+                  messages={messages.map(m => ({
+                    id: m._id,
+                    senderId: m.sender._id,
+                    senderName: `${m.sender.firstName} ${m.sender.lastName}`,
+                    text: m.text,
+                    timestamp: m.createdAt,
+                    isSelf: m.sender.clerkId === profile.clerkId
+                  }))}
+                  currentUser={profile}
+                  onSendMessage={(text: string) => sendMessage(text)}
+                />
+              )}
 
-              <div className="space-y-6">
-                {[
-                  { label: 'Agreement Signed', date: collab.startDate, status: 'completed' },
-                  { label: 'Content Creation', date: 'In Progress', status: 'current' },
-                  { label: 'Final Review', date: 'Pending', status: 'upcoming' },
-                  { label: 'Project Completion', date: 'Pending', status: 'upcoming' }
-                ].map((m, idx) => (
-                  <div key={idx} className="flex items-center gap-6 group">
-                    <div className="relative flex flex-col items-center">
-                      <div className={cn(
-                        "w-8 h-8 rounded-full flex items-center justify-center z-10 border-2",
-                        m.status === 'completed' ? "bg-emerald-500 border-emerald-500 text-white" : 
-                        m.status === 'current' ? "bg-white dark:bg-[#0a0a0a] border-emerald-500 text-emerald-500" :
-                        "bg-white dark:bg-[#0a0a0a] border-gray-200 dark:border-white/10 text-gray-300"
-                      )}>
-                        {m.status === 'completed' ? <CheckCircle2 size={16} /> : <span className="text-xs font-bold">{idx + 1}</span>}
-                      </div>
-                      {idx !== 3 && (
-                        <div className={cn(
-                          "w-0.5 h-12 -mb-6",
-                          m.status === 'completed' ? "bg-emerald-500" : "bg-gray-100 dark:bg-white/5"
-                        )} />
-                      )}
-                    </div>
-                    <div className="flex-1 pb-6">
-                      <div className="flex justify-between items-center">
-                        <p className={cn(
-                          "font-bold",
-                          m.status === 'upcoming' ? "text-gray-400" : "text-gray-900 dark:text-white"
-                        )}>{m.label}</p>
-                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-                          {m.status === 'completed' ? new Date(m.date).toLocaleDateString() : m.date}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </section>
-          </div>
-
-          {/* Sidebar Info */}
-          <div className="space-y-8">
-            {/* Quick Stats Card */}
-            <section className="bg-emerald-600 rounded-[2.5rem] p-8 text-white shadow-xl shadow-emerald-500/20 relative overflow-hidden">
-               <div className="absolute -right-4 -top-4 w-24 h-24 bg-white/10 rounded-full blur-2xl" />
-               <div className="relative z-10">
-                 <h3 className="text-lg font-black mb-6 flex items-center gap-2">
-                   <ShieldCheck size={20} />
-                   Secure Contract
-                 </h3>
-                 <div className="space-y-4">
-                   <div className="flex justify-between items-center py-3 border-b border-white/10">
-                     <span className="text-xs font-bold text-white/70">Payment Method</span>
-                     <span className="text-xs font-black">Escrow (AACP)</span>
-                   </div>
-                   <div className="flex justify-between items-center py-3 border-b border-white/10">
-                     <span className="text-xs font-bold text-white/70">Protection</span>
-                     <span className="text-xs font-black">Standard AACP</span>
-                   </div>
-                   <div className="flex justify-between items-center py-3">
-                     <span className="text-xs font-bold text-white/70">Dispute Status</span>
-                     <span className="text-xs font-black">None</span>
-                   </div>
-                 </div>
-                 
-                 <button className="w-full mt-8 py-3 bg-white text-emerald-600 font-black rounded-2xl hover:bg-gray-100 transition-all flex items-center justify-center gap-2 text-sm">
-                   View Contract <ExternalLink size={14} />
-                 </button>
-               </div>
-            </section>
-
-            {/* Support / Help */}
-            <section className="bg-white dark:bg-[#0a0a0a] rounded-[2.5rem] border border-gray-100 dark:border-white/5 p-8">
-              <h4 className="text-sm font-black text-gray-900 dark:text-white mb-4">Need Help?</h4>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mb-6 font-medium">
-                Our support team is available 24/7 to help you with any issues during your collaboration.
-              </p>
-              <button className="w-full py-3 bg-gray-50 dark:bg-white/5 text-gray-600 dark:text-gray-400 font-bold rounded-2xl hover:bg-gray-100 transition-all border border-gray-100 dark:border-white/10 text-sm">
-                Open Support Ticket
-              </button>
-            </section>
-          </div>
+              {activeTab === 'analytics' && (
+                <AnalyticsDashboard 
+                  analytics={[]} // TODO: Connect to hook
+                  budget={collab.agreedBudget?.amount || 0}
+                  onRefresh={() => refetch()}
+                  onSubmitUrl={() => {}} // TODO: Implement API call
+                />
+              )}
+            </motion.div>
+          </AnimatePresence>
         </div>
       </main>
     </Layout>

@@ -134,3 +134,104 @@ export const getCollaborationById = async (id: string): Promise<ICollaboration> 
 
     return collaboration;
 };
+/**
+ * Add a new task to a collaboration
+ */
+export const addTask = async (id: string, taskData: any, userId: string): Promise<ICollaboration> => {
+    const collaboration = await Collaboration.findById(id);
+    if (!collaboration) throw new Error('Collaboration not found');
+
+    // Only business owner can create tasks
+    if (collaboration.businessOwner.toString() !== userId) {
+        throw new Error('Not authorized to create tasks');
+    }
+
+    collaboration.tasks.push({
+        ...taskData,
+        status: 'pending',
+        assignedTo: collaboration.advertiser
+    });
+
+    await collaboration.save();
+    return collaboration;
+};
+
+/**
+ * Update task status
+ */
+export const updateTaskStatus = async (id: string, taskId: string, status: string, userId: string): Promise<ICollaboration> => {
+    const collaboration = await Collaboration.findById(id);
+    if (!collaboration) throw new Error('Collaboration not found');
+
+    const task = (collaboration.tasks as any).id(taskId);
+    if (!task) throw new Error('Task not found');
+
+    // Business owner can approve, Advertiser can start/submit
+    if (status === 'approved' && collaboration.businessOwner.toString() !== userId) {
+        throw new Error('Only business owner can approve tasks');
+    }
+
+    task.status = status as any;
+    await collaboration.save();
+    return collaboration;
+};
+
+/**
+ * Add a deliverable (milestone submission)
+ */
+export const addDeliverable = async (id: string, deliverableData: any, userId: string): Promise<ICollaboration> => {
+    const collaboration = await Collaboration.findById(id);
+    if (!collaboration) throw new Error('Collaboration not found');
+
+    if (collaboration.advertiser.toString() !== userId) {
+        throw new Error('Only the advertiser can submit deliverables');
+    }
+
+    // For now, we add it to the first milestone or create a generic one
+    if (collaboration.milestones.length === 0) {
+        collaboration.milestones.push({
+            title: 'Project Deliverables',
+            status: 'in_progress',
+            submissions: []
+        } as any);
+    }
+
+    collaboration.milestones[0].submissions.push({
+        ...deliverableData,
+        submittedAt: new Date(),
+        status: 'pending'
+    });
+
+    await collaboration.save();
+    return collaboration;
+};
+
+/**
+ * Update deliverable status (Approve/Reject/Revision)
+ */
+export const updateDeliverableStatus = async (id: string, submissionId: string, status: string, feedback: string, userId: string): Promise<ICollaboration> => {
+    const collaboration = await Collaboration.findById(id);
+    if (!collaboration) throw new Error('Collaboration not found');
+
+    if (collaboration.businessOwner.toString() !== userId) {
+        throw new Error('Only the business owner can review deliverables');
+    }
+
+    // Find submission in milestones
+    let found = false;
+    for (const milestone of collaboration.milestones) {
+        const submission = (milestone.submissions as any).id(submissionId);
+        if (submission) {
+            submission.status = status as any;
+            if (feedback) submission.feedbackFromOwner = feedback;
+            submission.reviewedAt = new Date();
+            found = true;
+            break;
+        }
+    }
+
+    if (!found) throw new Error('Submission not found');
+
+    await collaboration.save();
+    return collaboration;
+};

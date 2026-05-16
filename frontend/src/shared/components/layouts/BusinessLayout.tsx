@@ -19,7 +19,7 @@ import {
   MessageSquare,
   Briefcase,
   Loader2,
-  Star
+  Star, Zap
 } from 'lucide-react';
 import { useClerk } from '@clerk/clerk-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
@@ -101,10 +101,10 @@ export default function BusinessLayout({ children }: BusinessLayoutProps) {
       )}>
         <div className="p-6 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center">
-              <Rocket className="text-white w-5 h-5" />
+            <div className="w-8 h-8 bg-emerald-600 rounded-full flex items-center justify-center">
+              <Zap className="text-white w-5 h-5 fill-white" />
             </div>
-            <span className="text-xl font-bold tracking-tighter text-gray-900 dark:text-white">AACP</span>
+            <span className="text-xl font-bold tracking-tighter text-emerald-600">AACP</span>
           </Link>
           <button className="lg:hidden" onClick={() => setIsSidebarOpen(false)}>
             <X size={20} />

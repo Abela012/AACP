@@ -144,4 +144,12 @@ router.get('/user/:userId', collaborationsController.getCollaborationsByUser);
  */
 router.get('/:id', collaborationsController.getCollaborationById);
 
+// Task Management
+router.post('/:id/tasks', collaborationsController.addTask);
+router.put('/:id/tasks/:taskId', collaborationsController.updateTask);
+
+// Deliverables Management
+router.post('/:id/deliverables', collaborationsController.submitDeliverable);
+router.put('/:id/deliverables/:submissionId/review', collaborationsController.reviewDeliverable);
+
 export default router;

@@ -11,6 +11,8 @@ export interface Opportunity {
     category: string;
     platforms?: string[];
     deliverables?: string[];
+    paymentType?: 'Fixed-price' | 'Hourly';
+    experienceLevel?: 'Beginner' | 'Intermediate' | 'Expert';
     requirements?: {
         minFollowers?: number;
         preferredNiches?: string[];

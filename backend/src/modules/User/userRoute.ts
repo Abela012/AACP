@@ -5,6 +5,12 @@ import {
   updateUserProfile,
   submitProfileForReview,
   uploadProfilePicture,
+  getUserById,
+  uploadFile,
+  toggleSavedOpportunity,
+  getSavedOpportunities,
+  toggleSavedCreator,
+  getSavedCreators,
 } from "./userController";
 import { requireAuth } from "@clerk/express";
 import multer from "multer";
@@ -176,6 +182,13 @@ router.post(
   uploadProfilePicture
 );
 
+router.post(
+  "/upload",
+  requireAuth(),
+  upload.single("file"),
+  uploadFile
+);
+
 /**
  * @swagger
  * /api/v1/users/me:
@@ -244,5 +257,10 @@ router.get("/me", requireAuth(), getCurrentUser);
  *         description: Failed to sync user
  */
 router.post("/sync", syncUser);
+router.get("/saved-opportunities", requireAuth(), getSavedOpportunities);
+router.post("/toggle-save", requireAuth(), toggleSavedOpportunity);
+router.post("/toggle-creator", requireAuth(), toggleSavedCreator);
+router.get("/saved-creators", requireAuth(), getSavedCreators);
+router.get("/:id", requireAuth(), getUserById);
 
 export default router;

@@ -5,7 +5,7 @@ import { collaborationApi, type Collaboration } from '../api/collaborationApi';
 /** All collaborations for a specific user */
 export const useUserCollaborations = (userId: string) => {
     const api = useApiClient();
-    return useQuery({
+    return useQuery<Collaboration[]>({
         queryKey: ['collaborations', 'user', userId],
         queryFn: () => collaborationApi.getForUser(api, userId).then(r => r.data.data),
         enabled: !!userId,
@@ -16,7 +16,7 @@ export const useUserCollaborations = (userId: string) => {
 /** Get specific collaboration details */
 export const useCollaborationDetails = (id: string) => {
     const api = useApiClient();
-    return useQuery({
+    return useQuery<Collaboration>({
         queryKey: ['collaborations', id],
         queryFn: () => collaborationApi.getById(api, id).then(r => r.data.data),
         enabled: !!id,

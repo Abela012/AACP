@@ -87,7 +87,7 @@ export default function AdminPaymentsPage() {
               placeholder="Search by username, email, or transaction ID..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-white/5 border-none rounded-2xl focus:ring-2 focus:ring-[#14a800] transition-all outline-none text-sm font-medium"
+              className="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-white/5 border-none rounded-2xl focus:ring-2 focus:ring-emerald-600 transition-all outline-none text-sm font-medium"
             />
           </div>
           
@@ -99,7 +99,7 @@ export default function AdminPaymentsPage() {
                 className={cn(
                   "px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all",
                   statusFilter === f 
-                    ? "bg-white dark:bg-white/10 text-[#14a800] shadow-sm" 
+                    ? "bg-white dark:bg-white/10 text-emerald-600 shadow-sm" 
                     : "text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
                 )}
               >
@@ -128,7 +128,7 @@ export default function AdminPaymentsPage() {
                   <tr>
                     <td colSpan={6} className="px-8 py-20 text-center">
                       <div className="flex flex-col items-center gap-4">
-                        <Loader2 className="w-10 h-10 text-[#14a800] animate-spin" />
+                        <Loader2 className="w-10 h-10 text-emerald-600 animate-spin" />
                         <p className="text-gray-500 font-bold uppercase tracking-widest text-xs">Fetching Request Data...</p>
                       </div>
                     </td>
@@ -144,7 +144,7 @@ export default function AdminPaymentsPage() {
                          <p className="text-sm text-gray-500">No coin purchase requests match your current filters.</p>
                          <button
                             onClick={() => refetch()}
-                            className="mt-4 px-6 py-2 bg-[#14a800] text-white rounded-xl text-xs font-bold"
+                            className="mt-4 px-6 py-2 bg-emerald-600 text-white rounded-xl text-xs font-bold"
                           >
                             Refresh
                           </button>
@@ -165,7 +165,7 @@ export default function AdminPaymentsPage() {
                           </div>
                           <div>
                             <p className="text-sm font-bold text-gray-900 dark:text-white">{request.user}</p>
-                            <p className="text-[10px] font-bold text-[#14a800] uppercase tracking-widest mt-0.5">{request.role?.replace('_', ' ')}</p>
+                            <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest mt-0.5">{request.role?.replace('_', ' ')}</p>
                           </div>
                         </div>
                       </td>
@@ -186,7 +186,7 @@ export default function AdminPaymentsPage() {
                         <span className={cn(
                           "px-4 py-1.5 rounded-lg text-[10px] font-black tracking-widest uppercase inline-block border",
                           request.status === 'PENDING' ? "bg-blue-50 text-blue-600 border-blue-100 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20" :
-                          request.status === 'COMPLETED' ? "bg-green-50 text-green-600 border-green-100 dark:bg-green-500/10 dark:text-green-400 dark:border-green-500/20" :
+                          request.status === 'COMPLETED' ? "bg-emerald-50 text-green-600 border-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20" :
                           "bg-red-50 text-red-600 border-red-100 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20"
                         )}>
                           {request.status}
@@ -198,7 +198,7 @@ export default function AdminPaymentsPage() {
                             <button 
                               onClick={() => handleApprove(request._id)}
                               disabled={approve.isPending}
-                              className="p-2.5 bg-green-50 dark:bg-green-500/10 text-green-600 hover:bg-[#14a800] hover:text-white rounded-xl transition-all disabled:opacity-50"
+                              className="p-2.5 bg-emerald-50 dark:bg-emerald-500/10 text-green-600 hover:bg-emerald-600 hover:text-white rounded-xl transition-all disabled:opacity-50"
                               title="Approve Request"
                             >
                               <CheckCircle2 size={18} />
@@ -240,13 +240,13 @@ export default function AdminPaymentsPage() {
               </p>
            </div>
            
-           <div className="bg-[#14a800] p-8 rounded-[2.5rem] shadow-xl text-white relative overflow-hidden group">
+           <div className="bg-emerald-600 p-8 rounded-[2.5rem] shadow-xl text-white relative overflow-hidden group">
               <div className="relative z-10 flex items-center justify-between h-full">
                  <div>
                     <h3 className="font-bold mb-2">Need Help?</h3>
                     <p className="text-xs font-medium opacity-80 max-w-[200px]">Check the admin handbook for payment verification guidelines.</p>
                  </div>
-                 <button className="bg-white text-[#14a800] px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg group-hover:scale-105 transition-transform">
+                 <button className="bg-white text-emerald-600 px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg group-hover:scale-105 transition-transform">
                     Handbook
                  </button>
               </div>

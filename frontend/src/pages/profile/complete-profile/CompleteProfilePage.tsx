@@ -199,6 +199,93 @@ function SelectField({
   );
 }
 
+const countryCodes = [
+  { code: '+251', country: 'ET', flag: '🇪🇹' },
+  { code: '+1', country: 'US', flag: '🇺🇸' },
+  { code: '+44', country: 'UK', flag: '🇬🇧' },
+  { code: '+971', country: 'AE', flag: '🇦🇪' },
+  { code: '+254', country: 'KE', flag: '🇰🇪' },
+  { code: '+234', country: 'NG', flag: '🇳🇬' },
+  { code: '+27', country: 'ZA', flag: '🇿🇦' },
+  { code: '+251', country: 'DJ', flag: '🇩🇯' },
+  { code: '+252', country: 'SO', flag: '🇸🇴' },
+  { code: '+249', country: 'SD', flag: '🇸🇩' },
+  { code: '+211', country: 'SS', flag: '🇸🇸' },
+  { code: '+256', country: 'UG', flag: '🇺🇬' },
+  { code: '+250', country: 'RW', flag: '🇷🇼' },
+  { code: '+255', country: 'TZ', flag: '🇹🇿' },
+];
+
+function PhoneInputField({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  // Extract code and number from value (format: "+XXX YYYYYYYY")
+  const [selectedCode, setSelectedCode] = useState(() => {
+    const match = value.match(/^(\+\d+)/);
+    return match ? match[1] : '+251';
+  });
+
+  const [number, setNumber] = useState(() => {
+    const codeMatch = value.match(/^(\+\d+)/);
+    if (codeMatch) {
+      return value.replace(codeMatch[1], '').trim();
+    }
+    return value;
+  });
+
+  const handleCodeChange = (newCode: string) => {
+    setSelectedCode(newCode);
+    onChange(`${newCode} ${number}`.trim());
+  };
+
+  const handleNumberChange = (newNumber: string) => {
+    // Only allow numbers
+    const cleaned = newNumber.replace(/\D/g, '');
+    setNumber(cleaned);
+    onChange(`${selectedCode} ${cleaned}`.trim());
+  };
+
+  return (
+    <div className="space-y-2">
+      <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">
+        {label}
+      </label>
+      <div className="flex gap-2">
+        <div className="relative w-32 shrink-0">
+          <select
+            value={selectedCode}
+            onChange={(e) => handleCodeChange(e.target.value)}
+            className="w-full bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl pl-3 pr-8 py-3 text-sm text-gray-900 dark:text-white appearance-none focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30 transition-all duration-200 cursor-pointer"
+          >
+            {countryCodes.map((c) => (
+              <option key={`${c.country}-${c.code}`} value={c.code}>
+                {c.flag} {c.code}
+              </option>
+            ))}
+          </select>
+          <ChevronDown
+            size={14}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+          />
+        </div>
+        <input
+          type="tel"
+          value={number}
+          onChange={(e) => handleNumberChange(e.target.value)}
+          placeholder="912 345 678"
+          className="flex-1 bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30 transition-all duration-200"
+        />
+      </div>
+    </div>
+  );
+}
+
 /* ─── Platform Button ─── */
 function PlatformButton({
   icon,
@@ -576,14 +663,13 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
 
   /* ── Business-specific state ── */
   const [businessName, setBusinessName] = useState('');
-  const [industry, setIndustry] = useState('Technology');
+  const [industry, setIndustry] = useState('Food & Beverage');
   const [businessLocation, setBusinessLocation] = useState('');
   const [websiteUrl, setWebsiteUrl] = useState('');
   const [companySize, setCompanySize] = useState('1-10');
   const [targetAudienceTags, setTargetAudienceTags] = useState<TagItem[]>([]);
   const [newAudienceTag, setNewAudienceTag] = useState('');
   const [showAudienceInput, setShowAudienceInput] = useState(false);
-  /** Monthly marketing budget in ETB (Birr) */
   const [monthlyBudget, setMonthlyBudget] = useState(50000);
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
   const [brandDescription, setBrandDescription] = useState('');
@@ -594,13 +680,10 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
   const [preferredPromotionTypes, setPreferredPromotionTypes] = useState<string[]>([]);
   const [preferredPromoterTypes, setPreferredPromoterTypes] = useState<string[]>([]);
   const [promotersNeededCount, setPromotersNeededCount] = useState('');
-  /** ETB — typical max spend per creator post (powers recommendation “budget fit”) */
   const [maxSpendPerPostETB, setMaxSpendPerPostETB] = useState(15000);
-  /** Minimum creator engagement % you expect for strong matches */
   const [minEngagementPercent, setMinEngagementPercent] = useState('3');
-  /** Average order or typical sale value in ETB — helps AI profitability context */
   const [avgOrderValueETB, setAvgOrderValueETB] = useState('');
-  const [brandVoice, setBrandVoice] = useState('Professional');
+  const [brandVoice, setBrandVoice] = useState('Friendly');
   const [primaryKpis, setPrimaryKpis] = useState<string[]>([]);
   const [targetAudienceAgeRanges, setTargetAudienceAgeRanges] = useState<string[]>([]);
 
@@ -639,34 +722,48 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
   const ageRanges = ['13-17', '18-24', '25-34', '35-44', '45+'];
   const companySizes = ['1-10', '11-50', '51-200', '200+'];
   const industries = [
-    'Organic Agriculture',
+    'Food & Beverage',
+    'Fashion',
     'Technology',
+    'Beauty',
+    'Real Estate',
+    'Organic Agriculture',
     'Healthcare',
     'Education',
     'E-commerce',
     'Fintech',
-    'SaaS',
-    'Fashion & Apparel',
-    'Food & Beverage',
     'Other',
   ];
-  const languages = [
-    'English (US)',
-    'English (UK)',
-    'Spanish',
-    'French',
-    'German',
-    'Amharic',
-    'Arabic',
-    'Chinese',
-    'Other',
+  const platformOptions = ['Instagram', 'TikTok', 'YouTube', 'Facebook', 'LinkedIn'];
+  const businessGoals = [
+    'More Customers',
+    'Brand Awareness',
+    'Product Promotion',
+    'Online Visibility',
+    'Lead Generation',
+    'Launch / Relaunch',
   ];
-  const platformOptions = ['Instagram', 'TikTok', 'YouTube', 'LinkedIn'];
-  const businessGoals = ['More customers', 'Online visibility', 'Product promotion', 'Brand awareness', 'Lead generation', 'Launch / relaunch'];
-  const promotionTypes = ['Short-form video (Reels/TikTok)', 'Static posts & carousels', 'Stories & UGC', 'Live or event coverage', 'Reviews & testimonials', 'Affiliate / codes'];
-  const promoterTypes = ['Micro creators (10K–100K)', 'Mid-tier creators', 'Local / niche creators', 'Professional creators'];
-  const brandVoiceOptions = ['Professional', 'Friendly', 'Bold & premium', 'Educational', 'Playful'];
-  const kpiOptions = ['Sales / orders', 'Leads & inquiries', 'Brand awareness', 'App installs', 'Store foot traffic'];
+  const promotionTypes = [
+    'Short Videos (Reels/TikTok)',
+    'Photos & Carousels',
+    'Stories / UGC',
+    'Reviews & Testimonials',
+    'Live Coverage',
+  ];
+  const promoterTypes = [
+    'Local Creators',
+    'Micro Creators',
+    'Mid-tier Creators',
+    'Professional Creators',
+  ];
+  const brandVoiceOptions = ['Professional', 'Friendly', 'Luxury', 'Fun', 'Modern'];
+  const kpiOptions = [
+    'Sales / Orders',
+    'Leads & Inquiries',
+    'Brand Awareness',
+    'Store Visits',
+    'App Installs',
+  ];
   const MONTHLY_BUDGET_MIN_ETB = 5_000;
   const MONTHLY_BUDGET_MAX_ETB = 2_000_000;
   const MONTHLY_BUDGET_STEP_ETB = 5_000;
@@ -801,6 +898,7 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
     setIsSubmitting(true);
     try {
       let profileData;
+      let socialProfiles: any[] = [];
       if (isBusiness) {
         const minEng = Math.min(50, Math.max(0, parseFloat(minEngagementPercent) || 0));
         const avgOrder = avgOrderValueETB.replace(/,/g, '').trim();
@@ -840,46 +938,64 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
           return;
         }
 
-        // For Advertisers, only save platform-specific analytics to profileData
-        profileData = {
-          // TikTok Analytics
-          tiktok: {
+        // For Advertisers, save platform-specific analytics to socialProfiles array
+        if (isTiktokFormComplete) {
+          socialProfiles.push({
+            platform: "TikTok",
             username: tiktokUsername,
-            followers: parseMetric(tiktokFollowers),
-            totalLikes: parseMetric(tiktokTotalLikes),
-            avgViews: parseMetric(tiktokAvgViews),
-            avgComments: parseMetric(tiktokAvgComments),
-            avgShares: parseMetric(tiktokAvgShares),
-            engagementRate: tiktokER.hasErrors ? 0 : parseFloat(computedTiktokER),
-            accountType: tiktokAccountType,
             profileLink: tiktokProfileLink,
+            verified: false,
+            engagementRate: tiktokER.hasErrors ? 0 : parseFloat(computedTiktokER),
             postingFrequency: tiktokPostingFrequency,
-            niche: tiktokNiche,
-            audienceGender: tiktokAudienceGender,
-            audienceTopCountry: tiktokAudienceTopCountry,
-            audienceAgeRange: tiktokAudienceAgeRange,
-            contentStyle: tiktokContentStyle,
-          },
+            niches: tiktokNiche,
+            contentStyles: tiktokContentStyle,
+            tiktokAnalytics: {
+              followers: parseMetric(tiktokFollowers),
+              following: 0,
+              avgViews: parseMetric(tiktokAvgViews),
+              avgLikes: parseMetric(tiktokTotalLikes),
+              avgComments: parseMetric(tiktokAvgComments),
+              avgShares: parseMetric(tiktokAvgShares),
+              averageWatchTime: 0,
+              completionRate: 0,
+              totalLikes: parseMetric(tiktokTotalLikes),
+              viralVideoPercentage: 0
+            },
+            audience: {
+              topCountries: [{ country: tiktokAudienceTopCountry, percentage: 100 }]
+            }
+          });
+        }
 
-          // Instagram Analytics
-          instagram: {
+        // Map existing Instagram fields to YouTube format based on backend update
+        if (isInstagramFormComplete) {
+          socialProfiles.push({
+            platform: "YouTube",
             username: instagramUsername,
-            followers: parseMetric(instagramFollowers),
-            totalLikes: parseMetric(instagramTotalLikes),
-            avgViews: parseMetric(instagramAvgViews),
-            avgComments: parseMetric(instagramAvgComments),
-            avgShares: parseMetric(instagramAvgShares),
-            engagementRate: instagramER.hasErrors ? 0 : parseFloat(computedInstagramER),
-            accountType: instagramAccountType,
             profileLink: instagramProfileLink,
+            verified: false,
+            engagementRate: instagramER.hasErrors ? 0 : parseFloat(computedInstagramER),
             postingFrequency: instagramPostingFrequency,
-            niche: instagramNiche,
-            audienceGender: instagramAudienceGender,
-            audienceTopCountry: instagramAudienceTopCountry,
-            audienceAgeRange: instagramAudienceAgeRange,
-            contentStyle: instagramContentStyle,
-          },
-        };
+            niches: instagramNiche,
+            contentStyles: instagramContentStyle,
+            youtubeAnalytics: {
+              subscribers: parseMetric(instagramFollowers),
+              watchHours: 0,
+              ctr: 0,
+              impressions: 0,
+              averageViewDuration: 0,
+              totalVideos: 0,
+              engagementMetrics: {
+                likes: parseMetric(instagramTotalLikes),
+                comments: parseMetric(instagramAvgComments),
+                shares: parseMetric(instagramAvgShares)
+              }
+            },
+            audience: {
+              topCountries: [{ country: instagramAudienceTopCountry, percentage: 100 }]
+            }
+          });
+        }
       }
 
       await userApi.submitProfile(api, {
@@ -890,12 +1006,14 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
         location: isBusiness ? businessLocation : "",
         tradeLicenseUrl,
         profileData,
+        socialProfiles,
       });
 
       updateProfile({
         firstName,
         lastName,
         avatarUrl: profilePicture,
+        socialProfiles,
         ...profileData
       });
       setSubmitted(true);
@@ -982,57 +1100,59 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
 
       {/* ── Main Form ── */}
       <div className="max-w-[620px] mx-auto px-4 pb-32 space-y-6">
-        {/* ━━ SHARED: PERSONAL INFORMATION ━━ */}
-        <SectionCard icon={<Users size={20} />} title={isBusiness ? 'Primary contact' : 'Personal Information'}>
-          <div className="flex flex-col items-center mb-8">
-            <div className="relative group">
-              <div className="w-24 h-24 rounded-full border-4 border-emerald-500/20 overflow-hidden bg-gray-100 dark:bg-white/5 shadow-xl">
-                <img
-                  src={profilePicture || `https://ui-avatars.com/api/?name=${firstName}+${lastName}&background=10b981&color=fff`}
-                  alt="Profile"
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <label className="absolute inset-0 flex items-center justify-center bg-black/40 text-white rounded-full opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity">
-                <Camera size={24} />
-                <input
-                  type="file"
-                  className="hidden"
-                  accept="image/*"
-                  onChange={async (e) => {
-                    const file = e.target.files?.[0];
-                    if (!file) return;
-                    setIsUploading(true);
-                    try {
-                      const formData = new FormData();
-                      formData.append('image', file);
-                      const res = await api.post('/users/profile/picture?type=avatar', formData, {
-                        headers: { 'Content-Type': 'multipart/form-data' }
-                      });
-                      setProfilePicture(res.data.user.profilePicture);
-                    } catch (err) {
-                      console.error('Upload failed:', err);
-                    } finally {
-                      setIsUploading(false);
-                    }
-                  }}
-                />
-              </label>
-              {isUploading && (
-                <div className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full">
-                  <div className="w-8 h-8 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+        {/* ━━ SHARED: PERSONAL INFORMATION (ADVERTISERS ONLY) ━━ */}
+        {!isBusiness && (
+          <SectionCard icon={<Users size={20} />} title="Personal Information">
+            <div className="flex flex-col items-center mb-8">
+              <div className="relative group">
+                <div className="w-24 h-24 rounded-full border-4 border-emerald-500/20 overflow-hidden bg-gray-100 dark:bg-white/5 shadow-xl">
+                  <img
+                    src={profilePicture || `https://ui-avatars.com/api/?name=${firstName}+${lastName}&background=10b981&color=fff`}
+                    alt="Profile"
+                    className="w-full h-full object-cover"
+                  />
                 </div>
-              )}
+                <label className="absolute inset-0 flex items-center justify-center bg-black/40 text-white rounded-full opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity">
+                  <Camera size={24} />
+                  <input
+                    type="file"
+                    className="hidden"
+                    accept="image/*"
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      setIsUploading(true);
+                      try {
+                        const formData = new FormData();
+                        formData.append('image', file);
+                        const res = await api.post('/users/profile/picture?type=avatar', formData, {
+                          headers: { 'Content-Type': 'multipart/form-data' }
+                        });
+                        setProfilePicture(res.data.user.profilePicture);
+                      } catch (err) {
+                        console.error('Upload failed:', err);
+                      } finally {
+                        setIsUploading(false);
+                      }
+                    }}
+                  />
+                </label>
+                {isUploading && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full">
+                    <div className="w-8 h-8 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  </div>
+                )}
+              </div>
+              <p className="mt-3 text-xs font-bold text-gray-500 uppercase tracking-wider">Profile Picture</p>
             </div>
-            <p className="mt-3 text-xs font-bold text-gray-500 uppercase tracking-wider">Profile Picture</p>
-          </div>
 
-          <div className="grid grid-cols-2 gap-4 mb-4">
-            <InputField label="First Name" value={firstName} onChange={setFirstName} placeholder="John" />
-            <InputField label="Last Name" value={lastName} onChange={setLastName} placeholder="Doe" />
-          </div>
-          <InputField label="Phone" value={phone} onChange={setPhone} placeholder="+251 ..." icon={<CheckCircle2 size={16} className="opacity-0" />} />
-        </SectionCard>
+            <div className="grid grid-cols-2 gap-4 mb-4">
+              <InputField label="First Name" value={firstName} onChange={setFirstName} placeholder="John" />
+              <InputField label="Last Name" value={lastName} onChange={setLastName} placeholder="Doe" />
+            </div>
+            <PhoneInputField label="Phone Number" value={phone} onChange={setPhone} />
+          </SectionCard>
+        )}
 
         {/* Social Connections — creators only (not used for business-owner AI signals) */}
         {!isBusiness && (
@@ -1257,23 +1377,78 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
         {isBusiness ? (
           /* ━━ BUSINESS PROFILE ━━ */
           <>
-            {/* Business & brand (AI + matching context) */}
-            <SectionCard icon={<Building2 size={20} />} title="Business & brand">
+            {/* 1. Account Owner */}
+            <SectionCard icon={<Users size={20} />} title="1. Account Owner">
               <p className="text-xs text-gray-500 dark:text-gray-400 -mt-4 mb-6">
-                Identity and offer — used to align campaigns, creator recommendations, and marketing analysis with your real business.
+                Basic information about the person managing the business account.
               </p>
-              <div className="space-y-5">
+              <div className="flex flex-col items-center mb-8">
+                <div className="relative group">
+                  <div className="w-24 h-24 rounded-full border-4 border-emerald-500/20 overflow-hidden bg-gray-100 dark:bg-white/5 shadow-xl">
+                    <img
+                      src={profilePicture || `https://ui-avatars.com/api/?name=${firstName}+${lastName}&background=10b981&color=fff`}
+                      alt="Profile"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <label className="absolute inset-0 flex items-center justify-center bg-black/40 text-white rounded-full opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity">
+                    <Camera size={24} />
+                    <input
+                      type="file"
+                      className="hidden"
+                      accept="image/*"
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        setIsUploading(true);
+                        try {
+                          const formData = new FormData();
+                          formData.append('image', file);
+                          const res = await api.post('/users/profile/picture?type=avatar', formData, {
+                            headers: { 'Content-Type': 'multipart/form-data' }
+                          });
+                          setProfilePicture(res.data.user.profilePicture);
+                        } catch (err) {
+                          console.error('Upload failed:', err);
+                        } finally {
+                          setIsUploading(false);
+                        }
+                      }}
+                    />
+                  </label>
+                  {isUploading && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full">
+                      <div className="w-8 h-8 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    </div>
+                  )}
+                </div>
+                <p className="mt-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Profile Picture</p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 mb-4">
+                <InputField label="First Name" value={firstName} onChange={setFirstName} placeholder="John" />
+                <InputField label="Last Name" value={lastName} onChange={setLastName} placeholder="Doe" />
+              </div>
+              <PhoneInputField label="Phone Number" value={phone} onChange={setPhone} />
+            </SectionCard>
+
+            {/* 2. Business Information */}
+            <SectionCard icon={<Building2 size={20} />} title="2. Business Information">
+              <p className="text-xs text-gray-500 dark:text-gray-400 -mt-4 mb-6">
+                Tell us about your business so we can personalize recommendations and campaigns.
+              </p>
+              <div className="space-y-6">
                 <InputField
-                  label="Registered / trading name"
+                  label="Business Name"
                   placeholder="e.g. Green Bloom Trading PLC"
                   value={businessName}
                   onChange={setBusinessName}
                 />
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                  <SelectField label="Industry / vertical" value={industry} onChange={setIndustry} options={industries} />
+                  <SelectField label="Industry" value={industry} onChange={setIndustry} options={industries} />
                   <div className="space-y-2">
                     <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">
-                      Company size
+                      Company Size
                     </label>
                     <div className="flex gap-2 flex-wrap">
                       {companySizes.map((size) => (
@@ -1288,14 +1463,14 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
                   </div>
                 </div>
                 <InputField
-                  label="City & country (HQ or main market)"
+                  label="City & Country"
                   placeholder="e.g. Addis Ababa, Ethiopia"
                   value={businessLocation}
                   onChange={setBusinessLocation}
                   icon={<MapPin size={16} />}
                 />
                 <InputField
-                  label="Website (optional)"
+                  label="Website (Optional)"
                   placeholder="www.yourbrand.com"
                   value={websiteUrl}
                   onChange={setWebsiteUrl}
@@ -1303,118 +1478,118 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
                 />
                 <div className="space-y-2">
                   <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">
-                    Key products or services
+                    Products or Services
                   </label>
                   <textarea
                     rows={3}
                     value={servicesOffered}
                     onChange={(e) => setServicesOffered(e.target.value)}
-                    placeholder="What you sell: SKUs, packages, or core services (helps AI match messaging and creators)."
-                    className="w-full bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl p-4 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30 resize-none"
+                    placeholder="Example: Restaurant services, bakery products, catering, coffee shop, etc."
+                    className="w-full bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl p-4 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30 resize-none transition-all"
                   />
                 </div>
                 <div className="space-y-2">
                   <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">
-                    Brand story & positioning (for AI)
+                    Brand Description
                   </label>
+                  <p className="text-[10px] text-gray-400 mb-1">Describe your brand in a few sentences (max 300 characters)</p>
                   <div className="relative">
                     <textarea
-                      rows={5}
+                      rows={4}
                       value={brandDescription}
                       onChange={(e) => setBrandDescription(e.target.value)}
-                      placeholder="Mission, differentiators, ideal customer, tone, and what success looks like for you…"
-                      maxLength={900}
-                      className="w-full bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl p-4 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30 resize-none"
+                      placeholder="“We provide fresh, affordable, and high-quality meals in a clean and welcoming environment.”"
+                      maxLength={300}
+                      className="w-full bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl p-4 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30 resize-none transition-all"
                     />
-                    <span className="absolute bottom-3 right-3 text-[10px] text-gray-400">
-                      {brandDescription.length} / 900
+                    <span className={cn(
+                      "absolute bottom-3 right-3 text-[10px] font-bold",
+                      brandDescription.length > 280 ? "text-amber-500" : "text-gray-400"
+                    )}>
+                      {brandDescription.length} / 300
                     </span>
                   </div>
                 </div>
               </div>
             </SectionCard>
 
-            {/* Trade License Verification */}
-            <SectionCard
-              icon={<ShieldCheck size={20} />}
-              title="Trade License Verification"
-            >
+            {/* 3. Business Verification */}
+            <SectionCard icon={<ShieldCheck size={20} />} title="3. Business Verification">
               <p className="text-xs text-gray-500 dark:text-gray-400 -mt-4 mb-6">
-                Please upload a clear copy of your business trade license for verification purposes.
+                Upload your business trade license for verification.
               </p>
 
-              <div className="space-y-4">
-                <div
-                  className={cn(
-                    "relative border-2 border-dashed rounded-2xl p-8 flex flex-col items-center justify-center transition-all cursor-pointer",
-                    tradeLicenseUrl
-                      ? "border-emerald-500 bg-emerald-50/50 dark:bg-emerald-500/5"
-                      : "border-gray-200 dark:border-white/10 hover:border-emerald-400 bg-gray-50 dark:bg-white/5"
-                  )}
-                >
-                  <input
-                    type="file"
-                    className="absolute inset-0 opacity-0 cursor-pointer"
-                    accept="image/*,application/pdf"
-                    onChange={async (e) => {
-                      const file = e.target.files?.[0];
-                      if (!file) return;
-                      setIsUploadingLicense(true);
-                      try {
-                        const formData = new FormData();
-                        formData.append('image', file);
-                        const res = await api.post('/users/profile/picture?type=license', formData, {
-                          headers: { 'Content-Type': 'multipart/form-data' }
-                        });
-                        setTradeLicenseUrl(res.data.user.tradeLicenseUrl);
-                      } catch (err) {
-                        console.error('License upload failed:', err);
-                      } finally {
-                        setIsUploadingLicense(false);
-                      }
-                    }}
-                  />
+              <div
+                className={cn(
+                  "relative border-2 border-dashed rounded-2xl p-10 flex flex-col items-center justify-center transition-all group",
+                  tradeLicenseUrl
+                    ? "border-emerald-500 bg-emerald-50/30 dark:bg-emerald-500/5"
+                    : "border-gray-200 dark:border-white/10 hover:border-emerald-400 bg-gray-50 dark:bg-white/5"
+                )}
+              >
+                <input
+                  type="file"
+                  className="absolute inset-0 opacity-0 cursor-pointer z-10"
+                  accept="image/*,application/pdf"
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    setIsUploadingLicense(true);
+                    try {
+                      const formData = new FormData();
+                      formData.append('image', file);
+                      const res = await api.post('/users/profile/picture?type=license', formData, {
+                        headers: { 'Content-Type': 'multipart/form-data' }
+                      });
+                      setTradeLicenseUrl(res.data.user.tradeLicenseUrl);
+                    } catch (err) {
+                      console.error('License upload failed:', err);
+                      toast.error('Upload failed. Please try again.');
+                    } finally {
+                      setIsUploadingLicense(false);
+                    }
+                  }}
+                />
 
-                  {isUploadingLicense ? (
-                    <div className="flex flex-col items-center gap-3">
-                      <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
-                      <span className="text-xs font-bold text-emerald-600">Uploading License...</span>
+                {isUploadingLicense ? (
+                  <div className="flex flex-col items-center gap-3">
+                    <Loader2 size={32} className="text-emerald-500 animate-spin" />
+                    <span className="text-xs font-bold text-emerald-600 uppercase tracking-widest">Uploading...</span>
+                  </div>
+                ) : tradeLicenseUrl ? (
+                  <div className="flex flex-col items-center gap-4">
+                    <div className="w-16 h-16 bg-emerald-500 text-white rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-500/20">
+                      <CheckCircle2 size={32} />
                     </div>
-                  ) : tradeLicenseUrl ? (
-                    <div className="flex flex-col items-center gap-3">
-                      <div className="w-12 h-12 bg-emerald-500 rounded-xl flex items-center justify-center text-white">
-                        <CheckCircle2 size={24} />
-                      </div>
-                      <div className="text-center">
-                        <p className="text-sm font-bold text-gray-900 dark:text-white">License Uploaded</p>
-                        <p className="text-[10px] text-emerald-600 font-medium">Click to replace file</p>
-                      </div>
+                    <div className="text-center">
+                      <p className="text-sm font-bold text-gray-900 dark:text-white">Trade License Verified</p>
+                      <p className="text-[10px] text-emerald-600 font-bold uppercase tracking-widest mt-1">File Uploaded Successfully</p>
                     </div>
-                  ) : (
-                    <div className="flex flex-col items-center gap-3">
-                      <div className="w-12 h-12 bg-white dark:bg-white/5 rounded-xl border border-gray-200 dark:border-white/10 flex items-center justify-center text-gray-400">
-                        <Plus size={24} />
-                      </div>
-                      <div className="text-center">
-                        <p className="text-sm font-bold text-gray-900 dark:text-white">Click to upload Trade License</p>
-                        <p className="text-[10px] text-gray-500">Supports JPG, PNG or PDF (Max 5MB)</p>
-                      </div>
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center gap-4">
+                    <div className="w-16 h-16 bg-white dark:bg-white/5 rounded-2xl border border-gray-200 dark:border-white/10 flex items-center justify-center text-gray-400 group-hover:text-emerald-500 group-hover:scale-110 transition-all duration-300 shadow-sm">
+                      <Plus size={32} />
                     </div>
-                  )}
-                </div>
+                    <div className="text-center">
+                      <p className="text-sm font-bold text-gray-900 dark:text-white">Upload Trade License</p>
+                      <p className="text-[10px] text-gray-500 uppercase tracking-widest font-medium mt-1">JPG, PNG, PDF (MAX 5MB)</p>
+                    </div>
+                  </div>
+                )}
               </div>
             </SectionCard>
 
-            {/* Marketing, budgets & AI matching */}
-            <SectionCard icon={<BarChart3 size={20} />} title="Marketing, budgets & AI matching">
+            {/* 4. Marketing Goals */}
+            <SectionCard icon={<BarChart3 size={20} />} title="4. Marketing Goals">
               <p className="text-xs text-gray-500 dark:text-gray-400 -mt-4 mb-6">
-                Goals, audience, and spend in Ethiopian Birr (ETB). These fields tune creator recommendations and profitability-style analysis.
+                Help us match you with the right creators and campaigns.
               </p>
 
               <div className="space-y-8">
                 <div className="space-y-3">
                   <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">
-                    Marketing goals
+                    What are your main goals? (Multi-select)
                   </label>
                   <div className="flex flex-wrap gap-2">
                     {businessGoals.map((goal) => (
@@ -1434,7 +1609,7 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
 
                 <div className="space-y-3">
                   <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">
-                    Primary KPIs (what we optimize for)
+                    What results matter most to you?
                   </label>
                   <div className="flex flex-wrap gap-2">
                     {kpiOptions.map((kpi) => (
@@ -1452,20 +1627,34 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                  <SelectField label="Brand voice (for content briefs)" value={brandVoice} onChange={setBrandVoice} options={brandVoiceOptions} />
-                  <InputField
-                    label="Minimum creator engagement you expect (%)"
-                    placeholder="e.g. 3"
-                    value={minEngagementPercent}
-                    onChange={setMinEngagementPercent}
-                    type="text"
-                  />
-                </div>
-
                 <div className="space-y-3">
                   <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">
-                    Content & promotion formats you want
+                    Brand Tone
+                  </label>
+                  <div className="flex flex-wrap gap-2">
+                    {brandVoiceOptions.map((tone) => (
+                      <TagPill
+                        key={tone}
+                        label={tone}
+                        selected={brandVoice === tone}
+                        onClick={() => setBrandVoice(tone)}
+                      />
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </SectionCard>
+
+            {/* 5. Creator Preferences */}
+            <SectionCard icon={<Sparkles size={20} />} title="5. Creator Preferences">
+              <p className="text-xs text-gray-500 dark:text-gray-400 -mt-4 mb-6">
+                Define the type of creators and content you want to work with.
+              </p>
+
+              <div className="space-y-8">
+                <div className="space-y-3">
+                  <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">
+                    Content Types You Want (Multi-select)
                   </label>
                   <div className="flex flex-wrap gap-2">
                     {promotionTypes.map((type) => (
@@ -1485,7 +1674,7 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
 
                 <div className="space-y-3">
                   <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">
-                    Creator tiers you prefer
+                    Preferred Creator Types
                   </label>
                   <div className="flex flex-wrap gap-2">
                     {promoterTypes.map((type) => (
@@ -1503,18 +1692,37 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
                   </div>
                 </div>
 
-                <InputField
-                  label="How many creators do you want to work with in the next 90 days? (approx.)"
-                  placeholder="e.g. 3"
-                  value={promotersNeededCount}
-                  onChange={setPromotersNeededCount}
-                />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  <InputField
+                    label="Expected Minimum Engagement (%)"
+                    placeholder="Example: 3%"
+                    value={minEngagementPercent}
+                    onChange={setMinEngagementPercent}
+                    icon={<BarChart3 size={16} />}
+                  />
+                  <InputField
+                    label="Number of Creators Needed"
+                    placeholder="Example: 3"
+                    value={promotersNeededCount}
+                    onChange={setPromotersNeededCount}
+                    icon={<Users size={16} />}
+                  />
+                </div>
+              </div>
+            </SectionCard>
 
-                <div className="space-y-2">
+            {/* 6. Target Audience */}
+            <SectionCard icon={<Users size={20} />} title="6. Target Audience">
+              <p className="text-xs text-gray-500 dark:text-gray-400 -mt-4 mb-6">
+                Who are your ideal customers?
+              </p>
+
+              <div className="space-y-8">
+                <div className="space-y-3">
                   <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">
-                    Target customer profile (tags)
+                    Customer Tags
                   </label>
-                  <p className="text-[10px] text-gray-500 dark:text-gray-500 mb-2">Examples: young parents, university students, B2B buyers, English speakers in Addis…</p>
+                  <p className="text-[10px] text-gray-400 mb-2">Example: University Students, Young Professionals, Families, English Speakers in Addis</p>
                   <div className="flex flex-wrap gap-2 items-center">
                     {targetAudienceTags.map((tag) => (
                       <RemovableTag
@@ -1533,30 +1741,30 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
                           onChange={(e) => setNewAudienceTag(e.target.value)}
                           onKeyDown={(e) => e.key === 'Enter' && addAudienceTag()}
                           placeholder="Add tag"
-                          className="w-36 bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:border-emerald-500 text-gray-900 dark:text-white"
+                          className="w-36 bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-emerald-500 text-gray-900 dark:text-white transition-all"
                         />
-                        <button type="button" onClick={addAudienceTag} className="text-emerald-500 hover:text-emerald-400 transition-colors">
-                          <CheckCircle2 size={18} />
+                        <button type="button" onClick={addAudienceTag} className="w-8 h-8 flex items-center justify-center bg-emerald-500 text-white rounded-lg shadow-sm hover:bg-emerald-400 transition-all">
+                          <CheckCircle2 size={16} />
                         </button>
                         <button type="button" onClick={() => setShowAudienceInput(false)} className="text-gray-400 hover:text-gray-600 transition-colors">
-                          <X size={16} />
+                          <X size={18} />
                         </button>
                       </div>
                     ) : (
                       <button
                         type="button"
                         onClick={() => setShowAudienceInput(true)}
-                        className="flex items-center gap-1 px-3 py-1.5 border border-dashed border-gray-300 dark:border-white/15 rounded-full text-xs font-semibold text-gray-500 dark:text-gray-400 hover:border-emerald-400 hover:text-emerald-500 transition-all"
+                        className="flex items-center gap-1.5 px-4 py-2 border border-dashed border-gray-300 dark:border-white/15 rounded-xl text-xs font-bold text-gray-500 dark:text-gray-400 hover:border-emerald-400 hover:text-emerald-500 hover:bg-emerald-50/30 transition-all"
                       >
-                        <Plus size={14} /> Add tag
+                        <Plus size={14} /> Add Tag
                       </button>
                     )}
                   </div>
                 </div>
 
-                <div className="space-y-2">
+                <div className="space-y-3">
                   <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">
-                    Target audience age ranges
+                    Audience Age Groups
                   </label>
                   <div className="flex flex-wrap gap-2">
                     {ageRanges.map((range) => (
@@ -1569,98 +1777,105 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
                     ))}
                   </div>
                 </div>
+              </div>
+            </SectionCard>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                  <div className="space-y-2">
-                    <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">
-                      Typical order or sale value (ETB)
-                    </label>
-                    <p className="text-[10px] text-gray-500 dark:text-gray-500 mb-1">Used when estimating return from campaigns.</p>
-                    <input
-                      type="number"
-                      min={0}
-                      step={100}
-                      value={avgOrderValueETB}
-                      onChange={(e) => setAvgOrderValueETB(e.target.value)}
-                      placeholder="e.g. 2500"
-                      className="w-full bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl py-3 px-4 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">
-                      Max. pay per creator post (ETB)
-                    </label>
-                    <p className="text-[10px] text-gray-500 dark:text-gray-500 mb-1">Compared to creator rates when we rank matches.</p>
-                    <input
-                      type="number"
-                      min={500}
-                      step={500}
-                      value={maxSpendPerPostETB || ''}
-                      onChange={(e) => setMaxSpendPerPostETB(Number(e.target.value) || 0)}
-                      className="w-full bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl py-3 px-4 text-sm text-gray-900 dark:text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30"
-                    />
-                  </div>
+            {/* 7. Budget & Campaign Settings */}
+            <SectionCard icon={<Shield size={20} />} title="7. Budget & Campaign Settings">
+              <p className="text-xs text-gray-500 dark:text-gray-400 -mt-4 mb-6">
+                Financial parameters for your marketing activities.
+              </p>
+
+              <div className="space-y-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  <InputField
+                    label="Average Customer Order Value (ETB)"
+                    placeholder="Example: 2500 ETB"
+                    value={avgOrderValueETB}
+                    onChange={setAvgOrderValueETB}
+                    type="text"
+                    prefix="Br"
+                  />
+                  <InputField
+                    label="Maximum Budget Per Creator Post (ETB)"
+                    placeholder="Example: 15,000 ETB"
+                    value={maxSpendPerPostETB.toString()}
+                    onChange={(val) => setMaxSpendPerPostETB(Number(val) || 0)}
+                    type="text"
+                    prefix="Br"
+                  />
                 </div>
 
-                <div className="bg-gray-50 dark:bg-black/30 rounded-2xl p-5 border border-gray-100 dark:border-white/5">
-                  <div className="flex items-center justify-between mb-4">
+                <div className="bg-gray-50 dark:bg-black/30 rounded-3xl p-6 border border-gray-100 dark:border-white/5">
+                  <div className="flex items-center justify-between mb-6">
                     <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">
-                      Monthly marketing budget (ETB / Br)
+                      Monthly Marketing Budget
                     </label>
-                    <span className="text-xl sm:text-2xl font-black text-emerald-600 dark:text-emerald-400 tabular-nums">
-                      Br {monthlyBudget.toLocaleString()}
-                    </span>
+                    <div className="text-right">
+                      <span className="text-2xl font-black text-emerald-600 dark:text-emerald-400 tabular-nums">
+                        Br {monthlyBudget.toLocaleString()}
+                      </span>
+                      <p className="text-[10px] text-gray-400 uppercase tracking-widest font-bold mt-0.5">Estimated Monthly Cap</p>
+                    </div>
                   </div>
                   <input
                     type="range"
                     min={MONTHLY_BUDGET_MIN_ETB}
                     max={MONTHLY_BUDGET_MAX_ETB}
                     step={MONTHLY_BUDGET_STEP_ETB}
-                    value={Math.min(MONTHLY_BUDGET_MAX_ETB, Math.max(MONTHLY_BUDGET_MIN_ETB, monthlyBudget))}
+                    value={monthlyBudget}
                     onChange={(e) => setMonthlyBudget(Number(e.target.value))}
-                    className="w-full h-2 bg-gray-200 dark:bg-white/10 rounded-full appearance-none cursor-pointer accent-emerald-500 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-emerald-500 [&::-webkit-slider-thumb]:shadow-lg [&::-webkit-slider-thumb]:shadow-emerald-500/30 [&::-webkit-slider-thumb]:cursor-pointer"
+                    className="w-full h-2.5 bg-gray-200 dark:bg-white/10 rounded-full appearance-none cursor-pointer accent-emerald-500 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-6 [&::-webkit-slider-thumb]:h-6 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-emerald-500 [&::-webkit-slider-thumb]:shadow-lg [&::-webkit-slider-thumb]:shadow-emerald-500/30 [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-white"
                   />
-                  <div className="flex justify-between mt-2 text-[10px] text-gray-400">
-                    <span>Br {MONTHLY_BUDGET_MIN_ETB.toLocaleString()}</span>
-                    <span>Br {MONTHLY_BUDGET_MAX_ETB.toLocaleString()}</span>
+                  <div className="flex justify-between mt-3 text-[10px] text-gray-400 font-bold tracking-widest">
+                    <span>BR 5K</span>
+                    <span>BR 2,000K</span>
                   </div>
                 </div>
+              </div>
+            </SectionCard>
 
-                <div className="space-y-3">
-                  <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">
-                    Primary platforms for campaigns
-                  </label>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                    {platformOptions.map((platform) => {
-                      const isSelected = selectedPlatforms.includes(platform);
-                      const Icon =
-                        platform === 'Instagram'
-                          ? FaInstagram
-                          : platform === 'TikTok'
-                            ? FaTiktok
-                            : platform === 'YouTube'
-                              ? FaYoutube
-                              : FaLinkedin;
-                      return (
-                        <button
-                          key={platform}
-                          type="button"
-                          onClick={() => togglePlatform(platform)}
-                          className={cn(
-                            'flex items-center gap-2 px-3 py-3 rounded-xl border text-xs sm:text-sm font-semibold transition-all',
-                            isSelected
-                              ? 'bg-emerald-50 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/30 text-gray-900 dark:text-white'
-                              : 'bg-white dark:bg-black/40 border-gray-200 dark:border-white/10 text-gray-500 dark:text-gray-400 hover:border-emerald-300'
-                          )}
-                        >
-                          {isSelected ? <CheckCircle2 size={16} className="text-emerald-500 shrink-0" /> : <div className="w-4 h-4 rounded-full border-2 border-gray-300 dark:border-white/20 shrink-0" />}
-                          <Icon size={16} className="shrink-0" />
-                          <span className="truncate">{platform}</span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
+            {/* 8. Campaign Platforms */}
+            <SectionCard icon={<Globe size={20} />} title="8. Campaign Platforms">
+              <p className="text-xs text-gray-500 dark:text-gray-400 -mt-4 mb-6">
+                Where do you want to promote your business?
+              </p>
+
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+                {platformOptions.map((platform) => {
+                  const isSelected = selectedPlatforms.includes(platform);
+                  const Icon =
+                    platform === 'Instagram'
+                      ? FaInstagram
+                      : platform === 'TikTok'
+                        ? FaTiktok
+                        : platform === 'YouTube'
+                          ? FaYoutube
+                          : platform === 'Facebook'
+                            ? FaFacebook
+                            : FaLinkedin;
+                  return (
+                    <button
+                      key={platform}
+                      type="button"
+                      onClick={() => togglePlatform(platform)}
+                      className={cn(
+                        'flex flex-col items-center justify-center gap-3 p-4 rounded-2xl border transition-all duration-300 group',
+                        isSelected
+                          ? 'bg-emerald-50 dark:bg-emerald-500/10 border-emerald-300 dark:border-emerald-500/40 text-emerald-700 dark:text-emerald-400 shadow-md shadow-emerald-500/5'
+                          : 'bg-white dark:bg-black/40 border-gray-100 dark:border-white/8 text-gray-500 dark:text-gray-400 hover:border-emerald-200 dark:hover:border-emerald-500/20'
+                      )}
+                    >
+                      <div className={cn(
+                        "w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300",
+                        isSelected ? "bg-emerald-500 text-white shadow-lg shadow-emerald-500/20" : "bg-gray-50 dark:bg-white/5 text-gray-400 group-hover:text-emerald-500"
+                      )}>
+                        <Icon size={20} />
+                      </div>
+                      <span className="text-xs font-bold tracking-tight">{platform}</span>
+                    </button>
+                  );
+                })}
               </div>
             </SectionCard>
           </>
@@ -1743,18 +1958,18 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
                           <div className="space-y-2">
                             <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">Followers</label>
                             <div className="relative">
-                              <input type="text" value={tiktokFollowers} onChange={e => setTiktokFollowers(e.target.value)} placeholder="e.g. 50K"
+                              <input type="text" value={tiktokFollowers} onChange={e => setTiktokFollowers(e.target.value.replace(/[^0-9]/g, ''))} placeholder="e.g. 50000"
                                 className="w-full bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl py-3 pl-4 pr-4 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30 transition-all" />
                             </div>
                           </div>
                           <div className="space-y-2">
                             <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">Avg. Likes</label>
-                            <input type="text" value={tiktokTotalLikes} onChange={e => setTiktokTotalLikes(e.target.value)} placeholder="e.g. 1.2M"
+                            <input type="text" value={tiktokTotalLikes} onChange={e => setTiktokTotalLikes(e.target.value.replace(/[^0-9]/g, ''))} placeholder="e.g. 1200000"
                               className="w-full bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl py-3 px-4 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30 transition-all" />
                           </div>
                           <div className="space-y-2">
                             <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">Avg. Views</label>
-                            <input type="text" value={tiktokAvgViews} onChange={e => setTiktokAvgViews(e.target.value)} placeholder="e.g. 10K"
+                            <input type="text" value={tiktokAvgViews} onChange={e => setTiktokAvgViews(e.target.value.replace(/[^0-9]/g, ''))} placeholder="e.g. 10000"
                               className="w-full bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl py-3 px-4 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30 transition-all" />
                           </div>
                           <div className="space-y-2">
@@ -1787,12 +2002,12 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
                           </div>
                           <div className="space-y-2">
                             <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">Avg. Comments</label>
-                            <input type="text" value={tiktokAvgComments} onChange={e => setTiktokAvgComments(e.target.value)} placeholder="e.g. 200"
+                            <input type="text" value={tiktokAvgComments} onChange={e => setTiktokAvgComments(e.target.value.replace(/[^0-9]/g, ''))} placeholder="e.g. 200"
                               className="w-full bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl py-3 px-4 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30 transition-all" />
                           </div>
                           <div className="space-y-2">
                             <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">Avg. Shares</label>
-                            <input type="text" value={tiktokAvgShares} onChange={e => setTiktokAvgShares(e.target.value)} placeholder="e.g. 50"
+                            <input type="text" value={tiktokAvgShares} onChange={e => setTiktokAvgShares(e.target.value.replace(/[^0-9]/g, ''))} placeholder="e.g. 50"
                               className="w-full bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl py-3 px-4 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30 transition-all" />
                           </div>
                         </div>
@@ -1934,18 +2149,18 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
                           <div className="space-y-2">
                             <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">Followers</label>
                             <div className="relative">
-                              <input type="text" value={instagramFollowers} onChange={e => setInstagramFollowers(e.target.value)} placeholder="e.g. 50K"
+                              <input type="text" value={instagramFollowers} onChange={e => setInstagramFollowers(e.target.value.replace(/[^0-9]/g, ''))} placeholder="e.g. 50000"
                                 className="w-full bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl py-3 pl-4 pr-4 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-pink-500 focus:ring-1 focus:ring-pink-500/30 transition-all" />
                             </div>
                           </div>
                           <div className="space-y-2">
                             <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">Avg. Likes</label>
-                            <input type="text" value={instagramTotalLikes} onChange={e => setInstagramTotalLikes(e.target.value)} placeholder="e.g. 1.2M"
+                            <input type="text" value={instagramTotalLikes} onChange={e => setInstagramTotalLikes(e.target.value.replace(/[^0-9]/g, ''))} placeholder="e.g. 1200000"
                               className="w-full bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl py-3 px-4 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-pink-500 focus:ring-1 focus:ring-pink-500/30 transition-all" />
                           </div>
                           <div className="space-y-2">
                             <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">Avg. Views (Reels)</label>
-                            <input type="text" value={instagramAvgViews} onChange={e => setInstagramAvgViews(e.target.value)} placeholder="e.g. 10K"
+                            <input type="text" value={instagramAvgViews} onChange={e => setInstagramAvgViews(e.target.value.replace(/[^0-9]/g, ''))} placeholder="e.g. 10000"
                               className="w-full bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl py-3 px-4 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-pink-500 focus:ring-1 focus:ring-pink-500/30 transition-all" />
                           </div>
                           <div className="space-y-2">
@@ -1978,12 +2193,12 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
                           </div>
                           <div className="space-y-2">
                             <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">Avg. Comments</label>
-                            <input type="text" value={instagramAvgComments} onChange={e => setInstagramAvgComments(e.target.value)} placeholder="e.g. 200"
+                            <input type="text" value={instagramAvgComments} onChange={e => setInstagramAvgComments(e.target.value.replace(/[^0-9]/g, ''))} placeholder="e.g. 200"
                               className="w-full bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl py-3 px-4 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-pink-500 focus:ring-1 focus:ring-pink-500/30 transition-all" />
                           </div>
                           <div className="space-y-2">
                             <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">Avg. Shares</label>
-                            <input type="text" value={instagramAvgShares} onChange={e => setInstagramAvgShares(e.target.value)} placeholder="e.g. 50"
+                            <input type="text" value={instagramAvgShares} onChange={e => setInstagramAvgShares(e.target.value.replace(/[^0-9]/g, ''))} placeholder="e.g. 50"
                               className="w-full bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl py-3 px-4 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-pink-500 focus:ring-1 focus:ring-pink-500/30 transition-all" />
                           </div>
                         </div>

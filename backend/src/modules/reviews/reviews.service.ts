@@ -1,89 +1,31 @@
-import Review, { IReview } from '../../database/models/Review';
-import Collaboration from '../../database/models/Collaboration';
-import User from '../../database/models/User';
+import Review, { IReview } from "../../database/models/Review";
+import mongoose from "mongoose";
 
-/**
- * Review Service
- * Owner: Backend Developer 2
- * Handles business logic for reviews
- */
-
-/**
- * Create a new review for a collaboration
- * @param data - Review data including collaboration, reviewer, rating, etc.
- * @returns Created review document
- */
 export const createReview = async (data: Partial<IReview>): Promise<IReview> => {
-    // 1. Find the collaboration
-    const collaboration = await Collaboration.findById(data.collaboration);
-    if (!collaboration) {
-        throw new Error('Collaboration not found');
-    }
-
-    // 2. Verify collaboration completion status
-    if (collaboration.status !== 'completed') {
-        throw new Error('Reviews can only be created after the collaboration is completed');
-    }
-
-    // 3. Identify reviewee and reviewerRole
-    const isBusinessOwner = collaboration.businessOwner.toString() === data.reviewer?.toString();
-    const isAdvertiser = collaboration.advertiser.toString() === data.reviewer?.toString();
-
-    if (!isBusinessOwner && !isAdvertiser) {
-        throw new Error('You are not authorized to review this collaboration');
-    }
-
-    data.reviewee = isBusinessOwner ? collaboration.advertiser : collaboration.businessOwner;
-    data.reviewerRole = isBusinessOwner ? 'business_owner' : 'advertiser';
-
-    // 4. Create the review
-    // The Mongoose unique index on { collaboration, reviewer } will catch duplicate reviews
-    try {
-        const review = await Review.create(data);
-
-        // 5. Update target user average rating and total reviews
-        const revieweeId = data.reviewee;
-        const reviews = await Review.find({ reviewee: revieweeId });
-
-        const avg = reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length;
-
-        await User.findByIdAndUpdate(revieweeId, {
-            averageRating: Number(avg.toFixed(2)),
-            totalReviews: reviews.length
-        });
-
-        return review;
-    } catch (err: any) {
-        if (err.code === 11000) {
-            throw new Error('You have already reviewed this collaboration');
-        }
-        throw err;
-    }
+    return await Review.create(data);
 };
 
-/**
- * Get all reviews received by a user (where they are the reviewee)
- * @param userId - User ID
- * @returns List of reviews
- */
-export const getReviewsByUser = async (userId: string): Promise<IReview[]> => {
-    const reviews = await Review.find({ reviewee: userId })
-        .populate('reviewer', 'fullName email profilePicture')
-        .populate('collaboration', 'opportunity')
+export const getReviewsByTargetUser = async (targetUserId: string): Promise<IReview[]> => {
+    return await Review.find({ targetUserId: new mongoose.Types.ObjectId(targetUserId) })
+        .populate('reviewerId', 'firstName lastName profilePicture role')
         .sort({ createdAt: -1 });
-
-    return reviews;
 };
 
-/**
- * Get all reviews for a specific collaboration
- * @param collaborationId - Collaboration ID
- * @returns List of reviews
- */
-export const getReviewsByCollaboration = async (collaborationId: string): Promise<IReview[]> => {
-    const reviews = await Review.find({ collaboration: collaborationId })
-        .populate('reviewer', 'fullName email')
-        .populate('reviewee', 'fullName email');
+export const getReviewsByReviewer = async (reviewerId: string): Promise<IReview[]> => {
+    return await Review.find({ reviewerId: new mongoose.Types.ObjectId(reviewerId) })
+        .populate('targetUserId', 'firstName lastName profilePicture role')
+        .sort({ createdAt: -1 });
+};
 
-    return reviews;
+export const deleteReview = async (reviewId: string): Promise<void> => {
+    await Review.findByIdAndDelete(reviewId);
+};
+
+export const getReviewById = async (reviewId: string): Promise<IReview | null> => {
+    return await Review.findById(reviewId).populate('reviewerId targetUserId');
+};
+
+export const getReviewsByCollaboration = async (opportunityId: string): Promise<IReview[]> => {
+    return await Review.find({ opportunityId: new mongoose.Types.ObjectId(opportunityId) })
+        .populate('reviewerId targetUserId');
 };

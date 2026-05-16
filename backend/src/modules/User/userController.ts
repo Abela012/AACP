@@ -33,8 +33,8 @@ export const uploadProfilePicture = async (
       return new Promise((resolve, reject) => {
         const stream = cloudinary.uploader.upload_stream(
           {
-            folder: "aacp/images",
-            resource_type: "image",
+            folder: "aacp/uploads",
+            resource_type: "auto",
           },
           (error, result) => {
             if (result) resolve(result);
@@ -72,6 +72,43 @@ export const uploadProfilePicture = async (
   }
 };
 
+export const uploadFile = async (
+  req: MulterRequest,
+  res: Response
+): Promise<void> => {
+  if (!req.file) {
+    res.status(400).json({ message: "No file uploaded" });
+    return;
+  }
+
+  try {
+    const uploadFromBuffer = (buffer: Buffer) => {
+      return new Promise((resolve, reject) => {
+        const stream = cloudinary.uploader.upload_stream(
+          {
+            folder: "aacp/uploads",
+            resource_type: "auto",
+          },
+          (error, result) => {
+            if (result) resolve(result);
+            else reject(error);
+          }
+        );
+        stream.end(buffer);
+      });
+    };
+
+    const result: any = await uploadFromBuffer(req.file.buffer);
+    res.status(200).json({
+      message: "File uploaded successfully",
+      url: result.secure_url,
+    });
+  } catch (error: any) {
+    console.error("Error uploading file:", error);
+    res.status(500).json({ message: "Upload failed", error: error.message });
+  }
+};
+
 
 export const updateUserProfile = async (
   req: Request,
@@ -88,6 +125,7 @@ export const updateUserProfile = async (
     "location",
     "tradeLicenseUrl",
     "idVerificationUrl",
+    "socialProfiles",
     "profileData"
   ];
 
@@ -191,6 +229,7 @@ export const submitProfileForReview = async (
     "location",
     "tradeLicenseUrl",
     "idVerificationUrl",
+    "socialProfiles",
     "profileData",
   ];
 
@@ -209,14 +248,26 @@ export const submitProfileForReview = async (
       return;
     }
 
+    const isAlreadyApproved = user.status === "active" || user.status === "approved";
     const updates: any = {};
 
-    for (const key of ALLOWED_FIELDS) {
-      if (req.body[key] !== undefined) {
-        updates[key] = req.body[key];
+    if (isAlreadyApproved) {
+      // 🚀 For approved users: don't lock them out. Keep status as is.
+      // Store all root field changes in pendingUpdates
+      const rootUpdates: any = {};
+      for (const key of ALLOWED_FIELDS) {
+        if (key !== "profileData" && req.body[key] !== undefined) {
+          rootUpdates[key] = req.body[key];
+        }
       }
-    }
+      if (Object.keys(rootUpdates).length > 0) {
+        user.pendingUpdates = {
+          ...(user.pendingUpdates || {}),
+          ...rootUpdates,
+        };
+      }
 
+<<<<<<< HEAD
     if (user.role === "business_owner") {
       const validation = validateBusinessProfileSubmit({
         ...req.body,
@@ -240,12 +291,56 @@ export const submitProfileForReview = async (
       );
       updates.pendingProfileData = merged;
       delete updates.profileData;
+=======
+      // Store profileData changes in pendingProfileData
+      if (req.body.profileData && typeof req.body.profileData === "object") {
+        user.pendingProfileData = {
+          ...(user.profileData || {}),
+          ...(user.pendingProfileData || {}),
+          ...req.body.profileData,
+        };
+      }
+      
+      // Mark modified for Mixed types
+      user.markModified("pendingUpdates");
+      user.markModified("pendingProfileData");
+    } else {
+      // 🆕 For new or incomplete users: set status to pending
+      updates.status = "pending";
+
+      for (const key of ALLOWED_FIELDS) {
+        if (req.body[key] !== undefined) {
+          updates[key] = req.body[key];
+        }
+      }
+
+      // Merge profileData into pendingProfileData
+      if (updates.profileData && typeof updates.profileData === "object") {
+        updates.pendingProfileData = {
+          ...(user.profileData || {}),
+          ...(user.pendingProfileData || {}),
+          ...updates.profileData,
+        };
+        delete updates.profileData;
+      }      user.set(updates);
+>>>>>>> c3552367c98769c8e42b81de918ba693404496dc
     }
 
     user.set(updates);
     const updatedUser = await user.save();
     const userResponse = updatedUser.toObject();
     delete (userResponse as any).__v;
+
+    // Notify admins
+    const io = (req.app as any).io;
+    if (io) {
+      io.to('admins').emit('notification:new', {
+        type: 'system',
+        title: 'Profile Pending Approval',
+        message: `User ${user.firstName} ${user.lastName} has submitted profile updates for review.`,
+        createdAt: new Date().toISOString()
+      });
+    }
 
     res.status(200).json({
       message: "Profile submitted for review successfully",
@@ -274,6 +369,23 @@ export const getCurrentUser = async (
     return;
   }
   res.status(200).json({ user });
+};
+
+export const getUserById = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const user = await User.findById(id).lean();
+    if (!user) {
+      res.status(404).json({ message: "User not found" });
+      return;
+    }
+    res.status(200).json({ user });
+  } catch (error) {
+    res.status(500).json({ message: "Internal server error" });
+  }
 };
 
 export const syncUser = async (req: Request, res: Response): Promise<void> => {
@@ -391,5 +503,148 @@ export const syncUser = async (req: Request, res: Response): Promise<void> => {
     res
       .status(500)
       .json({ message: "Failed to sync user", error: error.message });
+  }
+};
+
+export const toggleSavedOpportunity = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const { userId } = getAuth(req);
+    const { opportunityId } = req.body;
+
+    if (!userId) {
+      res.status(401).json({ message: "Unauthorized" });
+      return;
+    }
+
+    if (!opportunityId) {
+      res.status(400).json({ message: "Opportunity ID is required" });
+      return;
+    }
+
+    const user = await User.findOne({ clerkId: userId });
+
+    if (!user) {
+      res.status(404).json({ message: "User not found" });
+      return;
+    }
+
+    const isSaved = user.savedOpportunities.some(id => id.toString() === opportunityId.toString());
+
+    if (isSaved) {
+      // Unsave
+      user.savedOpportunities = user.savedOpportunities.filter(
+        (id) => id.toString() !== opportunityId.toString()
+      );
+    } else {
+      // Save
+      user.savedOpportunities.push(opportunityId);
+    }
+
+    await user.save();
+
+    res.status(200).json({
+      message: isSaved ? "Opportunity removed from saved" : "Opportunity saved successfully",
+      isSaved: !isSaved,
+      savedOpportunities: user.savedOpportunities
+    });
+  } catch (error: any) {
+    console.error("Toggle saved opportunity error:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export const getSavedOpportunities = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const { userId } = getAuth(req);
+
+    if (!userId) {
+      res.status(401).json({ message: "Unauthorized" });
+      return;
+    }
+
+    const user = await User.findOne({ clerkId: userId }).populate('savedOpportunities');
+
+    if (!user) {
+      res.status(404).json({ message: "User not found" });
+      return;
+    }
+
+    res.status(200).json({
+      savedOpportunities: user.savedOpportunities
+    });
+  } catch (error: any) {
+    console.error("Get saved opportunities error:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export const toggleSavedCreator = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const { userId } = getAuth(req);
+    const { creatorId } = req.body;
+
+    if (!userId || !creatorId) {
+      res.status(400).json({ message: "User ID and Creator ID are required" });
+      return;
+    }
+
+    const user = await User.findOne({ clerkId: userId });
+    if (!user) {
+      res.status(404).json({ message: "User not found" });
+      return;
+    }
+
+    const isSaved = user.savedCreators.some(id => id.toString() === creatorId.toString());
+
+    if (isSaved) {
+      user.savedCreators = user.savedCreators.filter(id => id.toString() !== creatorId.toString());
+    } else {
+      user.savedCreators.push(creatorId);
+    }
+
+    await user.save();
+    res.status(200).json({
+      message: isSaved ? "Creator removed from bookmarks" : "Creator bookmarked successfully",
+      isSaved: !isSaved,
+      savedCreators: user.savedCreators
+    });
+  } catch (error: any) {
+    console.error("Toggle saved creator error:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export const getSavedCreators = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const { userId } = getAuth(req);
+    if (!userId) {
+      res.status(401).json({ message: "Unauthorized" });
+      return;
+    }
+
+    const user = await User.findOne({ clerkId: userId }).populate('savedCreators');
+    if (!user) {
+      res.status(404).json({ message: "User not found" });
+      return;
+    }
+
+    res.status(200).json({
+      savedCreators: user.savedCreators
+    });
+  } catch (error: any) {
+    console.error("Get saved creators error:", error);
+    res.status(500).json({ message: "Internal server error" });
   }
 };

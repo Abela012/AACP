@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Search, Briefcase, Coins, Clock, Users, Filter,
-  CheckCircle2, AlertCircle, Loader2, ExternalLink, Plus
+  Search, Briefcase, Loader2, AlertCircle, CheckCircle2,
+  ThumbsDown, Heart, MapPin, Star, Filter, CheckCircle
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useOpportunities } from '@/src/hooks/useOpportunities';
@@ -10,11 +10,22 @@ import { useApply } from '@/src/hooks/useApplications';
 import AdvertiserLayout from '@/src/shared/components/layouts/AdvertiserLayout';
 import type { Opportunity } from '@/src/api/opportunityApi';
 
-const CATEGORIES = ['All', 'Social Media', 'Video', 'Photography', 'Writing', 'Design'];
+const TABS = ['Best Matches', 'Most Recent', 'My Feed', 'Saved Jobs (1)'];
+
+function formatTimeAgo(dateString: string) {
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+
+  if (diffInSeconds < 60) return 'Just now';
+  if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} minutes ago`;
+  if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} hours ago`;
+  return `${Math.floor(diffInSeconds / 86400)} days ago`;
+}
 
 export default function OpportunityListPage() {
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeCategory, setActiveCategory] = useState('All');
+  const [activeTab, setActiveTab] = useState('Best Matches');
   const [page, setPage] = useState(1);
   const [applyingTo, setApplyingTo] = useState<string | null>(null);
   const [toast, setToast] = useState<{ show: boolean; message: string; type: 'success' | 'error' }>({ show: false, message: '', type: 'success' });
@@ -26,8 +37,7 @@ export default function OpportunityListPage() {
 
   const { data, isLoading, isError } = useOpportunities({
     page,
-    limit: 12,
-    category: activeCategory !== 'All' ? activeCategory : undefined,
+    limit: 20,
   });
 
   const apply = useApply();
@@ -35,9 +45,9 @@ export default function OpportunityListPage() {
   const opportunities: Opportunity[] = data?.opportunities ?? [];
   const filtered = searchQuery
     ? opportunities.filter(o =>
-        o.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        o.description.toLowerCase().includes(searchQuery.toLowerCase())
-      )
+      o.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      o.description.toLowerCase().includes(searchQuery.toLowerCase())
+    )
     : opportunities;
 
   const handleApply = (opp: Opportunity) => {
@@ -53,132 +63,151 @@ export default function OpportunityListPage() {
 
   return (
     <AdvertiserLayout>
-      <div className="max-w-[1200px] mx-auto pb-12">
+      <div className="max-w-[1000px] mx-auto pb-12 pt-8">
         {/* Header */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10">
-          <div>
-            <h1 className="text-3xl font-black text-[#1A1D1F] dark:text-white mb-2">Opportunities</h1>
-            <p className="text-sm font-medium text-[#6F767E] dark:text-gray-400">
-              {data?.total !== undefined ? `${data.total.toLocaleString()} live opportunities available` : 'Browse all campaigns and collaborations'}
-            </p>
+        <h1 className="text-3xl font-semibold text-[#1A1D1F] dark:text-white mb-6">
+          Jobs you might like
+        </h1>
+
+        <div className="flex justify-between items-start border-b border-gray-200 dark:border-gray-700/50 mb-6">
+          {/* Tabs */}
+          <div className="flex gap-6 overflow-x-auto">
+            {TABS.map((tab) => (
+              <button
+                key={tab}
+                onClick={() => { setActiveTab(tab); setPage(1); }}
+                className={`pb-3 font-semibold whitespace-nowrap transition-colors border-b-2 ${activeTab === tab
+                    ? 'text-[#1A1D1F] dark:text-white border-[#1A1D1F] dark:border-white'
+                    : 'text-gray-500 hover:text-[#1A1D1F] dark:text-gray-400 dark:hover:text-white border-transparent'
+                  }`}
+              >
+                {tab}
+              </button>
+            ))}
           </div>
-          <div className="relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#9A9FA5] w-4 h-4" />
-            <input
-              type="text"
-              placeholder="Search opportunities..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="bg-white dark:bg-white/5 border border-[#EFEFEF] dark:border-white/10 rounded-2xl pl-11 pr-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#14a800]/20 w-72 transition-all"
-            />
-          </div>
+
+          <button className="flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#14a800] text-[#14a800] text-sm font-medium hover:bg-[#14a800]/10 transition-colors">
+            <Filter size={16} />
+            Filters
+          </button>
         </div>
 
-        {/* Category filter */}
-        <div className="flex gap-2 flex-wrap mb-10">
-          {CATEGORIES.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => { setActiveCategory(cat); setPage(1); }}
-              className={`px-5 py-2 rounded-2xl text-xs font-bold transition-all border ${
-                activeCategory === cat
-                  ? 'bg-[#14a800] text-white border-transparent shadow-lg shadow-green-100 dark:shadow-none'
-                  : 'bg-white dark:bg-white/5 text-[#6F767E] border-[#EFEFEF] dark:border-white/10 hover:border-[#14a800]/30'
-              }`}
-            >
-              {cat}
-            </button>
-          ))}
+        <div className="mb-8">
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            Browse jobs that match your experience to a client's hiring preferences. Ordered by most relevant.
+          </p>
         </div>
 
-        {/* Grid */}
+        {/* List */}
         {isLoading ? (
           <div className="flex flex-col items-center py-32">
             <Loader2 size={40} className="text-[#14a800] animate-spin mb-4" />
-            <p className="text-sm font-bold text-[#6F767E]">Loading opportunities...</p>
+            <p className="text-sm font-bold text-gray-500">Loading opportunities...</p>
           </div>
         ) : isError ? (
           <div className="text-center py-32">
             <AlertCircle size={48} className="text-red-400 mx-auto mb-4" />
             <p className="text-sm font-bold text-[#1A1D1F] dark:text-white">Could not load opportunities</p>
-            <p className="text-xs text-[#6F767E]">Check your connection and try again.</p>
+            <p className="text-xs text-gray-500">Check your connection and try again.</p>
           </div>
         ) : filtered.length === 0 ? (
           <div className="text-center py-32">
             <Briefcase size={48} className="text-[#9A9FA5] mx-auto mb-4" />
             <p className="text-sm font-bold text-[#1A1D1F] dark:text-white">No opportunities found</p>
-            <p className="text-xs text-[#6F767E]">Try a different category or search term.</p>
+            <p className="text-xs text-gray-500">Try a different search term or tab.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filtered.map((opp, idx) => (
-              <motion.div
-                key={opp._id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: idx * 0.05 }}
-                className="bg-white dark:bg-[#111111] border border-[#EFEFEF] dark:border-white/5 rounded-4xl p-6 hover:shadow-xl hover:-translate-y-1 transition-all group flex flex-col"
-              >
-                {/* Status badge */}
-                <div className="flex justify-between items-start mb-4">
-                  <span className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest ${
-                    opp.status === 'open' ? 'bg-green-100 dark:bg-green-500/20 text-[#14a800]' :
-                    opp.status === 'in_progress' ? 'bg-blue-100 dark:bg-blue-500/20 text-blue-600' :
-                    'bg-gray-100 dark:bg-white/10 text-[#6F767E]'
-                  }`}>
-                    {opp.status.replace('_', ' ')}
-                  </span>
-                  <span className="text-[10px] font-bold text-[#9A9FA5] uppercase">{opp.category}</span>
-                </div>
+          <div className="flex flex-col">
+            {filtered.map((opp, idx) => {
+              // Extract all tags safely
+              const tags = [
+                ...(opp.deliverables || []),
+                ...(opp.requirements?.preferredNiches || []),
+                ...(opp.platforms || []),
+              ].filter(Boolean);
 
-                {/* Title & Description */}
-                <h3 className="text-base font-black text-[#1A1D1F] dark:text-white mb-2 line-clamp-2 group-hover:text-[#14a800] transition-colors">
-                  {opp.title}
-                </h3>
-                <p className="text-xs font-medium text-[#6F767E] dark:text-gray-400 mb-6 line-clamp-3 flex-1">
-                  {opp.description}
-                </p>
+              // Handle application count string
+              const applicantCount = Array.isArray(opp.applicants) ? opp.applicants.length : 0;
+              const proposalText = applicantCount < 5 ? "Less than 5" : applicantCount.toString();
 
-                {/* Meta */}
-                <div className="flex gap-4 mb-6">
-                  <div className="flex items-center gap-1.5 text-xs font-bold text-[#14a800]">
-                    <Coins size={14} />
-                    {opp.budget.amount.toLocaleString()} AACP
+              return (
+                <motion.div
+                  key={opp._id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: idx * 0.05 }}
+                  className="py-8 border-b border-gray-200 dark:border-gray-700/50 group"
+                >
+                  <div className="flex items-center gap-3 text-xs font-medium text-gray-500 dark:text-gray-400 mb-4">
+                    <span className="px-2 py-0.5 rounded-sm bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300">
+                      Posted {formatTimeAgo(opp.createdAt)}
+                    </span>
+                    <span className="px-2 py-0.5 rounded-sm bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300">
+                      Proposals: {proposalText}
+                    </span>
                   </div>
-                  {opp.deadline && (
-                    <div className="flex items-center gap-1.5 text-xs font-bold text-[#6F767E]">
-                      <Clock size={14} />
-                      {new Date(opp.deadline).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                    </div>
-                  )}
-                  {Array.isArray(opp.applicants) && (
-                    <div className="flex items-center gap-1.5 text-xs font-bold text-[#6F767E]">
-                      <Users size={14} />
-                      {opp.applicants.length} applied
-                    </div>
-                  )}
-                </div>
 
-                {/* Actions */}
-                <div className="flex gap-3">
-                  <button
-                    onClick={() => handleApply(opp)}
-                    disabled={opp.status !== 'open' || apply.isPending}
-                    className="flex-1 py-3 bg-[#14a800] hover:bg-[#108a00] text-white rounded-xl text-xs font-black uppercase tracking-widest transition-all disabled:opacity-50 flex items-center justify-center gap-2"
-                  >
-                    {applyingTo === opp._id ? <Loader2 size={14} className="animate-spin" /> : <Plus size={14} />}
-                    Apply Now
-                  </button>
-                  <Link
-                    to={`/opportunities/${opp._id}`}
-                    className="p-3 bg-[#F4F4F4] dark:bg-white/5 hover:bg-white dark:hover:bg-white/10 rounded-xl transition-all text-[#6F767E]"
-                    title="View Details"
-                  >
-                    <ExternalLink size={16} />
-                  </Link>
-                </div>
-              </motion.div>
-            ))}
+                  <div className="flex justify-between items-start mb-2">
+                    <Link to={`/opportunities/${opp._id}`}>
+                      <h3 className="text-xl font-semibold text-[#1A1D1F] dark:text-white hover:text-[#14a800] dark:hover:text-[#14a800] cursor-pointer transition-colors line-clamp-2">
+                        {opp.title}
+                      </h3>
+                    </Link>
+                    <div className="flex gap-2 ml-4 shrink-0">
+                      <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-white/10 text-gray-400 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">
+                        <ThumbsDown size={20} />
+                      </button>
+                      <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-white/10 text-gray-400 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">
+                        <Heart size={20} />
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-4">
+                    {opp.paymentType || 'Fixed-price'} - {opp.experienceLevel || 'Expert'} - Est. Budget: {opp.budget?.currency === 'AACP' ? '' : '$'}{opp.budget?.amount?.toLocaleString() || '0'} {opp.budget?.currency === 'AACP' ? 'AACP' : ''}
+                  </div>
+
+                  <div className="text-sm text-gray-700 dark:text-gray-300 mb-6 relative">
+                    <span className="line-clamp-3 md:line-clamp-4">
+                      {opp.description}
+                    </span>
+                    <Link to={`/opportunities/${opp._id}`} className="text-[#14a800] hover:underline font-medium inline-block mt-1">
+                      more
+                    </Link>
+                  </div>
+
+                  <div className="flex flex-wrap gap-2 mb-6">
+                    {tags.map((tag, i) => (
+                      <span key={i} className="px-3 py-1.5 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-xs font-medium rounded-full">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-y-2 gap-x-6 text-sm font-medium text-gray-600 dark:text-gray-400">
+                    <div className="flex items-center gap-1.5">
+                      <CheckCircle size={16} className="text-blue-500 fill-blue-500/20" />
+                      <span className="text-gray-900 dark:text-white">Payment verified</span>
+                    </div>
+
+                    <div className="flex items-center gap-1">
+                      <div className="flex text-yellow-500 gap-0.5">
+                        {[...Array(5)].map((_, i) => (
+                          <Star key={i} size={14} className="fill-yellow-500" />
+                        ))}
+                      </div>
+                    </div>
+
+                    <div>$40K+ spent</div>
+
+                    <div className="flex items-center gap-1.5">
+                      <MapPin size={16} />
+                      <span>{opp.requirements?.location || "Global"}</span>
+                    </div>
+                  </div>
+                </motion.div>
+              );
+            })}
           </div>
         )}
 
@@ -188,17 +217,17 @@ export default function OpportunityListPage() {
             <button
               onClick={() => setPage(p => Math.max(1, p - 1))}
               disabled={page === 1}
-              className="px-6 py-3 bg-white dark:bg-white/5 border border-[#EFEFEF] dark:border-white/10 rounded-2xl text-xs font-bold disabled:opacity-40"
+              className="px-6 py-2 bg-white dark:bg-[#111111] border border-gray-200 dark:border-gray-700 rounded-full text-sm font-medium disabled:opacity-40 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
             >
               Previous
             </button>
-            <span className="px-6 py-3 text-xs font-bold text-[#6F767E]">
+            <span className="px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-400">
               Page {data.page} of {data.pages}
             </span>
             <button
               onClick={() => setPage(p => Math.min(data.pages, p + 1))}
               disabled={page === data.pages}
-              className="px-6 py-3 bg-white dark:bg-white/5 border border-[#EFEFEF] dark:border-white/10 rounded-2xl text-xs font-bold disabled:opacity-40"
+              className="px-6 py-2 bg-white dark:bg-[#111111] border border-gray-200 dark:border-gray-700 rounded-full text-sm font-medium disabled:opacity-40 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
             >
               Next
             </button>
@@ -213,9 +242,8 @@ export default function OpportunityListPage() {
             initial={{ opacity: 0, y: 50, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, scale: 0.9 }}
-            className={`fixed bottom-8 left-1/2 -translate-x-1/2 z-50 px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3 border ${
-              toast.type === 'success' ? 'bg-[#14a800] text-white border-green-400' : 'bg-red-500 text-white border-red-400'
-            }`}
+            className={`fixed bottom-8 left-1/2 -translate-x-1/2 z-50 px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3 border ${toast.type === 'success' ? 'bg-[#14a800] text-white border-green-400' : 'bg-red-500 text-white border-red-400'
+              }`}
           >
             {toast.type === 'success' ? <CheckCircle2 size={18} /> : <AlertCircle size={18} />}
             <span className="text-xs font-black uppercase tracking-widest">{toast.message}</span>

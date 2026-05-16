@@ -41,6 +41,13 @@ export default function AdminUserDetailPage() {
     enabled: !!id,
   });
 
+  const hasPendingChanges = !!user?.pendingProfileData || !!user?.pendingUpdates;
+
+  const displayUser = user ? {
+    ...user,
+    ...(user.pendingUpdates || {})
+  } : user;
+
   const displayProfileData = user ? {
     ...(user.profileData || {}),
     ...(user.pendingProfileData || {})
@@ -150,7 +157,7 @@ export default function AdminUserDetailPage() {
 
             <div className="flex-1">
               <div className="flex items-center gap-3 mb-4">
-                <h2 className="text-3xl font-black">{user.firstName} {user.lastName}</h2>
+                <h2 className="text-3xl font-black">{displayUser.firstName} {displayUser.lastName}</h2>
                 <div className="flex gap-2">
                   <span className="text-[10px] font-black uppercase tracking-widest px-2 py-1 bg-gray-100 dark:bg-white/10 text-gray-500 rounded">{user.role.replace('_', ' ')}</span>
                   <span className={`text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded ${
@@ -177,7 +184,7 @@ export default function AdminUserDetailPage() {
                 </div>
                 <div>
                   <label className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest mb-1 block">Location</label>
-                  <p className="text-xs font-bold">{displayProfileData?.businessLocation || user.location || 'Remote'}</p>
+                  <p className="text-xs font-bold">{displayProfileData?.businessLocation || displayUser.location || 'Remote'}</p>
                 </div>
               </div>
             </div>
@@ -188,7 +195,7 @@ export default function AdminUserDetailPage() {
             <div className="lg:col-span-4 flex flex-col gap-6">
               <button 
                 onClick={handleEditPermissions}
-                className="flex-1 bg-[#14a800] hover:bg-[#108a00] text-white rounded-[2.5rem] p-8 flex flex-col items-center justify-center gap-4 shadow-lg shadow-green-100 dark:shadow-none transition-all group"
+                className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-[2.5rem] p-8 flex flex-col items-center justify-center gap-4 shadow-lg shadow-emerald-100 dark:shadow-none transition-all group"
               >
                 <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center">
                   <Settings2 size={24} />
@@ -200,19 +207,28 @@ export default function AdminUserDetailPage() {
                   onClick={handleResetPassword}
                   className="bg-[#F0F0FA] dark:bg-white/5 hover:bg-[#E5E5F5] dark:hover:bg-white/10 rounded-[2.5rem] flex flex-col items-center justify-center gap-2 transition-all p-4"
                 >
-                  <History size={20} className="text-[#14a800]" />
+                  <History size={20} className="text-emerald-600" />
                   <span className="text-xs font-bold text-[#1A1D1F] dark:text-white">Reset PW</span>
                 </button>
 
                 {user.status === 'pending' ? (
                   <button 
-                    onClick={() => handleStatusChange('active')}
+                    onClick={() => handleStatusChange('approved')}
                     disabled={updateStatus.isPending}
                     className="bg-emerald-50 dark:bg-emerald-500/10 hover:bg-emerald-100 dark:hover:bg-emerald-500/20 rounded-[2.5rem] flex flex-col items-center justify-center gap-2 transition-all p-4 border border-emerald-100 dark:border-emerald-500/20 disabled:opacity-50"
                   >
                     <CheckCircle2 size={20} className="text-emerald-500" />
                     <span className="text-xs font-bold text-emerald-600">Approve</span>
                   </button>
+                ) : (user.status === 'active' || user.status === 'approved') && hasPendingChanges ? (
+                    <button 
+                      onClick={() => handleStatusChange('approved')}
+                      disabled={updateStatus.isPending}
+                      className="bg-amber-50 dark:bg-amber-500/10 hover:bg-amber-100 dark:hover:bg-amber-500/20 rounded-[2.5rem] flex flex-col items-center justify-center gap-2 transition-all p-4 border border-amber-100 dark:border-amber-500/20 disabled:opacity-50"
+                    >
+                      <Zap size={20} className="text-amber-500 animate-pulse" />
+                      <span className="text-xs font-bold text-amber-600">Approve Updates</span>
+                    </button>
                 ) : user.status === 'suspended' || user.status === 'banned' ? (
                   <button 
                     onClick={() => handleStatusChange('active')}
@@ -351,7 +367,7 @@ export default function AdminUserDetailPage() {
                     <label className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest block mb-2">Niches / Categories</label>
                     <div className="flex flex-wrap gap-2">
                       {displayProfileData?.niches?.map((niche: string, i: number) => (
-                        <span key={i} className="px-3 py-1 bg-green-50 dark:bg-green-500/10 text-[#14a800] rounded-lg text-[10px] font-bold border border-green-100 dark:border-green-500/20">
+                        <span key={i} className="px-3 py-1 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 rounded-lg text-[10px] font-bold border border-emerald-100 dark:border-emerald-500/20">
                           {niche}
                         </span>
                       )) || <span className="text-xs text-gray-400">None</span>}
@@ -600,7 +616,7 @@ export default function AdminUserDetailPage() {
           <div className="bg-white dark:bg-[#111111] p-8 rounded-[3rem] border border-[#EFEFEF] dark:border-white/5 shadow-sm">
             <div className="flex justify-between items-center mb-10">
               <h3 className="font-extrabold text-lg">Wallet & Earnings</h3>
-              <div className="w-10 h-10 bg-green-100 dark:bg-green-500/20 rounded-xl flex items-center justify-center text-[#14a800]">
+              <div className="w-10 h-10 bg-emerald-100 dark:bg-emerald-500/20 rounded-xl flex items-center justify-center text-emerald-600">
                 <Coins size={18} />
               </div>
             </div>
@@ -609,7 +625,7 @@ export default function AdminUserDetailPage() {
               <p className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest mb-2">Available Coins</p>
               <div className="flex items-center justify-center gap-2">
                 <span className="text-4xl font-black">{user.wallet?.availableCoins?.toLocaleString() || '0'}</span>
-                <span className="text-sm font-bold text-[#14a800] uppercase">AACP</span>
+                <span className="text-sm font-bold text-emerald-600 uppercase">AACP</span>
               </div>
             </div>
 
@@ -640,14 +656,14 @@ export default function AdminUserDetailPage() {
 
             <div className="bg-[#F8F8FD] dark:bg-white/5 p-4 rounded-2xl flex items-center justify-between mb-10">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-green-100 dark:bg-green-500/20 rounded-lg flex items-center justify-center text-[#14a800]">
+                <div className="w-8 h-8 bg-emerald-100 dark:bg-emerald-500/20 rounded-lg flex items-center justify-center text-emerald-600">
                   <Zap size={14} fill="currentColor" />
                 </div>
                 <span className="text-xs font-bold">Campaign Success</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="h-1.5 w-24 bg-gray-200 dark:bg-white/10 rounded-full overflow-hidden">
-                  <div className="h-full bg-[#14a800] w-[94%]" />
+                  <div className="h-full bg-emerald-600 w-[94%]" />
                 </div>
                 <span className="text-xs font-black">94%</span>
               </div>
@@ -683,7 +699,7 @@ export default function AdminUserDetailPage() {
               {user.logs && user.logs.length > 0 ? (
                 user.logs.map((log: any, i: number) => (
                   <div key={i} className="flex gap-4">
-                    <div className={`w-2 h-2 rounded-full ${i % 2 === 0 ? 'bg-green-500' : 'bg-blue-500'} mt-1.5 shrink-0`} />
+                    <div className={`w-2 h-2 rounded-full ${i % 2 === 0 ? 'bg-emerald-500' : 'bg-blue-500'} mt-1.5 shrink-0`} />
                     <div>
                       <p className="text-sm font-bold leading-tight mb-0.5">{log.message}</p>
                       <p className="text-[10px] font-medium text-[#9A9FA5]">
@@ -697,7 +713,7 @@ export default function AdminUserDetailPage() {
               )}
             </div>
 
-            <button className="w-full py-2 text-[#14a800] font-bold text-xs uppercase tracking-widest hover:underline">
+            <button className="w-full py-2 text-emerald-600 font-bold text-xs uppercase tracking-widest hover:underline">
               Full Activity Audit
             </button>
           </div>
@@ -755,7 +771,7 @@ export default function AdminUserDetailPage() {
                         </span>
                       </td>
                       <td className="py-6 px-4 text-right">
-                        <button className="p-2 hover:bg-white dark:hover:bg-white/10 rounded-xl transition-all text-[#9A9FA5] group-hover:text-[#14a800]">
+                        <button className="p-2 hover:bg-white dark:hover:bg-white/10 rounded-xl transition-all text-[#9A9FA5] group-hover:text-emerald-600">
                           <Eye size={18} />
                         </button>
                       </td>
@@ -785,7 +801,7 @@ export default function AdminUserDetailPage() {
             exit={{ opacity: 0, scale: 0.9 }}
             className={`fixed bottom-8 left-1/2 -translate-x-1/2 z-50 px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3 border ${
               toast.type === 'success' 
-                ? 'bg-[#14a800] text-white border-green-400' 
+                ? 'bg-emerald-600 text-white border-emerald-400' 
                 : 'bg-red-500 text-white border-red-400'
             }`}
           >

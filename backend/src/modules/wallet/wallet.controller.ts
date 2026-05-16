@@ -125,6 +125,18 @@ export const requestCoins = async (req: Request, res: Response, next: NextFuncti
             paymentMethod || 'unknown',
             Number(pricePaid) || 0,
         );
+        
+        // Notify admins
+        const io = (req.app as any).io;
+        if (io) {
+            io.to('admins').emit('notification:new', {
+                type: 'payment',
+                title: 'New Coin Request',
+                message: `A user requested ${coins} coins via ${paymentMethod}.`,
+                createdAt: new Date().toISOString()
+            });
+        }
+
         return success(res, result.message, result.transaction, 201);
     } catch (err) {
         return next(err);

@@ -11,6 +11,9 @@ export interface AdminUser {
     role: 'business_owner' | 'advertiser' | 'admin' | 'super_admin';
     status: 'pending' | 'active' | 'approved' | 'banned' | 'suspended';
     isVerified: boolean;
+    profileData?: any;
+    pendingProfileData?: any;
+    pendingUpdates?: any;
     createdAt: string;
     updatedAt: string;
 }

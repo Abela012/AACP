@@ -25,11 +25,14 @@ import { cn } from '@/src/shared/utils/cn';
 import { useOpportunity } from '@/src/hooks/useOpportunities';
 import { useApply } from '@/src/hooks/useApplications';
 import { useWalletBalance } from '@/src/hooks/useWallet';
+import { toast } from 'react-hot-toast';
+import { useApiClient } from '@/src/api/apiClient';
 
 export default function AdvertiserApplyMatchPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const { id } = useParams();
+  const api = useApiClient();
 
   const { data: oppData, isLoading: isLoadingOpp } = useOpportunity(id || '');
   const activeJobData = oppData?.opportunity || location.state?.job || {};
@@ -43,7 +46,8 @@ export default function AdvertiserApplyMatchPage() {
   const [showInsufficientBalance, setShowInsufficientBalance] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const { user: clerkUser } = useClerkUser();
-  const [resume, setResume] = useState<{ name: string; size: string } | null>(null);
+  const [resume, setResume] = useState<{ name: string; size: string; file?: File } | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
   const resumeInputRef = useRef<HTMLInputElement>(null);
 
   const handleResumeUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -51,7 +55,8 @@ export default function AdvertiserApplyMatchPage() {
     if (file) {
       setResume({
         name: file.name,
-        size: (file.size / (1024 * 1024)).toFixed(2) + ' MB'
+        size: (file.size / (1024 * 1024)).toFixed(2) + ' MB',
+        file: file
       });
     }
   };
@@ -71,11 +76,8 @@ export default function AdvertiserApplyMatchPage() {
     country: '',
     linkedin: '',
     portfolio: '',
-    currentTitle: '',
-    currentCompany: '',
+    creativeRole: '',
     experienceYears: '1-3',
-    educationLevel: '',
-    fieldOfStudy: '',
     skills: [] as string[],
     tools: [] as string[],
     proficiency: 'Intermediate',
@@ -144,30 +146,40 @@ export default function AdvertiserApplyMatchPage() {
       return;
     }
 
-    setIsSubmitting(true);
-    setSubmitError(null);
+    setIsUploading(true);
     try {
+      let finalResumeUrl = '';
+      
+      if (resume?.file) {
+        const uploadFormData = new FormData();
+        uploadFormData.append('file', resume.file);
+        const uploadRes = await api.post('/users/upload', uploadFormData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
+        finalResumeUrl = uploadRes.data.url;
+      }
+
       await applyMutation.mutateAsync({
-        opportunity: id || '',
+        opportunity: id!,
         coverLetter: formData.coverLetter,
+        proposedPrice: Number(formData.expectedSalary) || 0,
+        proposedTimeline: formData.availability,
         applicationData: {
           ...formData,
-          resumeUrl: resume ? resume.name : null
+          resumeUrl: finalResumeUrl || null
         }
       });
       setIsSuccess(true);
     } catch (error: any) {
       console.error('Failed to apply:', error);
       let msg = error?.response?.data?.message || error?.message || 'Failed to submit application. Please try again.';
-
-      // If there are detailed validation errors, display the first one to be clear
       if (error?.response?.data?.errors && Array.isArray(error.response.data.errors) && error.response.data.errors.length > 0) {
         msg = error.response.data.errors[0].message;
       }
-
+      toast.error(msg);
       setSubmitError(msg);
     } finally {
-      setIsSubmitting(false);
+      setIsUploading(false);
     }
   };
 
@@ -405,12 +417,8 @@ export default function AdvertiserApplyMatchPage() {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                     <div className="space-y-2">
-                      <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">Current Title</label>
-                      <input type="text" name="currentTitle" value={formData.currentTitle} onChange={handleInputChange} className="w-full bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:border-emerald-500 outline-none text-gray-900 dark:text-white" />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">Current Company</label>
-                      <input type="text" name="currentCompany" value={formData.currentCompany} onChange={handleInputChange} className="w-full bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:border-emerald-500 outline-none text-gray-900 dark:text-white" />
+                      <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">Creative Role (e.g. Travel Vlogger)</label>
+                      <input type="text" name="creativeRole" value={formData.creativeRole} onChange={handleInputChange} placeholder="Tech Reviewer, Fitness Influencer, etc." className="w-full bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:border-emerald-500 outline-none text-gray-900 dark:text-white" />
                     </div>
                     <div className="space-y-2">
                       <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">Years of Experience</label>
@@ -419,10 +427,6 @@ export default function AdvertiserApplyMatchPage() {
                         <option value="3-5">3-5 years</option>
                         <option value="5+">5+ years</option>
                       </select>
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">Education Level</label>
-                      <input type="text" name="educationLevel" value={formData.educationLevel} onChange={handleInputChange} className="w-full bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:border-emerald-500 outline-none text-gray-900 dark:text-white" />
                     </div>
                   </div>
 
@@ -480,7 +484,7 @@ export default function AdvertiserApplyMatchPage() {
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-2">
-                          <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Expected salary (USD)?</label>
+                          <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Expected Rate (ETB)?</label>
                           <input type="text" name="expectedSalary" value={formData.expectedSalary} onChange={handleInputChange} className="w-full bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2 text-sm focus:border-emerald-500 outline-none text-gray-900 dark:text-white" />
                         </div>
                         <div className="space-y-2">
@@ -551,7 +555,7 @@ export default function AdvertiserApplyMatchPage() {
                     <div className="p-4 bg-gray-50 dark:bg-white/5 rounded-2xl flex justify-between items-start border border-gray-100 dark:border-white/5">
                       <div>
                         <h4 className="font-bold text-sm text-gray-900 dark:text-white mb-2">Professional Profile</h4>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">{formData.currentTitle} at {formData.currentCompany}</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">{formData.creativeRole}</p>
                         <p className="text-sm text-gray-600 dark:text-gray-400">{formData.experienceYears} years experience</p>
                         <p className="text-sm text-gray-600 dark:text-gray-400 mt-2"><span className="font-medium text-gray-900 dark:text-white">Skills:</span> {formData.skills.join(', ')}</p>
                       </div>
@@ -616,15 +620,15 @@ export default function AdvertiserApplyMatchPage() {
 
               <button
                 type="submit"
-                disabled={isSubmitting || (currentStep === 3 && !formData.agreedToTerms)}
+                disabled={applyMutation.isPending || isUploading || (currentStep === 3 && !formData.agreedToTerms)}
                 className={cn(
                   "px-8 py-3 rounded-xl font-bold flex items-center gap-2 shadow-lg transition-all",
-                  isSubmitting || (currentStep === 3 && !formData.agreedToTerms)
+                  (applyMutation.isPending || isUploading || (currentStep === 3 && !formData.agreedToTerms))
                     ? "bg-gray-200 dark:bg-white/10 text-gray-400 cursor-not-allowed shadow-none"
                     : "bg-emerald-500 text-black hover:bg-emerald-400 shadow-emerald-500/20"
                 )}
               >
-                {isSubmitting ? (
+                {applyMutation.isPending || isUploading ? (
                   <div className="w-5 h-5 border-2 border-black/30 border-t-black rounded-full animate-spin" />
                 ) : currentStep === 3 ? (
                   <>Submit Application <ShieldCheck size={18} /></>

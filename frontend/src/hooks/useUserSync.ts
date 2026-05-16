@@ -1,6 +1,6 @@
 import { useAuth } from "@clerk/clerk-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useCallback } from "react";
 import type { AxiosResponse } from "axios";
 import { isAxiosError } from "axios";
 import { useApiClient } from "../api/apiClient";
@@ -52,21 +52,24 @@ export const useUserSync = () => {
         mutationFn: async () => {
             const pendingRole = localStorage.getItem('pendingUserRole') || undefined;
             if (pendingRole) {
-                console.log("[useUserSync] Syncing new user with role:", pendingRole);
+                console.log("[useUserSync] Initiating sync with role:", pendingRole);
             }
-            return userApi.syncUser(api, pendingRole);
+            return await userApi.syncUser(api, pendingRole);
         },
+        retry: 3, 
+        retryDelay: 2000,
         onSuccess: async (response: AxiosResponse<SyncUserPayload>) => {
             const syncedUser = response.data?.user;
             console.log(
-                "[useUserSync] User synced:",
-                response.data?.message,
+                "[useUserSync] User synced successfully. Backend status:",
+                syncedUser?.status,
                 syncedUser?.role ? `role=${syncedUser.role}` : '',
             );
 
             localStorage.removeItem('pendingUserRole');
             applySyncedUser(syncedUser, setUserRole, setOnboardingStatus);
 
+            // Force a refresh of the authUser query to update other parts of the UI
             queryClient.invalidateQueries({ queryKey: ["authUser"] });
             await refreshProfile();
         },
@@ -76,19 +79,22 @@ export const useUserSync = () => {
                 : error instanceof Error
                   ? error.message
                   : error;
-            console.error("[useUserSync] Sync failed:", detail);
+            
+            console.error("[useUserSync] Sync failed definitively after retries:", detail);
+            
+            // Reset ref on error to allow retry if needed
             hasAttemptedSync.current = false;
         },
     });
 
-    const { mutate, isPending, isSuccess, isError } = syncUserMutation;
+    const { mutate, isPending, isSuccess, isError, error } = syncUserMutation;
 
-    const triggerSync = () => {
-        if (!hasAttemptedSync.current && !isPending) {
-            hasAttemptedSync.current = true;
+    const triggerSync = useCallback((force = false) => {
+        if (force || (!hasAttemptedSync.current && !isPending)) {
+            if (!force) hasAttemptedSync.current = true;
             mutate();
         }
-    };
+    }, [isPending, mutate]);
 
     useEffect(() => {
         if (!isSignedIn || hasAttemptedSync.current || isPending) return;
@@ -97,9 +103,10 @@ export const useUserSync = () => {
     }, [isSignedIn, isPending, mutate]);
 
     return {
-        sync: triggerSync,
+        sync: () => triggerSync(true),
         isLoading: isPending,
         isSuccess,
         isError,
+        error,
     };
 };
