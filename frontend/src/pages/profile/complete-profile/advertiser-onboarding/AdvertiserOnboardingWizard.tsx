@@ -96,7 +96,7 @@ export default function AdvertiserOnboardingWizard({ api, tradeLicenseUrl, onSub
 
   useEffect(() => {
     if (!profile) return;
-    const p = profile as Record<string, unknown>;
+    const p = profile as unknown as Record<string, unknown>;
     setForm((f) => {
       const next = { ...f };
       next.firstName = (p.firstName as string) || clerkUser?.firstName || f.firstName;

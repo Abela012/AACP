@@ -378,7 +378,6 @@ export const submitProfileForReview = async (
 
       user.set(updates);
     }
-    }
     const updatedUser = await user.save();
     const userResponse = updatedUser.toObject();
     delete (userResponse as any).__v;
