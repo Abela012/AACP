@@ -16,6 +16,16 @@ export interface ISubmission extends Document {
     reviewedAt?: Date;
 }
 
+export interface ITask extends Document {
+    title: string;
+    description?: string;
+    dueDate?: Date;
+    priority: 'low' | 'medium' | 'high' | 'urgent';
+    status: 'pending' | 'in_progress' | 'submitted' | 'approved';
+    assignedTo: mongoose.Types.ObjectId;
+    order: number;
+}
+
 export interface IMilestone extends Document {
     title: string;
     description?: string;
@@ -31,6 +41,7 @@ export interface ICollaboration extends Document {
     advertiser: mongoose.Types.ObjectId;
     status: 'active' | 'on_hold' | 'completed' | 'cancelled' | 'disputed';
     milestones: IMilestone[];
+    tasks: ITask[];
     agreedBudget: {
         amount: number;
         currency: string;
@@ -59,6 +70,27 @@ const submissionSchema: Schema<ISubmission> = new Schema(
         reviewedAt: Date,
     },
     { _id: true }
+);
+
+const taskSchema: Schema<ITask> = new Schema(
+    {
+        title: { type: String, required: true },
+        description: String,
+        dueDate: Date,
+        priority: {
+            type: String,
+            enum: ['low', 'medium', 'high', 'urgent'],
+            default: 'medium',
+        },
+        status: {
+            type: String,
+            enum: ['pending', 'in_progress', 'submitted', 'approved'],
+            default: 'pending',
+        },
+        assignedTo: { type: Schema.Types.ObjectId, ref: 'User' },
+        order: { type: Number, default: 0 },
+    },
+    { _id: true, timestamps: true }
 );
 
 const milestoneSchema: Schema<IMilestone> = new Schema(
@@ -111,6 +143,7 @@ const collaborationSchema: Schema<ICollaboration> = new Schema(
             default: 'active',
         },
         milestones: [milestoneSchema],
+        tasks: [taskSchema],
         agreedBudget: {
             amount: Number,
             currency: { type: String, default: 'ETB' },

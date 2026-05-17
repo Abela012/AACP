@@ -19,6 +19,7 @@ export default function LoginForm() {
         setRole,
         onSignInPress,
         handleSocialAuth,
+        handleTikTokAuth,
         verificationCode,
         setVerificationCode,
         onVerifySecondFactor,
@@ -205,7 +206,7 @@ export default function LoginForm() {
                 </button>
                 <button
                     type="button"
-                    onClick={() => handleSocialAuth("oauth_tiktok")}
+                    onClick={handleTikTokAuth}
                     disabled={loading}
                     className="flex h-12 items-center justify-center rounded-xl border border-gray-100 bg-white transition-all hover:bg-gray-50 active:scale-95 disabled:opacity-50 shadow-sm"
                 >

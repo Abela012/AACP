@@ -36,6 +36,18 @@ export interface AdminStatsResponse {
     pendingCoinRequests?: number;
 }
 
+export type AdminNotification = {
+    id: string;
+    title: string;
+    category: 'system' | 'user_activity' | 'payments';
+    priority: 'high' | 'normal';
+    read: boolean;
+    createdAt: string;
+    action: string;
+    targetType?: string;
+    actorName: string;
+};
+
 export const adminApi = {
     /** GET /admin/users — Paginated list with optional search */
     getUsers: (api: AxiosInstance, params?: { page?: number; limit?: number; search?: string }) =>
@@ -83,7 +95,11 @@ export const adminApi = {
             success: boolean;
             message: string;
             data: {
-                settings: { maintenanceMode: boolean; supportContactEmail: string };
+                settings: {
+                    maintenanceMode: boolean;
+                    allowPublicSignup: boolean;
+                    newUserStartingCoins: number;
+                };
                 services: { id: string; name: string; status: 'operational' | 'degraded'; detail: string }[];
                 recentAudit: { id: string; action: string; message: string; createdAt: string; actorName: string }[];
             };
@@ -92,11 +108,30 @@ export const adminApi = {
     /** PATCH /admin/settings — Update platform settings */
     patchSettings: (
         api: AxiosInstance,
-        body: { maintenanceMode?: boolean; supportContactEmail?: string }
+        body: {
+            maintenanceMode?: boolean;
+            allowPublicSignup?: boolean;
+            newUserStartingCoins?: number;
+        }
     ) =>
         api.patch<{
             success: boolean;
             message: string;
-            data: { settings: { maintenanceMode: boolean; supportContactEmail: string } };
+            data: {
+                settings: {
+                    maintenanceMode: boolean;
+                    allowPublicSignup: boolean;
+                    newUserStartingCoins: number;
+                };
+            };
         }>('/admin/settings', body),
+
+    getNotifications: (api: AxiosInstance) =>
+        api.get<{
+            success: boolean;
+            message: string;
+            data: {
+                notifications: AdminNotification[];
+            };
+        }>('/admin/notifications'),
 };

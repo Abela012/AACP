@@ -139,7 +139,8 @@ export default function CollaborationsPage() {
                   key={c._id}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="bg-white dark:bg-[#0a0a0a] rounded-[2.5rem] border border-gray-100 dark:border-white/5 shadow-sm hover:shadow-xl transition-all overflow-hidden group"
+                  onClick={() => navigate(`/collaborations/${c._id}`)}
+                  className="bg-white dark:bg-[#0a0a0a] rounded-[2.5rem] border border-gray-100 dark:border-white/5 shadow-sm hover:shadow-xl transition-all overflow-hidden group cursor-pointer"
                 >
                   <div className="flex flex-col lg:flex-row">
                     <div className="p-8 lg:w-2/3 border-r border-gray-50 dark:border-white/5">
@@ -209,7 +210,7 @@ export default function CollaborationsPage() {
                     <div className="p-8 lg:w-1/3 bg-gray-50/30 dark:bg-white/[0.01] flex flex-col justify-center gap-3">
                       {c.status === 'active' && userRole === 'business_owner' && (
                         <button 
-                          onClick={() => handleComplete(c._id, partnerName)}
+                          onClick={(e) => { e.stopPropagation(); handleComplete(c._id, partnerName); }}
                           className="w-full h-12 bg-emerald-600 text-white font-black rounded-xl hover:bg-emerald-500 transition-all shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2"
                         >
                           <CheckCircle2 size={18} /> Complete Project
@@ -218,7 +219,7 @@ export default function CollaborationsPage() {
                       
                       {c.status === 'completed' && (
                          <button 
-                          onClick={() => setReviewModal({ isOpen: true, collabId: c._id, targetName: partnerName })}
+                          onClick={(e) => { e.stopPropagation(); setReviewModal({ isOpen: true, collabId: c._id, targetName: partnerName }); }}
                           className="w-full h-12 bg-amber-500 text-black font-black rounded-xl hover:bg-amber-400 transition-all flex items-center justify-center gap-2"
                         >
                           <Star size={18} /> Rate Experience
@@ -226,14 +227,17 @@ export default function CollaborationsPage() {
                       )}
 
                       <button 
-                        onClick={() => navigate(`/messages?collab=${c._id}`)}
+                        onClick={(e) => { e.stopPropagation(); navigate(`/messages?collab=${c._id}`); }}
                         className="w-full h-12 bg-white dark:bg-white/5 border border-gray-100 dark:border-white/10 text-gray-600 dark:text-gray-300 font-bold rounded-xl hover:bg-gray-50 dark:hover:bg-white/10 transition-all flex items-center justify-center gap-2"
                       >
                         <MessageSquare size={18} /> Send Message
                       </button>
                       
-                      <button className="text-[10px] font-black text-gray-400 hover:text-emerald-600 uppercase tracking-widest transition-colors flex items-center justify-center gap-1 mt-2">
-                        View Project Details <ExternalLink size={10} />
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); navigate(`/collaborations/${c._id}`); }}
+                        className="w-full h-12 mt-2 bg-gray-900 dark:bg-white text-white dark:text-black font-black rounded-xl hover:opacity-90 transition-all flex items-center justify-center gap-2 shadow-lg"
+                      >
+                        View Project Details <ExternalLink size={14} />
                       </button>
                     </div>
                   </div>

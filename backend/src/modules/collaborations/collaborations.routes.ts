@@ -3,6 +3,24 @@ import * as collaborationsController from './collaborations.controller';
 import { protect } from '../../middlewares/auth.middleware';
 import { startCollaborationValidator } from '../../validators/collaborationValidator';
 import validate from '../../middlewares/validate.middleware';
+import multer from 'multer';
+
+const upload = multer({ 
+    storage: multer.memoryStorage(),
+    limits: { fileSize: 200 * 1024 * 1024 }, // 200MB max for videos
+    fileFilter: (_req, file, cb) => {
+        const allowed = [
+            'video/mp4', 'video/quicktime', 'video/webm', 'video/ogg', 'video/x-msvideo',
+            'image/jpeg', 'image/png', 'image/gif', 'image/webp',
+            'application/pdf', 'application/zip'
+        ];
+        if (allowed.includes(file.mimetype)) {
+            cb(null, true);
+        } else {
+            cb(new Error(`File type ${file.mimetype} is not supported`));
+        }
+    }
+});
 
 /**
  * Collaboration Routes
@@ -143,5 +161,13 @@ router.get('/user/:userId', collaborationsController.getCollaborationsByUser);
  *         description: Server error
  */
 router.get('/:id', collaborationsController.getCollaborationById);
+
+// Task Management
+router.post('/:id/tasks', collaborationsController.addTask);
+router.put('/:id/tasks/:taskId', collaborationsController.updateTask);
+
+// Deliverables Management
+router.post('/:id/deliverables', upload.single('file'), collaborationsController.submitDeliverable);
+router.put('/:id/deliverables/:submissionId/review', collaborationsController.reviewDeliverable);
 
 export default router;

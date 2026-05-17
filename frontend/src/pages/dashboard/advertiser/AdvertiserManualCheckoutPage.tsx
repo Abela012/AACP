@@ -17,6 +17,7 @@ import { cn } from '@/src/shared/utils/cn';
 import AdvertiserLayout from '@/src/shared/components/layouts/AdvertiserLayout';
 import { walletApi } from '@/src/api/walletApi';
 import { useApiClient } from '@/src/api/apiClient';
+import { formatBirr } from '@/src/shared/constants/coinPacks';
 
 export default function AdvertiserManualCheckoutPage() {
   const navigate = useNavigate();
@@ -328,7 +329,7 @@ export default function AdvertiserManualCheckoutPage() {
               <div className="space-y-4 text-sm mb-6 pb-6 border-b border-gray-100 dark:border-white/5">
                 <div className="flex items-center justify-between">
                   <span className="text-gray-500 dark:text-gray-400">Package Price</span>
-                  <span className="font-bold text-gray-900 dark:text-white">${packDetails.price.toFixed(2)}</span>
+                  <span className="font-bold text-gray-900 dark:text-white">{formatBirr(packDetails.price)}</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-gray-500 dark:text-gray-400">Processing Fee</span>
@@ -339,7 +340,7 @@ export default function AdvertiserManualCheckoutPage() {
               <div className="mb-8">
                 <span className="text-[10px] text-gray-400 dark:text-gray-500 font-bold block mb-1">Total Payable</span>
                 <div className="flex items-center justify-between">
-                  <span className="text-3xl font-black text-emerald-500 font-black">${packDetails.price.toFixed(2)}</span>
+                  <span className="text-3xl font-black text-emerald-500">{formatBirr(packDetails.price)}</span>
                   <span className="text-[8px] uppercase font-bold text-gray-400 dark:text-gray-500 tracking-widest mt-2">INCLUDED TAXES</span>
                 </div>
               </div>

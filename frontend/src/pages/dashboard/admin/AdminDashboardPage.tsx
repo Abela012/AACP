@@ -101,7 +101,7 @@ export default function AdminDashboardPage() {
             </button>
           </div>
           {permissions.map((p, idx) => (
-            <motion.div
+            <div
               key={idx}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -123,7 +123,7 @@ export default function AdminDashboardPage() {
                   {p.desc}
                 </p>
               </div>
-            </motion.div>
+            </div>
           ))}
         </div>
 
@@ -168,40 +168,7 @@ export default function AdminDashboardPage() {
             )}
           </div>
 
-          {/* Security & Efficiency */}
-          <div className="lg:col-span-9 grid grid-cols-1 md:grid-cols-2 gap-6 h-full">
-            {/* Security Settings */}
-            <div className="bg-white dark:bg-[#111111] p-8 rounded-[2.5rem] border border-[#EFEFEF] dark:border-white/5 shadow-sm">
-              <div className="flex items-center gap-2 mb-8">
-                <Shield className="text-[#14a800]" size={20} />
-                <h3 className="font-bold">Security</h3>
-              </div>
-              <div className="space-y-8">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h4 className="text-sm font-bold mb-1">2-Factor Authentication</h4>
-                    <p className="text-[10px] text-[#6F767E] dark:text-gray-400 font-medium whitespace-nowrap">Enabled • Authenticator App</p>
-                  </div>
-                  <div className="w-12 h-6 bg-[#14a800]/10 rounded-full relative">
-                    <div className="absolute right-1 top-1 w-4 h-4 bg-[#14a800] rounded-full" />
-                  </div>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h4 className="text-sm font-bold mb-1">Password</h4>
-                    <p className="text-[10px] text-[#6F767E] dark:text-gray-400 font-medium">Last changed 2 months ago</p>
-                  </div>
-                  <button className="text-xs font-bold border border-[#EFEFEF] dark:border-white/10 px-4 py-2 rounded-xl hover:bg-gray-50 dark:hover:bg-white/5 transition-all">
-                    Update
-                  </button>
-                </div>
-                <p className="text-[10px] text-[#9A9FA5] italic pt-4">
-                  Next mandatory password rotation in 32 days.
-                </p>
-              </div>
-            </div>
-
-            {/* Efficiency Pulse */}
+          <div className="lg:col-span-9">
             <div className="bg-[#14a800] p-8 rounded-[2.5rem] shadow-xl text-white relative overflow-hidden group">
               <div className="relative z-10">
                 <h3 className="font-bold mb-8">Efficiency Pulse</h3>

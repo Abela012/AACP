@@ -21,6 +21,8 @@ import AdvertiserLayout from '@/src/shared/components/layouts/AdvertiserLayout';
 import BusinessLayout from '@/src/shared/components/layouts/BusinessLayout';
 import { useUser } from '@/src/shared/context/UserContext';
 import { useProfile } from '@/src/shared/context/ProfileContext';
+import BusinessProfileInsights from '@/src/components/profile/BusinessProfileInsights';
+import { formatBirr } from '@/src/features/business-onboarding/constants';
 
 export default function ViewProfilePage() {
   const { userRole, onboardingStatus } = useUser();

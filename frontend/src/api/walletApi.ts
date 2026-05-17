@@ -61,7 +61,13 @@ export const walletApi = {
     /** POST /payments/chapa/initialize — Start Chapa checkout */
     initializeChapaTopup: (
         api: AxiosInstance,
-        data: { amount: number; currency?: string; callbackUrl?: string; returnUrl?: string }
+        data: {
+            amount: number;
+            coins: number;
+            currency?: string;
+            callbackUrl?: string;
+            returnUrl?: string;
+        }
     ) =>
         api.post<{ success: boolean; message: string; data: ChapaInitializeResponse }>(
             '/payments/chapa/initialize',

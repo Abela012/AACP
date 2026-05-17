@@ -53,3 +53,24 @@ export interface Application {
     createdAt: string;
     updatedAt: string;
 }
+
+export interface Collaboration {
+    _id: string;
+    opportunity: Opportunity;
+    application: Application;
+    businessOwner: User;
+    advertiser: User;
+    status: 'active' | 'on_hold' | 'completed' | 'cancelled' | 'disputed';
+    startDate: string;
+    completedDate?: string;
+    overallProgress: number;
+    agreedBudget: {
+        amount: number;
+        currency: string;
+    };
+    tasks: any[];
+    deliverables: any[];
+    activities: any[];
+    createdAt: string;
+    updatedAt: string;
+}

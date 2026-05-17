@@ -111,6 +111,7 @@ export interface ISocialProfile {
 
 export interface IUser extends Document {
     clerkId: string;
+    tiktokOpenId?: string;
     email: string;
     firstName: string;
     lastName: string;
@@ -246,6 +247,143 @@ const socialProfileSchema = new Schema({
 
 const userSchema: Schema = new Schema(
     {
+<<<<<<< HEAD
+        clerkId: {
+            type: String,
+            required: true,
+            unique: true,
+        },
+        tiktokOpenId: {
+            type: String,
+            sparse: true,
+            unique: true,
+            index: true,
+        },
+        email: {
+            type: String,
+            required: true,
+            unique: true,
+        },
+        firstName: {
+            type: String,
+            default: "",
+        },
+        lastName: {
+            type: String,
+            default: "",
+        },
+        username: {
+            type: String,
+            required: true,
+            unique: true,
+        },
+        profilePicture: {
+            type: String,
+            default: "",
+        },
+        coverImage: {
+            type: String,
+            default: "",
+        },
+        tradeLicenseUrl: {
+            type: String,
+            default: "",
+        },
+        idVerificationUrl: {
+            type: String,
+            default: "",
+        },
+
+        bio: {
+            type: String,
+            default: ""
+        },
+
+        location: {
+            type: String,
+            default: "",
+        },
+        role: {
+            type: String,
+            enum: ['business_owner', 'advertiser', 'admin', 'super_admin'],
+            default: 'advertiser',
+            index: true,
+        },
+        status: {
+            type: String,
+            enum: ['incomplete', 'pending', 'active', 'approved', 'banned', 'suspended'],
+            default: 'incomplete',
+        },
+        isVerified: {
+            type: Boolean,
+            default: false,
+        },
+        profileData: {
+            tiktok: {
+                username: String,
+                profileLink: String,
+                accountType: String,
+                postingFrequency: String,
+                followers: Number,
+                engagementRate: Number,
+                totalLikes: Number,
+                avgViews: Number,
+                avgComments: Number,
+                avgShares: Number,
+                niche: {},
+                contentStyle: {},
+                audienceGender: String,
+                audienceTopCountry: String,
+                audienceAgeRange: String,
+            },
+
+            instagram: {
+                username: String,
+                profileLink: String,
+                accountType: String,
+                postingFrequency: String,
+                followers: Number,
+                totalLikes: Number,
+                avgViews: Number,
+                engagementRate: Number,
+                avgComments: Number,
+                avgShares: Number,
+                niche: {},
+                contentStyle: {},
+                audienceGender: String,
+                audienceTopCountry: String,
+                audienceAgeRange: String,
+            },
+            businessProfile: { type: Schema.Types.Mixed, default: undefined },
+            capacity: { type: Schema.Types.Mixed, default: undefined },
+            financialData: { type: Schema.Types.Mixed, default: undefined },
+            targetAudience: { type: Schema.Types.Mixed, default: undefined },
+            marketingGoals: { type: Schema.Types.Mixed, default: undefined },
+            marketingHistory: { type: Schema.Types.Mixed, default: undefined },
+            customerAnalytics: { type: Schema.Types.Mixed, default: undefined },
+            profileCompletion: { type: Schema.Types.Mixed, default: undefined },
+        },
+        pendingProfileData: {
+            type: Schema.Types.Mixed,
+            default: null,
+        },
+        totalPosts: {
+            type: Number,
+            default: 0,
+        },
+        averageRating: {
+            type: Number,
+            default: 0,
+        },
+        totalReviews: {
+            type: Number,
+            default: 0,
+        },
+        lastLogin: {
+            type: Date,
+        },
+
+=======
         clerkId: { type: String, required: true, unique: true },
         email: { type: String, required: true, unique: true },
         firstName: { type: String, default: "" },
@@ -271,6 +409,7 @@ const userSchema: Schema = new Schema(
         averageRating: { type: Number, default: 0 },
         totalReviews: { type: Number, default: 0 },
         lastLogin: { type: Date },
+>>>>>>> c3552367c98769c8e42b81de918ba693404496dc
     },
     { timestamps: true }
 );

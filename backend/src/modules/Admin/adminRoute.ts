@@ -15,6 +15,7 @@ import {
     rejectWalletRequest,
     getAdminSettings,
     patchAdminSettings,
+    getAdminNotifications,
 } from "./adminController";
 
 import {
@@ -36,6 +37,7 @@ router.use(requireAdmin);
 
 router.get("/settings", getAdminSettings);
 router.patch("/settings", patchAdminSettings);
+router.get("/notifications", getAdminNotifications);
 
 /**
  * @swagger

@@ -10,6 +10,8 @@ export const getPlatformSettings = async () => {
             key: SINGLETON_KEY,
             maintenanceMode: false,
             supportContactEmail: '',
+            allowPublicSignup: true,
+            newUserStartingCoins: 1000,
         });
     }
     return doc;
@@ -18,16 +20,26 @@ export const getPlatformSettings = async () => {
 export const updatePlatformSettings = async (patch: {
     maintenanceMode?: boolean;
     supportContactEmail?: string;
+    allowPublicSignup?: boolean;
+    newUserStartingCoins?: number;
 }) => {
     const set: Record<string, unknown> = {};
     if (typeof patch.maintenanceMode === 'boolean') set.maintenanceMode = patch.maintenanceMode;
     if (typeof patch.supportContactEmail === 'string') set.supportContactEmail = patch.supportContactEmail.trim();
+    if (typeof patch.allowPublicSignup === 'boolean') set.allowPublicSignup = patch.allowPublicSignup;
+    if (typeof patch.newUserStartingCoins === 'number') set.newUserStartingCoins = patch.newUserStartingCoins;
 
     const doc = await PlatformSettings.findOneAndUpdate(
         { key: SINGLETON_KEY },
         {
             $set: set,
-            $setOnInsert: { key: SINGLETON_KEY, maintenanceMode: false, supportContactEmail: '' },
+            $setOnInsert: {
+                key: SINGLETON_KEY,
+                maintenanceMode: false,
+                supportContactEmail: '',
+                allowPublicSignup: true,
+                newUserStartingCoins: 1000,
+            },
         },
         { new: true, upsert: true }
     );

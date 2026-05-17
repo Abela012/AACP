@@ -3,6 +3,9 @@ import { Request, Response } from "express";
 import { getAuth, clerkClient } from "@clerk/express";
 import cloudinary from "../../config/cloudinary";
 import * as walletService from '../wallet/wallet.service';
+import { getPlatformSettings } from '../platform/platformSettings.service';
+import { mergeProfileData } from '../../utils/profileDataMerge';
+import { validateBusinessProfileSubmit } from './businessProfile.validation';
 
 interface MulterRequest extends Request {
   file?: Express.Multer.File;
@@ -174,15 +177,13 @@ export const updateUserProfile = async (
       }
     }
 
-    // 🧠 Safely merge profileData (avoid overwriting entire object)
     if (updates.profileData && typeof updates.profileData === "object") {
-      updates.profileData = {
-        ...(user.profileData || {}),
-        ...updates.profileData,
-      };
+      updates.profileData = mergeProfileData(
+        (user.profileData || {}) as Record<string, unknown>,
+        updates.profileData as Record<string, unknown>
+      );
     }
 
-    // 🚫 Strictly remove system-controlled fields (extra safety layer)
     const forbiddenFields = [
       "role",
       "status",
@@ -198,7 +199,6 @@ export const updateUserProfile = async (
       delete updates[field];
     }
 
-    // 🧾 Update user safely
     user.set(updates);
     const updatedUser = await user.save();
     const userResponse = updatedUser.toObject();
@@ -267,6 +267,31 @@ export const submitProfileForReview = async (
         };
       }
 
+<<<<<<< HEAD
+    if (user.role === "business_owner") {
+      const validation = validateBusinessProfileSubmit({
+        ...req.body,
+        profileData: updates.profileData || req.body.profileData,
+      });
+      if (!validation.valid) {
+        res.status(400).json({ message: validation.message });
+        return;
+      }
+    }
+
+    updates.status = "pending";
+
+    if (updates.profileData && typeof updates.profileData === "object") {
+      const merged = mergeProfileData(
+        mergeProfileData(
+          (user.profileData || {}) as Record<string, unknown>,
+          (user.pendingProfileData || {}) as Record<string, unknown>
+        ),
+        updates.profileData as Record<string, unknown>
+      );
+      updates.pendingProfileData = merged;
+      delete updates.profileData;
+=======
       // Store profileData changes in pendingProfileData
       if (req.body.profileData && typeof req.body.profileData === "object") {
         user.pendingProfileData = {
@@ -298,12 +323,24 @@ export const submitProfileForReview = async (
         };
         delete updates.profileData;
       }      user.set(updates);
+>>>>>>> c3552367c98769c8e42b81de918ba693404496dc
     }
 
     user.set(updates);
     const updatedUser = await user.save();
     const userResponse = updatedUser.toObject();
     delete (userResponse as any).__v;
+
+    // Notify admins
+    const io = (req.app as any).io;
+    if (io) {
+      io.to('admins').emit('notification:new', {
+        type: 'system',
+        title: 'Profile Pending Approval',
+        message: `User ${user.firstName} ${user.lastName} has submitted profile updates for review.`,
+        createdAt: new Date().toISOString()
+      });
+    }
 
     res.status(200).json({
       message: "Profile submitted for review successfully",
@@ -398,6 +435,12 @@ export const syncUser = async (req: Request, res: Response): Promise<void> => {
       username = `${baseUsername}_${counter}`;
     }
 
+    const platformSettings = await getPlatformSettings();
+    if (platformSettings.allowPublicSignup === false) {
+      res.status(403).json({ message: "New account registration is temporarily disabled." });
+      return;
+    }
+
     // Only allow public-facing roles via sync endpoint
     // Admin and super_admin roles must be assigned manually by an admin
     const ALLOWED_SELF_ASSIGN_ROLES = ['business_owner', 'advertiser'];
@@ -422,14 +465,17 @@ export const syncUser = async (req: Request, res: Response): Promise<void> => {
       const user = await User.create(userData);
       console.log("User successfully created in MongoDB:", user._id);
 
+      const startingCoins = Math.max(0, Math.round(platformSettings.newUserStartingCoins ?? 1000));
       // Credit starting coins to allow them to post campaigns immediately
       try {
-        await walletService.creditCoins({
-          userId: user._id.toString(),
-          amount: 1000,
-          description: 'Initial balance for new account',
-        });
-        console.log(`[syncUser] Credited 1000 starting coins to ${user.email}`);
+        if (startingCoins > 0) {
+          await walletService.creditCoins({
+            userId: user._id.toString(),
+            amount: startingCoins,
+            description: 'Initial balance for new account',
+          });
+        }
+        console.log(`[syncUser] Credited ${startingCoins} starting coins to ${user.email}`);
       } catch (walletError) {
         console.error(`[syncUser] Failed to credit coins for ${user.email}:`, walletError);
         // Don't fail the whole user creation if wallet credit fails

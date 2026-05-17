@@ -92,7 +92,7 @@ export default function SuperAdminAdminManagementPage() {
           </div>
           <div className="bg-white dark:bg-[#111111] p-6 rounded-[2.5rem] border border-[#EFEFEF] dark:border-white/5 shadow-sm w-full lg:w-auto">
             <h3 className="text-sm font-black uppercase tracking-widest mb-4 flex items-center gap-2">
-              <UserPlus size={16} className="text-[#14a800]" />
+              <UserPlus size={16} className="text-emerald-600" />
               Create New Admin
             </h3>
             <div className="flex flex-col sm:flex-row flex-wrap gap-3">
@@ -100,19 +100,19 @@ export default function SuperAdminAdminManagementPage() {
                 value={inviteFirstName}
                 onChange={(e) => setInviteFirstName(e.target.value)}
                 placeholder="First Name"
-                className="bg-[#F4F4F4] dark:bg-white/5 border-none rounded-2xl px-4 py-3 text-sm w-full sm:w-40 outline-none focus:ring-2 focus:ring-[#14a800]/20"
+                className="bg-[#F4F4F4] dark:bg-white/5 border-none rounded-2xl px-4 py-3 text-sm w-full sm:w-40 outline-none focus:ring-2 focus:ring-emerald-600/20"
               />
               <input
                 value={inviteLastName}
                 onChange={(e) => setInviteLastName(e.target.value)}
                 placeholder="Last Name"
-                className="bg-[#F4F4F4] dark:bg-white/5 border-none rounded-2xl px-4 py-3 text-sm w-full sm:w-40 outline-none focus:ring-2 focus:ring-[#14a800]/20"
+                className="bg-[#F4F4F4] dark:bg-white/5 border-none rounded-2xl px-4 py-3 text-sm w-full sm:w-40 outline-none focus:ring-2 focus:ring-emerald-600/20"
               />
               <input
                 value={inviteEmail}
                 onChange={(e) => setInviteEmail(e.target.value)}
                 placeholder="Admin Email"
-                className="bg-[#F4F4F4] dark:bg-white/5 border-none rounded-2xl px-4 py-3 text-sm w-full sm:w-64 outline-none focus:ring-2 focus:ring-[#14a800]/20"
+                className="bg-[#F4F4F4] dark:bg-white/5 border-none rounded-2xl px-4 py-3 text-sm w-full sm:w-64 outline-none focus:ring-2 focus:ring-emerald-600/20"
               />
               <div className="relative w-full sm:w-56">
                 <input
@@ -120,12 +120,12 @@ export default function SuperAdminAdminManagementPage() {
                   value={invitePassword}
                   onChange={(e) => setInvitePassword(e.target.value)}
                   placeholder="Temporary Password"
-                  className="bg-[#F4F4F4] dark:bg-white/5 border-none rounded-2xl px-4 py-3 text-sm w-full outline-none focus:ring-2 focus:ring-[#14a800]/20 pr-10"
+                  className="bg-[#F4F4F4] dark:bg-white/5 border-none rounded-2xl px-4 py-3 text-sm w-full outline-none focus:ring-2 focus:ring-emerald-600/20 pr-10"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9A9FA5] hover:text-[#14a800] transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9A9FA5] hover:text-emerald-600 transition-colors"
                 >
                   {showPassword ? (
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -142,7 +142,7 @@ export default function SuperAdminAdminManagementPage() {
               <button
                 onClick={handleCreateAdmin}
                 disabled={createAdmin.isPending}
-                className="px-6 py-3 bg-[#14a800] hover:bg-[#108a00] text-white rounded-2xl text-xs font-black uppercase tracking-widest shadow-lg shadow-green-100 dark:shadow-none flex items-center justify-center gap-2 disabled:opacity-60 min-w-[140px]"
+                className="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl text-xs font-black uppercase tracking-widest shadow-lg shadow-emerald-100 dark:shadow-none flex items-center justify-center gap-2 disabled:opacity-60 min-w-[140px]"
               >
                 {createAdmin.isPending ? <Loader2 size={16} className="animate-spin" /> : <UserPlus size={16} />}
                 Create Admin
@@ -177,7 +177,7 @@ export default function SuperAdminAdminManagementPage() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search admins..."
-              className="w-full bg-[#F4F4F4] dark:bg-white/5 rounded-2xl pl-11 pr-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#14a800]/20 border-none"
+              className="w-full bg-[#F4F4F4] dark:bg-white/5 rounded-2xl pl-11 pr-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-600/20 border-none"
             />
           </div>
           <button
@@ -204,7 +204,7 @@ export default function SuperAdminAdminManagementPage() {
                 {isLoading ? (
                   <tr>
                     <td colSpan={5} className="py-20 text-center">
-                      <Loader2 className="w-8 h-8 text-[#14a800] animate-spin mx-auto mb-4" />
+                      <Loader2 className="w-8 h-8 text-emerald-600 animate-spin mx-auto mb-4" />
                       <p className="text-sm font-bold text-[#6F767E]">Loading admins...</p>
                     </td>
                   </tr>
@@ -217,7 +217,7 @@ export default function SuperAdminAdminManagementPage() {
                       <p className="text-sm font-bold">Failed to load admins</p>
                       <button
                         onClick={() => refetch()}
-                        className="mt-4 px-5 py-2.5 bg-[#14a800] text-white rounded-2xl text-xs font-black uppercase tracking-widest"
+                        className="mt-4 px-5 py-2.5 bg-emerald-600 text-white rounded-2xl text-xs font-black uppercase tracking-widest"
                       >
                         Try Again
                       </button>
@@ -247,7 +247,7 @@ export default function SuperAdminAdminManagementPage() {
                             {a.profilePicture ? (
                               <img src={a.profilePicture} className="w-full h-full object-cover" />
                             ) : (
-                              <div className="w-full h-full flex items-center justify-center bg-green-100 dark:bg-green-500/20 text-[#14a800] font-black text-sm">
+                              <div className="w-full h-full flex items-center justify-center bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 font-black text-sm">
                                 {(a.firstName?.[0] ?? a.email[0]).toUpperCase()}
                               </div>
                             )}
@@ -261,7 +261,7 @@ export default function SuperAdminAdminManagementPage() {
                         </div>
                       </td>
                       <td className="py-6 px-8">
-                        <span className="px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest bg-green-50 dark:bg-green-500/10 text-[#14a800] inline-flex items-center gap-2">
+                        <span className="px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 inline-flex items-center gap-2">
                           <Shield size={12} />
                           {a.role === 'super_admin' ? 'Super Admin' : 'Admin'}
                         </span>
@@ -288,14 +288,14 @@ export default function SuperAdminAdminManagementPage() {
                         <div className="flex justify-end gap-2">
                           {a.role === 'admin' ? (
                             <button
-                              className="px-3 py-2 bg-white dark:bg-white/5 border border-[#EFEFEF] dark:border-white/10 rounded-xl text-[10px] font-black uppercase tracking-widest text-[#6F767E] hover:text-[#14a800] hover:border-[#14a800]/30 transition-all"
+                              className="px-3 py-2 bg-white dark:bg-white/5 border border-[#EFEFEF] dark:border-white/10 rounded-xl text-[10px] font-black uppercase tracking-widest text-[#6F767E] hover:text-emerald-600 hover:border-emerald-600/30 transition-all"
                               onClick={() => handleRole(a._id, 'super_admin')}
                             >
                               <span className="inline-flex items-center gap-1"><Crown size={12} /> Promote</span>
                             </button>
                           ) : (
                             <button
-                              className="px-3 py-2 bg-white dark:bg-white/5 border border-[#EFEFEF] dark:border-white/10 rounded-xl text-[10px] font-black uppercase tracking-widest text-[#6F767E] hover:text-[#14a800] hover:border-[#14a800]/30 transition-all"
+                              className="px-3 py-2 bg-white dark:bg-white/5 border border-[#EFEFEF] dark:border-white/10 rounded-xl text-[10px] font-black uppercase tracking-widest text-[#6F767E] hover:text-emerald-600 hover:border-emerald-600/30 transition-all"
                               onClick={() => handleRole(a._id, 'admin')}
                             >
                               Demote
@@ -327,12 +327,12 @@ export default function SuperAdminAdminManagementPage() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 bg-[#14a800] p-8 rounded-[2.5rem] shadow-xl text-white relative overflow-hidden">
+          <div className="lg:col-span-2 bg-emerald-600 p-8 rounded-[2.5rem] shadow-xl text-white relative overflow-hidden">
             <h3 className="text-xl font-black mb-2">Security Protocol Active</h3>
             <p className="text-xs font-medium opacity-90 max-w-xl">
               Super Admins can review all admin actions and enforce least-privilege access across the platform.
             </p>
-            <button className="mt-6 bg-white text-[#14a800] px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg">
+            <button className="mt-6 bg-white text-emerald-600 px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg">
               Review Security Logs
             </button>
             <div className="absolute -right-10 -bottom-10 w-48 h-48 bg-white/10 rounded-full blur-2xl" />
@@ -342,7 +342,7 @@ export default function SuperAdminAdminManagementPage() {
             <p className="text-xs text-[#6F767E] dark:text-gray-400 font-medium leading-relaxed">
               AACP Velocity implements strict Principle of Least Privilege (PoLP) across all admin tiers.
             </p>
-            <button className="mt-6 text-xs font-black text-[#14a800] uppercase tracking-widest">
+            <button className="mt-6 text-xs font-black text-emerald-600 uppercase tracking-widest">
               View Guidelines →
             </button>
           </div>
@@ -357,7 +357,7 @@ export default function SuperAdminAdminManagementPage() {
             exit={{ opacity: 0, scale: 0.9 }}
             className={`fixed bottom-8 left-1/2 -translate-x-1/2 z-50 px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3 border ${
               toast.type === 'success'
-                ? 'bg-[#14a800] text-white border-green-400'
+                ? 'bg-emerald-600 text-white border-emerald-400'
                 : 'bg-red-500 text-white border-red-400'
             }`}
           >

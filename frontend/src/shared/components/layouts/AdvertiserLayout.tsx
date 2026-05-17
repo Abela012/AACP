@@ -17,7 +17,7 @@ import {
   Users,
   LogOut,
   MessageSquare,
-  Briefcase
+  Briefcase, Zap
 } from 'lucide-react';
 import { useClerk } from '@clerk/clerk-react';
 import { Link, useLocation } from 'react-router-dom';
@@ -70,6 +70,7 @@ export default function AdvertiserLayout({ children }: AdvertiserLayoutProps) {
     { name: 'Overview', icon: LayoutDashboard, path: '/dashboard/advertiser' },
     { name: 'Campaigns', icon: Megaphone, path: '/advertiser/campaigns' },
     { name: 'AI Matches', icon: Sparkles, path: '/advertiser/matches', badge: matchCount > 0 ? matchCount.toString() : undefined },
+    { name: 'Partnerships', icon: Briefcase, path: '/advertiser/collaborations' },
     { name: 'Reports', icon: BarChart3, path: '/advertiser/analytics' },
     { name: 'Messages', icon: MessageSquare, path: '/messages' },
   ];
@@ -82,7 +83,7 @@ export default function AdvertiserLayout({ children }: AdvertiserLayoutProps) {
   const headerNav = [
     { name: 'Dashboard', path: '/dashboard/advertiser' },
     { name: 'Opportunities', path: '/advertiser/matches' },
-    { name: 'Collaborations', path: '/advertiser/collaborations' },
+    { name: 'Partnerships', path: '/advertiser/collaborations' },
     { name: 'Analytics', path: '/advertiser/analytics' },
     { name: 'Campaigns', path: '/advertiser/campaigns' },
   ];
@@ -104,10 +105,10 @@ export default function AdvertiserLayout({ children }: AdvertiserLayoutProps) {
       )}>
         <div className="p-6 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center">
-              <Target className="text-black w-5 h-5" />
+            <div className="w-8 h-8 bg-emerald-600 rounded-full flex items-center justify-center">
+              <Zap className="text-white w-5 h-5 fill-white" />
             </div>
-            <span className="text-xl font-bold tracking-tighter text-gray-900 dark:text-white">AACP</span>
+            <span className="text-xl font-bold tracking-tighter text-emerald-600">AACP</span>
           </Link>
           <button className="lg:hidden" onClick={() => setIsSidebarOpen(false)}>
             <X size={20} />

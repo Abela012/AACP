@@ -353,7 +353,8 @@ export const getAdminSettings = async (req: Request, res: Response, next: NextFu
         return success(res, "Admin settings loaded", {
             settings: {
                 maintenanceMode: settings.maintenanceMode,
-                supportContactEmail: settings.supportContactEmail || "",
+                allowPublicSignup: settings.allowPublicSignup !== false,
+                newUserStartingCoins: settings.newUserStartingCoins ?? 1000,
             },
             services,
             recentAudit: recentAudit.map((log: any) => ({
@@ -377,21 +378,26 @@ export const getAdminSettings = async (req: Request, res: Response, next: NextFu
 export const patchAdminSettings = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const actor = (req as any).currentUser;
-        const { maintenanceMode, supportContactEmail } = req.body as {
+        const { maintenanceMode, allowPublicSignup, newUserStartingCoins } = req.body as {
             maintenanceMode?: boolean;
-            supportContactEmail?: string;
+            allowPublicSignup?: boolean;
+            newUserStartingCoins?: number;
         };
 
         const prev = await getPlatformSettings();
-        const patch: { maintenanceMode?: boolean; supportContactEmail?: string } = {};
+        const patch: {
+            maintenanceMode?: boolean;
+            allowPublicSignup?: boolean;
+            newUserStartingCoins?: number;
+        } = {};
 
         if (typeof maintenanceMode === "boolean") patch.maintenanceMode = maintenanceMode;
-        if (typeof supportContactEmail === "string") {
-            const trimmed = supportContactEmail.trim();
-            if (trimmed && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) {
-                return res.status(400).json({ error: "Invalid support email address" });
+        if (typeof allowPublicSignup === "boolean") patch.allowPublicSignup = allowPublicSignup;
+        if (typeof newUserStartingCoins === "number") {
+            if (!Number.isFinite(newUserStartingCoins) || newUserStartingCoins < 0 || newUserStartingCoins > 100000) {
+                return res.status(400).json({ error: "Starting coins must be between 0 and 100,000" });
             }
-            patch.supportContactEmail = trimmed;
+            patch.newUserStartingCoins = Math.round(newUserStartingCoins);
         }
 
         if (Object.keys(patch).length === 0) {
@@ -411,7 +417,8 @@ export const patchAdminSettings = async (req: Request, res: Response, next: Next
                 metadata: {
                     before: {
                         maintenanceMode: prev.maintenanceMode,
-                        supportContactEmail: prev.supportContactEmail || "",
+                        allowPublicSignup: prev.allowPublicSignup !== false,
+                        newUserStartingCoins: prev.newUserStartingCoins ?? 1000,
                     },
                     after: patch,
                 },
@@ -422,7 +429,8 @@ export const patchAdminSettings = async (req: Request, res: Response, next: Next
         return success(res, "Settings updated", {
             settings: {
                 maintenanceMode: nextDoc!.maintenanceMode,
-                supportContactEmail: nextDoc!.supportContactEmail || "",
+                allowPublicSignup: nextDoc!.allowPublicSignup !== false,
+                newUserStartingCoins: nextDoc!.newUserStartingCoins ?? 1000,
             },
         });
     } catch (error) {
@@ -450,6 +458,37 @@ export const rejectWalletRequest = async (req: Request, res: Response, next: Nex
             });
         }
         return success(res, "Request rejected", result);
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const getAdminNotifications = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const recent = await AuditLog.find()
+            .populate('actor', 'firstName lastName username email role profilePicture')
+            .sort({ createdAt: -1 })
+            .limit(30);
+
+        const notifications = recent.map((log: any, index: number) => ({
+            id: String(log._id),
+            title: log.message || log.action,
+            category:
+                log.action?.includes('WALLET') ? 'payments' :
+                log.action?.includes('DISPUTE') ? 'system' :
+                log.action?.includes('USER') ? 'user_activity' :
+                'system',
+            priority: ['SYSTEM_CONFIG_UPDATED', 'DISPUTE_ESCALATED'].includes(log.action) ? 'high' : 'normal',
+            read: index > 6,
+            createdAt: log.createdAt,
+            action: log.action,
+            targetType: log.targetType,
+            actorName: log.actor
+                ? `${log.actor.firstName || ''} ${log.actor.lastName || ''}`.trim() || log.actor.username
+                : 'System',
+        }));
+
+        return success(res, 'Notifications retrieved', { notifications });
     } catch (error) {
         next(error);
     }

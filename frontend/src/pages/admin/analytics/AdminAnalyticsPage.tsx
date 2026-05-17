@@ -53,9 +53,9 @@ export default function AdminAnalyticsPage() {
       change: recentUsers > 0 ? `+${recentUsers} this month` : 'No new users',
       up: recentUsers > 0,
       icon: Users,
-      bg: 'bg-green-50 dark:bg-green-500/10',
-      iconColor: 'text-[#14a800]',
-      border: 'border-green-100 dark:border-green-500/20',
+      bg: 'bg-emerald-50 dark:bg-emerald-500/10',
+      iconColor: 'text-emerald-600',
+      border: 'border-emerald-100 dark:border-emerald-500/20',
     },
     {
       label: 'Verified Users',
@@ -101,7 +101,7 @@ export default function AdminAnalyticsPage() {
       <AdminLayout>
         <div className="flex items-center justify-center h-96">
           <div className="text-center">
-            <Loader2 size={48} className="text-[#14a800] animate-spin mx-auto mb-4" />
+            <Loader2 size={48} className="text-emerald-600 animate-spin mx-auto mb-4" />
             <p className="text-sm font-bold text-[#6F767E]">Loading analytics...</p>
           </div>
         </div>
@@ -127,7 +127,7 @@ export default function AdminAnalyticsPage() {
                   key={range}
                   onClick={() => { setTimeRange(range); showToast(`Range set to ${range}`); }}
                   className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
-                    timeRange === range ? 'bg-white dark:bg-white/10 shadow-sm text-[#14a800]' : 'text-[#6F767E] hover:text-[#1A1D1F]'
+                    timeRange === range ? 'bg-white dark:bg-white/10 shadow-sm text-emerald-600' : 'text-[#6F767E] hover:text-[#1A1D1F]'
                   }`}
                 >
                   {range}
@@ -137,7 +137,7 @@ export default function AdminAnalyticsPage() {
             <div className="relative">
               <button
                 onClick={() => setShowExportMenu(!showExportMenu)}
-                className="px-5 py-2.5 bg-[#14a800] text-white rounded-2xl text-xs font-bold hover:bg-[#108a00] transition-all shadow-lg shadow-green-100 dark:shadow-none flex items-center gap-2"
+                className="px-5 py-2.5 bg-emerald-600 text-white rounded-2xl text-xs font-bold hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-100 dark:shadow-none flex items-center gap-2"
               >
                 <Download size={14} /> Export Report
               </button>
@@ -272,7 +272,7 @@ export default function AdminAnalyticsPage() {
                 {registrationStats.map((signup, idx) => (
                   <div key={idx} className="flex items-center justify-between p-4 bg-[#F8F8FD] dark:bg-white/5 rounded-2xl">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-green-100 dark:bg-green-500/20 rounded-xl flex items-center justify-center text-[#14a800]">
+                      <div className="w-10 h-10 bg-emerald-100 dark:bg-emerald-500/20 rounded-xl flex items-center justify-center text-emerald-600">
                         <signup.icon size={18} />
                       </div>
                       <span className="text-xs font-bold">{signup.period}</span>
@@ -285,7 +285,7 @@ export default function AdminAnalyticsPage() {
           </div>
 
           {/* Platform Health */}
-          <div className="lg:col-span-4 bg-[#14a800] p-8 rounded-[3rem] text-white shadow-xl relative overflow-hidden">
+          <div className="lg:col-span-4 bg-emerald-600 p-8 rounded-[3rem] text-white shadow-xl relative overflow-hidden">
             <div className="relative z-10">
               <h3 className="font-bold mb-2">Platform Health</h3>
               <p className="text-[10px] font-black uppercase tracking-widest opacity-70 mb-8">Live Status</p>
@@ -337,7 +337,7 @@ export default function AdminAnalyticsPage() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, scale: 0.9 }}
             className={`fixed bottom-8 left-1/2 -translate-x-1/2 z-50 px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3 border ${
-              toast.type === 'success' ? 'bg-[#14a800] text-white border-green-400' : 'bg-red-500 text-white border-red-400'
+              toast.type === 'success' ? 'bg-emerald-600 text-white border-emerald-400' : 'bg-red-500 text-white border-red-400'
             }`}
           >
             {toast.type === 'success' ? <CheckCircle2 size={18} /> : <AlertCircle size={18} />}

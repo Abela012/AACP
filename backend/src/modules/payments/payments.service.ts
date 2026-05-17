@@ -3,10 +3,12 @@ import Wallet from '../../database/models/Wallet';
 import Transaction from '../../database/models/Transaction';
 import User from '../../database/models/User';
 import walletService = require('../wallet/wallet.service');
+import { COIN_PACK_CATALOG, resolveCoinPack } from './coinPacks';
 
 type InitializeTopupInput = {
     userId: string;
     amount: number;
+    coins: number;
     currency?: string;
     callbackUrl?: string;
     returnUrl?: string;
@@ -18,8 +20,6 @@ type ChapaApiResponse = {
     data?: Record<string, any>;
     [key: string]: any;
 };
-
-const COIN_RATE = 1;
 
 /** Chapa rejects titles longer than 16 characters. */
 const CHAPA_CUSTOMIZATION_TITLE_MAX = 16;
@@ -88,14 +88,25 @@ const buildTxRef = (userId: string) => {
     return `aacp_${String(userId)}_${Date.now()}`;
 };
 
+const assertCoins = (coins: number) => {
+    if (!Number.isFinite(coins) || coins <= 0 || !Number.isInteger(coins)) {
+        const err = new Error('Coins must be a positive whole number');
+        (err as any).statusCode = 400;
+        throw err;
+    }
+};
+
 export const initializeTopup = async ({
     userId,
     amount,
+    coins,
     currency = 'ETB',
     callbackUrl,
     returnUrl,
 }: InitializeTopupInput) => {
     assertAmount(amount);
+    assertCoins(coins);
+    const pack = resolveCoinPack(amount, coins);
 
     const user = await User.findById(userId);
     if (!user) {
@@ -116,7 +127,7 @@ export const initializeTopup = async ({
 
     const txRef = buildTxRef(userId);
     const chapaPayload: Record<string, any> = {
-        amount: Number(amount.toFixed(2)),
+        amount: Number(pack.priceEtb.toFixed(2)),
         currency,
         email: user.email,
         first_name: user.firstName || user.username || 'AACP',
@@ -141,11 +152,11 @@ export const initializeTopup = async ({
         wallet: wallet._id,
         user: userId,
         type: 'payment',
-        amount,
+        amount: pack.priceEtb,
         balanceBefore,
         balanceAfter: balanceBefore,
         status: 'pending',
-        description: 'Wallet top-up initiated via Chapa',
+        description: `Wallet top-up: ${pack.coins} coins via Chapa`,
         referenceType: 'wallet_topup',
         metadata: {
             provider: 'chapa',
@@ -153,7 +164,8 @@ export const initializeTopup = async ({
             chapaCheckoutUrl: chapaResponse?.data?.checkout_url,
             chapaStatus: 'initialized',
             currency,
-            coinsToCredit: amount * COIN_RATE,
+            coinsToCredit: pack.coins,
+            priceEtb: pack.priceEtb,
         },
         performedBy: userId,
     });
@@ -172,18 +184,30 @@ const creditWalletForTopup = async (paymentTx: any, chapaVerification: any) => {
     }
 
     const amountPaid = Number(chapaVerification?.amount ?? paymentTx.amount);
-    const coins = Number(amountPaid * COIN_RATE);
+    let coinsToCredit = Number(paymentTx.metadata?.coinsToCredit);
+    if (!Number.isFinite(coinsToCredit) || coinsToCredit <= 0) {
+        const packByPrice = COIN_PACK_CATALOG.find((p) => p.priceEtb === amountPaid);
+        if (packByPrice) {
+            coinsToCredit = packByPrice.coins;
+        }
+    }
+    if (!Number.isFinite(coinsToCredit) || coinsToCredit <= 0) {
+        const err = new Error('Missing coin credit amount for this payment');
+        (err as any).statusCode = 500;
+        throw err;
+    }
 
     const creditResult = await walletService.creditCoins({
         userId: String(paymentTx.user),
-        amount: coins,
-        description: 'Wallet top-up completed via Chapa',
+        amount: coinsToCredit,
+        description: `Wallet top-up: ${coinsToCredit} coins via Chapa`,
         metadata: {
             provider: 'chapa',
             paymentTransactionId: String(paymentTx._id),
             tx_ref: paymentTx.metadata?.tx_ref,
             chapaTransactionId: chapaVerification?.id,
             paidAmount: amountPaid,
+            coinsCredited: coinsToCredit,
             currency: chapaVerification?.currency,
         },
         performedBy: paymentTx.user,
@@ -197,6 +221,7 @@ const creditWalletForTopup = async (paymentTx: any, chapaVerification: any) => {
         credited: true,
         creditedTransactionId: creditResult.transaction?._id,
         paidAmount: amountPaid,
+        coinsCredited: coinsToCredit,
         currency: chapaVerification?.currency,
     };
     await paymentTx.save();

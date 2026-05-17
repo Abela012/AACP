@@ -935,7 +935,7 @@ export default function EditProfilePage() {
                           <input
                             type="text"
                             value={tiktokHandle}
-                            onChange={(e) => setTikTokHandle(e.target.value)}
+                            onChange={(e) => setTiktokHandle(e.target.value)}
                             className={inputCls.replace('pl-10', 'pl-4')}
                             placeholder={profilePlaceholder(profile.tiktokHandle, '@handle')}
                           />
