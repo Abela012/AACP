@@ -14,19 +14,21 @@ export const useLogin = () => {
     const [error, setError] = useState<string | null>(null);
     const [infoMessage, setInfoMessage] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
-    const [role, setRole] = useState<'business_owner' | 'advertiser' | null>(null);
+    const [role, setRole] = useState<'business_owner' | 'advertiser' | null>('business_owner');
     const [verificationCode, setVerificationCode] = useState("");
     const [status, setStatus] = useState<string | null>(null);
     const [secondFactorStrategy, setSecondFactorStrategy] = useState<SecondFactorStrategy | null>(null);
 
     /** Second step after password: MFA or Clerk Client Trust email code — must call prepareSecondFactor before attempt (except TOTP). */
-    const prepareExtraStep = async (attempt: {
-        supportedSecondFactors?: Array<{ strategy?: string; emailAddressId?: string; phoneNumberId?: string }>;
-    }): Promise<boolean> => {
+    const prepareExtraStep = async (attempt: any): Promise<boolean> => {
+        if (!signIn) {
+            setError("Sign in is not ready. Please try again.");
+            return false;
+        }
         const factors = attempt.supportedSecondFactors ?? [];
-        const emailCodeFactor = factors.find((f) => f.strategy === 'email_code');
-        const phoneCodeFactor = factors.find((f) => f.strategy === 'phone_code');
-        const totpFactor = factors.some((f) => f.strategy === 'totp');
+        const emailCodeFactor = factors.find((f: any) => f.strategy === 'email_code');
+        const phoneCodeFactor = factors.find((f: any) => f.strategy === 'phone_code');
+        const totpFactor = factors.some((f: any) => f.strategy === 'totp');
 
         try {
             if (emailCodeFactor?.emailAddressId) {
@@ -60,7 +62,7 @@ export const useLogin = () => {
         }
 
         setError(
-            `Extra sign-in step required (${factors.map((f) => f.strategy).filter(Boolean).join(', ') || 'unknown'}). Configure supported factors in Clerk or try the prebuilt <SignIn /> component.`
+            `Extra sign-in step required (${factors.map((f: any) => f.strategy).filter(Boolean).join(', ') || 'unknown'}). Configure supported factors in Clerk or try the prebuilt <SignIn /> component.`
         );
         return false;
     };
@@ -87,8 +89,8 @@ export const useLogin = () => {
                 if (signInAttempt.status === "needs_first_factor") {
                     setError("Account verification required. Please check your email for a verification code or link.");
                 } else if (
-                    signInAttempt.status === "needs_second_factor" ||
-                    signInAttempt.status === "needs_client_trust"
+                    (signInAttempt.status as string) === "needs_second_factor" ||
+                    (signInAttempt.status as string) === "needs_client_trust"
                 ) {
                     const ok = await prepareExtraStep(signInAttempt);
                     if (!ok) setStatus(null);
@@ -149,8 +151,8 @@ export const useLogin = () => {
         setSecondFactorStrategy(null);
         setInfoMessage(null);
         setError(null);
-        if (typeof (signIn as { reset?: () => void }).reset === 'function') {
-            (signIn as { reset: () => void }).reset();
+        if (signIn && typeof (signIn as any).reset === 'function') {
+            (signIn as any).reset();
         }
     };
 

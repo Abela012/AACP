@@ -19,7 +19,8 @@ export default function RoleGuard({ children, allowedRoles }: RoleGuardProps) {
     const { isLoaded, isSignedIn } = useAuth();
     const api = useApiClient();
 
-    const needsRoleFetch = isLoaded && isSignedIn && !userRole;
+    const hasTikTokAuth = !!localStorage.getItem('tiktok_jwt');
+    const needsRoleFetch = (isLoaded && isSignedIn && !userRole) || (hasTikTokAuth && !userRole);
 
     const { data: meData, isLoading: isMeLoading } = useQuery({
         queryKey: ['authUser'],

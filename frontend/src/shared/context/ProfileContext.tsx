@@ -38,6 +38,7 @@ export interface ProfileData {
   _id?: string;
   clerkId?: string;
   role?: string;
+  status?: string;
   tiktok?: any;
   instagram?: any;
   facebook?: any;
@@ -106,11 +107,62 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
         const pd = userData.profileData || {};
         const ppd = userData.pendingProfileData || {};
         const pud = userData.pendingUpdates || {};
-        const t = pd.tiktok || {};
-        const i = pd.instagram || {};
 
-        const followersTotal = computeNum(t.followers) + computeNum(i.followers);
-        const avgViewsTotal = computeNum(t.avgViews) + computeNum(i.avgViews);
+        // Auto-populate from socialProfiles (e.g. TikTok scraper) if not explicitly set in profileData
+        const socialProfiles = userData.socialProfiles || [];
+        const tiktokProfile = socialProfiles.find((p: any) => p.platform?.toLowerCase() === 'tiktok');
+        const instagramProfile = socialProfiles.find((p: any) => p.platform?.toLowerCase() === 'youtube' || p.platform?.toLowerCase() === 'instagram');
+
+        const fallbackTiktok = tiktokProfile ? {
+          username: tiktokProfile.username || '',
+          followers: tiktokProfile.followers || tiktokProfile.tiktokAnalytics?.followers || 0,
+          totalLikes: tiktokProfile.tiktokAnalytics?.totalLikes || tiktokProfile.tiktokAnalytics?.avgLikes || 0,
+          avgViews: tiktokProfile.tiktokAnalytics?.avgViews || 0,
+          avgComments: tiktokProfile.tiktokAnalytics?.avgComments || 0,
+          avgShares: tiktokProfile.tiktokAnalytics?.avgShares || 0,
+          accountType: tiktokProfile.tiktokAnalytics?.accountType || 'Creator',
+          profileLink: tiktokProfile.profileLink || `https://www.tiktok.com/@${tiktokProfile.username}`,
+          postingFrequency: tiktokProfile.postingFrequency || '3-5 per week',
+          niche: tiktokProfile.niches || [],
+          audienceGender: tiktokProfile.audience?.genderDistribution?.male > tiktokProfile.audience?.genderDistribution?.female ? 'Mostly Male' : 'Mixed',
+          audienceTopCountry: tiktokProfile.audience?.topCountries?.[0]?.country || '',
+          audienceAgeRange: '18-24',
+          contentStyle: tiktokProfile.contentStyles || []
+        } : {};
+
+        const fallbackInstagram = instagramProfile ? {
+          username: instagramProfile.username || '',
+          followers: instagramProfile.followers || instagramProfile.youtubeAnalytics?.subscribers || 0,
+          totalLikes: instagramProfile.youtubeAnalytics?.engagementMetrics?.likes || 0,
+          avgViews: instagramProfile.youtubeAnalytics?.impressions || 0,
+          avgComments: instagramProfile.youtubeAnalytics?.engagementMetrics?.comments || 0,
+          avgShares: instagramProfile.youtubeAnalytics?.engagementMetrics?.shares || 0,
+          accountType: 'Creator',
+          profileLink: instagramProfile.profileLink || `https://instagram.com/${instagramProfile.username}`,
+          postingFrequency: instagramProfile.postingFrequency || '3-5 per week',
+          niche: instagramProfile.niches || [],
+          audienceGender: instagramProfile.audience?.genderDistribution?.male > instagramProfile.audience?.genderDistribution?.female ? 'Mostly Male' : 'Mixed',
+          audienceTopCountry: instagramProfile.audience?.topCountries?.[0]?.country || '',
+          audienceAgeRange: '18-24',
+          contentStyle: instagramProfile.contentStyles || []
+        } : {};
+
+        const mergeAnalytics = (fallback: any, pdObj: any, ppdObj: any) => {
+          const merged = { ...fallback };
+          const sources = [pdObj || {}, ppdObj || {}];
+          for (const src of sources) {
+            for (const key of Object.keys(src)) {
+              const val = src[key];
+              if (val !== undefined && val !== null && val !== '' && val !== 0) {
+                merged[key] = val;
+              }
+            }
+          }
+          return merged;
+        };
+
+        const t = mergeAnalytics(fallbackTiktok, pd.tiktok, ppd.tiktok);
+        const i = mergeAnalytics(fallbackInstagram, pd.instagram, ppd.instagram);
 
         const computeER = (p: any) => {
           const stored = computeNum(p.engagementRate);
@@ -128,6 +180,17 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
         const erIg = computeER(i);
         const maxER = Math.max(erTik, erIg);
 
+        const followersTotal = computeNum(t.followers) + computeNum(i.followers);
+        const avgViewsTotal = computeNum(t.avgViews) + computeNum(i.avgViews);
+
+        const formatNumber = (num: number) => {
+          if (!num) return '';
+          if (num >= 1000000000) return (num / 1000000000).toFixed(1).replace(/\.0$/, '') + 'B';
+          if (num >= 1000000) return (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
+          if (num >= 1000) return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
+          return String(num);
+        };
+
         const mappedProfile = {
           firstName: userData.firstName || '',
           lastName: userData.lastName || '',
@@ -143,10 +206,17 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
           ...pd,
           ...ppd, // Merge pending data so user sees their latest edits
           ...pud, // Merge pending root updates
-          // flattened convenience fields used by many components
-          followers: followersTotal,
-          avgViews: avgViewsTotal,
-          engagementRate: parseFloat(maxER.toFixed(2)),
+          
+          // Prepopulate handles from social connection if not explicitly saved in profileData
+          tiktokHandle: pd.tiktokHandle || ppd.tiktokHandle || (t.username ? `@${t.username.replace('@', '')}` : ''),
+          instagramHandle: pd.instagramHandle || ppd.instagramHandle || (instagramProfile?.platform?.toLowerCase() === 'instagram' && i.username ? `@${i.username.replace('@', '')}` : ''),
+          youtubeHandle: pd.youtubeHandle || ppd.youtubeHandle || (instagramProfile?.platform?.toLowerCase() === 'youtube' && i.username ? `@${i.username.replace('@', '')}` : ''),
+          xHandle: pd.xHandle || ppd.xHandle || '',
+
+          // Prepopulate followers, views and engagement rates
+          followers: pd.followers || ppd.followers || formatNumber(followersTotal),
+          avgViews: pd.avgViews || ppd.avgViews || formatNumber(avgViewsTotal),
+          engagementRate: pd.engagementRate || ppd.engagementRate || (maxER ? `${maxER.toFixed(2)}%` : ''),
         };
 
         // Sync special mappings

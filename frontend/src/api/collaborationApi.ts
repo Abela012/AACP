@@ -1,5 +1,29 @@
 import type { AxiosInstance } from 'axios';
 
+export interface AnalyticsMetrics {
+    views: number;
+    likes: number;
+    comments: number;
+    shares: number;
+    duration?: number;
+    thumbnail?: string;
+    engagementRate?: number;
+}
+
+export interface AnalyticsRecord {
+    _id: string;
+    collaborationId: string;
+    submittedBy: { _id: string; firstName: string; lastName: string; profilePicture?: string } | string;
+    platform: 'TikTok' | 'Instagram' | 'YouTube';
+    postUrl: string;
+    notes?: string;
+    metrics: AnalyticsMetrics;
+    status: 'pending' | 'completed' | 'failed';
+    errorMessage?: string;
+    createdAt: string;
+    refreshedAt: string;
+}
+
 export interface Submission {
     _id: string;
     fileUrl: string;
@@ -89,4 +113,18 @@ export const collaborationApi = {
     /** PUT /collaborations/:id/deliverables/:submissionId/review — Review deliverable */
     reviewDeliverable: (api: AxiosInstance, id: string, submissionId: string, review: { status: string; feedback: string }) =>
         api.put<{ data: Collaboration }>(`/collaborations/${id}/deliverables/${submissionId}/review`, review),
+
+    // ── Analytics ─────────────────────────────────────────────────────────────
+
+    /** GET /collaborations/:id/analytics — List all analytics */
+    getAnalytics: (api: AxiosInstance, id: string) =>
+        api.get<{ data: AnalyticsRecord[] }>(`/collaborations/${id}/analytics`),
+
+    /** POST /collaborations/:id/analytics — Submit a new post URL */
+    submitAnalytics: (api: AxiosInstance, id: string, payload: { platform: string; postUrl: string; notes?: string }) =>
+        api.post<{ data: AnalyticsRecord }>(`/collaborations/${id}/analytics`, payload),
+
+    /** POST /collaborations/:id/analytics/:analyticsId/refresh — Refresh metrics */
+    refreshAnalytics: (api: AxiosInstance, collaborationId: string, analyticsId: string) =>
+        api.post<{ data: AnalyticsRecord }>(`/collaborations/${collaborationId}/analytics/${analyticsId}/refresh`),
 };

@@ -5,8 +5,9 @@ import { requireAuth } from '../../middlewares/auth.middleware';
 const router = express.Router();
 
 router.get('/connections', requireAuth, socialController.getConnections);
-router.get('/initiate/:platform', requireAuth, socialController.initiateAuth);
-router.post('/connect/:platform', requireAuth, socialController.connectWithToken);
+router.post('/initiate', requireAuth, socialController.initiateConnection);
+router.post('/verify', requireAuth, socialController.verifyConnection);
+router.post('/sync/:platform', requireAuth, socialController.syncMetrics);
 router.delete('/disconnect/:platform', requireAuth, socialController.disconnectPlatform);
 
 export default router;

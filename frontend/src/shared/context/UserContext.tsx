@@ -126,6 +126,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
     setOnboardingStatus('incomplete');
     localStorage.removeItem('userRole');
     localStorage.removeItem('onboardingStatus');
+    localStorage.removeItem('tiktok_jwt');
   };
 
   return (

@@ -116,3 +116,48 @@ export const useReviewDeliverable = () => {
         },
     });
 };
+
+// ── Analytics hooks ───────────────────────────────────────────────────────
+
+/** Fetch all analytics records for a collaboration */
+export const useCollaborationAnalytics = (collaborationId: string) => {
+    const api = useApiClient();
+    return useQuery({
+        queryKey: ['analytics', collaborationId],
+        queryFn: () => collaborationApi.getAnalytics(api, collaborationId).then(r => r.data.data),
+        enabled: !!collaborationId,
+        refetchInterval: (query: any) => {
+            const data = query?.state?.data;
+            const hasPending = Array.isArray(data) && data.some((r: any) => r.status === 'pending');
+            return hasPending ? 5000 : false;
+        },
+    });
+};
+
+/** Submit a social media post URL to track */
+export const useSubmitAnalytics = (collaborationId: string) => {
+    const api = useApiClient();
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: (payload: { platform: string; postUrl: string; notes?: string }) =>
+            collaborationApi.submitAnalytics(api, collaborationId, payload).then(r => r.data.data),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['analytics', collaborationId] });
+        },
+    });
+};
+
+/** Refresh metrics for a single analytics record */
+export const useRefreshAnalytics = (collaborationId: string) => {
+    const api = useApiClient();
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: (analyticsId: string) =>
+            collaborationApi.refreshAnalytics(api, collaborationId, analyticsId).then(r => r.data.data),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['analytics', collaborationId] });
+        },
+    });
+};

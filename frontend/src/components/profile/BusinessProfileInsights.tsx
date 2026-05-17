@@ -26,7 +26,7 @@ function Card({
 
 export default function BusinessProfileInsights() {
   const { profile } = useProfile();
-  const p = profile as Record<string, unknown>;
+  const p = profile as any;
   const bp = (p.businessProfile || {}) as Record<string, unknown>;
   const cap = (p.capacity || {}) as Record<string, unknown>;
   const fd = (p.financialData || {}) as Record<string, unknown>;

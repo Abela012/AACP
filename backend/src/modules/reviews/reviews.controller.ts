@@ -6,14 +6,16 @@ import { success, error } from "../../utils/response";
 
 export const createReview = async (req: Request, res: Response) => {
     try {
-        const { userId: clerkId } = getAuth(req);
-        if (!clerkId) {
-            return error(res, "Unauthorized", 401);
-        }
-
-        const reviewer = await User.findOne({ clerkId });
+        let reviewer = (req as any).user;
         if (!reviewer) {
-            return error(res, "Reviewer not found", 404);
+            const { userId: clerkId } = getAuth(req);
+            if (!clerkId) {
+                return error(res, "Unauthorized", 401);
+            }
+            reviewer = await User.findOne({ clerkId });
+            if (!reviewer) {
+                return error(res, "Reviewer not found", 404);
+            }
         }
 
         const { targetUserId, opportunityId, rating, comment, collaborationType } = req.body;
@@ -53,14 +55,16 @@ export const getReviewsByUser = async (req: Request, res: Response) => {
 
 export const getMySentReviews = async (req: Request, res: Response) => {
     try {
-        const { userId: clerkId } = getAuth(req);
-        if (!clerkId) {
-            return error(res, "Unauthorized", 401);
-        }
-
-        const user = await User.findOne({ clerkId });
+        let user = (req as any).user;
         if (!user) {
-            return error(res, "User not found", 404);
+            const { userId: clerkId } = getAuth(req);
+            if (!clerkId) {
+                return error(res, "Unauthorized", 401);
+            }
+            user = await User.findOne({ clerkId });
+            if (!user) {
+                return error(res, "User not found", 404);
+            }
         }
 
         const reviews = await reviewService.getReviewsByReviewer(user._id.toString());
@@ -73,9 +77,12 @@ export const getMySentReviews = async (req: Request, res: Response) => {
 export const deleteReview = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
-        const { userId: clerkId } = getAuth(req);
+        let user = (req as any).user;
+        if (!user) {
+            const { userId: clerkId } = getAuth(req);
+            user = await User.findOne({ clerkId });
+        }
         
-        const user = await User.findOne({ clerkId });
         const review = await reviewService.getReviewById(id);
 
         if (!review || !user) {

@@ -131,6 +131,7 @@ export interface ISocialProfile {
 
 export interface IUser extends Document {
     clerkId: string;
+    password?: string; // Custom hashed password for TikTok advertiser
     tiktokOpenId?: string;
     email: string;
     firstName: string;
@@ -156,6 +157,46 @@ export interface IUser extends Document {
     averageRating: number;
     totalReviews: number;
     lastLogin?: Date;
+    tiktokUsername?: string;
+    tiktokUserId?: string;
+    tiktokProfile?: {
+        displayName?: string;
+        bio?: string;
+        profilePicture?: string;
+        verifiedBadge?: boolean;
+        metrics?: {
+            followers?: number;
+            following?: number;
+            totalLikes?: number;
+            totalPosts?: number;
+            avgViews?: number;
+            avgLikes?: number;
+            avgComments?: number;
+            engagementRate?: number;
+        };
+        lastSynced?: Date;
+    };
+    profileInfo?: {
+        niche?: string;
+        experienceLevel?: string;
+        contentFormats?: string[];
+        targetAudience?: {
+            ageRange?: string;
+            gender?: string;
+            interests?: string[];
+        };
+        rateExpectations?: {
+            minRate?: number;
+            preferredRate?: number;
+            rateType?: string;
+        };
+        previousBrands?: string[];
+        portfolioLinks?: string[];
+        additionalNotes?: string;
+    };
+    verifiedAt?: Date;
+    lastVerifiedAt?: Date;
+    nextVerificationRequiredAt?: Date;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -287,9 +328,10 @@ const socialProfileSchema = new Schema({
 
 const userSchema: Schema = new Schema(
     {
-        clerkId: { type: String, required: true, unique: true },
+        clerkId: { type: String, sparse: true, unique: true },
+        password: { type: String }, // Custom hashed password for TikTok advertiser
         tiktokOpenId: { type: String, sparse: true, unique: true, index: true },
-        email: { type: String, required: true, unique: true },
+        email: { type: String, sparse: true, unique: true },
         firstName: { type: String, default: "" },
         lastName: { type: String, default: "" },
         username: { type: String, required: true, unique: true },
@@ -316,6 +358,56 @@ const userSchema: Schema = new Schema(
         averageRating: { type: Number, default: 0 },
         totalReviews: { type: Number, default: 0 },
         lastLogin: { type: Date },
+        // TikTok-First Authentication & Profile fields
+        tiktokUsername: { type: String, sparse: true, unique: true, index: true },
+        tiktokUserId: { type: String, sparse: true, unique: true },
+        tiktokProfile: {
+            displayName: { type: String },
+            bio: { type: String },
+            profilePicture: { type: String },
+            verifiedBadge: { type: Boolean, default: false },
+            metrics: {
+                followers: { type: Number, default: 0 },
+                following: { type: Number, default: 0 },
+                totalLikes: { type: Number, default: 0 },
+                totalPosts: { type: Number, default: 0 },
+                avgViews: { type: Number, default: 0 },
+                avgLikes: { type: Number, default: 0 },
+                avgComments: { type: Number, default: 0 },
+                engagementRate: { type: Number, default: 0 }
+            },
+            lastSynced: { type: Date }
+        },
+        profileInfo: {
+            niche: { 
+                type: String, 
+                enum: ['beauty', 'fashion', 'tech', 'gaming', 'food', 'travel', 'fitness', 'lifestyle', 'business', 'comedy', 'education', 'music', 'sports', 'other']
+            },
+            experienceLevel: {
+                type: String,
+                enum: ['beginner', 'intermediate', 'advanced', 'professional']
+            },
+            contentFormats: [{
+                type: String,
+                enum: ['tutorials', 'reviews', 'unboxings', 'vlogs', 'comedy', 'educational', 'storytime', 'challenges', 'duets', 'live_streams']
+            }],
+            targetAudience: {
+                ageRange: { type: String },
+                gender: { type: String },
+                interests: [{ type: String }]
+            },
+            rateExpectations: {
+                minRate: { type: Number },
+                preferredRate: { type: Number },
+                rateType: { type: String }
+            },
+            previousBrands: [{ type: String }],
+            portfolioLinks: [{ type: String }],
+            additionalNotes: { type: String }
+        },
+        verifiedAt: { type: Date },
+        lastVerifiedAt: { type: Date },
+        nextVerificationRequiredAt: { type: Date }
     },
     { timestamps: true }
 );

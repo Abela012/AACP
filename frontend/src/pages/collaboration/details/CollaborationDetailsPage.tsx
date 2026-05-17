@@ -24,7 +24,10 @@ import {
   useAddTask,
   useUpdateTask,
   useSubmitDeliverable,
-  useReviewDeliverable
+  useReviewDeliverable,
+  useCollaborationAnalytics,
+  useSubmitAnalytics,
+  useRefreshAnalytics,
 } from '@/src/hooks/useCollaborations';
 import { useCollaborationReviews } from '@/src/hooks/useReviews';
 import { useUser } from '@/src/shared/context/UserContext';
@@ -61,7 +64,13 @@ export default function CollaborationDetailsPage() {
   const updateTaskMutation = useUpdateTask();
   const submitDeliverableMutation = useSubmitDeliverable();
   const reviewDeliverableMutation = useReviewDeliverable();
-  
+
+  // Analytics
+  const { data: analyticsData = [], isLoading: analyticsLoading } = useCollaborationAnalytics(id!);
+  const submitAnalyticsMutation = useSubmitAnalytics(id!);
+  const refreshAnalyticsMutation = useRefreshAnalytics(id!);
+  const [refreshingAnalyticsId, setRefreshingAnalyticsId] = useState<string | null>(null);
+
   const [activeTab, setActiveTab] = useState<TabType>('overview');
 
   const partner = userRole === 'business_owner' ? collab?.advertiser : collab?.businessOwner;
@@ -330,11 +339,32 @@ export default function CollaborationDetailsPage() {
               )}
 
               {activeTab === 'analytics' && (
-                <AnalyticsDashboard 
-                  analytics={[]} // TODO: Connect to hook
+                <AnalyticsDashboard
+                  collaborationId={id!}
+                  analytics={analyticsData}
                   budget={collab.agreedBudget?.amount || 0}
-                  onRefresh={() => refetch()}
-                  onSubmitUrl={() => {}} // TODO: Implement API call
+                  isLoading={analyticsLoading}
+                  isSubmitting={submitAnalyticsMutation.isPending}
+                  refreshingId={refreshingAnalyticsId}
+                  onSubmitUrl={async (data) => {
+                    try {
+                      await submitAnalyticsMutation.mutateAsync(data);
+                      toast.success('Post submitted! Scraping metrics…');
+                    } catch (err: any) {
+                      toast.error(err?.response?.data?.message || err.message || 'Failed to submit post');
+                    }
+                  }}
+                  onRefresh={async (analyticsId) => {
+                    setRefreshingAnalyticsId(analyticsId);
+                    try {
+                      await refreshAnalyticsMutation.mutateAsync(analyticsId);
+                      toast.success('Refresh queued!');
+                    } catch (err: any) {
+                      toast.error(err?.response?.data?.message || err.message || 'Refresh failed');
+                    } finally {
+                      setRefreshingAnalyticsId(null);
+                    }
+                  }}
                 />
               )}
             </motion.div>

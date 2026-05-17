@@ -131,19 +131,21 @@ export const updateUserProfile = async (
   ];
 
   try {
-    const { userId } = getAuth(req);
+    // Get user from custom auth middleware
+    let user = (req as any).user;
 
-    if (!userId) {
-      res.status(401).json({ message: "Unauthorized" });
-      return;
-    }
-
-    // Find user
-    const user = await User.findOne({ clerkId: userId });
-
+    // Fallback to Clerk if not set
     if (!user) {
-      res.status(404).json({ message: "User not found" });
-      return;
+      const { userId } = getAuth(req);
+      if (!userId) {
+        res.status(401).json({ message: "Unauthorized" });
+        return;
+      }
+      user = await User.findOne({ clerkId: userId });
+      if (!user) {
+        res.status(404).json({ message: "User not found" });
+        return;
+      }
     }
 
     const updates: any = {};
@@ -235,20 +237,28 @@ export const submitProfileForReview = async (
   ];
 
   try {
-    const { userId } = getAuth(req);
+    // Get user from custom auth middleware
+    let user = (req as any).user;
 
-    if (!userId) {
-      res.status(401).json({ message: "Unauthorized" });
-      return;
-    }
-
-    const user = await User.findOne({ clerkId: userId });
-
+    // Fallback to Clerk if not set
     if (!user) {
-      res.status(404).json({ message: "User not found" });
-      return;
+      const { userId } = getAuth(req);
+      if (!userId) {
+        res.status(401).json({ message: "Unauthorized" });
+        return;
+      }
+      user = await User.findOne({ clerkId: userId });
+      if (!user) {
+        res.status(404).json({ message: "User not found" });
+        return;
+      }
     }
 
+    const hasVerifiedSocial = 
+      (user.socialProfiles && user.socialProfiles.some((p: any) => p.platform?.toLowerCase() === "tiktok" && p.verified)) ||
+      (req.body.socialProfiles && req.body.socialProfiles.some((p: any) => p.platform?.toLowerCase() === "tiktok" && p.verified));
+
+    const isAutomaticallyVerified = user.role === "advertiser" && hasVerifiedSocial;
     const isAlreadyApproved = user.status === "active" || user.status === "approved";
     const updates: Record<string, unknown> = {};
 
@@ -262,7 +272,33 @@ export const submitProfileForReview = async (
       });
     };
 
-    if (isAlreadyApproved) {
+    if (isAutomaticallyVerified && !isAlreadyApproved) {
+      // 🚀 Auto-verify: set status to active and save directly to profileData (bypass pending)
+      updates.status = "active";
+
+      for (const key of ALLOWED_FIELDS) {
+        if (req.body[key] !== undefined) {
+          updates[key] = req.body[key];
+        }
+      }
+
+      const mergedAdv = applyAdvertiserProfileMerge();
+      if (mergedAdv) {
+        updates.profileData = mergeProfileData(
+          (user.profileData || {}) as Record<string, unknown>,
+          mergedAdv.profileData
+        );
+        updates.socialProfiles = mergedAdv.socialProfiles;
+      } else if (updates.profileData && typeof updates.profileData === "object") {
+        updates.profileData = mergeProfileData(
+          (user.profileData || {}) as Record<string, unknown>,
+          updates.profileData as Record<string, unknown>
+        );
+      }
+      user.set(updates);
+    } else if (isAlreadyApproved) {
+      // 🚀 For approved users: don't lock them out. Keep status as is.
+      // Store all root field changes in pendingUpdates
       const rootUpdates: Record<string, unknown> = {};
       for (const key of ALLOWED_FIELDS) {
         if (key !== "profileData" && key !== "socialProfiles" && req.body[key] !== undefined) {
@@ -342,6 +378,7 @@ export const submitProfileForReview = async (
 
       user.set(updates);
     }
+    }
     const updatedUser = await user.save();
     const userResponse = updatedUser.toObject();
     delete (userResponse as any).__v;
@@ -372,18 +409,25 @@ export const getCurrentUser = async (
   req: Request,
   res: Response
 ): Promise<void> => {
+  const user = (req as any).user;
+  if (user) {
+    res.status(200).json({ user });
+    return;
+  }
+
+  // Fallback in case route wasn't protected by middleware
   const { userId } = getAuth(req);
   if (!userId) {
     res.status(401).json({ message: "Unauthorized" });
     return;
   }
 
-  const user = await User.findOne({ clerkId: userId }).lean();
-  if (!user) {
+  const dbUser = await User.findOne({ clerkId: userId }).lean();
+  if (!dbUser) {
     res.status(404).json({ message: "User not found" });
     return;
   }
-  res.status(200).json({ user });
+  res.status(200).json({ user: dbUser });
 };
 
 export const getUserById = async (
@@ -526,12 +570,19 @@ export const toggleSavedOpportunity = async (
   res: Response
 ): Promise<void> => {
   try {
-    const { userId } = getAuth(req);
     const { opportunityId } = req.body;
-
-    if (!userId) {
-      res.status(401).json({ message: "Unauthorized" });
-      return;
+    let user = (req as any).user;
+    if (!user) {
+      const { userId } = getAuth(req);
+      if (!userId) {
+        res.status(401).json({ message: "Unauthorized" });
+        return;
+      }
+      user = await User.findOne({ clerkId: userId });
+      if (!user) {
+        res.status(404).json({ message: "User not found" });
+        return;
+      }
     }
 
     if (!opportunityId) {
@@ -539,14 +590,7 @@ export const toggleSavedOpportunity = async (
       return;
     }
 
-    const user = await User.findOne({ clerkId: userId });
-
-    if (!user) {
-      res.status(404).json({ message: "User not found" });
-      return;
-    }
-
-    const isSaved = user.savedOpportunities.some(id => id.toString() === opportunityId.toString());
+    const isSaved = user.savedOpportunities.some((id: any) => id.toString() === opportunityId.toString());
 
     if (isSaved) {
       // Unsave
@@ -576,18 +620,21 @@ export const getSavedOpportunities = async (
   res: Response
 ): Promise<void> => {
   try {
-    const { userId } = getAuth(req);
-
-    if (!userId) {
-      res.status(401).json({ message: "Unauthorized" });
-      return;
-    }
-
-    const user = await User.findOne({ clerkId: userId }).populate('savedOpportunities');
-
+    let user = (req as any).user;
     if (!user) {
-      res.status(404).json({ message: "User not found" });
-      return;
+      const { userId } = getAuth(req);
+      if (!userId) {
+        res.status(401).json({ message: "Unauthorized" });
+        return;
+      }
+      user = await User.findOne({ clerkId: userId }).populate('savedOpportunities');
+      if (!user) {
+        res.status(404).json({ message: "User not found" });
+        return;
+      }
+    } else {
+      // Need to populate if we're using the middleware's user
+      await user.populate('savedOpportunities');
     }
 
     res.status(200).json({
@@ -604,21 +651,27 @@ export const toggleSavedCreator = async (
   res: Response
 ): Promise<void> => {
   try {
-    const { userId } = getAuth(req);
     const { creatorId } = req.body;
-
-    if (!userId || !creatorId) {
-      res.status(400).json({ message: "User ID and Creator ID are required" });
-      return;
-    }
-
-    const user = await User.findOne({ clerkId: userId });
+    let user = (req as any).user;
     if (!user) {
-      res.status(404).json({ message: "User not found" });
+      const { userId } = getAuth(req);
+      if (!userId) {
+        res.status(401).json({ message: "Unauthorized" });
+        return;
+      }
+      user = await User.findOne({ clerkId: userId });
+      if (!user) {
+        res.status(404).json({ message: "User not found" });
+        return;
+      }
+    }
+
+    if (!creatorId) {
+      res.status(400).json({ message: "Creator ID is required" });
       return;
     }
 
-    const isSaved = user.savedCreators.some(id => id.toString() === creatorId.toString());
+    const isSaved = user.savedCreators.some((id: any) => id.toString() === creatorId.toString());
 
     if (isSaved) {
       user.savedCreators = user.savedCreators.filter(id => id.toString() !== creatorId.toString());
@@ -643,16 +696,21 @@ export const getSavedCreators = async (
   res: Response
 ): Promise<void> => {
   try {
-    const { userId } = getAuth(req);
-    if (!userId) {
-      res.status(401).json({ message: "Unauthorized" });
-      return;
-    }
-
-    const user = await User.findOne({ clerkId: userId }).populate('savedCreators');
+    let user = (req as any).user;
     if (!user) {
-      res.status(404).json({ message: "User not found" });
-      return;
+      const { userId } = getAuth(req);
+      if (!userId) {
+        res.status(401).json({ message: "Unauthorized" });
+        return;
+      }
+      user = await User.findOne({ clerkId: userId }).populate('savedCreators');
+      if (!user) {
+        res.status(404).json({ message: "User not found" });
+        return;
+      }
+    } else {
+      // Need to populate
+      await user.populate('savedCreators');
     }
 
     res.status(200).json({
@@ -661,5 +719,196 @@ export const getSavedCreators = async (
   } catch (error: any) {
     console.error("Get saved creators error:", error);
     res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export const completeAdvertiserProfile = async (req: Request, res: Response): Promise<void> => {
+  try {
+    let user = (req as any).user;
+    if (!user) {
+      const { userId } = getAuth(req);
+      if (!userId) {
+        res.status(401).json({ success: false, message: "Unauthorized" });
+        return;
+      }
+      user = await User.findOne({ clerkId: userId });
+      if (!user) {
+        res.status(404).json({ success: false, message: "User not found" });
+        return;
+      }
+    }
+
+    const {
+      niche,
+      experienceLevel,
+      contentFormats,
+      targetAudience,
+      rateExpectations,
+      previousBrands,
+      portfolioLinks,
+      additionalNotes
+    } = req.body;
+
+    user.profileInfo = {
+      niche,
+      experienceLevel,
+      contentFormats,
+      targetAudience,
+      rateExpectations,
+      previousBrands,
+      portfolioLinks,
+      additionalNotes
+    };
+
+    user.status = 'active';
+    user.isVerified = true;
+    user.markModified('profileInfo');
+    
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Advertiser profile completed successfully",
+      user
+    });
+  } catch (error: any) {
+    console.error("[AdvertiserProfile] Complete error:", error);
+    res.status(500).json({ success: false, message: "Internal server error", error: error.message });
+  }
+};
+
+export const getAdvertiserProfile = async (req: Request, res: Response): Promise<void> => {
+  try {
+    let user = (req as any).user;
+    if (!user) {
+      const { userId } = getAuth(req);
+      if (!userId) {
+        res.status(401).json({ success: false, message: "Unauthorized" });
+        return;
+      }
+      user = await User.findOne({ clerkId: userId });
+      if (!user) {
+        res.status(404).json({ success: false, message: "User not found" });
+        return;
+      }
+    }
+
+    res.status(200).json({
+      success: true,
+      user
+    });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};
+
+import { ApifyClient } from 'apify-client';
+
+export const syncTikTokMetrics = async (req: Request, res: Response): Promise<void> => {
+  try {
+    let user = (req as any).user;
+    if (!user) {
+      const { userId } = getAuth(req);
+      if (!userId) {
+        res.status(401).json({ success: false, message: "Unauthorized" });
+        return;
+      }
+      user = await User.findOne({ clerkId: userId });
+      if (!user) {
+        res.status(404).json({ success: false, message: "User not found" });
+        return;
+      }
+    }
+
+    const username = user.tiktokUsername || user.username;
+    if (!username) {
+      res.status(400).json({ success: false, message: "No TikTok username connected to this account" });
+      return;
+    }
+
+    const apifyToken = process.env.APIFY_TOKEN;
+    if (!apifyToken) {
+      res.status(500).json({ success: false, message: "APIFY_TOKEN not configured on server" });
+      return;
+    }
+
+    const client = new ApifyClient({ token: apifyToken });
+    const run = await client.actor('clockworks/free-tiktok-scraper').call({
+      profiles: [username.replace(/^@/, '')],
+      scrapePosts: false,
+      scrapeComments: false
+    });
+
+    const { items } = await client.dataset(run.defaultDatasetId).listItems();
+    if (!items || items.length === 0) {
+      res.status(400).json({ success: false, message: "TikTok profile not found or private." });
+      return;
+    }
+
+    const userData = items[0] as any;
+    const followers = userData?.authorMeta?.fans || userData?.followers || 0;
+    const following = userData?.authorMeta?.following || 0;
+    const totalLikes = userData?.authorMeta?.heart || userData?.likes || 0;
+    const totalPosts = userData?.authorMeta?.video || userData?.videos || 0;
+    const avgViews = userData?.avgViews || 0;
+    const avgLikes = userData?.avgLikes || 0;
+    const avgComments = userData?.avgComments || 0;
+    const engagementRate = followers > 0 ? parseFloat((((avgLikes + avgComments) / followers) * 100).toFixed(2)) : 0;
+
+    user.tiktokProfile = {
+      displayName: userData?.authorMeta?.nickName || user.tiktokProfile?.displayName || username,
+      bio: userData?.authorMeta?.bio || user.tiktokProfile?.bio || '',
+      profilePicture: userData?.authorMeta?.avatar || user.tiktokProfile?.profilePicture || '',
+      verifiedBadge: userData?.authorMeta?.verified || false,
+      metrics: {
+        followers,
+        following,
+        totalLikes,
+        totalPosts,
+        avgViews,
+        avgLikes,
+        avgComments,
+        engagementRate
+      },
+      lastSynced: new Date()
+    };
+    user.lastVerifiedAt = new Date();
+    user.nextVerificationRequiredAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+
+    // Sync socialProfiles for legacy support as well
+    if (user.socialProfiles && user.socialProfiles.length > 0) {
+      user.socialProfiles = user.socialProfiles.map((p: any) => {
+        if (p.platform?.toLowerCase() === 'tiktok') {
+          return {
+            ...p,
+            followers,
+            following,
+            verified: userData?.authorMeta?.verified || false,
+            tiktokAnalytics: {
+              ...p.tiktokAnalytics,
+              followers,
+              following,
+              totalLikes,
+              avgViews,
+              avgLikes,
+              avgComments
+            }
+          };
+        }
+        return p;
+      });
+    }
+
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: "TikTok metrics synced successfully",
+      metrics: user.tiktokProfile.metrics,
+      user
+    });
+  } catch (error: any) {
+    console.error("[TikTokSync] Error:", error);
+    res.status(500).json({ success: false, message: "Failed to sync TikTok metrics", error: error.message });
   }
 };

@@ -208,83 +208,118 @@ export default function AdvertiserDashboardPage() {
                     return (
                       <motion.div
                         key={opp._id}
-                        initial={{ opacity: 0, y: 10 }}
+                        initial={{ opacity: 0, y: 15 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: idx * 0.05 }}
-                        className="py-8 border-b border-gray-200 dark:border-gray-700/50 group"
+                        transition={{ delay: idx * 0.08 }}
+                        className="mb-6 p-6 sm:p-8 bg-white dark:bg-[#181a20]/40 rounded-[2rem] border border-gray-100 dark:border-white/[0.05] hover:border-emerald-500/30 dark:hover:border-emerald-500/30 shadow-sm dark:shadow-none hover:shadow-xl hover:shadow-emerald-500/[0.03] transition-all duration-300 group flex flex-col lg:flex-row gap-6 items-start lg:items-stretch justify-between relative overflow-hidden backdrop-blur-md"
                       >
-                        <div className="flex items-center gap-3 text-xs font-medium text-gray-500 dark:text-gray-400 mb-4">
-                          <span className="font-bold">
-                            Posted {timeAgo}
-                          </span>
-                          <span className="w-1 h-1 bg-gray-400 rounded-full"></span>
-                          <span className="font-bold">
-                            Proposals: {proposalText}
-                          </span>
-                        </div>
+                        <div className="flex-1 flex flex-col justify-between">
+                          <div>
+                            {/* Meta Badges */}
+                            <div className="flex flex-wrap items-center gap-2 mb-4">
+                              <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-gray-50 dark:bg-white/[0.04] text-gray-500 dark:text-gray-400 text-xs font-semibold border border-gray-100 dark:border-white/5">
+                                <Clock size={12} className="text-emerald-500" />
+                                Posted {timeAgo}
+                              </span>
+                              <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-semibold border border-emerald-100/30 dark:border-emerald-500/10">
+                                <Briefcase size={12} className="text-emerald-500" />
+                                {proposalText} proposals
+                              </span>
+                            </div>
 
-                        <div className="flex justify-between items-start mb-2">
-                          <div 
-                            onClick={() => navigate(`/advertiser/matches/${opp._id}/apply`)}
-                            className="cursor-pointer flex-1"
-                          >
-                            <h3 className="text-xl font-semibold text-[#1A1D1F] dark:text-white hover:text-emerald-500 dark:hover:text-emerald-500 transition-colors line-clamp-2">
-                              {opp.title}
-                            </h3>
-                          </div>
-                          <button 
-                            onClick={(e) => handleToggleSave(e, opp._id)}
-                            className={cn(
-                              "p-2 rounded-full transition-colors shrink-0",
-                              isJobSaved(opp._id)
-                                ? "bg-red-50 dark:bg-red-500/10 text-red-500"
-                                : "hover:bg-gray-100 dark:hover:bg-white/10 text-gray-400"
-                            )}
-                          >
-                            <Heart size={20} className={isJobSaved(opp._id) ? "fill-current" : ""} />
-                          </button>
-                        </div>
+                            {/* Title */}
+                            <div 
+                              onClick={() => navigate(`/advertiser/matches/${opp._id}/apply`)}
+                              className="cursor-pointer group-hover:text-emerald-500 dark:group-hover:text-emerald-400 transition-colors"
+                            >
+                              <h3 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white leading-snug line-clamp-2 mb-2 group-hover:text-emerald-500 dark:group-hover:text-emerald-400 transition-colors">
+                                {opp.title}
+                              </h3>
+                            </div>
 
-                        <div className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-4">
-                          {paymentType} - {expLevel} - Est. Budget: ${budgetAmount.toLocaleString()}
-                        </div>
-
-                        <div className="text-sm text-gray-700 dark:text-gray-300 mb-6 relative leading-relaxed">
-                          <span className="line-clamp-3 md:line-clamp-4">
-                            {opp.description}
-                          </span>
-                          <button onClick={() => navigate(`/advertiser/matches/${opp._id}/apply`)} className="text-emerald-500 hover:underline font-medium inline-block mt-1">
-                            more
-                          </button>
-                        </div>
-
-                        <div className="flex flex-wrap gap-2 mb-6">
-                          {tags.map((tag: string, i: number) => (
-                            <span key={i} className="px-3 py-1.5 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-xs font-medium rounded-full">
-                              {tag}
-                            </span>
-                          ))}
-                        </div>
-
-                        <div className="flex flex-wrap items-center gap-y-2 gap-x-6 text-sm font-medium text-gray-600 dark:text-gray-400">
-                          <div className="flex items-center gap-1.5">
-                            <ShieldCheck size={16} className="text-blue-500 fill-blue-500/20" />
-                            <span className="text-gray-900 dark:text-white">Payment verified</span>
+                            {/* Description */}
+                            <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 leading-relaxed mb-4 pr-4">
+                              {opp.description}
+                            </p>
                           </div>
 
-                          <div className="flex items-center gap-1">
-                            <div className="flex text-yellow-500 gap-0.5">
-                              {[...Array(5)].map((_, i) => (
-                                <Star key={i} size={14} className="fill-yellow-500" />
+                          <div>
+                            {/* Tags */}
+                            <div className="flex flex-wrap gap-1.5 mb-6">
+                              {tags.slice(0, 5).map((tag: string, i: number) => (
+                                <span 
+                                  key={i} 
+                                  className="px-3 py-1 bg-gray-50 dark:bg-white/[0.03] text-gray-600 dark:text-gray-300 text-xs font-medium rounded-full border border-gray-100 dark:border-white/5"
+                                >
+                                  {tag}
+                                </span>
                               ))}
+                              {tags.length > 5 && (
+                                <span className="px-2 py-1 bg-gray-50 dark:bg-white/[0.03] text-gray-400 dark:text-gray-500 text-xs font-bold rounded-full border border-gray-100 dark:border-white/5">
+                                  +{tags.length - 5} more
+                                </span>
+                              )}
+                            </div>
+
+                            {/* Trust Footer */}
+                            <div className="flex flex-wrap items-center gap-y-2 gap-x-5 text-xs font-semibold text-gray-500 dark:text-gray-400 pt-4 border-t border-gray-100 dark:border-white/[0.05]">
+                              <div className="flex items-center gap-1.5 text-blue-600 dark:text-blue-400">
+                                <ShieldCheck size={14} className="fill-blue-500/10" />
+                                <span>Payment verified</span>
+                              </div>
+
+                              <div className="flex items-center gap-0.5 text-yellow-500">
+                                {[...Array(5)].map((_, i) => (
+                                  <Star key={i} size={12} className="fill-current" />
+                                ))}
+                              </div>
+
+                              <div className="flex items-center gap-1">
+                                <span className="text-gray-700 dark:text-gray-300">$40K+ spent</span>
+                              </div>
+
+                              <div className="flex items-center gap-1 text-gray-500 dark:text-gray-400">
+                                <MapPin size={12} className="text-gray-400" />
+                                <span>{locationText}</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Budget & Action Box */}
+                        <div className="flex sm:flex-row lg:flex-col items-center sm:items-center lg:items-end justify-between lg:justify-center w-full lg:w-auto shrink-0 border-t lg:border-t-0 lg:border-l border-gray-100 dark:border-white/[0.05] pt-5 lg:pt-0 lg:pl-8 lg:min-w-[220px] gap-4">
+                          <div className="text-left lg:text-right">
+                            <span className="inline-block text-[10px] text-gray-400 dark:text-gray-500 font-extrabold uppercase tracking-wider mb-0.5 bg-gray-100 dark:bg-white/5 px-2 py-0.5 rounded">
+                              {paymentType}
+                            </span>
+                            <div className="text-2xl sm:text-3xl font-black text-gray-900 dark:text-white mt-1 leading-none">
+                              ${budgetAmount.toLocaleString()}
+                            </div>
+                            <div className="text-xs text-gray-500 dark:text-gray-400 font-bold mt-1.5 flex items-center gap-1 justify-start lg:justify-end">
+                              <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>
+                              {expLevel}
                             </div>
                           </div>
 
-                          <div>$40K+ spent</div>
-
-                          <div className="flex items-center gap-1.5">
-                            <MapPin size={16} />
-                            <span>{locationText}</span>
+                          <div className="flex items-center gap-2.5 w-full sm:w-auto lg:w-full mt-2 sm:mt-0 lg:mt-4">
+                            <button
+                              onClick={() => navigate(`/advertiser/matches/${opp._id}/apply`)}
+                              className="flex-1 px-5 py-3 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-bold rounded-2xl transition-all duration-300 shadow-md shadow-emerald-500/10 hover:shadow-lg hover:shadow-emerald-500/20 flex items-center justify-center gap-2 group/btn active:scale-95"
+                            >
+                              <span>Details</span>
+                              <ArrowRight size={14} className="transition-transform group-hover/btn:translate-x-1" />
+                            </button>
+                            <button
+                              onClick={(e) => handleToggleSave(e, opp._id)}
+                              className={cn(
+                                "p-3 rounded-2xl border transition-all duration-300 active:scale-95",
+                                isJobSaved(opp._id)
+                                  ? "bg-red-50 dark:bg-red-500/10 border-red-100/30 dark:border-red-500/20 text-red-500"
+                                  : "bg-gray-50 dark:bg-white/[0.04] border-gray-100 dark:border-white/5 text-gray-400 hover:text-gray-600 dark:hover:text-white"
+                              )}
+                            >
+                              <Heart size={18} className={isJobSaved(opp._id) ? "fill-current" : ""} />
+                            </button>
                           </div>
                         </div>
                       </motion.div>

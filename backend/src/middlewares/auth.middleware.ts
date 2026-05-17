@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import User from "../database/models/User";
 import { getAuth } from "@clerk/express";
+import jwt from "jsonwebtoken";
 
 // Middleware to ensure user is authenticated
 export const requireAuth = async (
@@ -8,6 +9,39 @@ export const requireAuth = async (
     res: Response,
     next: NextFunction,
 ) => {
+    console.log(`[Auth Middleware] Checking request to ${req.originalUrl}`);
+    // 1. Check for custom JWT (TikTok Demo Auth)
+    const token = req.headers.authorization?.split(' ')[1];
+    
+    if (token) {
+        console.log(`[Auth Middleware] Found Bearer token: ${token.substring(0, 15)}...`);
+        if (process.env.JWT_SECRET) {
+            try {
+                const decoded = jwt.verify(token, process.env.JWT_SECRET) as any;
+                console.log(`[Auth Middleware] Token decoded successfully. userId: ${decoded.userId}`);
+                if (decoded.userId) {
+                    const user = await User.findById(decoded.userId);
+                    if (user) {
+                        console.log(`[Auth Middleware] User found in DB. Authenticated via TikTok JWT.`);
+                        (req as any).user = user;
+                        return next();
+                    } else {
+                        console.log(`[Auth Middleware] User NOT found in DB for userId: ${decoded.userId}`);
+                    }
+                }
+            } catch (error: any) {
+                console.log(`[Auth Middleware] JWT verification failed:`, error.message);
+            }
+        } else {
+            console.log(`[Auth Middleware] process.env.JWT_SECRET is MISSING! Cannot verify token.`);
+        }
+    } else {
+        console.log(`[Auth Middleware] No Bearer token found in headers.`);
+    }
+
+    console.log(`[Auth Middleware] Falling back to Clerk Auth...`);
+
+    // 2. Fall back to Clerk Auth
     const auth = getAuth(req);
     if (!auth.userId) {
         console.warn(`[Auth] No userId in auth object. Headers:`, JSON.stringify(req.headers));

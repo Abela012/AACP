@@ -101,7 +101,7 @@ export default function AdminDashboardPage() {
             </button>
           </div>
           {permissions.map((p, idx) => (
-            <div
+            <motion.div
               key={idx}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -123,7 +123,7 @@ export default function AdminDashboardPage() {
                   {p.desc}
                 </p>
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
 

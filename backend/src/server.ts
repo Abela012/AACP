@@ -19,6 +19,9 @@ import { initSocket } from './socket/socket';
 // Connect to Database
 connectDB();
 
+import { initSyncJobs } from './jobs/metricSync';
+initSyncJobs();
+
 
 
 /** Warn if frontend publishable key env and backend secret look like different Clerk instances (common cause of “user not found” on login). */

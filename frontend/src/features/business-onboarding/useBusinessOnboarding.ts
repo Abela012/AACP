@@ -60,7 +60,7 @@ export function useBusinessOnboarding() {
 
   useEffect(() => {
     if (!profile?._id || hydrated) return;
-    const p = profile as Record<string, unknown>;
+    const p = profile as any;
     const bp = (p.businessProfile || {}) as Record<string, unknown>;
     const cap = (p.capacity || {}) as Record<string, unknown>;
     const fd = (p.financialData || {}) as Record<string, unknown>;
@@ -70,17 +70,17 @@ export function useBusinessOnboarding() {
 
     setForm({
       ...defaultForm(),
-      firstName: String(profile.firstName || ''),
-      lastName: String(profile.lastName || ''),
+      firstName: String(p.firstName || ''),
+      lastName: String(p.lastName || ''),
       phone: String(p.phone || ''),
-      profilePicture: String(profile.avatarUrl || profile.profilePicture || ''),
+      profilePicture: String(p.avatarUrl || p.profilePicture || ''),
       businessName: String(p.businessName || ''),
       businessLocation: String(p.businessLocation || ''),
       websiteUrl: String(p.website || ''),
       companySize: String(p.companySize || '1-10'),
       servicesOffered: String(p.servicesOffered || ''),
       brandDescription: String(p.bio || ''),
-      tradeLicenseUrl: String(p.tradeLicenseUrl || profile.tradeLicenseUrl || ''),
+      tradeLicenseUrl: String(p.tradeLicenseUrl || ''),
       businessCategory: String(bp.businessCategory || p.industry || ''),
       businessTags: Array.isArray(bp.businessTags) ? (bp.businessTags as string[]) : [],
       priceRange: String(bp.priceRange || 'mid'),

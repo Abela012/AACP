@@ -89,23 +89,26 @@ export const useUserSync = () => {
 
     const { mutate, isPending, isSuccess, isError, error } = syncUserMutation;
 
+    const hasTikTokAuth = !!localStorage.getItem('tiktok_jwt');
+
     const triggerSync = useCallback((force = false) => {
+        if (hasTikTokAuth) return; // No sync needed for custom JWT
         if (force || (!hasAttemptedSync.current && !isPending)) {
             if (!force) hasAttemptedSync.current = true;
             mutate();
         }
-    }, [isPending, mutate]);
+    }, [isPending, mutate, hasTikTokAuth]);
 
     useEffect(() => {
-        if (!isSignedIn || hasAttemptedSync.current || isPending) return;
+        if (hasTikTokAuth || !isSignedIn || hasAttemptedSync.current || isPending) return;
         hasAttemptedSync.current = true;
         mutate();
-    }, [isSignedIn, isPending, mutate]);
+    }, [isSignedIn, isPending, mutate, hasTikTokAuth]);
 
     return {
         sync: () => triggerSync(true),
         isLoading: isPending,
-        isSuccess,
+        isSuccess: hasTikTokAuth ? true : isSuccess,
         isError,
         error,
     };

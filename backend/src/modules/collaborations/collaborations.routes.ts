@@ -1,5 +1,6 @@
 import express from 'express';
 import * as collaborationsController from './collaborations.controller';
+import * as analyticsController from '../analytics/analytics.controller';
 import { protect } from '../../middlewares/auth.middleware';
 import { startCollaborationValidator } from '../../validators/collaborationValidator';
 import validate from '../../middlewares/validate.middleware';
@@ -169,5 +170,10 @@ router.put('/:id/tasks/:taskId', collaborationsController.updateTask);
 // Deliverables Management
 router.post('/:id/deliverables', upload.single('file'), collaborationsController.submitDeliverable);
 router.put('/:id/deliverables/:submissionId/review', collaborationsController.reviewDeliverable);
+
+// ── Analytics (social media post tracking) ──────────────────────────────
+router.get('/:id/analytics', analyticsController.getAnalytics);
+router.post('/:id/analytics', analyticsController.submitAnalytics);
+router.post('/:id/analytics/:analyticsId/refresh', analyticsController.refreshAnalytics);
 
 export default router;

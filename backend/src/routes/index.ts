@@ -12,9 +12,9 @@ import chatRoutes from '../modules/chat/chat.routes';
 
 import recommendationRoutes from '../modules/recommendations/recommendation.routes';
 import marketingAnalysisRoutes from '../modules/marketing-analysis/marketing-analysis.routes';
+import searchRoutes from '../modules/search/search.routes';
 import socialRoutes from '../modules/social/social.routes';
 import tiktokAuthRoutes from '../modules/auth/tiktokAuth.routes';
-import searchRoutes from '../modules/search/search.routes';
 import { maintenanceGate } from '../middlewares/maintenance.middleware';
 
 
@@ -359,9 +359,9 @@ router.use('/chat', chatRoutes);
 
 router.use('/recommendations', recommendationRoutes);
 router.use('/marketing-analysis', marketingAnalysisRoutes);
-router.use('/auth/tiktok', tiktokAuthRoutes);
-router.use('/social', socialRoutes);
 router.use('/search', searchRoutes);
+router.use('/social', socialRoutes);
+router.use('/auth/tiktok', tiktokAuthRoutes);
 
 
 /**

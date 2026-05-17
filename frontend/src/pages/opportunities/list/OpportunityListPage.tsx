@@ -130,6 +130,100 @@ export default function OpportunityListPage() {
               const applicantCount = Array.isArray(opp.applicants) ? opp.applicants.length : 0;
               const proposalText = applicantCount < 5 ? "Less than 5" : applicantCount.toString();
 
+              if (idx === 0) {
+                return (
+                  <motion.div
+                    key={opp._id}
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="p-8 mb-10 rounded-3xl bg-gradient-to-br from-emerald-500/10 via-[#1A1D1F]/5 to-transparent dark:from-emerald-500/10 dark:via-[#111111]/50 dark:to-transparent border border-emerald-500/20 dark:border-emerald-500/30 relative overflow-hidden group shadow-2xl"
+                  >
+                    {/* Glowing ambient background blur */}
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/10 dark:bg-emerald-500/5 rounded-full filter blur-[80px] -mr-20 -mt-20 pointer-events-none" />
+
+                    <div className="flex items-center gap-3 text-xs font-bold text-gray-500 dark:text-gray-400 mb-4">
+                      <span className="px-3 py-1 rounded-full bg-emerald-500 text-white font-extrabold uppercase tracking-widest text-[9px] shadow-lg shadow-emerald-500/20 animate-pulse">
+                        🆕 Latest Campaign
+                      </span>
+                      <span className="px-3 py-1 rounded-full bg-gray-200/50 dark:bg-white/5 text-gray-600 dark:text-gray-300 font-bold uppercase tracking-wider text-[9px]">
+                        Posted {formatTimeAgo(opp.createdAt)}
+                      </span>
+                      <span className="px-3 py-1 rounded-full bg-gray-200/50 dark:bg-white/5 text-gray-600 dark:text-gray-300 font-bold uppercase tracking-wider text-[9px]">
+                        Proposals: {proposalText}
+                      </span>
+                    </div>
+
+                    <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4 mb-4">
+                      <div className="flex-1">
+                        <Link to={`/opportunities/${opp._id}`}>
+                          <h2 className="text-2xl md:text-3xl font-black text-[#1A1D1F] dark:text-white group-hover:text-emerald-500 dark:group-hover:text-emerald-400 transition-colors tracking-tight leading-tight">
+                            {opp.title}
+                          </h2>
+                        </Link>
+                        <div className="text-sm font-bold text-emerald-600 dark:text-emerald-400 mt-2.5 flex flex-wrap items-center gap-2">
+                          <span>{opp.paymentType || 'Fixed-price'}</span>
+                          <span className="w-1.5 h-1.5 rounded-full bg-gray-300 dark:bg-gray-700" />
+                          <span>{opp.experienceLevel || 'Expert'}</span>
+                          <span className="w-1.5 h-1.5 rounded-full bg-gray-300 dark:bg-gray-700" />
+                          <span>Est. Budget: {opp.budget?.currency === 'AACP' ? '' : '$'}{opp.budget?.amount?.toLocaleString() || '0'} {opp.budget?.currency === 'AACP' ? 'AACP' : ''}</span>
+                        </div>
+                      </div>
+
+                      <div className="flex gap-2.5 shrink-0 self-end md:self-start mt-2 md:mt-0">
+                        <button className="p-3 rounded-full bg-white dark:bg-white/5 border border-gray-100 dark:border-white/5 hover:bg-gray-50 dark:hover:bg-white/10 text-gray-400 hover:text-gray-900 dark:hover:text-white transition-all shadow-sm">
+                          <Heart size={20} />
+                        </button>
+                        <button
+                          onClick={() => handleApply(opp)}
+                          disabled={applyingTo === opp._id}
+                          className="px-6 py-3 rounded-full bg-emerald-500 hover:bg-emerald-400 text-white text-sm font-black uppercase tracking-widest transition-all shadow-lg shadow-emerald-500/20 disabled:opacity-50 flex items-center gap-2"
+                        >
+                          {applyingTo === opp._id ? (
+                            <>
+                              <Loader2 size={16} className="animate-spin" />
+                              Applying...
+                            </>
+                          ) : (
+                            'Apply Now'
+                          )}
+                        </button>
+                      </div>
+                    </div>
+
+                    <p className="text-gray-600 dark:text-gray-300 text-sm md:text-base leading-relaxed mb-6 line-clamp-3">
+                      {opp.description}
+                    </p>
+
+                    <div className="flex flex-wrap gap-2 mb-6">
+                      {tags.map((tag, i) => (
+                        <span key={i} className="px-3.5 py-1.5 bg-white/60 dark:bg-white/5 border border-gray-200/50 dark:border-white/5 text-gray-700 dark:text-gray-200 text-xs font-bold rounded-xl shadow-sm">
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-y-2 gap-x-6 text-xs font-bold text-gray-500 dark:text-gray-400 pt-4 border-t border-gray-200/50 dark:border-white/5">
+                      <div className="flex items-center gap-1.5">
+                        <CheckCircle size={16} className="text-blue-500 fill-blue-500/20" />
+                        <span className="text-gray-900 dark:text-white">Payment verified</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <div className="flex text-yellow-500 gap-0.5">
+                          {[...Array(5)].map((_, i) => (
+                            <Star key={i} size={14} className="fill-yellow-500" />
+                          ))}
+                        </div>
+                      </div>
+                      <div>$40K+ spent</div>
+                      <div className="flex items-center gap-1.5">
+                        <MapPin size={16} />
+                        <span>{opp.requirements?.location || "Global"}</span>
+                      </div>
+                    </div>
+                  </motion.div>
+                );
+              }
+
               return (
                 <motion.div
                   key={opp._id}

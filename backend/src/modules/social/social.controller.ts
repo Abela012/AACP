@@ -1,19 +1,24 @@
 import { Request, Response } from 'express';
 import User from '../../database/models/User';
 import { getAuth } from '@clerk/express';
+import crypto from 'crypto';
+import { ApifyClient } from 'apify-client';
+import VerificationCode from '../../database/models/VerificationCode';
 
 export const getConnections = async (req: Request, res: Response): Promise<void> => {
     try {
-        const { userId } = getAuth(req);
-        if (!userId) {
-            res.status(401).json({ success: false, message: 'Unauthorized' });
-            return;
-        }
-
-        const user = await User.findOne({ clerkId: userId });
+        let user = (req as any).user;
         if (!user) {
-            res.status(404).json({ success: false, message: 'User not found' });
-            return;
+            const { userId } = getAuth(req);
+            if (!userId) {
+                res.status(401).json({ success: false, message: 'Unauthorized' });
+                return;
+            }
+            user = await User.findOne({ clerkId: userId });
+            if (!user) {
+                res.status(404).json({ success: false, message: 'User not found' });
+                return;
+            }
         }
 
         res.status(200).json({
@@ -26,81 +31,262 @@ export const getConnections = async (req: Request, res: Response): Promise<void>
 };
 
 export const initiateAuth = async (req: Request, res: Response): Promise<void> => {
-    const { platform } = req.params;
-    // Mocking auth URL for now
-    res.status(200).json({
-        success: true,
-        data: { authUrl: `https://${platform}.com/oauth/authorize` }
-    });
+    // Keep this for backwards compatibility if needed, or deprecate
+    res.status(200).json({ success: true });
 };
 
-export const connectWithToken = async (req: Request, res: Response): Promise<void> => {
+const generateCode = () => {
+    const randomStr = crypto.randomBytes(3).toString('hex').toUpperCase();
+    return `AACP-${randomStr}`;
+};
+
+export const initiateConnection = async (req: Request, res: Response): Promise<void> => {
     try {
-        const { userId } = getAuth(req);
-        const { platform } = req.params;
-        const { access_token } = req.body;
-
-        if (!userId) {
-            res.status(401).json({ success: false, message: 'Unauthorized' });
+        const { platform, username } = req.body;
+        if (!platform || !username) {
+            res.status(400).json({ success: false, message: 'Platform and username are required' });
             return;
         }
 
-        const user = await User.findOne({ clerkId: userId });
+        const normalizedPlatform = platform.toLowerCase();
+        const cleanUsername = username.trim().replace(/^@/, '');
+
+        // 1. Check uniqueness: is this username already connected to ANY user?
+        const existing = await User.findOne({
+            'socialProfiles': {
+                $elemMatch: {
+                    platform: { $regex: new RegExp(`^${normalizedPlatform}$`, 'i') },
+                    username: { $regex: new RegExp(`^${cleanUsername}$`, 'i') },
+                    verified: true
+                }
+            }
+        });
+
+        if (existing) {
+            res.status(400).json({ success: false, message: `This ${platform} account is already connected to another user.` });
+            return;
+        }
+
+        const code = generateCode();
+        const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 mins
+
+        let user = (req as any).user;
         if (!user) {
-            res.status(404).json({ success: false, message: 'User not found' });
+            const { userId } = getAuth(req);
+            user = await User.findOne({ clerkId: userId });
+        }
+
+        const verificationRecord = new VerificationCode({
+            advertiserId: user?._id,
+            platform: normalizedPlatform,
+            username: cleanUsername,
+            tiktokUsername: cleanUsername, // legacy
+            code,
+            expiresAt
+        });
+        await verificationRecord.save();
+
+        res.status(200).json({
+            success: true,
+            verificationCode: code,
+            expiresAt
+        });
+    } catch (err: any) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+};
+
+export const verifyConnection = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const { platform, username, verificationCode } = req.body;
+        if (!platform || !username || !verificationCode) {
+            res.status(400).json({ success: false, message: 'Missing required fields' });
             return;
         }
 
-        const newProfile: any = {
-            platform: platform === 'tiktok' ? 'TikTok' : 'YouTube', // Match enum
-            username: (user.username || 'user') + '_' + platform,
-            isConnected: true,
-            status: 'approved',
-            verified: false,
-            followers: 0,
-            following: 0,
-            engagementRate: 0,
+        const cleanUsername = username.trim().replace(/^@/, '');
+        const normalizedPlatform = platform.toLowerCase();
+
+        const record = await VerificationCode.findOne({
+            username: cleanUsername,
+            code: verificationCode,
+            status: 'pending'
+        });
+
+        if (!record) {
+            res.status(400).json({ success: false, message: "Verification code not found or expired." });
+            return;
+        }
+
+        if (record.expiresAt < new Date()) {
+            record.status = 'expired';
+            await record.save();
+            res.status(400).json({ success: false, message: 'Code expired. Request a new one.' });
+            return;
+        }
+
+        if (record.attempts >= 5) {
+            record.status = 'failed';
+            await record.save();
+            res.status(400).json({ success: false, message: 'Too many attempts. Wait 5 minutes.' });
+            return;
+        }
+
+        record.attempts += 1;
+        await record.save();
+
+        // Check using Apify
+        const apifyToken = process.env.APIFY_TOKEN;
+        if (!apifyToken) throw new Error('APIFY_TOKEN not configured');
+        const client = new ApifyClient({ token: apifyToken });
+
+        let bioHasCode = false;
+        let metrics: any = null;
+        let profilePic = '';
+
+        if (normalizedPlatform === 'tiktok') {
+            const run = await client.actor('clockworks/free-tiktok-scraper').call({
+                profiles: [cleanUsername],
+                scrapePosts: false
+            });
+            const { items } = await client.dataset(run.defaultDatasetId).listItems();
+            if (!items || items.length === 0) {
+                res.status(400).json({ success: false, message: 'TikTok profile not found or private.' });
+                return;
+            }
+            const userData: any = items[0];
+            const possibleBios = [
+                userData?.authorMeta?.bio,
+                userData?.authorMeta?.signature,
+                userData?.bio,
+                userData?.signature
+            ].filter(Boolean);
+            bioHasCode = possibleBios.some(b => b.toLowerCase().includes(verificationCode.toLowerCase()));
+
+            metrics = {
+                followers: userData?.authorMeta?.fans || 0,
+                following: userData?.authorMeta?.following || 0,
+                totalLikes: userData?.authorMeta?.heart || 0,
+                totalPosts: userData?.authorMeta?.video || 0,
+                avgViews: 0,
+                avgLikes: 0,
+                avgComments: 0,
+                engagementRate: 0
+            };
+            profilePic = userData?.authorMeta?.avatar || '';
+
+        } else if (normalizedPlatform === 'instagram') {
+            // Note: If instagram scraper is taking too long or failing, we might mock for testing.
+            const run = await client.actor('apify/instagram-profile-scraper').call({
+                usernames: [cleanUsername]
+            });
+            const { items } = await client.dataset(run.defaultDatasetId).listItems();
+            if (!items || items.length === 0) {
+                res.status(400).json({ success: false, message: 'Instagram profile not found or private.' });
+                return;
+            }
+            const userData: any = items[0];
+            const bio = userData?.biography || '';
+            bioHasCode = bio.toLowerCase().includes(verificationCode.toLowerCase());
+
+            metrics = {
+                followers: userData?.followersCount || 0,
+                following: userData?.followsCount || 0,
+                totalPosts: userData?.postsCount || 0,
+                totalLikes: 0,
+                avgViews: 0,
+                avgLikes: 0,
+                avgComments: 0,
+                engagementRate: 0
+            };
+            profilePic = userData?.profilePicUrlHD || userData?.profilePicUrl || '';
+        } else {
+            res.status(400).json({ success: false, message: 'Platform not supported yet' });
+            return;
+        }
+
+        if (!bioHasCode) {
+            res.status(400).json({ success: false, message: "We couldn't find the verification code in your bio." });
+            return;
+        }
+
+        // Verified! Update user profile
+        record.status = 'verified';
+        await record.save();
+
+        let user = (req as any).user;
+        if (!user) {
+            const { userId } = getAuth(req);
+            user = await User.findOne({ clerkId: userId });
+        }
+
+        const platformFormat = normalizedPlatform === 'tiktok' ? 'TikTok' : 'Instagram';
+        const newProfile = {
+            platform: platformFormat,
+            username: cleanUsername,
+            verified: true,
+            followers: metrics.followers,
+            following: metrics.following,
+            engagementRate: metrics.engagementRate,
+            tiktokAnalytics: normalizedPlatform === 'tiktok' ? metrics : undefined,
             niches: [],
-            contentStyles: [],
-            createdAt: new Date().toISOString()
+            contentStyles: []
         };
 
-        // Update or add social profile
-        const existingIndex = user.socialProfiles.findIndex(p => p.platform === platform);
+        const existingIndex = user.socialProfiles.findIndex((p: any) => p.platform.toLowerCase() === normalizedPlatform);
         if (existingIndex > -1) {
-            user.socialProfiles[existingIndex] = newProfile;
+            user.socialProfiles[existingIndex] = { ...user.socialProfiles[existingIndex], ...newProfile };
         } else {
             user.socialProfiles.push(newProfile);
         }
 
+        if (profilePic && (!user.profilePicture || user.profilePicture === '')) {
+            user.profilePicture = profilePic;
+        }
+
         await user.save();
 
-        res.status(200).json({
-            success: true,
-            data: newProfile
-        });
-    } catch (error: any) {
-        res.status(500).json({ success: false, message: error.message });
+        res.status(200).json({ success: true, data: newProfile });
+    } catch (err: any) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+};
+
+export const syncMetrics = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const { platform } = req.params;
+        let user = (req as any).user;
+        if (!user) {
+            const { userId } = getAuth(req);
+            user = await User.findOne({ clerkId: userId });
+        }
+        
+        // This is a placeholder for syncing logic which would be similar to verifyConnection scraping.
+        res.status(200).json({ success: true, message: `Synced ${platform} successfully.` });
+    } catch (err: any) {
+        res.status(500).json({ success: false, message: err.message });
     }
 };
 
 export const disconnectPlatform = async (req: Request, res: Response): Promise<void> => {
     try {
-        const { userId } = getAuth(req);
+        let user = (req as any).user;
         const { platform } = req.params;
 
-        if (!userId) {
-            res.status(401).json({ success: false, message: 'Unauthorized' });
-            return;
-        }
-
-        const user = await User.findOne({ clerkId: userId });
         if (!user) {
-            res.status(404).json({ success: false, message: 'User not found' });
-            return;
+            const { userId } = getAuth(req);
+            if (!userId) {
+                res.status(401).json({ success: false, message: 'Unauthorized' });
+                return;
+            }
+            user = await User.findOne({ clerkId: userId });
+            if (!user) {
+                res.status(404).json({ success: false, message: 'User not found' });
+                return;
+            }
         }
 
-        user.socialProfiles = user.socialProfiles.filter(p => p.platform !== platform);
+        user.socialProfiles = user.socialProfiles.filter((p: any) => p.platform.toLowerCase() !== platform.toLowerCase());
         await user.save();
 
         res.status(200).json({

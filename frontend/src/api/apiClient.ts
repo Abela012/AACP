@@ -18,8 +18,15 @@ export const useApiClient = (): AxiosInstance => {
             },
         });
 
-        // Request interceptor — attach Clerk JWT token
+        // Request interceptor — attach Clerk JWT or custom TikTok JWT
         client.interceptors.request.use(async (config) => {
+            // Check for custom TikTok JWT first
+            const tiktokJwt = localStorage.getItem('tiktok_jwt');
+            if (tiktokJwt) {
+                config.headers.Authorization = `Bearer ${tiktokJwt}`;
+                return config;
+            }
+
             if (isSignedIn) {
                 try {
                     const token = await getToken();
@@ -44,6 +51,10 @@ export const useApiClient = (): AxiosInstance => {
 
                 if (status === 401) {
                     console.error('[API] Unauthorized — user may need to re-authenticate');
+                    if (localStorage.getItem('tiktok_jwt')) {
+                        localStorage.removeItem('tiktok_jwt');
+                        console.log('[API] Cleared expired/invalid tiktok_jwt');
+                    }
                 }
                 if (status === 403) {
                     console.error('[API] Forbidden — insufficient permissions');

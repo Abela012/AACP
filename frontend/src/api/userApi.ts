@@ -82,4 +82,28 @@ export const userApi = {
             throw error;
         }
     },
+    completeAdvertiserProfile: async (api: AxiosInstance, data: any) => {
+        try {
+            return await api.post('/users/advertiser/profile/complete', data);
+        } catch (error) {
+            console.warn('completeAdvertiserProfile API call failed:', error);
+            throw error;
+        }
+    },
+    getAdvertiserProfile: async (api: AxiosInstance) => {
+        try {
+            return await api.get('/users/advertiser/profile');
+        } catch (error) {
+            console.warn('getAdvertiserProfile API call failed:', error);
+            throw error;
+        }
+    },
+    syncTikTokMetrics: async (api: AxiosInstance) => {
+        try {
+            return await api.post('/users/advertiser/profile/sync-tiktok');
+        } catch (error) {
+            console.warn('syncTikTokMetrics API call failed:', error);
+            throw error;
+        }
+    },
 };

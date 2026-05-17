@@ -11,8 +11,11 @@ import {
   getSavedOpportunities,
   toggleSavedCreator,
   getSavedCreators,
+  completeAdvertiserProfile,
+  getAdvertiserProfile,
+  syncTikTokMetrics
 } from "./userController";
-import { requireAuth } from "@clerk/express";
+import { requireAuth } from "../../middlewares/auth.middleware";
 import multer from "multer";
 
 const router = express.Router();
@@ -75,7 +78,7 @@ const upload = multer({ storage: multer.memoryStorage() });
  *       500:
  *         description: Internal server error
  */
-router.put("/profile", requireAuth(), updateUserProfile);
+router.put("/profile", requireAuth, updateUserProfile);
 
 /**
  * @swagger
@@ -124,7 +127,7 @@ router.put("/profile", requireAuth(), updateUserProfile);
  *       500:
  *         description: Internal server error
  */
-router.post("/submit", requireAuth(), submitProfileForReview);
+router.post("/submit", requireAuth, submitProfileForReview);
 
 /**
  * @swagger
@@ -177,14 +180,14 @@ router.post("/submit", requireAuth(), submitProfileForReview);
  */
 router.post(
   "/profile/picture",
-  requireAuth(),
+  requireAuth,
   upload.single("image"),
   uploadProfilePicture
 );
 
 router.post(
   "/upload",
-  requireAuth(),
+  requireAuth,
   upload.single("file"),
   uploadFile
 );
@@ -213,7 +216,7 @@ router.post(
  *       404:
  *         description: User not found
  */
-router.get("/me", requireAuth(), getCurrentUser);
+router.get("/me", requireAuth, getCurrentUser);
 
 /**
  * @swagger
@@ -257,10 +260,16 @@ router.get("/me", requireAuth(), getCurrentUser);
  *         description: Failed to sync user
  */
 router.post("/sync", syncUser);
-router.get("/saved-opportunities", requireAuth(), getSavedOpportunities);
-router.post("/toggle-save", requireAuth(), toggleSavedOpportunity);
-router.post("/toggle-creator", requireAuth(), toggleSavedCreator);
-router.get("/saved-creators", requireAuth(), getSavedCreators);
-router.get("/:id", requireAuth(), getUserById);
+router.get("/saved-opportunities", requireAuth, getSavedOpportunities);
+router.post("/toggle-save", requireAuth, toggleSavedOpportunity);
+router.post("/toggle-creator", requireAuth, toggleSavedCreator);
+router.get("/saved-creators", requireAuth, getSavedCreators);
+
+// TikTok-First Advertiser Profile Endpoints
+router.post("/advertiser/profile/complete", requireAuth, completeAdvertiserProfile);
+router.get("/advertiser/profile", requireAuth, getAdvertiserProfile);
+router.post("/advertiser/profile/sync-tiktok", requireAuth, syncTikTokMetrics);
+
+router.get("/:id", requireAuth, getUserById);
 
 export default router;
