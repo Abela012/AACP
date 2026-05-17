@@ -197,6 +197,75 @@ export interface IUser extends Document {
     verifiedAt?: Date;
     lastVerifiedAt?: Date;
     nextVerificationRequiredAt?: Date;
+    emailVerified?: boolean;
+    emailVerificationToken?: string;
+    emailVerificationExpires?: Date;
+    phoneNumber?: string;
+    connectedAccounts?: {
+        tiktok?: {
+            connected: boolean;
+            verified: boolean;
+            username?: string;
+            displayName?: string;
+            bio?: string;
+            profilePicture?: string;
+            metrics?: {
+                followers?: number;
+                following?: number;
+                totalLikes?: number;
+                totalPosts?: number;
+                avgViews?: number;
+                avgLikes?: number;
+                avgComments?: number;
+                engagementRate?: number;
+            };
+            verifiedBadge?: boolean;
+            lastSynced?: Date;
+            connectedAt?: Date;
+        };
+        instagram?: {
+            connected: boolean;
+            verified: boolean;
+            username?: string;
+            displayName?: string;
+            bio?: string;
+            profilePicture?: string;
+            metrics?: {
+                followers?: number;
+                following?: number;
+                totalPosts?: number;
+                avgLikes?: number;
+                avgComments?: number;
+                engagementRate?: number;
+            };
+            verifiedBadge?: boolean;
+            lastSynced?: Date;
+            connectedAt?: Date;
+        };
+        facebook?: {
+            connected: boolean;
+            verified: boolean;
+            username?: string;
+            displayName?: string;
+            metrics?: {
+                followers?: number;
+                pageLikes?: number;
+                engagementRate?: number;
+            };
+            lastSynced?: Date;
+            connectedAt?: Date;
+        };
+    };
+    profileCompleted?: boolean;
+    niche?: string;
+    contentTypes?: string[];
+    targetAudience?: {
+        ageRange?: string;
+        gender?: string;
+        interests?: string[];
+    };
+    experienceLevel?: string;
+    profileCompletedAt?: Date;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -407,7 +476,89 @@ const userSchema: Schema = new Schema(
         },
         verifiedAt: { type: Date },
         lastVerifiedAt: { type: Date },
-        nextVerificationRequiredAt: { type: Date }
+        nextVerificationRequiredAt: { type: Date },
+        
+        // Advertiser Profile Fields
+        emailVerified: { type: Boolean, default: false },
+        emailVerificationToken: { type: String },
+        emailVerificationExpires: { type: Date },
+        phoneNumber: { type: String },
+        
+        connectedAccounts: {
+            tiktok: {
+                connected: { type: Boolean, default: false },
+                verified: { type: Boolean, default: false },
+                username: { type: String },
+                displayName: { type: String },
+                bio: { type: String },
+                profilePicture: { type: String },
+                metrics: {
+                    followers: { type: Number, default: 0 },
+                    following: { type: Number, default: 0 },
+                    totalLikes: { type: Number, default: 0 },
+                    totalPosts: { type: Number, default: 0 },
+                    avgViews: { type: Number, default: 0 },
+                    avgLikes: { type: Number, default: 0 },
+                    avgComments: { type: Number, default: 0 },
+                    engagementRate: { type: Number, default: 0 }
+                },
+                verifiedBadge: { type: Boolean, default: false },
+                lastSynced: { type: Date },
+                connectedAt: { type: Date }
+            },
+            instagram: {
+                connected: { type: Boolean, default: false },
+                verified: { type: Boolean, default: false },
+                username: { type: String },
+                displayName: { type: String },
+                bio: { type: String },
+                profilePicture: { type: String },
+                metrics: {
+                    followers: { type: Number, default: 0 },
+                    following: { type: Number, default: 0 },
+                    totalPosts: { type: Number, default: 0 },
+                    avgLikes: { type: Number, default: 0 },
+                    avgComments: { type: Number, default: 0 },
+                    engagementRate: { type: Number, default: 0 }
+                },
+                verifiedBadge: { type: Boolean, default: false },
+                lastSynced: { type: Date },
+                connectedAt: { type: Date }
+            },
+            facebook: {
+                connected: { type: Boolean, default: false },
+                verified: { type: Boolean, default: false },
+                username: { type: String },
+                displayName: { type: String },
+                metrics: {
+                    followers: { type: Number, default: 0 },
+                    pageLikes: { type: Number, default: 0 },
+                    engagementRate: { type: Number, default: 0 }
+                },
+                lastSynced: { type: Date },
+                connectedAt: { type: Date }
+            }
+        },
+        
+        profileCompleted: { type: Boolean, default: false },
+        niche: { 
+            type: String, 
+            enum: ['beauty', 'fashion', 'tech', 'gaming', 'food', 'travel', 'fitness', 'lifestyle', 'business', 'comedy', 'education', 'music', 'sports', 'other']
+        },
+        contentTypes: [{ 
+            type: String,
+            enum: ['tutorials', 'reviews', 'unboxings', 'vlogs', 'comedy', 'educational', 'storytime', 'challenges', 'duets', 'live_streams']
+        }],
+        targetAudience: {
+            ageRange: { type: String, enum: ['13-17', '18-24', '25-34', '35-44', '45+'] },
+            gender: { type: String, enum: ['all', 'male', 'female', 'other'] },
+            interests: [{ type: String }]
+        },
+        experienceLevel: {
+            type: String,
+            enum: ['beginner', 'intermediate', 'advanced', 'professional']
+        },
+        profileCompletedAt: { type: Date }
     },
     { timestamps: true }
 );

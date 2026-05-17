@@ -36,7 +36,7 @@ import { socialApi } from '../../../api/socialApi';
 import { facebookAnalyticsApi } from '../../../api/facebookAnalyticsApi';
 import type { SocialConnection } from '../../../api/socialApi';
 import { toast } from 'react-hot-toast';
-import AdvertiserOnboardingWizard from './advertiser-onboarding/AdvertiserOnboardingWizard';
+import AdvertiserCompleteProfile from './AdvertiserCompleteProfile';
 import { SocialConnectionModal } from '../components/SocialConnectionModal';
 
 /* ─── Types ─── */
@@ -686,7 +686,7 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
   return (
     <div className="min-h-screen bg-[#fafaf8] dark:bg-[#0a0a0a] pb-24">
       {/* ── Header ── */}
-      {!isInsideDashboard && (
+      {!isInsideDashboard && isBusiness && (
         <header className="text-center pt-10 pb-8 px-4">
           {isBusiness ? (
             <>
@@ -723,11 +723,7 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
       {/* ── Main Form ── */}
       <div className={cn('mx-auto px-4 pb-32', isBusiness ? 'max-w-[620px] space-y-6' : 'max-w-4xl space-y-6')}>
         {!isBusiness && (
-          <AdvertiserOnboardingWizard
-            api={api}
-            tradeLicenseUrl={tradeLicenseUrl}
-            onSubmitted={() => setSubmitted(true)}
-          />
+          <AdvertiserCompleteProfile />
         )}
 
         {/* ━━ A. BUSINESS PROFILE WORKFLOW ━━ */}

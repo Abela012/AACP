@@ -15,6 +15,7 @@ import marketingAnalysisRoutes from '../modules/marketing-analysis/marketing-ana
 import searchRoutes from '../modules/search/search.routes';
 import socialRoutes from '../modules/social/social.routes';
 import tiktokAuthRoutes from '../modules/auth/tiktokAuth.routes';
+import advertiserRoutes from '../modules/advertiser/advertiser.routes';
 import { maintenanceGate } from '../middlewares/maintenance.middleware';
 
 
@@ -362,6 +363,7 @@ router.use('/marketing-analysis', marketingAnalysisRoutes);
 router.use('/search', searchRoutes);
 router.use('/social', socialRoutes);
 router.use('/auth/tiktok', tiktokAuthRoutes);
+router.use('/advertiser', advertiserRoutes);
 
 
 /**
