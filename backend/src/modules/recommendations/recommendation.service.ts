@@ -1,150 +1,7 @@
-import User, { IUser } from '../../database/models/User';
-import Opportunity, { IOpportunity } from '../../database/models/Opportunity';
+import User from '../../database/models/User';
+import Opportunity from '../../database/models/Opportunity';
 import logger from '../../utils/logger';
-
-// ─── Profile Data Helper ─────────────────────────────────────────────────────
-
-const parseNum = (val: any): number => {
-    if (typeof val === 'number') return val;
-    if (typeof val === 'string') {
-        const cleaned = val.toUpperCase().replace(/[^0-9.KMB]/g, '');
-        let multiplier = 1;
-        if (cleaned.endsWith('K')) multiplier = 1000;
-        else if (cleaned.endsWith('M')) multiplier = 1000000;
-        else if (cleaned.endsWith('B')) multiplier = 1000000000;
-        const num = parseFloat(cleaned.replace(/[KMB]/g, ''));
-        return isNaN(num) ? 0 : num * multiplier;
-    }
-    return 0;
-};
-
-const extractMetrics = (profileData: any): {
-    followers: number;
-    engagementRate: number;
-    totalLikes: number;
-    avgViews: number;
-    avgComments: number;
-    avgShares: number;
-    niche: string;
-    niches: string[];
-    platforms: string[];
-    isMultiPlatform: boolean;
-    audienceInfo: any;
-} => {
-    if (!profileData) return { followers: 0, engagementRate: 0, niche: 'General', platforms: [] as string[], niches: [], totalLikes: 0, avgViews: 0, avgComments: 0, avgShares: 0, isMultiPlatform: false, audienceInfo: {} };
-
-    // Helper: compute ER from raw metrics if engagementRate is not stored
-    const computeER = (platform: any): number => {
-        const storedER = parseNum(platform.engagementRate);
-        if (storedER > 0 && storedER <= 100) return storedER;
-
-        const f = parseNum(platform.followers);
-        const likes = parseNum(platform.totalLikes);
-        const comments = parseNum(platform.avgComments);
-        const shares = parseNum(platform.avgShares);
-        const views = parseNum(platform.avgViews);
-
-        if (f <= 0) return 0;
-
-        if (likes > 0 && views > 0 && likes > views) {
-            logger.warn(`[extractMetrics] Invalid metrics: likes (${likes}) > views (${views}). Skipping ER computation.`);
-            return 0;
-        }
-
-        const rawER = ((likes + comments + shares) / f) * 100;
-        return Math.min(rawER, 100); // Cap at 100%
-    };
-
-    let totalFollowers = 0;
-    let totalLikes = 0;
-    let totalAvgViews = 0;
-    let totalAvgComments = 0;
-    let totalAvgShares = 0;
-    let maxEngagement = 0;
-    const platforms: string[] = [];
-    const niches: string[] = [];
-    const audienceInfo: any = {};
-
-    // 1. Check TikTok
-    if (profileData.tiktok) {
-        const t = profileData.tiktok;
-        const f = parseNum(t.followers);
-        if (t.username || f > 0) {
-            platforms.push('tiktok');
-            totalFollowers += f;
-            totalLikes += parseNum(t.totalLikes);
-            totalAvgViews += parseNum(t.avgViews);
-            totalAvgComments += parseNum(t.avgComments);
-            totalAvgShares += parseNum(t.avgShares);
-            
-            const e = computeER(t);
-            if (e > maxEngagement) maxEngagement = e;
-
-            if (t.niche) {
-                if (typeof t.niche === 'string') niches.push(t.niche);
-                else if (Array.isArray(t.niche)) niches.push(...t.niche);
-                else if (typeof t.niche === 'object') niches.push(...Object.values(t.niche).filter(Boolean) as string[]);
-            }
-            if (t.audienceTopCountry) audienceInfo.topCountry = t.audienceTopCountry;
-            if (t.audienceAgeRange) audienceInfo.ageRange = t.audienceAgeRange;
-            if (t.audienceGender) audienceInfo.gender = t.audienceGender;
-        }
-    }
-
-    // 2. Check Instagram
-    if (profileData.instagram) {
-        const ig = profileData.instagram;
-        const f = parseNum(ig.followers);
-        if (ig.username || f > 0) {
-            platforms.push('instagram');
-            totalFollowers += f;
-            totalLikes += parseNum(ig.totalLikes);
-            totalAvgViews += parseNum(ig.avgViews);
-            totalAvgComments += parseNum(ig.avgComments);
-            totalAvgShares += parseNum(ig.avgShares);
-            
-            const e = computeER(ig);
-            if (e > maxEngagement) maxEngagement = e;
-
-            if (ig.niche) {
-                if (typeof ig.niche === 'string') niches.push(ig.niche);
-                else if (Array.isArray(ig.niche)) niches.push(...ig.niche);
-                else if (typeof ig.niche === 'object') niches.push(...Object.values(ig.niche).filter(Boolean) as string[]);
-            }
-            if (ig.audienceTopCountry) audienceInfo.topCountry = ig.audienceTopCountry;
-            if (ig.audienceAgeRange) audienceInfo.ageRange = ig.audienceAgeRange;
-            if (ig.audienceGender) audienceInfo.gender = ig.audienceGender;
-        }
-    }
-
-    const isMultiPlatform = platforms.length > 1;
-
-    // 3. Fallbacks for legacy/flat data
-    if (totalFollowers === 0 && profileData.followers) totalFollowers = parseNum(profileData.followers);
-    if (maxEngagement === 0 && profileData.engagementRate) {
-        maxEngagement = Math.min(parseNum(profileData.engagementRate), 100);
-    }
-
-    if (niches.length === 0) {
-        if (profileData.category) niches.push(profileData.category);
-        if (profileData.industry) niches.push(profileData.industry);
-        if (Array.isArray(profileData.targetAudienceTags)) niches.push(...profileData.targetAudienceTags);
-    }
-
-    return {
-        followers: totalFollowers,
-        engagementRate: maxEngagement,
-        totalLikes,
-        avgViews: totalAvgViews,
-        avgComments: totalAvgComments,
-        avgShares: totalAvgShares,
-        niche: [...new Set(niches.filter(Boolean))][0] || 'General',
-        niches: [...new Set(niches.filter(Boolean))],
-        platforms,
-        isMultiPlatform,
-        audienceInfo
-    };
-};
+import { extractMetrics, normalizeEngagementRate } from '../../utils/metrics';
 
 /**
  * Recommendation Service
@@ -153,7 +10,7 @@ const extractMetrics = (profileData: any): {
  *   - Business Owners → Recommended Advertisers (users with role 'advertiser')
  *   - Advertisers → Recommended Opportunities (open opportunities matching their profile)
  * 
- * Scoring is based on category, engagement rate, followers, budget, and location.
+ * Scoring is based on niche, platform, engagement rate, followers, budget, and location.
  */
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -177,15 +34,67 @@ export interface RecommendationResult {
 
 // ─── Scoring ─────────────────────────────────────────────────────────────────
 
+const clamp = (value: number, min: number, max: number): number => Math.min(max, Math.max(min, value));
+
+const normalizeToList = (value: unknown): string[] => {
+    if (Array.isArray(value)) {
+        return value.map((item) => String(item).toLowerCase().trim()).filter(Boolean);
+    }
+    if (typeof value === 'string') {
+        return value.split(',').map((item) => item.toLowerCase().trim()).filter(Boolean);
+    }
+    return [];
+};
+
+/** Jaccard overlap 0–1 between two string lists. */
+const listOverlapRatio = (a: string[], b: string[]): number => {
+    if (a.length === 0 || b.length === 0) return 0;
+    const setA = new Set(a);
+    const setB = new Set(b);
+    let intersection = 0;
+    for (const item of setB) {
+        if (setA.has(item)) intersection++;
+    }
+    const union = new Set([...a, ...b]).size;
+    return union > 0 ? intersection / union : 0;
+};
+
 /**
- * Calculate a match score (0–100) between a user's preferences and a target.
- * 
- * Scoring breakdown:
- *   - Category match:      30 pts
- *   - Engagement rate:     25 pts
- *   - Follower count:      20 pts
- *   - Budget fit:          15 pts
- *   - Location match:      10 pts
+ * Engagement points (0–30): scales with actual ER; never uses a flat cap that ties similar creators.
+ */
+const scoreEngagement = (targetER: number, userMinER: number): number => {
+    const er = normalizeEngagementRate(targetER);
+    if (er <= 0) return 0;
+
+    const maxPts = 30;
+    let pts = (er / 100) * maxPts;
+
+    const minNorm = normalizeEngagementRate(userMinER);
+    if (minNorm > 0) {
+        if (er < minNorm) {
+            pts = (er / minNorm) * (maxPts * 0.55);
+        } else {
+            const headroom = Math.max(100 - minNorm, 1);
+            const excess = er - minNorm;
+            pts = maxPts * 0.55 + (excess / headroom) * (maxPts * 0.45);
+        }
+    }
+
+    return clamp(pts, 0, maxPts);
+};
+
+/** Follower reach points (0–25): log-scaled from ~1k to ~10M. */
+const scoreFollowers = (followers: number): number => {
+    if (followers <= 0) return 0;
+    const logMin = 3;
+    const logMax = 7;
+    const logF = Math.log10(followers + 1);
+    return clamp(((logF - logMin) / (logMax - logMin)) * 25, 0, 25);
+};
+
+/**
+ * Raw match score (0–100) between business preferences and a creator/opportunity.
+ * Uses continuous partial credit so different metrics produce different totals.
  */
 const calculateMatchScore = (
     userProfile: Record<string, any>,
@@ -195,62 +104,85 @@ const calculateMatchScore = (
 ): number => {
     let score = 0;
 
-    // ── Category/Niche Match (30 pts) ──
-    const userCategory = (userProfile.category || userProfile.niche || userProfile.industry || '').toLowerCase();
-    const userTags = Array.isArray(userProfile.targetAudienceTags) ? userProfile.targetAudienceTags.map((t: string) => t.toLowerCase()) : [];
-    
-    const targetNiches = (target.niches || (target.category ? [target.category] : [])).map((n: string) => n.toLowerCase());
-    
-    if (userCategory && targetNiches.length > 0) {
-        const hasMatch = targetNiches.some((n: string) => n === userCategory);
-        if (hasMatch) {
-            score += 30;
-        } else if (userTags.length > 0) {
-            // Partial match via tags
-            const hasTagMatch = targetNiches.some((n: string) => userTags.includes(n));
-            if (hasTagMatch) score += 20;
-        }
+    const userPreferredNiches = normalizeToList(
+        userProfile.preferredNiches ||
+        userProfile.niches ||
+        userProfile.targetAudienceTags ||
+        userProfile.category ||
+        userProfile.niche ||
+        userProfile.industry
+    );
+    const userTags = normalizeToList(userProfile.targetAudienceTags);
+    const targetNiches = normalizeToList(target.niches || (target.category ? [target.category] : []));
+
+    // Niche overlap (0–30) — partial credit via Jaccard, not all-or-nothing
+    const nicheOverlap = listOverlapRatio(userPreferredNiches, targetNiches);
+    if (nicheOverlap > 0) {
+        score += nicheOverlap * 30;
+    } else if (userTags.length > 0 && targetNiches.length > 0) {
+        score += listOverlapRatio(userTags, targetNiches) * 20;
     }
 
-    // ── Engagement Rate (25 pts) ──
+    const userPreferredPlatforms = normalizeToList(
+        userProfile.preferredPlatform || userProfile.selectedPlatforms || userProfile.platform || userProfile.platforms
+    );
+    const targetPlatforms = normalizeToList(target.platforms || target.platform || target.primaryPlatform);
+    if (userPreferredPlatforms.length > 0 && targetPlatforms.length > 0) {
+        score += listOverlapRatio(userPreferredPlatforms, targetPlatforms) * 20;
+    }
+
     const targetEngagement = target.engagementRate ?? target.profileData?.engagementRate ?? 0;
-    const userMinEngagement = userProfile.minEngagement ?? 0;
-    if (targetEngagement && userMinEngagement) {
-        if (targetEngagement >= userMinEngagement) {
-            score += 25;
-        } else {
-            score += (targetEngagement / userMinEngagement) * 25;
-        }
-    } else if (targetEngagement > 0) {
-        // If no min requirement, give partial credit for having engagement data
-        score += Math.min(targetEngagement * 5, 15);
-    }
+    const userMinEngagement = userProfile.minEngagement ?? userProfile.minEngagementRate ?? 0;
+    score += scoreEngagement(targetEngagement, userMinEngagement);
 
-    // ── Follower Count (20 pts) ──
     const targetFollowers = target.followers ?? target.profileData?.followers ?? 0;
-    if (targetFollowers > 0) {
-        score += Math.min((targetFollowers / 100000) * 20, 20);
-    }
+    score += scoreFollowers(targetFollowers);
 
-    // ── Budget Fit (15 pts) ──
     const userBudget = userProfile.budget ?? 0;
     const targetPrice = target.pricePerPost ?? target.profileData?.pricePerPost ?? target.budget?.amount ?? 0;
-    if (userBudget && targetPrice) {
-        if (targetPrice <= userBudget) {
-            score += 15;
-        } else {
-            score += (userBudget / targetPrice) * 15;
-        }
+    if (userBudget > 0 && targetPrice > 0) {
+        score += clamp(Math.min(userBudget / targetPrice, 1) * 15, 0, 15);
     }
 
-    // ── Location Match (10 pts) ──
-    if (userLocation && targetLocation) {
-        if (userLocation.toLowerCase() === targetLocation.toLowerCase()) {
-            score += 10;
-        }
+    if (userLocation && targetLocation && userLocation.toLowerCase() === targetLocation.toLowerCase()) {
+        score += 10;
     }
 
-    return Math.round(score);
+    const rating = target.averageRating ?? target.meta?.averageRating ?? 0;
+    if (rating > 0) {
+        score += clamp((rating / 5) * 5, 0, 5);
+    }
+
+    return Math.min(score, 100);
+};
+
+/**
+ * Maps raw scores onto a visible 42–98% band so the Discover page reflects real differences.
+ * When raw scores still tie, falls back to engagement + reach + rating.
+ */
+const spreadAdvertiserMatchScores = (items: RecommendationItem[]): void => {
+    if (items.length === 0) return;
+
+    const rawScores = items.map((item) => (item.meta?.rawScore as number) ?? item.score);
+    const min = Math.min(...rawScores);
+    const max = Math.max(...rawScores);
+
+    if (max - min >= 2) {
+        items.forEach((item, index) => {
+            const raw = rawScores[index];
+            item.score = Math.round(42 + ((raw - min) / (max - min)) * 56);
+        });
+        return;
+    }
+
+    items.forEach((item) => {
+        const er = normalizeEngagementRate((item.meta?.engagementRate as number) ?? 0);
+        const followers = (item.meta?.followers as number) ?? 0;
+        const rating = (item.meta?.averageRating as number) ?? 0;
+        item.score = Math.round(
+            clamp(44 + er * 1.35 + Math.log10(followers + 1) * 2.8 + rating * 4, 40, 98)
+        );
+    });
 };
 
 // ─── Core Logic ──────────────────────────────────────────────────────────────
@@ -266,7 +198,11 @@ export const getRecommendationsForUser = async (userId: string): Promise<Recomme
         throw new Error('User not found');
     }
 
-    const userProfile = user.profileData || {};
+    const userProfile = {
+        ...(user.profileData || {}),
+        ...(user.pendingProfileData || {}),
+        ...(user.pendingUpdates || {}),
+    };
     const results: RecommendationItem[] = [];
 
     // ── CASE 1: Business Owner → Recommend Advertisers ──
@@ -281,21 +217,29 @@ export const getRecommendationsForUser = async (userId: string): Promise<Recomme
             const advProfile = adv.profileData || {};
             const advMetrics = extractMetrics(advProfile);
 
-            const score = calculateMatchScore(
+            const rawScore = calculateMatchScore(
                 userProfile,
                 user.location,
-                { ...advProfile, niches: advMetrics.niches, followers: advMetrics.followers, engagementRate: advMetrics.engagementRate },
+                {
+                    ...advProfile,
+                    niches: advMetrics.niches,
+                    platforms: advMetrics.platforms,
+                    followers: advMetrics.followers,
+                    engagementRate: advMetrics.engagementRate,
+                    averageRating: adv.averageRating || 0,
+                },
                 adv.location
             );
 
             results.push({
                 targetId: (adv._id as any).toString(),
                 type: 'advertiser',
-                score,
+                score: rawScore,
                 name: `${adv.firstName} ${adv.lastName}`.trim() || adv.username,
                 category: advMetrics.niche,
                 location: adv.location,
                 meta: {
+                    rawScore,
                     profilePicture: adv.profilePicture,
                     followers: advMetrics.followers,
                     engagementRate: advMetrics.engagementRate,
@@ -308,6 +252,8 @@ export const getRecommendationsForUser = async (userId: string): Promise<Recomme
                 },
             });
         }
+
+        spreadAdvertiserMatchScores(results);
 
         logger.info(`[Recommendations] Generated ${results.length} advertiser recommendations for business_owner ${userId}`);
     }

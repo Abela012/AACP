@@ -5,6 +5,7 @@ import cloudinary from "../../config/cloudinary";
 import * as walletService from '../wallet/wallet.service';
 import { getPlatformSettings } from '../platform/platformSettings.service';
 import { mergeProfileData } from '../../utils/profileDataMerge';
+import { mergeAdvertiserProfileOnSubmit } from '../../utils/advertiserProfileSync';
 import { validateBusinessProfileSubmit } from './businessProfile.validation';
 
 interface MulterRequest extends Request {
@@ -249,14 +250,22 @@ export const submitProfileForReview = async (
     }
 
     const isAlreadyApproved = user.status === "active" || user.status === "approved";
-    const updates: any = {};
+    const updates: Record<string, unknown> = {};
+
+    const applyAdvertiserProfileMerge = () => {
+      if (user.role !== "advertiser") return null;
+      return mergeAdvertiserProfileOnSubmit({
+        profileData: (req.body.profileData ?? updates.profileData ?? user.profileData) as Record<string, unknown>,
+        socialProfiles: req.body.socialProfiles ?? updates.socialProfiles,
+        bio: req.body.bio ?? updates.bio,
+        location: req.body.location ?? updates.location,
+      });
+    };
 
     if (isAlreadyApproved) {
-      // 🚀 For approved users: don't lock them out. Keep status as is.
-      // Store all root field changes in pendingUpdates
-      const rootUpdates: any = {};
+      const rootUpdates: Record<string, unknown> = {};
       for (const key of ALLOWED_FIELDS) {
-        if (key !== "profileData" && req.body[key] !== undefined) {
+        if (key !== "profileData" && key !== "socialProfiles" && req.body[key] !== undefined) {
           rootUpdates[key] = req.body[key];
         }
       }
@@ -267,45 +276,40 @@ export const submitProfileForReview = async (
         };
       }
 
-<<<<<<< HEAD
-    if (user.role === "business_owner") {
-      const validation = validateBusinessProfileSubmit({
-        ...req.body,
-        profileData: updates.profileData || req.body.profileData,
-      });
-      if (!validation.valid) {
-        res.status(400).json({ message: validation.message });
-        return;
+      const mergedAdv = applyAdvertiserProfileMerge();
+      if (mergedAdv) {
+        user.pendingProfileData = mergeProfileData(
+          mergeProfileData(
+            (user.profileData || {}) as Record<string, unknown>,
+            (user.pendingProfileData || {}) as Record<string, unknown>
+          ),
+          mergedAdv.profileData
+        );
+        if (mergedAdv.socialProfiles?.length) {
+          user.socialProfiles = mergedAdv.socialProfiles as typeof user.socialProfiles;
+          user.markModified("socialProfiles");
+        }
+      } else if (req.body.profileData && typeof req.body.profileData === "object") {
+        user.pendingProfileData = mergeProfileData(
+          mergeProfileData(
+            (user.profileData || {}) as Record<string, unknown>,
+            (user.pendingProfileData || {}) as Record<string, unknown>
+          ),
+          req.body.profileData as Record<string, unknown>
+        );
       }
-    }
 
-    updates.status = "pending";
-
-    if (updates.profileData && typeof updates.profileData === "object") {
-      const merged = mergeProfileData(
-        mergeProfileData(
-          (user.profileData || {}) as Record<string, unknown>,
-          (user.pendingProfileData || {}) as Record<string, unknown>
-        ),
-        updates.profileData as Record<string, unknown>
-      );
-      updates.pendingProfileData = merged;
-      delete updates.profileData;
-=======
-      // Store profileData changes in pendingProfileData
-      if (req.body.profileData && typeof req.body.profileData === "object") {
-        user.pendingProfileData = {
-          ...(user.profileData || {}),
-          ...(user.pendingProfileData || {}),
-          ...req.body.profileData,
-        };
-      }
-      
-      // Mark modified for Mixed types
       user.markModified("pendingUpdates");
       user.markModified("pendingProfileData");
     } else {
-      // 🆕 For new or incomplete users: set status to pending
+      if (user.role === "business_owner") {
+        const validation = validateBusinessProfileSubmit(req.body as Record<string, unknown>);
+        if (!validation.valid) {
+          res.status(400).json({ message: validation.message });
+          return;
+        }
+      }
+
       updates.status = "pending";
 
       for (const key of ALLOWED_FIELDS) {
@@ -314,19 +318,30 @@ export const submitProfileForReview = async (
         }
       }
 
-      // Merge profileData into pendingProfileData
-      if (updates.profileData && typeof updates.profileData === "object") {
-        updates.pendingProfileData = {
-          ...(user.profileData || {}),
-          ...(user.pendingProfileData || {}),
-          ...updates.profileData,
-        };
+      const mergedAdv = applyAdvertiserProfileMerge();
+      if (mergedAdv) {
+        updates.pendingProfileData = mergeProfileData(
+          mergeProfileData(
+            (user.profileData || {}) as Record<string, unknown>,
+            (user.pendingProfileData || {}) as Record<string, unknown>
+          ),
+          mergedAdv.profileData
+        );
+        updates.socialProfiles = mergedAdv.socialProfiles;
         delete updates.profileData;
-      }      user.set(updates);
->>>>>>> c3552367c98769c8e42b81de918ba693404496dc
-    }
+      } else if (updates.profileData && typeof updates.profileData === "object") {
+        updates.pendingProfileData = mergeProfileData(
+          mergeProfileData(
+            (user.profileData || {}) as Record<string, unknown>,
+            (user.pendingProfileData || {}) as Record<string, unknown>
+          ),
+          updates.profileData as Record<string, unknown>
+        );
+        delete updates.profileData;
+      }
 
-    user.set(updates);
+      user.set(updates);
+    }
     const updatedUser = await user.save();
     const userResponse = updatedUser.toObject();
     delete (userResponse as any).__v;

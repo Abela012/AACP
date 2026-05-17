@@ -100,6 +100,9 @@ export const extractMetrics = (profileData: any): {
             if (t.audienceTopCountry) audienceInfo.topCountry = t.audienceTopCountry;
             if (t.audienceAgeRange) audienceInfo.ageRange = t.audienceAgeRange;
             if (t.audienceGender) audienceInfo.gender = t.audienceGender;
+            if (t.audienceInterests) audienceInfo.interests = t.audienceInterests;
+            if (t.audienceIncomeLevel) audienceInfo.incomeLevel = t.audienceIncomeLevel;
+            if (t.primaryAudienceLanguage) audienceInfo.language = t.primaryAudienceLanguage;
         }
     }
 
@@ -126,8 +129,13 @@ export const extractMetrics = (profileData: any): {
             if (ig.audienceTopCountry) audienceInfo.topCountry = ig.audienceTopCountry;
             if (ig.audienceAgeRange) audienceInfo.ageRange = ig.audienceAgeRange;
             if (ig.audienceGender) audienceInfo.gender = ig.audienceGender;
+            if (ig.audienceInterests) audienceInfo.interests = ig.audienceInterests;
+            if (ig.audienceIncomeLevel) audienceInfo.incomeLevel = ig.audienceIncomeLevel;
+            if (ig.primaryAudienceLanguage) audienceInfo.language = ig.primaryAudienceLanguage;
         }
     }
+
+    if (profileData.campaignPrice) audienceInfo.campaignPrice = parseNum(profileData.campaignPrice);
 
     // Default audience info if none found
     if (!audienceInfo.topCountry) audienceInfo.topCountry = 'Global';

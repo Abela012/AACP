@@ -31,6 +31,7 @@ import { socialApi } from '../../../api/socialApi';
 import { facebookAnalyticsApi } from '../../../api/facebookAnalyticsApi';
 import type { SocialConnection } from '../../../api/socialApi';
 import { toast } from 'react-hot-toast';
+import AdvertiserOnboardingWizard from './advertiser-onboarding/AdvertiserOnboardingWizard';
 
 /* ─── Types ─── */
 interface TagItem {
@@ -1081,14 +1082,13 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
           ) : (
             <>
               <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400 tracking-[0.15em] uppercase mb-3">
-                Step 2 of 4 • Profile Setup
+                Creator onboarding • 5 steps
               </p>
               <h1 className="text-3xl md:text-4xl font-black text-gray-900 dark:text-white tracking-tight mb-3">
-                Complete Your Profile
+                Build Your Creator Profile
               </h1>
               <p className="text-gray-500 dark:text-gray-400 text-sm max-w-lg mx-auto leading-relaxed mb-5">
-                Let's showcase your digital footprint. High-fidelity profiles
-                receive 4x more engagement from premium brands.
+                Rich analytics power AI matching, ROI forecasts, and campaign recommendations with premium brands.
               </p>
               <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 text-emerald-700 dark:text-emerald-400 text-xs font-bold">
                 <Shield size={14} /> Secure Application
@@ -1099,9 +1099,16 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
       )}
 
       {/* ── Main Form ── */}
-      <div className="max-w-[620px] mx-auto px-4 pb-32 space-y-6">
-        {/* ━━ SHARED: PERSONAL INFORMATION (ADVERTISERS ONLY) ━━ */}
+      <div className={cn('mx-auto px-4 pb-32', isBusiness ? 'max-w-[620px] space-y-6' : 'max-w-4xl space-y-6')}>
         {!isBusiness && (
+          <AdvertiserOnboardingWizard
+            api={api}
+            tradeLicenseUrl={tradeLicenseUrl}
+            onSubmitted={() => setSubmitted(true)}
+          />
+        )}
+
+        {false && !isBusiness && (
           <SectionCard icon={<Users size={20} />} title="Personal Information">
             <div className="flex flex-col items-center mb-8">
               <div className="relative group">
@@ -1879,10 +1886,10 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
               </div>
             </SectionCard>
           </>
-        ) : (
-          /* ━━ ADVERTISER (CREATOR) PROFILE ━━ */
+        ) : null}
+
+        {false && (
           <>
-            {/* ━━ TikTok Analytics Section ━━ */}
             <SectionCard icon={<FaTiktok size={20} />} title="TikTok Creator Analytics">
               <p className="text-xs text-gray-500 dark:text-gray-400 -mt-4 mb-5">
                 Provide your TikTok metrics so brands can evaluate your reach and engagement.
@@ -2266,63 +2273,6 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
           </>
         )}
 
-        {/* ── Submit CTA (Advertiser) ── */}
-        {!isBusiness && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="text-center pt-4"
-          >
-            {!canSubmitAdvertiser && (
-              <p className="text-[10px] font-bold text-amber-600 dark:text-amber-500 uppercase tracking-widest mb-4">
-                Please complete at least one TikTok or Instagram analytics form to proceed
-              </p>
-            )}
-            <button
-              onClick={handleSubmit}
-              disabled={isSubmitting || !canSubmitAdvertiser}
-              className={cn(
-                'px-10 py-4 rounded-2xl font-bold text-base transition-all duration-300 shadow-xl',
-                isSubmitting || !canSubmitAdvertiser
-                  ? 'bg-gray-300 dark:bg-white/5 text-gray-500 dark:text-gray-500 cursor-not-allowed shadow-none'
-                  : 'bg-emerald-500 text-white hover:bg-emerald-400 hover:shadow-2xl hover:shadow-emerald-500/30 hover:-translate-y-0.5 shadow-emerald-500/20'
-              )}
-            >
-              {isSubmitting ? (
-                <span className="flex items-center gap-2">
-                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  Submitting...
-                </span>
-              ) : (
-                'Submit for Admin Approval'
-              )}
-            </button>
-          </motion.div>
-        )}
-
-        {/* ── Pro Tip (Advertiser) ── */}
-        {!isBusiness && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5 }}
-            className="bg-emerald-50 dark:bg-emerald-500/6 border border-emerald-100 dark:border-emerald-500/15 rounded-2xl p-4 flex items-start gap-3"
-          >
-            <Lightbulb
-              size={18}
-              className="text-emerald-600 dark:text-emerald-400 mt-0.5 shrink-0"
-            />
-            <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
-              <span className="font-bold text-gray-900 dark:text-white">
-                Pro Tip:
-              </span>{' '}
-              Brands filter by engagement rate and geography. Ensure your
-              metrics and top markets are up-to-date to appear in premium
-              search results.
-            </p>
-          </motion.div>
-        )}
       </div>
 
       {/* ── Bottom Bar (Business) ── */}

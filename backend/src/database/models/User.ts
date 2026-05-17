@@ -20,11 +20,30 @@ export interface ITikTokAnalytics {
     avgLikes: number;
     avgComments: number;
     avgShares: number;
+    avgSaves?: number;
     averageWatchTime: number;
     completionRate: number;
     totalLikes: number;
     viralVideoPercentage: number;
+    estimatedStoryViews?: number;
     audienceAnalytics: IAudienceAnalytics;
+}
+
+export interface IInstagramAnalytics {
+    followers: number;
+    avgViews: number;
+    totalLikes: number;
+    avgComments: number;
+    avgShares: number;
+    avgSaves?: number;
+    averageWatchTime?: number;
+    estimatedStoryViews?: number;
+    engagementMetrics?: {
+        likes: number;
+        comments: number;
+        shares: number;
+        saves: number;
+    };
 }
 
 export interface IYouTubeAnalytics {
@@ -44,7 +63,7 @@ export interface IYouTubeAnalytics {
 }
 
 export interface ISocialProfile {
-    platform: "TikTok" | "YouTube";
+    platform: "TikTok" | "YouTube" | "Instagram";
     username: string;
     profileLink?: string;
     verified: boolean;
@@ -56,6 +75,7 @@ export interface ISocialProfile {
     contentStyles: string[];
     tiktokAnalytics?: ITikTokAnalytics;
     youtubeAnalytics?: IYouTubeAnalytics;
+    instagramAnalytics?: IInstagramAnalytics;
 
     audience?: {
         genderDistribution?: {
@@ -159,11 +179,30 @@ const tiktokAnalyticsSchema = new Schema({
     avgLikes: { type: Number, default: 0 },
     avgComments: { type: Number, default: 0 },
     avgShares: { type: Number, default: 0 },
+    avgSaves: { type: Number, default: 0 },
     averageWatchTime: { type: Number, default: 0 },
     completionRate: { type: Number, default: 0 },
     totalLikes: { type: Number, default: 0 },
     viralVideoPercentage: { type: Number, default: 0 },
+    estimatedStoryViews: { type: Number, default: 0 },
     audienceAnalytics: { type: audienceAnalyticsSchema }
+}, { _id: false });
+
+const instagramAnalyticsSchema = new Schema({
+    followers: { type: Number, default: 0 },
+    avgViews: { type: Number, default: 0 },
+    totalLikes: { type: Number, default: 0 },
+    avgComments: { type: Number, default: 0 },
+    avgShares: { type: Number, default: 0 },
+    avgSaves: { type: Number, default: 0 },
+    averageWatchTime: { type: Number, default: 0 },
+    estimatedStoryViews: { type: Number, default: 0 },
+    engagementMetrics: {
+        likes: { type: Number, default: 0 },
+        comments: { type: Number, default: 0 },
+        shares: { type: Number, default: 0 },
+        saves: { type: Number, default: 0 },
+    },
 }, { _id: false });
 
 const youtubeAnalyticsSchema = new Schema({
@@ -182,7 +221,7 @@ const youtubeAnalyticsSchema = new Schema({
 }, { _id: false });
 
 const socialProfileSchema = new Schema({
-    platform: { type: String, enum: ["TikTok", "YouTube"], required: true },
+    platform: { type: String, enum: ["TikTok", "YouTube", "Instagram"], required: true },
     username: { type: String, required: true },
     profileLink: { type: String },
     verified: { type: Boolean, default: false },
@@ -192,6 +231,7 @@ const socialProfileSchema = new Schema({
     contentStyles: [{ type: String }],
     tiktokAnalytics: { type: tiktokAnalyticsSchema },
     youtubeAnalytics: { type: youtubeAnalyticsSchema },
+    instagramAnalytics: { type: instagramAnalyticsSchema },
 
     audience: {
         genderDistribution: {
@@ -247,144 +287,8 @@ const socialProfileSchema = new Schema({
 
 const userSchema: Schema = new Schema(
     {
-<<<<<<< HEAD
-        clerkId: {
-            type: String,
-            required: true,
-            unique: true,
-        },
-        tiktokOpenId: {
-            type: String,
-            sparse: true,
-            unique: true,
-            index: true,
-        },
-        email: {
-            type: String,
-            required: true,
-            unique: true,
-        },
-        firstName: {
-            type: String,
-            default: "",
-        },
-        lastName: {
-            type: String,
-            default: "",
-        },
-        username: {
-            type: String,
-            required: true,
-            unique: true,
-        },
-        profilePicture: {
-            type: String,
-            default: "",
-        },
-        coverImage: {
-            type: String,
-            default: "",
-        },
-        tradeLicenseUrl: {
-            type: String,
-            default: "",
-        },
-        idVerificationUrl: {
-            type: String,
-            default: "",
-        },
-
-        bio: {
-            type: String,
-            default: ""
-        },
-
-        location: {
-            type: String,
-            default: "",
-        },
-        role: {
-            type: String,
-            enum: ['business_owner', 'advertiser', 'admin', 'super_admin'],
-            default: 'advertiser',
-            index: true,
-        },
-        status: {
-            type: String,
-            enum: ['incomplete', 'pending', 'active', 'approved', 'banned', 'suspended'],
-            default: 'incomplete',
-        },
-        isVerified: {
-            type: Boolean,
-            default: false,
-        },
-        profileData: {
-            tiktok: {
-                username: String,
-                profileLink: String,
-                accountType: String,
-                postingFrequency: String,
-                followers: Number,
-                engagementRate: Number,
-                totalLikes: Number,
-                avgViews: Number,
-                avgComments: Number,
-                avgShares: Number,
-                niche: {},
-                contentStyle: {},
-                audienceGender: String,
-                audienceTopCountry: String,
-                audienceAgeRange: String,
-            },
-
-            instagram: {
-                username: String,
-                profileLink: String,
-                accountType: String,
-                postingFrequency: String,
-                followers: Number,
-                totalLikes: Number,
-                avgViews: Number,
-                engagementRate: Number,
-                avgComments: Number,
-                avgShares: Number,
-                niche: {},
-                contentStyle: {},
-                audienceGender: String,
-                audienceTopCountry: String,
-                audienceAgeRange: String,
-            },
-            businessProfile: { type: Schema.Types.Mixed, default: undefined },
-            capacity: { type: Schema.Types.Mixed, default: undefined },
-            financialData: { type: Schema.Types.Mixed, default: undefined },
-            targetAudience: { type: Schema.Types.Mixed, default: undefined },
-            marketingGoals: { type: Schema.Types.Mixed, default: undefined },
-            marketingHistory: { type: Schema.Types.Mixed, default: undefined },
-            customerAnalytics: { type: Schema.Types.Mixed, default: undefined },
-            profileCompletion: { type: Schema.Types.Mixed, default: undefined },
-        },
-        pendingProfileData: {
-            type: Schema.Types.Mixed,
-            default: null,
-        },
-        totalPosts: {
-            type: Number,
-            default: 0,
-        },
-        averageRating: {
-            type: Number,
-            default: 0,
-        },
-        totalReviews: {
-            type: Number,
-            default: 0,
-        },
-        lastLogin: {
-            type: Date,
-        },
-
-=======
         clerkId: { type: String, required: true, unique: true },
+        tiktokOpenId: { type: String, sparse: true, unique: true, index: true },
         email: { type: String, required: true, unique: true },
         firstName: { type: String, default: "" },
         lastName: { type: String, default: "" },
@@ -398,7 +302,10 @@ const userSchema: Schema = new Schema(
         role: { type: String, enum: ['business_owner', 'advertiser', 'admin', 'super_admin'], default: 'advertiser', index: true },
         status: { type: String, enum: ['incomplete', 'pending', 'active', 'approved', 'banned', 'suspended'], default: 'incomplete' },
         isVerified: { type: Boolean, default: false },
-        profileData: { type: Schema.Types.Mixed, default: {} },
+        profileData: {
+            type: Schema.Types.Mixed,
+            default: {},
+        },
         pendingProfileData: { type: Schema.Types.Mixed, default: null },
         pendingUpdates: { type: Schema.Types.Mixed, default: {} },
         socialProfiles: { type: [socialProfileSchema], default: [] },
@@ -409,7 +316,6 @@ const userSchema: Schema = new Schema(
         averageRating: { type: Number, default: 0 },
         totalReviews: { type: Number, default: 0 },
         lastLogin: { type: Date },
->>>>>>> c3552367c98769c8e42b81de918ba693404496dc
     },
     { timestamps: true }
 );
@@ -456,6 +362,18 @@ userSchema.pre('save', function (next) {
 
                 if (subscribers > 0) {
                     profile.engagementRate = parseFloat((((likes + comments + shares) / subscribers) * 100).toFixed(2));
+                } else {
+                    profile.engagementRate = 0;
+                }
+            } else if (profile.platform === 'Instagram' && profile.instagramAnalytics) {
+                const followers = parseNum(profile.instagramAnalytics.followers ?? profile.followers);
+                const likes = parseNum(profile.instagramAnalytics.totalLikes ?? profile.instagramAnalytics.engagementMetrics?.likes);
+                const comments = parseNum(profile.instagramAnalytics.avgComments ?? profile.instagramAnalytics.engagementMetrics?.comments);
+                const shares = parseNum(profile.instagramAnalytics.avgShares ?? profile.instagramAnalytics.engagementMetrics?.shares);
+                const saves = parseNum(profile.instagramAnalytics.avgSaves ?? profile.instagramAnalytics.engagementMetrics?.saves);
+
+                if (followers > 0) {
+                    profile.engagementRate = parseFloat((((likes + comments + shares + saves) / followers) * 100).toFixed(2));
                 } else {
                     profile.engagementRate = 0;
                 }

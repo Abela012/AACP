@@ -3,6 +3,13 @@
  * across different backend services.
  */
 
+/** Normalize engagement to 0–100 (handles fraction form e.g. 0.102 → 10.2). */
+export const normalizeEngagementRate = (er: number): number => {
+    if (!er || er <= 0) return 0;
+    if (er <= 1) return er * 100;
+    return Math.min(er, 100);
+};
+
 export const parseNum = (val: any): number => {
     if (typeof val === 'number') return val;
     if (typeof val === 'string') {
@@ -89,6 +96,21 @@ export const extractMetrics = (profileData: any) => {
 
     processPlatform(profileData.tiktok, 'TikTok');
     processPlatform(profileData.instagram, 'Instagram');
+
+    // Legacy / flat profile fallbacks
+    if (followers === 0 && profileData.followers) {
+        followers = parseNum(profileData.followers);
+    }
+    if (maxEngagement === 0 && profileData.engagementRate) {
+        maxEngagement = Math.min(parseNum(profileData.engagementRate), 100);
+    }
+    if (niches.size === 0) {
+        if (profileData.category) niches.add(profileData.category);
+        if (profileData.industry) niches.add(profileData.industry);
+        if (Array.isArray(profileData.targetAudienceTags)) {
+            profileData.targetAudienceTags.forEach((t: string) => t && niches.add(String(t)));
+        }
+    }
 
     const primaryPlatform = parseNum(profileData.tiktok?.followers) >= parseNum(profileData.instagram?.followers) ? 'TikTok' : 'Instagram';
     
