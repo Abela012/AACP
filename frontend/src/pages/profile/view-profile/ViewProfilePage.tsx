@@ -61,24 +61,28 @@ export default function ViewProfilePage() {
       if (typeof v === 'string') return parseInt(v.replace(/[^0-9]/g, ''), 10) || 0;
       return 0;
     };
-    const t = pd.tiktok || {};
-    const i = pd.instagram || {};
-    const followersTotal = computeNum(t.followers) + computeNum(i.followers);
-    const avgViewsTotal = computeNum(t.avgViews) + computeNum(i.avgViews);
+    const ca = raw.connectedAccounts || {};
+    const tMetrics = ca.tiktok?.metrics || pd.tiktok || {};
+    const iMetrics = ca.instagram?.metrics || pd.instagram || {};
+    const fMetrics = ca.facebook?.metrics || {};
+    
+    const followersTotal = computeNum(tMetrics.followers) + computeNum(iMetrics.followers) + computeNum(fMetrics.followers);
+    const avgViewsTotal = computeNum(tMetrics.avgViews) + computeNum(iMetrics.avgViews);
     const computeER = (p: any) => {
       const stored = computeNum(p.engagementRate);
       if (stored > 0 && stored <= 100) return stored;
       const f = computeNum(p.followers);
       if (f <= 0) return 0;
-      const likes = computeNum(p.totalLikes);
+      const likes = computeNum(p.totalLikes) || computeNum(p.avgLikes);
       const comments = computeNum(p.avgComments);
       const shares = computeNum(p.avgShares);
       const rawER = ((likes + comments + shares) / f) * 100;
       return Math.min(rawER, 100);
     };
-    const erTik = computeER(t);
-    const erIg = computeER(i);
-    const maxER = Math.max(erTik, erIg);
+    const erTik = computeER(tMetrics);
+    const erIg = computeER(iMetrics);
+    const erFb = computeER(fMetrics);
+    const maxER = Math.max(erTik, erIg, erFb);
 
     return {
       firstName: raw.firstName || '',
@@ -96,6 +100,11 @@ export default function ViewProfilePage() {
       ...pd,
       ...ppd,
       ...pud,
+      tiktokHandle: ca.tiktok?.username || raw.tiktokHandle || pd.tiktokHandle,
+      instagramHandle: ca.instagram?.username || raw.instagramHandle || pd.instagramHandle,
+      facebookHandle: ca.facebook?.username || raw.facebookHandle || pd.facebookHandle,
+      youtubeHandle: raw.youtubeHandle || pd.youtubeHandle,
+      xHandle: raw.xHandle || pd.xHandle,
       followers: followersTotal,
       avgViews: avgViewsTotal,
       engagementRate: parseFloat(maxER.toFixed(2)),
@@ -519,21 +528,26 @@ export default function ViewProfilePage() {
                             </a>
                           )}
                           {profile.tiktokHandle && (
-                            <a href={`https://tiktok.com/@${profile.tiktokHandle.replace('@', '')}`} target="_blank" rel="noreferrer" className="flex items-center gap-2 px-4 py-2 bg-gray-900/10 dark:bg-white/10 text-gray-900 dark:text-white rounded-xl text-xs font-bold hover:bg-gray-900/20 dark:hover:bg-white/20 transition-colors">
+                            <a href={`https://tiktok.com/@${(profile.tiktokHandle as string).replace('@', '')}`} target="_blank" rel="noreferrer" className="flex items-center gap-2 px-4 py-2 bg-gray-900/10 dark:bg-white/10 text-gray-900 dark:text-white rounded-xl text-xs font-bold hover:bg-gray-900/20 dark:hover:bg-white/20 transition-colors">
                               TikTok
                             </a>
                           )}
                           {profile.instagramHandle && (
-                            <a href={`https://instagram.com/${profile.instagramHandle.replace('@', '')}`} target="_blank" rel="noreferrer" className="flex items-center gap-2 px-4 py-2 bg-pink-500/10 text-pink-600 rounded-xl text-xs font-bold hover:bg-pink-500/20 transition-colors">
+                            <a href={`https://instagram.com/${(profile.instagramHandle as string).replace('@', '')}`} target="_blank" rel="noreferrer" className="flex items-center gap-2 px-4 py-2 bg-pink-500/10 text-pink-600 rounded-xl text-xs font-bold hover:bg-pink-500/20 transition-colors">
                               IG
                             </a>
                           )}
+                          {(profile as any).facebookHandle && (
+                            <a href={`https://facebook.com/${((profile as any).facebookHandle as string).replace('@', '')}`} target="_blank" rel="noreferrer" className="flex items-center gap-2 px-4 py-2 bg-blue-500/10 text-blue-600 rounded-xl text-xs font-bold hover:bg-blue-500/20 transition-colors">
+                              FB
+                            </a>
+                          )}
                           {profile.xHandle && (
-                            <a href={`https://x.com/${profile.xHandle.replace('@', '')}`} target="_blank" rel="noreferrer" className="flex items-center gap-2 px-4 py-2 bg-blue-500/10 text-blue-600 rounded-xl text-xs font-bold hover:bg-blue-500/20 transition-colors">
+                            <a href={`https://x.com/${(profile.xHandle as string).replace('@', '')}`} target="_blank" rel="noreferrer" className="flex items-center gap-2 px-4 py-2 bg-blue-500/10 text-blue-600 rounded-xl text-xs font-bold hover:bg-blue-500/20 transition-colors">
                               X
                             </a>
                           )}
-                          {!profile.youtubeHandle && !profile.tiktokHandle && !profile.instagramHandle && !profile.xHandle && (
+                          {!profile.youtubeHandle && !profile.tiktokHandle && !profile.instagramHandle && !(profile as any).facebookHandle && !profile.xHandle && (
                             <span className="text-sm text-gray-500 font-medium">No linked socials</span>
                           )}
                         </div>

@@ -21,8 +21,13 @@ import {
   Share2,
   Eye,
   EyeOff,
+  AlertTriangle,
+  Loader2,
+  Check,
 } from 'lucide-react';
-import { FaFacebook } from 'react-icons/fa';
+import { FaFacebook, FaInstagram, FaTiktok } from 'react-icons/fa';
+import { SocialConnectionModal } from '../components/SocialConnectionModal';
+import toast from 'react-hot-toast';
 import { useClerk, useUser as useClerkUser } from '@clerk/clerk-react';
 import AdvertiserLayout from '@/src/shared/components/layouts/AdvertiserLayout';
 import BusinessLayout from '@/src/shared/components/layouts/BusinessLayout';
@@ -73,12 +78,27 @@ export default function EditProfilePage() {
   const [instagramHandle, setInstagramHandle] = useState(profile.instagramHandle || '');
   const [xHandle, setXHandle] = useState(profile.xHandle || '');
 
-  const [followers, setFollowers] = useState(profile.followers || '');
-  const [avgViews, setAvgViews] = useState(profile.avgViews || '');
-  const [engagementRate, setEngagementRate] = useState(profile.engagementRate || '');
+  const [followers, setFollowers] = useState<string | number>(profile.followers || '');
+  const [avgViews, setAvgViews] = useState<string | number>(profile.avgViews || '');
+  const [engagementRate, setEngagementRate] = useState<string | number>(profile.engagementRate || '');
   const [baseRate, setBaseRate] = useState(profile.baseRate || '');
+  // Track if metrics are auto-imported from a verified platform
+  const [metricsAutoImported, setMetricsAutoImported] = useState(false);
   const [portfolioUrl, setPortfolioUrl] = useState(profile.website || '');
   const [isFacebookConnected, setIsFacebookConnected] = useState(false);
+  const [isTiktokConnected, setIsTiktokConnected] = useState(false);
+  const [isInstagramConnected, setIsInstagramConnected] = useState(false);
+  const [activeConnectionModal, setActiveConnectionModal] = useState<'tiktok' | 'instagram' | null>(null);
+  const [platformToDisconnect, setPlatformToDisconnect] = useState<string | null>(null);
+
+  // Complete Profile fields
+  const [niche, setNiche] = useState(profile.niche || '');
+  const [contentTypes, setContentTypes] = useState<string[]>(profile.contentTypes || []);
+  const [experienceLevel, setExperienceLevel] = useState(profile.experienceLevel || '');
+  const [ageRange, setAgeRange] = useState(profile.targetAudience?.ageRange || '');
+  const [gender, setGender] = useState(profile.targetAudience?.gender || '');
+  const [interests, setInterests] = useState<string[]>(profile.targetAudience?.interests || []);
+  const [interestInput, setInterestInput] = useState('');
 
   // Sync local state when profile loads/refreshes
   useEffect(() => {
@@ -109,13 +129,40 @@ export default function EditProfilePage() {
       setXHandle(profile.xHandle || '');
 
       setFollowers(profile.followers || '');
-      setAvgViews(profile.avgViews || '');
-      setEngagementRate(profile.engagementRate || '');
+      // Auto-import metrics from connectedAccounts if present
+      const ca = (profile as any).connectedAccounts || {};
+      const caT = ca.tiktok?.metrics || {};
+      const caI = ca.instagram?.metrics || {};
+      const caF = ca.facebook?.metrics || {};
+      const hasConnectedMetrics = caT.avgViews || caI.avgViews || caT.engagementRate || caI.engagementRate || caF.engagementRate;
+      if (hasConnectedMetrics) {
+        const computedAvgViews = (caT.avgViews || 0) + (caI.avgViews || 0);
+        const computedER = Math.max(caT.engagementRate || 0, caI.engagementRate || 0, caF.engagementRate || 0);
+        setAvgViews(computedAvgViews || profile.avgViews || '');
+        setEngagementRate(computedER || profile.engagementRate || '');
+        setMetricsAutoImported(true);
+      } else {
+        setAvgViews(profile.avgViews || '');
+        setEngagementRate(profile.engagementRate || '');
+        setMetricsAutoImported(false);
+      }
+      setPhone(profile.phone || profile.phoneNumber || '');
       setBaseRate(profile.baseRate || '');
       setPortfolioUrl(profile.website || '');
       setCoverPreview(profile.coverImageUrl || '');
       
-      setIsFacebookConnected(!!profile.facebook || !!profile.facebookConnected);
+      setIsFacebookConnected(!!profile.facebook || !!profile.facebookConnected || !!(profile as any).connectedAccounts?.facebook?.connected);
+      setIsTiktokConnected(!!(profile as any).connectedAccounts?.tiktok?.connected);
+      setIsInstagramConnected(!!(profile as any).connectedAccounts?.instagram?.connected);
+
+      // Sync completed profile details for advertisers
+      setNiche((profile as any).niche || '');
+      setContentTypes((profile as any).contentTypes || []);
+      setExperienceLevel((profile as any).experienceLevel || '');
+      const ta = (profile as any).targetAudience || {};
+      setAgeRange(ta.ageRange || '');
+      setGender(ta.gender || '');
+      setInterests(ta.interests || []);
     }
   }, [profile, isLoading]);
 
@@ -307,8 +354,19 @@ export default function EditProfilePage() {
         const profileData = {
           bio,
           phone,
+          phoneNumber: phone,
           coverImage: coverPreview,
         };
+
+        if (!isBusiness) {
+          // Sync basic details through specialized advertiser endpoint
+          await api.put('/advertiser/profile/basic', {
+            firstName,
+            lastName,
+            phoneNumber: phone,
+          });
+        }
+
         await userApi.updateProfile(api, {
           firstName,
           lastName,
@@ -320,6 +378,20 @@ export default function EditProfilePage() {
         setShowSuccess(true);
         setTimeout(() => setShowSuccess(false), 3000);
       } else if (activeTab === 'company') {
+        if (!isBusiness) {
+          // Sync professional details through specialized advertiser endpoint
+          await api.put('/advertiser/profile/content', {
+            niche,
+            contentTypes,
+            targetAudience: {
+              ageRange,
+              gender,
+              interests,
+            },
+            experienceLevel,
+          });
+        }
+
         const profileData = {
           businessName,
           website: isBusiness ? website : portfolioUrl,
@@ -352,38 +424,75 @@ export default function EditProfilePage() {
         await userApi.submitProfile(api, {
           profileData,
         });
-        setShowSubmitModal(true);
+
+        if (!isBusiness) {
+          updateProfile({
+            niche,
+            contentTypes,
+            targetAudience: {
+              ageRange,
+              gender,
+              interests,
+            },
+            experienceLevel,
+            website: portfolioUrl,
+            youtubeHandle,
+            tiktokHandle,
+            instagramHandle,
+            xHandle,
+            followers,
+            avgViews,
+            engagementRate,
+            baseRate,
+          });
+          setShowSuccess(true);
+          setTimeout(() => setShowSuccess(false), 3000);
+        } else {
+          setShowSubmitModal(true);
+        }
       }
 
       await refreshProfile();
     } catch (error) {
       console.error('Failed to save profile:', error);
+      toast.error('Failed to save profile. Please try again.');
     } finally {
       setIsSaving(false);
     }
   };
 
   const handleDisconnectFacebook = async () => {
-    if (!window.confirm('Are you sure you want to disconnect your Facebook account? This will remove all associated analytics and data.')) {
-      return;
-    }
-    
-    setIsSaving(true);
-    try {
-      await api.delete('/social/disconnect/facebook');
-      setIsFacebookConnected(false);
-      alert('Facebook account disconnected successfully.');
-      refreshProfile();
-    } catch (error) {
-      console.error('Failed to disconnect Facebook:', error);
-      alert('Failed to disconnect Facebook. Please try again.');
-    } finally {
-      setIsSaving(false);
-    }
+    setPlatformToDisconnect('Facebook');
   };
 
   const handleConnectFacebook = () => {
     window.location.href = `${import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1'}/social/initiate/facebook`;
+  };
+
+  const handleDisconnectPlatform = async (platform: string) => {
+    setPlatformToDisconnect(platform);
+  };
+
+  const confirmDisconnect = async () => {
+    if (!platformToDisconnect) return;
+    
+    setIsSaving(true);
+    try {
+      await api.delete(`/social/disconnect/${platformToDisconnect.toLowerCase()}`);
+      
+      if (platformToDisconnect.toLowerCase() === 'tiktok') setIsTiktokConnected(false);
+      else if (platformToDisconnect.toLowerCase() === 'instagram') setIsInstagramConnected(false);
+      else if (platformToDisconnect.toLowerCase() === 'facebook') setIsFacebookConnected(false);
+      
+      toast.success(`${platformToDisconnect} account disconnected successfully.`);
+      refreshProfile();
+    } catch (error) {
+      console.error(`Failed to disconnect ${platformToDisconnect}:`, error);
+      toast.error(`Failed to disconnect ${platformToDisconnect}. Please try again.`);
+    } finally {
+      setIsSaving(false);
+      setPlatformToDisconnect(null);
+    }
   };
 
   const containerVariants = {
@@ -647,16 +756,18 @@ export default function EditProfilePage() {
                         />
                       </div>
                     </div>
-                    <div className="space-y-2 sm:col-span-2">
-                      <label className={labelCls}>Brand Description</label>
-                      <textarea
-                        rows={4}
-                        value={bio}
-                        onChange={(e) => setBio(e.target.value)}
-                        placeholder="Describe your brand in a few sentences..."
-                        className="w-full bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl p-4 text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all text-gray-900 dark:text-white resize-none"
-                      />
-                    </div>
+                    {isBusiness && (
+                      <div className="space-y-2 sm:col-span-2">
+                        <label className={labelCls}>Brand Description</label>
+                        <textarea
+                          rows={4}
+                          value={bio}
+                          onChange={(e) => setBio(e.target.value)}
+                          placeholder="Describe your brand in a few sentences..."
+                          className="w-full bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl p-4 text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all text-gray-900 dark:text-white resize-none"
+                        />
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
@@ -901,22 +1012,32 @@ export default function EditProfilePage() {
                           />
                         </div>
                         <div className="space-y-2">
-                          <label className={labelCls}>Avg Views</label>
+                          <div className="flex items-center justify-between">
+                            <label className={labelCls}>Avg Views</label>
+                            {metricsAutoImported && (
+                              <span className="text-[10px] font-bold px-2 py-0.5 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-full border border-emerald-500/20">⚡ Auto-imported</span>
+                            )}
+                          </div>
                           <input
                             type="text"
                             value={avgViews}
-                            onChange={(e) => setAvgViews(e.target.value)}
-                            className={inputCls.replace('pl-10', 'pl-4')}
+                            onChange={(e) => { setAvgViews(e.target.value); setMetricsAutoImported(false); }}
+                            className={cn(inputCls.replace('pl-10', 'pl-4'), metricsAutoImported && 'bg-emerald-50 dark:bg-emerald-900/10 border-emerald-200 dark:border-emerald-500/20 text-emerald-700 dark:text-emerald-300 font-semibold')}
                             placeholder={profilePlaceholder(profile.avgViews, '450k')}
                           />
                         </div>
                         <div className="space-y-2">
-                          <label className={labelCls}>Engagement Rate (%)</label>
+                          <div className="flex items-center justify-between">
+                            <label className={labelCls}>Engagement Rate (%)</label>
+                            {metricsAutoImported && (
+                              <span className="text-[10px] font-bold px-2 py-0.5 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-full border border-emerald-500/20">⚡ Auto-imported</span>
+                            )}
+                          </div>
                           <input
                             type="text"
                             value={engagementRate}
-                            onChange={(e) => setEngagementRate(e.target.value)}
-                            className={inputCls.replace('pl-10', 'pl-4')}
+                            onChange={(e) => { setEngagementRate(e.target.value); setMetricsAutoImported(false); }}
+                            className={cn(inputCls.replace('pl-10', 'pl-4'), metricsAutoImported && 'bg-emerald-500/5 dark:bg-emerald-900/10 border-emerald-200 dark:border-emerald-500/20 text-emerald-700 dark:text-emerald-300 font-semibold')}
                             placeholder={profilePlaceholder(profile.engagementRate, '4.2%')}
                           />
                         </div>
@@ -959,6 +1080,195 @@ export default function EditProfilePage() {
                             className={inputCls.replace('pl-10', 'pl-4')}
                             placeholder={profilePlaceholder(profile.xHandle, '@handle')}
                           />
+                        </div>
+
+                        {/* ── Content & Niche Advertiser Settings (Synced from Complete Profile) ── */}
+                        <div className="sm:col-span-2 pt-6 mt-6 border-t border-gray-100 dark:border-white/5 space-y-6">
+                          <h3 className="text-sm font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest flex items-center gap-2">
+                            <span className="p-1 bg-emerald-500/10 rounded-lg">🎯</span> Content & Niche Selection
+                          </h3>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            {/* Primary Niche Category */}
+                            <div className="space-y-2">
+                              <label className={labelCls}>Primary Niche Category</label>
+                              <select
+                                value={niche}
+                                onChange={(e) => setNiche(e.target.value)}
+                                className="w-full bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-500 transition-all text-gray-900 dark:text-white appearance-none cursor-pointer"
+                              >
+                                <option value="" disabled>Select Primary Niche</option>
+                                <option value="beauty">Beauty & Cosmetics</option>
+                                <option value="fashion">Fashion & Style</option>
+                                <option value="tech">Technology & Gaming</option>
+                                <option value="gaming">Gaming & Esports</option>
+                                <option value="food">Food & Culinary</option>
+                                <option value="travel">Travel & Adventure</option>
+                                <option value="fitness">Fitness & Wellness</option>
+                                <option value="lifestyle">Lifestyle & Blogs</option>
+                                <option value="business">Business & Finance</option>
+                                <option value="comedy">Comedy & Entertainment</option>
+                                <option value="education">Education & Science</option>
+                                <option value="music">Music & Dance</option>
+                                <option value="sports">Sports & Outdoors</option>
+                                <option value="other">Other / General</option>
+                              </select>
+                            </div>
+
+                            {/* Experience Level */}
+                            <div className="space-y-2">
+                              <label className={labelCls}>Experience Level</label>
+                              <select
+                                value={experienceLevel}
+                                onChange={(e) => setExperienceLevel(e.target.value)}
+                                className="w-full bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-500 transition-all text-gray-900 dark:text-white appearance-none cursor-pointer"
+                              >
+                                <option value="" disabled>Select Experience Level</option>
+                                <option value="beginner">Beginner (Under 1 Year / Passionate)</option>
+                                <option value="intermediate">Intermediate (1-2 Years / Rising Star)</option>
+                                <option value="advanced">Advanced (3-5 Years / Professional)</option>
+                                <option value="professional">Professional (5+ Years / Elite Influence)</option>
+                              </select>
+                            </div>
+                          </div>
+
+                          {/* Content Formats Checkboxes */}
+                          <div className="space-y-3">
+                            <label className={labelCls}>Content Formats / Formats of Choice</label>
+                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                              {[
+                                { id: 'tutorials', label: '🎥 Tutorials' },
+                                { id: 'reviews', label: '⭐ Product Reviews' },
+                                { id: 'unboxings', label: '📦 Unboxings' },
+                                { id: 'vlogs', label: '🚶 Everyday Vlogs' },
+                                { id: 'comedy', label: '🎭 Skits & Comedy' },
+                                { id: 'educational', label: '🧠 Educational' },
+                                { id: 'storytime', label: '🗣️ Storytimes' },
+                                { id: 'challenges', label: '🏆 Challenges' },
+                                { id: 'duets', label: '👥 Duets & Collabs' },
+                                { id: 'live_streams', label: '🔴 Live Streaming' }
+                              ].map(c => {
+                                const selected = contentTypes.includes(c.id);
+                                return (
+                                  <button
+                                    key={c.id}
+                                    type="button"
+                                    onClick={() => {
+                                      setContentTypes(selected 
+                                        ? contentTypes.filter(x => x !== c.id)
+                                        : [...contentTypes, c.id]
+                                      );
+                                    }}
+                                    className={`px-4 py-2.5 rounded-xl border text-xs font-semibold text-left transition-all ${
+                                      selected
+                                        ? "bg-emerald-500/10 text-emerald-600 border-emerald-500 dark:text-emerald-400"
+                                        : "bg-gray-50 dark:bg-black/50 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-white/10 hover:border-emerald-500/50"
+                                    }`}
+                                  >
+                                    {c.label}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* ── Demographics section ── */}
+                        <div className="sm:col-span-2 pt-6 border-t border-gray-100 dark:border-white/5 space-y-6">
+                          <h3 className="text-sm font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest flex items-center gap-2">
+                            <span className="p-1 bg-emerald-500/10 rounded-lg">📊</span> Target Audience Demographics
+                          </h3>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            {/* Target Age Range */}
+                            <div className="space-y-2">
+                              <label className={labelCls}>Target Age Range</label>
+                              <select
+                                value={ageRange}
+                                onChange={(e) => setAgeRange(e.target.value)}
+                                className="w-full bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-500 transition-all text-gray-900 dark:text-white appearance-none cursor-pointer"
+                              >
+                                <option value="">Select Age Group</option>
+                                <option value="13-17">Gen Z Teens (13-17)</option>
+                                <option value="18-24">Gen Z Adults (18-24)</option>
+                                <option value="25-34">Young Millennials (25-34)</option>
+                                <option value="35-44">Mature Millennials (35-44)</option>
+                                <option value="45+">Boomers & Older (45+)</option>
+                              </select>
+                            </div>
+
+                            {/* Target Gender Balance */}
+                            <div className="space-y-2">
+                              <label className={labelCls}>Audience Gender Balance</label>
+                              <select
+                                value={gender}
+                                onChange={(e) => setGender(e.target.value)}
+                                className="w-full bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-500 transition-all text-gray-900 dark:text-white appearance-none cursor-pointer"
+                              >
+                                <option value="">Select Gender Balance</option>
+                                <option value="all">Balanced / All Genders</option>
+                                <option value="male">Mostly Male Audience</option>
+                                <option value="female">Mostly Female Audience</option>
+                                <option value="other">Diverse / Queer Audience</option>
+                              </select>
+                            </div>
+                          </div>
+
+                          {/* Audience Interests Tagging */}
+                          <div className="space-y-3">
+                            <label className={labelCls}>Audience Key Interests</label>
+                            <div className="flex gap-2">
+                              <input
+                                type="text"
+                                placeholder="Press enter or click add (e.g. tech, fashion)"
+                                value={interestInput}
+                                onChange={(e) => setInterestInput(e.target.value)}
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter') {
+                                    e.preventDefault();
+                                    const val = interestInput.trim().toLowerCase();
+                                    if (val && !interests.includes(val)) {
+                                      setInterests([...interests, val]);
+                                      setInterestInput('');
+                                    }
+                                  }
+                                }}
+                                className="flex-1 bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-500 transition-all text-gray-900 dark:text-white"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const val = interestInput.trim().toLowerCase();
+                                  if (val && !interests.includes(val)) {
+                                    setInterests([...interests, val]);
+                                    setInterestInput('');
+                                  }
+                                }}
+                                className="px-5 py-3 bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-bold rounded-xl text-xs hover:opacity-90 transition-all"
+                              >
+                                Add
+                              </button>
+                            </div>
+                            {interests.length > 0 && (
+                              <div className="flex flex-wrap gap-1.5 pt-1">
+                                {interests.map(tag => (
+                                  <span
+                                    key={tag}
+                                    className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-semibold rounded-full border border-emerald-500/10"
+                                  >
+                                    #{tag}
+                                    <button
+                                      type="button"
+                                      onClick={() => setInterests(interests.filter(x => x !== tag))}
+                                      className="hover:text-red-500 text-[10px] font-bold p-0.5"
+                                    >
+                                      ×
+                                    </button>
+                                  </span>
+                                ))}
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </>
                     )}
@@ -1138,17 +1448,82 @@ export default function EditProfilePage() {
                       <div className="flex items-center gap-3">
                         {isFacebookConnected ? (
                           <button 
-                            onClick={handleDisconnectFacebook}
-                            disabled={isSaving}
-                            className="px-4 py-2 bg-red-100 text-red-600 text-xs font-bold rounded-xl hover:bg-red-200 transition-colors disabled:opacity-50"
+                            disabled
+                            className="px-4 py-2 bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400 text-xs font-bold rounded-xl cursor-default"
                           >
-                            Disconnect
+                            Connected
                           </button>
                         ) : (
                           <button 
                             onClick={handleConnectFacebook}
                             disabled={isSaving}
                             className="px-4 py-2 bg-blue-600 text-white text-xs font-bold rounded-xl hover:bg-blue-700 transition-colors disabled:opacity-50"
+                          >
+                            Connect
+                          </button>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* TikTok Connection */}
+                    <div className="flex items-center justify-between p-6 bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-2xl">
+                      <div className="flex items-center gap-4">
+                        <div className="p-3 bg-gray-200 dark:bg-white/10 rounded-xl">
+                          <FaTiktok className="text-black dark:text-white" size={24} />
+                        </div>
+                        <div>
+                          <h4 className="font-bold text-gray-900 dark:text-white text-sm">TikTok</h4>
+                          <p className="text-xs text-gray-500 mt-1">
+                            Used to showcase your creator profile and engagement metrics.
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        {isTiktokConnected ? (
+                          <button 
+                            disabled
+                            className="px-4 py-2 bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400 text-xs font-bold rounded-xl cursor-default"
+                          >
+                            Connected
+                          </button>
+                        ) : (
+                          <button 
+                            onClick={() => setActiveConnectionModal('tiktok')}
+                            disabled={isSaving}
+                            className="px-4 py-2 bg-black text-white dark:bg-white dark:text-black text-xs font-bold rounded-xl hover:opacity-80 transition-colors disabled:opacity-50"
+                          >
+                            Connect
+                          </button>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Instagram Connection */}
+                    <div className="flex items-center justify-between p-6 bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-2xl">
+                      <div className="flex items-center gap-4">
+                        <div className="p-3 bg-pink-100 dark:bg-pink-900/30 rounded-xl">
+                          <FaInstagram className="text-pink-600 dark:text-pink-400" size={24} />
+                        </div>
+                        <div>
+                          <h4 className="font-bold text-gray-900 dark:text-white text-sm">Instagram</h4>
+                          <p className="text-xs text-gray-500 mt-1">
+                            Used to showcase your creator profile and engagement metrics.
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        {isInstagramConnected ? (
+                          <button 
+                            disabled
+                            className="px-4 py-2 bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400 text-xs font-bold rounded-xl cursor-default"
+                          >
+                            Connected
+                          </button>
+                        ) : (
+                          <button 
+                            onClick={() => setActiveConnectionModal('instagram')}
+                            disabled={isSaving}
+                            className="px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs font-bold rounded-xl hover:opacity-90 transition-colors disabled:opacity-50"
                           >
                             Connect
                           </button>
@@ -1212,6 +1587,69 @@ export default function EditProfilePage() {
                   className="w-full py-4 bg-emerald-500 hover:bg-emerald-400 text-black font-black rounded-2xl transition-all shadow-xl shadow-emerald-500/20 active:scale-95"
                 >
                   Great, Thanks!
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Social Connection Modal */}
+      <AnimatePresence>
+        {activeConnectionModal && (
+          <SocialConnectionModal
+            platform={activeConnectionModal}
+            onClose={() => setActiveConnectionModal(null)}
+            onSuccess={() => {
+              setActiveConnectionModal(null);
+              refreshProfile();
+            }}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Disconnect Confirmation Modal */}
+      <AnimatePresence>
+        {platformToDisconnect && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setPlatformToDisconnect(null)}
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="relative w-full max-w-md bg-white dark:bg-[#1a1a1a] border border-gray-100 dark:border-white/10 rounded-[2rem] p-8 shadow-2xl text-center overflow-hidden"
+            >
+              <div className="w-16 h-16 bg-red-500/10 rounded-2xl flex items-center justify-center mx-auto mb-6 text-red-500">
+                <AlertTriangle size={32} />
+              </div>
+              
+              <h2 className="text-xl font-black text-gray-900 dark:text-white mb-3">
+                Disconnect {platformToDisconnect}?
+              </h2>
+              <p className="text-gray-500 dark:text-gray-400 text-sm mb-8 leading-relaxed">
+                Are you sure you want to disconnect your <strong>{platformToDisconnect}</strong> account? This will remove all associated analytics and data from your profile.
+              </p>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setPlatformToDisconnect(null)}
+                  disabled={isSaving}
+                  className="flex-1 py-3.5 bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 text-gray-900 dark:text-white font-bold rounded-xl transition-colors disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={confirmDisconnect}
+                  disabled={isSaving}
+                  className="flex-1 py-3.5 bg-red-500 hover:bg-red-600 text-white font-bold rounded-xl transition-colors disabled:opacity-50 flex justify-center items-center gap-2"
+                >
+                  {isSaving ? <Loader2 size={18} className="animate-spin" /> : 'Disconnect'}
                 </button>
               </div>
             </motion.div>
