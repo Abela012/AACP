@@ -7,8 +7,7 @@ import {
   ChevronDown,
   Zap,
   Eye,
-  Video,
-  Download
+  Video
 } from 'lucide-react';
 import { cn } from '@/src/shared/utils/cn';
 import { 
@@ -51,17 +50,7 @@ export default function AdvertiserAnalyticsPage() {
 
   const currentData = timeRange === 'Last 7 Days' ? data7Days : data30Days;
 
-  const handleExportData = () => {
-    const csvContent = "data:text/csv;charset=utf-8," 
-      + ["Day,Reach,Engagement", ...currentData.map(d => `${d.name},${d.reach},${d.engagement}`)].join("\n");
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `analytics_export_${timeRange.replace(/ /g, '_').toLowerCase()}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
+
 
   const platformData = [
     { name: 'TikTok', value: 0, color: '#10b981' },
@@ -110,14 +99,6 @@ export default function AdvertiserAnalyticsPage() {
                 ))}
               </div>
             )}
-
-            <button 
-              onClick={handleExportData}
-              className="bg-emerald-500 text-black px-6 py-3 rounded-xl font-bold text-sm flex items-center gap-2 hover:bg-emerald-400 transition-all shadow-lg shadow-emerald-500/20 active:scale-95"
-            >
-              <Download size={18} />
-              Export Data
-            </button>
           </div>
         </div>
 

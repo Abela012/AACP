@@ -447,43 +447,7 @@ const userSchema: Schema = new Schema(
             },
             lastSynced: { type: Date }
         },
-        profileInfo: {
-            niche: { 
-                type: String, 
-                enum: ['beauty', 'fashion', 'tech', 'gaming', 'food', 'travel', 'fitness', 'lifestyle', 'business', 'comedy', 'education', 'music', 'sports', 'other']
-            },
-            experienceLevel: {
-                type: String,
-                enum: ['beginner', 'intermediate', 'advanced', 'professional']
-            },
-            contentFormats: [{
-                type: String,
-                enum: ['tutorials', 'reviews', 'unboxings', 'vlogs', 'comedy', 'educational', 'storytime', 'challenges', 'duets', 'live_streams']
-            }],
-            targetAudience: {
-                ageRange: { type: String },
-                gender: { type: String },
-                interests: [{ type: String }]
-            },
-            rateExpectations: {
-                minRate: { type: Number },
-                preferredRate: { type: Number },
-                rateType: { type: String }
-            },
-            previousBrands: [{ type: String }],
-            portfolioLinks: [{ type: String }],
-            additionalNotes: { type: String }
-        },
-        verifiedAt: { type: Date },
-        lastVerifiedAt: { type: Date },
-        nextVerificationRequiredAt: { type: Date },
-        
-        // Advertiser Profile Fields
-        emailVerified: { type: Boolean, default: false },
-        emailVerificationToken: { type: String },
-        emailVerificationExpires: { type: Date },
-        phoneNumber: { type: String },
-        
+        // ── Root-level connectedAccounts for advertiser social verification ──
         connectedAccounts: {
             tiktok: {
                 connected: { type: Boolean, default: false },
@@ -539,6 +503,42 @@ const userSchema: Schema = new Schema(
                 connectedAt: { type: Date }
             }
         },
+        profileInfo: {
+            niche: { 
+                type: String, 
+                enum: ['beauty', 'fashion', 'tech', 'gaming', 'food', 'travel', 'fitness', 'lifestyle', 'business', 'comedy', 'education', 'music', 'sports', 'other']
+            },
+            experienceLevel: {
+                type: String,
+                enum: ['beginner', 'intermediate', 'advanced', 'professional']
+            },
+            contentFormats: [{
+                type: String,
+                enum: ['tutorials', 'reviews', 'unboxings', 'vlogs', 'comedy', 'educational', 'storytime', 'challenges', 'duets', 'live_streams']
+            }],
+            targetAudience: {
+                ageRange: { type: String },
+                gender: { type: String },
+                interests: [{ type: String }]
+            },
+            rateExpectations: {
+                minRate: { type: Number },
+                preferredRate: { type: Number },
+                rateType: { type: String }
+            },
+            previousBrands: [{ type: String }],
+            portfolioLinks: [{ type: String }],
+            additionalNotes: { type: String }
+        },
+        verifiedAt: { type: Date },
+        lastVerifiedAt: { type: Date },
+        nextVerificationRequiredAt: { type: Date },
+        
+        // Advertiser Profile Fields
+        emailVerified: { type: Boolean, default: false },
+        emailVerificationToken: { type: String },
+        emailVerificationExpires: { type: Date },
+        phoneNumber: { type: String },
         
         profileCompleted: { type: Boolean, default: false },
         niche: { 

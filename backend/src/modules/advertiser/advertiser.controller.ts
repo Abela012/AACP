@@ -280,35 +280,58 @@ export const verifySocialConnection = async (req: Request, res: Response): Promi
             const client = new ApifyClient({ token: apifyToken });
 
             if (normalizedPlatform === 'tiktok') {
+                // Scrape profile + recent posts (max 12) to get avgViews and post-level metrics
                 const run = await client.actor('clockworks/free-tiktok-scraper').call({
                     profiles: [cleanUsername],
-                    scrapePosts: false
+                    scrapePosts: true,
+                    maxPostsPerProfile: 12
                 });
                 const { items } = await client.dataset(run.defaultDatasetId).listItems();
                 if (!items || items.length === 0) {
                     res.status(400).json({ success: false, message: "TikTok profile not found or private." });
                     return;
                 }
-                const userData: any = items[0];
-                const tiktokBio = userData?.authorMeta?.bio || userData?.authorMeta?.signature || "";
+
+                // Find dedicated profile item, or fall back to first item's authorMeta, or the item itself
+                const profileItem: any = items.find((item: any) => !item.id) || items[0];
+                const profileMeta: any = profileItem?.authorMeta || profileItem || {};
+                const postItems: any[] = items.filter((item: any) => item.id);
+
+                const tiktokBio = profileMeta.bio || profileMeta.signature || "";
                 if (!tiktokBio.toLowerCase().includes(verificationCode.toLowerCase())) {
                     res.status(400).json({ success: false, message: "Verification code not found. Please add it to your bio" });
                     return;
                 }
 
-                displayName = userData?.authorMeta?.nickName || cleanUsername;
+                displayName = profileMeta.nickName || cleanUsername;
                 bio = tiktokBio;
-                profilePic = userData?.authorMeta?.avatar || profilePic;
-                verifiedBadge = userData?.authorMeta?.verified || false;
+                profilePic = profileMeta.avatar || profileMeta.profilePicUrl || profilePic;
+                verifiedBadge = profileMeta.verified || false;
 
-                const followers = userData?.authorMeta?.fans || 0;
-                const following = userData?.authorMeta?.following || 0;
-                const totalLikes = userData?.authorMeta?.heart || 0;
-                const totalPosts = userData?.authorMeta?.video || 0;
-                const avgViews = userData?.avgViews || 0;
-                const avgLikes = userData?.avgLikes || 0;
-                const avgComments = userData?.avgComments || 0;
-                const engagementRate = followers > 0 ? parseFloat((((avgLikes + avgComments) / followers) * 100).toFixed(2)) : 0;
+                const followers = profileMeta.fans || profileMeta.followers || 0;
+                const following = profileMeta.following || 0;
+                const totalLikes = profileMeta.heart || profileMeta.likes || 0;
+                const totalPosts = profileMeta.video || profileMeta.posts || 0;
+
+                // Calculate averages from actual posts if available
+                let avgViews = 0, avgLikes = 0, avgComments = 0;
+                if (postItems.length > 0) {
+                    avgViews = Math.round(postItems.reduce((s: number, p: any) => s + (p.playCount || p.stats?.playCount || 0), 0) / postItems.length);
+                    avgLikes = Math.round(postItems.reduce((s: number, p: any) => s + (p.diggCount || p.stats?.diggCount || 0), 0) / postItems.length);
+                    avgComments = Math.round(postItems.reduce((s: number, p: any) => s + (p.commentCount || p.stats?.commentCount || 0), 0) / postItems.length);
+                }
+
+                // Compute engagementRate: use post averages if available, else estimate from totalLikes/followers
+                let engagementRate = 0;
+                if (followers > 0) {
+                    if (avgLikes > 0 || avgComments > 0) {
+                        engagementRate = parseFloat((((avgLikes + avgComments) / followers) * 100).toFixed(2));
+                    } else if (totalLikes > 0 && totalPosts > 0) {
+                        // Fallback: use totalLikes per post as proxy
+                        const avgLikesEstimate = totalLikes / totalPosts;
+                        engagementRate = parseFloat(((avgLikesEstimate / followers) * 100).toFixed(2));
+                    }
+                }
 
                 metrics = {
                     followers,

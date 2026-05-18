@@ -88,8 +88,10 @@ export const initiateConnection = async (req: Request, res: Response): Promise<v
 
         res.status(200).json({
             success: true,
-            verificationCode: code,
-            expiresAt
+            data: {
+                verificationCode: code,
+                expiresAt
+            }
         });
     } catch (err: any) {
         res.status(500).json({ success: false, message: err.message });
@@ -147,33 +149,64 @@ export const verifyConnection = async (req: Request, res: Response): Promise<voi
         if (normalizedPlatform === 'tiktok') {
             const run = await client.actor('clockworks/free-tiktok-scraper').call({
                 profiles: [cleanUsername],
-                scrapePosts: false
+                scrapePosts: true,
+                maxPostsPerProfile: 12
             });
             const { items } = await client.dataset(run.defaultDatasetId).listItems();
             if (!items || items.length === 0) {
                 res.status(400).json({ success: false, message: 'TikTok profile not found or private.' });
                 return;
             }
-            const userData: any = items[0];
+            
+            // Find dedicated profile item, or fall back to first item's authorMeta, or the item itself
+            const profileItem: any = items.find((item: any) => !item.id) || items[0];
+            const profileMeta: any = profileItem?.authorMeta || profileItem || {};
+            const postItems: any[] = items.filter((item: any) => item.id);
+
             const possibleBios = [
-                userData?.authorMeta?.bio,
-                userData?.authorMeta?.signature,
-                userData?.bio,
-                userData?.signature
+                profileMeta.bio,
+                profileMeta.signature,
+                profileItem?.bio,
+                profileItem?.signature
             ].filter(Boolean);
             bioHasCode = possibleBios.some(b => b.toLowerCase().includes(verificationCode.toLowerCase()));
 
+            const followers = profileMeta.fans || profileMeta.followers || 0;
+            const following = profileMeta.following || 0;
+            const totalLikes = profileMeta.heart || profileMeta.likes || 0;
+            const totalPosts = profileMeta.video || profileMeta.posts || 0;
+
+            // Calculate averages from actual posts if available
+            let avgViews = 0, avgLikes = 0, avgComments = 0;
+            if (postItems.length > 0) {
+                avgViews = Math.round(postItems.reduce((s: number, p: any) => s + (p.playCount || p.stats?.playCount || 0), 0) / postItems.length);
+                avgLikes = Math.round(postItems.reduce((s: number, p: any) => s + (p.diggCount || p.stats?.diggCount || 0), 0) / postItems.length);
+                avgComments = Math.round(postItems.reduce((s: number, p: any) => s + (p.commentCount || p.stats?.commentCount || 0), 0) / postItems.length);
+            }
+
+            // Compute engagementRate: use post averages if available, else estimate from totalLikes/followers
+            let engagementRate = 0;
+            if (followers > 0) {
+                if (avgLikes > 0 || avgComments > 0) {
+                    engagementRate = parseFloat((((avgLikes + avgComments) / followers) * 100).toFixed(2));
+                } else if (totalLikes > 0 && totalPosts > 0) {
+                    // Fallback: use totalLikes per post as proxy
+                    const avgLikesEstimate = totalLikes / totalPosts;
+                    engagementRate = parseFloat(((avgLikesEstimate / followers) * 100).toFixed(2));
+                }
+            }
+
             metrics = {
-                followers: userData?.authorMeta?.fans || 0,
-                following: userData?.authorMeta?.following || 0,
-                totalLikes: userData?.authorMeta?.heart || 0,
-                totalPosts: userData?.authorMeta?.video || 0,
-                avgViews: 0,
-                avgLikes: 0,
-                avgComments: 0,
-                engagementRate: 0
+                followers,
+                following,
+                totalLikes,
+                totalPosts,
+                avgViews,
+                avgLikes,
+                avgComments,
+                engagementRate
             };
-            profilePic = userData?.authorMeta?.avatar || '';
+            profilePic = profileMeta.avatar || profileMeta.profilePicUrl || '';
 
         } else if (normalizedPlatform === 'instagram') {
             // Note: If instagram scraper is taking too long or failing, we might mock for testing.
@@ -244,6 +277,23 @@ export const verifyConnection = async (req: Request, res: Response): Promise<voi
             user.profilePicture = profilePic;
         }
 
+        if (!user.connectedAccounts) {
+            user.connectedAccounts = {};
+        }
+
+        user.connectedAccounts[normalizedPlatform] = {
+            connected: true,
+            verified: true,
+            username: cleanUsername,
+            displayName: cleanUsername,
+            profilePicture: profilePic,
+            metrics,
+            verifiedBadge: false,
+            lastSynced: new Date(),
+            connectedAt: new Date()
+        };
+        user.markModified('connectedAccounts');
+
         await user.save();
 
         res.status(200).json({ success: true, data: newProfile });
@@ -286,7 +336,33 @@ export const disconnectPlatform = async (req: Request, res: Response): Promise<v
             }
         }
 
+        // Remove from legacy socialProfiles array
         user.socialProfiles = user.socialProfiles.filter((p: any) => p.platform.toLowerCase() !== platform.toLowerCase());
+
+        // Also update the new root-level connectedAccounts
+        const normalizedPlatform = platform.toLowerCase();
+        if (user.connectedAccounts && user.connectedAccounts[normalizedPlatform]) {
+            user.connectedAccounts[normalizedPlatform] = {
+                connected: false,
+                verified: false,
+                username: undefined,
+                displayName: undefined,
+                bio: undefined,
+                profilePicture: undefined,
+                metrics: undefined,
+                verifiedBadge: false,
+                lastSynced: undefined,
+                connectedAt: undefined
+            };
+            user.markModified('connectedAccounts');
+        }
+
+        // If it's facebook, also clear legacy fields
+        if (normalizedPlatform === 'facebook') {
+            user.facebook = undefined;
+            user.facebookConnected = false;
+        }
+
         await user.save();
 
         res.status(200).json({

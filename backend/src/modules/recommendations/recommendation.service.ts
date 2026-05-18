@@ -1,5 +1,6 @@
 import User from '../../database/models/User';
 import Opportunity from '../../database/models/Opportunity';
+import Application from '../../database/models/Application';
 import logger from '../../utils/logger';
 import { extractMetrics, normalizeEngagementRate } from '../../utils/metrics';
 
@@ -262,7 +263,7 @@ export const getRecommendationsForUser = async (userId: string): Promise<Recomme
         const opportunities = await Opportunity.find({
             status: 'open',
         })
-            .populate('businessOwner', 'firstName lastName profilePicture username')
+            .populate('businessOwner', 'firstName lastName profilePicture username averageRating totalReviews')
             .lean();
 
         for (const opp of opportunities) {
@@ -276,6 +277,9 @@ export const getRecommendationsForUser = async (userId: string): Promise<Recomme
                 },
                 opp.requirements?.location
             );
+
+            // Fetch the actual count of applications submitted for this opportunity
+            const applicantCount = await Application.countDocuments({ opportunity: opp._id });
 
             const owner = opp.businessOwner as any;
             results.push({
@@ -293,10 +297,14 @@ export const getRecommendationsForUser = async (userId: string): Promise<Recomme
                     deadline: opp.deadline,
                     tags: opp.tags,
                     requirements: opp.requirements,
+                    createdAt: opp.createdAt,
+                    applicants: Array(applicantCount).fill({}), // Map counts to a dummy array of identical size so frontend maps length
                     businessOwner: owner ? {
                         name: `${owner.firstName || ''} ${owner.lastName || ''}`.trim(),
                         profilePicture: owner.profilePicture,
                         username: owner.username,
+                        averageRating: owner.averageRating || 0,
+                        totalReviews: owner.totalReviews || 0,
                     } : undefined,
                 },
             });
