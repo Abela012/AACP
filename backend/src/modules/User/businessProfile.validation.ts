@@ -49,10 +49,5 @@ export const validateBusinessProfileSubmit = (body: Record<string, unknown>): Va
         return { valid: false, message: 'Select at least one marketing platform.' };
     }
 
-    const completion = (profileData.profileCompletion || {}) as Record<string, unknown>;
-    if (completion.percent != null && Number(completion.percent) < 70) {
-        return { valid: false, message: 'Complete at least 70% of your profile before submitting.' };
-    }
-
     return { valid: true };
 };

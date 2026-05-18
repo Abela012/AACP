@@ -297,8 +297,46 @@ export const submitProfileForReview = async (
       }
       user.set(updates);
     } else if (isAlreadyApproved) {
-      // 🚀 For approved users: don't lock them out. Keep status as is.
-      // Store all root field changes in pendingUpdates
+      if (user.role === "business_owner") {
+        const validation = validateBusinessProfileSubmit({
+          ...req.body,
+          profileData: req.body.profileData,
+        });
+        if (!validation.valid) {
+          res.status(400).json({ message: validation.message });
+          return;
+        }
+
+        const needsReview = hasRequiredBusinessFieldChanges(user, req.body);
+
+        if (!needsReview) {
+          for (const key of ALLOWED_FIELDS) {
+            if (key !== "profileData" && req.body[key] !== undefined) {
+              (user as any)[key] = req.body[key];
+            }
+          }
+
+          if (req.body.profileData && typeof req.body.profileData === "object") {
+            user.profileData = mergeProfileData(
+              (user.profileData || {}) as Record<string, unknown>,
+              req.body.profileData as Record<string, unknown>
+            );
+            user.markModified("profileData");
+          }
+
+          const updatedUser = await user.save();
+          const userResponse = updatedUser.toObject();
+          delete (userResponse as any).__v;
+
+          res.status(200).json({
+            message: "Profile updated successfully",
+            user: userResponse,
+            appliedDirectly: true,
+          });
+          return;
+        }
+      }
+
       const rootUpdates: Record<string, unknown> = {};
       for (const key of ALLOWED_FIELDS) {
         if (key !== "profileData" && key !== "socialProfiles" && req.body[key] !== undefined) {
