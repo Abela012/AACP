@@ -6,6 +6,11 @@ const num = (v: string) => {
   return Number.isFinite(n) ? n : undefined;
 };
 
+const optStr = (v: string) => {
+  const t = v.trim();
+  return t || null;
+};
+
 /** Builds nested profileData for API while keeping legacy flat keys for compatibility. */
 export const buildProfilePayload = (form: BusinessOnboardingForm) => {
   const completion = computeCompletion(form);
@@ -13,25 +18,23 @@ export const buildProfilePayload = (form: BusinessOnboardingForm) => {
   const minEng = Math.min(50, Math.max(0, parseFloat(form.minEngagementPercent) || 0));
 
   const businessProfile = {
-    businessCategory: form.businessCategory,
+    businessCategory: form.businessCategory || null,
     businessTags: form.businessTags,
     priceRange: form.priceRange,
-    businessAgeYears: num(form.businessAgeYears),
-    brandPopularityScore: form.brandPopularityScore,
-    openingHours: form.openingHours.trim(),
+    businessAgeYears: num(form.businessAgeYears) ?? null,
+    openingHours: optStr(form.openingHours),
   };
 
   const capacity = {
-    seatingCapacity: num(form.seatingCapacity),
-    dailyCustomerCapacity: num(form.dailyCustomerCapacity),
+    dailyCustomerCapacity: num(form.dailyCustomerCapacity) ?? null,
   };
 
   const financialData = {
-    averageOrderValue: avgOrder,
+    averageOrderValue: avgOrder ?? null,
     profitMarginPercentage: form.profitMarginPercentage,
-    averageDailyCustomers: num(form.averageDailyCustomers),
-    averageMonthlyRevenue: num(form.averageMonthlyRevenue),
-    averageMonthlyProfit: num(form.averageMonthlyProfit),
+    averageDailyCustomers: num(form.averageDailyCustomers) ?? null,
+    averageMonthlyRevenue: num(form.averageMonthlyRevenue) ?? null,
+    averageMonthlyProfit: num(form.averageMonthlyProfit) ?? null,
   };
 
   const targetAudience = {
@@ -39,7 +42,7 @@ export const buildProfilePayload = (form: BusinessOnboardingForm) => {
     ageRange: form.audienceAgeRanges,
     locations: form.audienceLocations,
     interests: form.audienceInterests,
-    incomeLevel: form.incomeLevel,
+    incomeLevel: form.incomeLevel || null,
   };
 
   const marketingGoals = form.marketingGoals;
@@ -47,15 +50,15 @@ export const buildProfilePayload = (form: BusinessOnboardingForm) => {
   const marketingHistory = {
     hasRunAdsBefore: form.hasRunAdsBefore,
     pastPlatforms: form.pastPlatforms,
-    notes: form.marketingHistoryNotes.trim(),
-    monthlyAdSpendETB: num(form.monthlyAdSpendETB),
+    notes: optStr(form.marketingHistoryNotes),
+    monthlyAdSpendETB: num(form.monthlyAdSpendETB) ?? null,
   };
 
   const customerAnalytics = {
     repeatCustomerRate: form.repeatCustomerRate,
     topCustomerSegments: form.topCustomerSegments,
     peakHours: form.peakHours,
-    seasonalNotes: form.seasonalNotes.trim(),
+    seasonalNotes: optStr(form.seasonalNotes),
   };
 
   const profileCompletion = {
@@ -73,13 +76,13 @@ export const buildProfilePayload = (form: BusinessOnboardingForm) => {
 
   return {
     businessName: form.businessName.trim(),
-    website: form.websiteUrl.trim(),
-    industry: form.businessCategory,
-    category: form.businessCategory,
-    niche: form.businessCategory,
-    bio: form.brandDescription.trim(),
+    website: optStr(form.websiteUrl),
+    industry: form.businessCategory || null,
+    category: form.businessCategory || null,
+    niche: form.businessCategory || null,
+    bio: optStr(form.brandDescription),
     businessLocation: form.businessLocation.trim(),
-    servicesOffered: form.servicesOffered.trim(),
+    servicesOffered: optStr(form.servicesOffered),
     companySize: form.companySize,
     targetAudienceTags: form.businessTags,
     targetAudienceAgeRanges: form.audienceAgeRanges,
@@ -87,15 +90,14 @@ export const buildProfilePayload = (form: BusinessOnboardingForm) => {
     currency: 'ETB',
     budget: form.maxSpendPerPostETB,
     minEngagement: minEng,
-    avgOrderValueETB: avgOrder,
-    brandVoice: form.brandVoice,
+    avgOrderValueETB: avgOrder ?? null,
     primaryKpis: form.primaryKpis,
     selectedPlatforms: form.selectedPlatforms,
     tradeLicenseUrl: form.tradeLicenseUrl,
     promotionGoals: form.marketingGoals,
     preferredPromotionTypes: form.preferredPromotionTypes,
     preferredPromoterTypes: form.preferredPromoterTypes,
-    promotersNeededCount: form.promotersNeededCount.trim(),
+    promotersNeededCount: optStr(form.promotersNeededCount),
     phone: form.phone.trim(),
     businessProfile,
     capacity,

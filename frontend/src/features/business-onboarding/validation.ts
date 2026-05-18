@@ -20,12 +20,8 @@ export const validateStep = (step: number, form: BusinessOnboardingForm): StepVa
       break;
     case 2:
       req(form.businessCategory, 'businessCategory', errors);
-      if (!form.brandDescription.trim()) errors.brandDescription = 'Add a short brand description';
       break;
     case 3:
-      if (!form.dailyCustomerCapacity && !form.seatingCapacity) {
-        errors.dailyCustomerCapacity = 'Enter seating or daily customer capacity';
-      }
       break;
     case 4:
       if (!form.averageOrderValue.trim()) errors.averageOrderValue = 'Average order value is required';

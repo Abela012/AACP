@@ -37,7 +37,6 @@ import {
   PLATFORM_OPTIONS,
   MARKETING_GOALS,
   KPI_OPTIONS,
-  BRAND_VOICE_OPTIONS,
   PROMOTION_TYPES,
   PROMOTER_TYPES,
   PEAK_HOURS,
@@ -47,6 +46,7 @@ import {
   MONTHLY_BUDGET_STEP_ETB,
   formatBirr,
 } from './constants';
+import ReviewSummary from './ReviewSummary';
 import CompletionProgress from '@/src/components/onboarding/CompletionProgress';
 import SectionCard from '@/src/components/onboarding/SectionCard';
 import FormField, { inputClass } from '@/src/components/onboarding/FormField';
@@ -56,13 +56,19 @@ import CurrencyInput from '@/src/components/onboarding/CurrencyInput';
 
 type Props = {
   isInsideDashboard?: boolean;
+  mode?: 'onboarding' | 'edit';
 };
 
-export default function BusinessOnboardingWizard({ isInsideDashboard }: Props) {
+export default function BusinessOnboardingWizard({ isInsideDashboard, mode = 'onboarding' }: Props) {
   const navigate = useNavigate();
   const api = useApiClient();
   const { setOnboardingStatus } = useUser();
-  const { refreshProfile } = useProfile();
+  const { profile, refreshProfile } = useProfile();
+  const isApproved =
+    profile?.status === 'active' ||
+    profile?.status === 'approved' ||
+    (profile as { onboardingStatus?: string })?.onboardingStatus === 'approved';
+  const isEditMode = mode === 'edit' || isApproved;
   const { form, patch, completion, hydrated } = useBusinessOnboarding();
   const [step, setStep] = useState(1);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -118,24 +124,37 @@ export default function BusinessOnboardingWizard({ isInsideDashboard }: Props) {
       setStep(1);
       return;
     }
-    if (completion.percent < 70) {
-      toast.error('Profile should be at least 70% complete before submission.');
-      return;
-    }
     setIsSubmitting(true);
     try {
       const profileData = buildProfilePayload(form);
-      await userApi.submitProfile(api, {
+      const body = {
         firstName: form.firstName,
         lastName: form.lastName,
         profilePicture: form.profilePicture,
-        bio: form.brandDescription,
+        bio: form.brandDescription.trim() || undefined,
         location: form.businessLocation,
         tradeLicenseUrl: form.tradeLicenseUrl,
         profileData,
-      });
-      setSubmitted(true);
+      };
+
+      const res = await userApi.submitProfile(api, body);
+      const payload = (res.data as { data?: { appliedDirectly?: boolean }; appliedDirectly?: boolean })?.data ?? res.data;
+      const appliedDirectly = payload?.appliedDirectly === true;
+
       await refreshProfile();
+
+      if (appliedDirectly) {
+        toast.success('Profile saved successfully.');
+        if (isEditMode) {
+          navigate('/profile/view/business');
+          return;
+        }
+      } else if (isApproved) {
+        toast.success('Changes submitted — admin will review updates to required fields.');
+        return;
+      }
+
+      setSubmitted(true);
     } catch {
       toast.error('Submission failed. Please try again.');
     } finally {
@@ -191,7 +210,9 @@ export default function BusinessOnboardingWizard({ isInsideDashboard }: Props) {
       {!isInsideDashboard && (
         <header className="text-center pt-8 pb-4 px-4 max-w-3xl mx-auto">
           <p className="text-sm font-bold text-gray-500 mb-1">AACP Business Onboarding</p>
-          <h1 className="text-3xl font-black text-emerald-600">AI-ready business profile</h1>
+          <h1 className="text-3xl font-black text-emerald-600">
+            {isEditMode ? 'Business profile' : 'AI-ready business profile'}
+          </h1>
           <p className="text-sm text-gray-500 mt-2 max-w-lg mx-auto">
             Structured data helps us predict campaign performance, audience match, and ROI in Ethiopian Birr (ETB).
           </p>
@@ -199,6 +220,14 @@ export default function BusinessOnboardingWizard({ isInsideDashboard }: Props) {
       )}
 
       <div className="max-w-3xl mx-auto px-4 pb-32 space-y-6">
+        <div className="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-100 dark:border-emerald-500/20 text-sm text-gray-700 dark:text-gray-300">
+          <p className="font-bold text-emerald-800 dark:text-emerald-300 mb-1">Better data, better AI insights</p>
+          <p>
+            The more you complete your profile, the more accurate our campaign suggestions and performance
+            predictions will be. Optional sections can be filled anytime — empty fields are saved as blank.
+          </p>
+        </div>
+
         <CompletionProgress step={step} completion={completion} onStepClick={setStep} />
 
         <div className="flex items-center gap-2 text-xs text-gray-500">
@@ -361,26 +390,13 @@ export default function BusinessOnboardingWizard({ isInsideDashboard }: Props) {
                     ))}
                   </select>
                 </FormField>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <FormField label="Years in business" example="3">
-                    <input className={inputClass} value={form.businessAgeYears} onChange={(e) => patch('businessAgeYears', e.target.value)} placeholder="5" />
-                  </FormField>
-                  <FormField label="Brand popularity (1–10)" helper="Local awareness of your brand.">
-                    <input
-                      type="range"
-                      min={1}
-                      max={10}
-                      value={form.brandPopularityScore}
-                      onChange={(e) => patch('brandPopularityScore', Number(e.target.value))}
-                      className="w-full accent-emerald-500"
-                    />
-                    <p className="text-xs text-center font-bold text-emerald-600">{form.brandPopularityScore}/10</p>
-                  </FormField>
-                </div>
-                <FormField label="Opening hours" example="Mon–Sat 7:00–22:00" required error={errors.openingHours}>
+                <FormField label="Years in business" example="3">
+                  <input className={inputClass} value={form.businessAgeYears} onChange={(e) => patch('businessAgeYears', e.target.value)} placeholder="5" />
+                </FormField>
+                <FormField label="Opening hours (optional)" example="Mon–Sat 7:00–22:00">
                   <input className={inputClass} value={form.openingHours} onChange={(e) => patch('openingHours', e.target.value)} />
                 </FormField>
-                <FormField label="Brand description" helper="What makes your business unique?" required error={errors.brandDescription}>
+                <FormField label="Brand description (optional)" helper="What makes your business unique? Helps AI tailor suggestions.">
                   <textarea
                     className={inputClass + ' min-h-[100px]'}
                     value={form.brandDescription}
@@ -398,11 +414,8 @@ export default function BusinessOnboardingWizard({ isInsideDashboard }: Props) {
             )}
 
             {step === 3 && (
-              <SectionCard icon={<BarChart3 size={20} />} title="Capacity & operations">
-                <FormField label="Seating capacity" helper="Maximum seats at one time." example="40">
-                  <input className={inputClass} value={form.seatingCapacity} onChange={(e) => patch('seatingCapacity', e.target.value)} placeholder="40" />
-                </FormField>
-                <FormField label="Daily customer capacity" helper="Typical customers served per day." example="120" error={errors.dailyCustomerCapacity}>
+              <SectionCard icon={<BarChart3 size={20} />} title="Capacity & operations" description="Optional — improves operational insights">
+                <FormField label="Daily customer capacity (optional)" helper="Typical customers served per day." example="120">
                   <input className={inputClass} value={form.dailyCustomerCapacity} onChange={(e) => patch('dailyCustomerCapacity', e.target.value)} placeholder="120" />
                 </FormField>
                 <FormField label="Company size">
@@ -537,15 +550,6 @@ export default function BusinessOnboardingWizard({ isInsideDashboard }: Props) {
                   error={errors.marketingGoals}
                 />
                 <MultiTagSelector label="Primary KPIs" options={KPI_OPTIONS} selected={form.primaryKpis} onChange={(v) => patch('primaryKpis', v)} />
-                <FormField label="Brand voice">
-                  <select className={inputClass} value={form.brandVoice} onChange={(e) => patch('brandVoice', e.target.value)}>
-                    {BRAND_VOICE_OPTIONS.map((v) => (
-                      <option key={v} value={v}>
-                        {v}
-                      </option>
-                    ))}
-                  </select>
-                </FormField>
                 <MultiTagSelector
                   label="Platforms"
                   options={PLATFORM_OPTIONS}
@@ -612,38 +616,43 @@ export default function BusinessOnboardingWizard({ isInsideDashboard }: Props) {
             )}
 
             {step === 8 && (
-              <SectionCard icon={<CheckCircle2 size={20} />} title="Review & finish">
-                {completion.missingSections.length > 0 ? (
+              <SectionCard icon={<CheckCircle2 size={20} />} title="Review & finish" description="Confirm your details before submitting">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm mb-4">
+                  <div className="p-3 rounded-xl bg-gray-50 dark:bg-white/5">
+                    <p className="text-[10px] uppercase text-gray-500 font-bold">Completion</p>
+                    <p className="font-bold text-emerald-600">{completion.percent}%</p>
+                  </div>
+                  <div className="p-3 rounded-xl bg-gray-50 dark:bg-white/5">
+                    <p className="text-[10px] uppercase text-gray-500 font-bold">AI readiness</p>
+                    <p className="font-bold">{completion.aiReadiness}</p>
+                  </div>
+                  <div className="p-3 rounded-xl bg-gray-50 dark:bg-white/5">
+                    <p className="text-[10px] uppercase text-gray-500 font-bold">Data quality</p>
+                    <p className="font-bold">{completion.dataQuality}</p>
+                  </div>
+                  <div className="p-3 rounded-xl bg-gray-50 dark:bg-white/5">
+                    <p className="text-[10px] uppercase text-gray-500 font-bold">Monthly budget</p>
+                    <p className="font-bold">{formatBirr(form.monthlyBudget)}</p>
+                  </div>
+                </div>
+
+                {completion.missingSections.length > 0 && (
                   <div className="mb-4 p-4 rounded-xl bg-amber-50 dark:bg-amber-500/10 border border-amber-200 text-sm">
-                    <p className="font-bold text-amber-800 dark:text-amber-300 mb-2">Missing sections:</p>
+                    <p className="font-bold text-amber-800 dark:text-amber-300 mb-2">
+                      Optional sections you can complete later
+                    </p>
+                    <p className="text-xs text-amber-700 dark:text-amber-400 mb-2">
+                      You can still submit now. Filling these in later will improve AI campaign suggestions.
+                    </p>
                     <ul className="list-disc list-inside text-amber-700 dark:text-amber-400 text-xs space-y-1">
                       {completion.missingSections.map((s) => (
                         <li key={s}>{s}</li>
                       ))}
                     </ul>
                   </div>
-                ) : (
-                  <p className="text-sm text-emerald-600 font-bold mb-4">Your profile is ready for review.</p>
                 )}
-                <div className="grid grid-cols-2 gap-3 text-sm">
-                  <div className="p-3 rounded-xl bg-gray-50 dark:bg-white/5">
-                    <p className="text-[10px] uppercase text-gray-500 font-bold">Business</p>
-                    <p className="font-bold">{form.businessName}</p>
-                    <p className="text-xs text-gray-500">{form.businessCategory}</p>
-                  </div>
-                  <div className="p-3 rounded-xl bg-gray-50 dark:bg-white/5">
-                    <p className="text-[10px] uppercase text-gray-500 font-bold">Avg. order</p>
-                    <p className="font-bold">{form.averageOrderValue ? `${form.averageOrderValue} ETB` : '—'}</p>
-                  </div>
-                  <div className="p-3 rounded-xl bg-gray-50 dark:bg-white/5">
-                    <p className="text-[10px] uppercase text-gray-500 font-bold">Monthly budget</p>
-                    <p className="font-bold">{formatBirr(form.monthlyBudget)}</p>
-                  </div>
-                  <div className="p-3 rounded-xl bg-gray-50 dark:bg-white/5">
-                    <p className="text-[10px] uppercase text-gray-500 font-bold">AI readiness</p>
-                    <p className="font-bold text-emerald-600">{completion.aiReadiness}</p>
-                  </div>
-                </div>
+
+                <ReviewSummary form={form} />
               </SectionCard>
             )}
           </motion.div>
@@ -676,7 +685,11 @@ export default function BusinessOnboardingWizard({ isInsideDashboard }: Props) {
               disabled={isSubmitting}
               className="px-6 py-2.5 rounded-xl bg-emerald-500 text-black font-bold text-sm"
             >
-              {isSubmitting ? 'Submitting…' : 'Submit for review'}
+              {isSubmitting
+                ? 'Submitting…'
+                : isApproved
+                  ? 'Save profile'
+                  : 'Submit for review'}
             </button>
           )}
         </div>

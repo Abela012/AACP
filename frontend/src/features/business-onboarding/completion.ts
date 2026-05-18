@@ -16,12 +16,14 @@ const SECTION_CHECKS: {
   key: string;
   label: string;
   weight: number;
+  required: boolean;
   test: (f: BusinessOnboardingForm) => boolean;
 }[] = [
   {
     key: 'basic',
     label: 'Basic info',
-    weight: 12,
+    weight: 15,
+    required: true,
     test: (f) =>
       Boolean(
         f.firstName.trim() &&
@@ -35,19 +37,22 @@ const SECTION_CHECKS: {
   {
     key: 'businessProfile',
     label: 'Business profile',
-    weight: 14,
-    test: (f) => Boolean(f.businessCategory && f.brandDescription.trim() && f.openingHours.trim()),
+    weight: 12,
+    required: true,
+    test: (f) => Boolean(f.businessCategory),
   },
   {
     key: 'capacity',
-    label: 'Capacity',
-    weight: 10,
-    test: (f) => Boolean(f.seatingCapacity.trim() || f.dailyCustomerCapacity.trim()),
+    label: 'Capacity & operations',
+    weight: 8,
+    required: false,
+    test: (f) => Boolean(f.dailyCustomerCapacity.trim() || f.companySize),
   },
   {
     key: 'financial',
     label: 'Financials',
     weight: 18,
+    required: true,
     test: (f) =>
       Boolean(
         f.averageOrderValue.trim() &&
@@ -59,6 +64,7 @@ const SECTION_CHECKS: {
     key: 'audience',
     label: 'Target audience',
     weight: 14,
+    required: true,
     test: (f) =>
       f.audienceAgeRanges.length > 0 &&
       f.audienceGender.length > 0 &&
@@ -68,18 +74,21 @@ const SECTION_CHECKS: {
     key: 'marketing',
     label: 'Marketing goals',
     weight: 14,
+    required: true,
     test: (f) => f.marketingGoals.length > 0 && f.selectedPlatforms.length > 0 && f.monthlyBudget >= 5000,
   },
   {
     key: 'analytics',
     label: 'Customer analytics',
     weight: 10,
+    required: false,
     test: (f) => f.peakHours.length > 0 || f.repeatCustomerRate > 0 || f.topCustomerSegments.length > 0,
   },
   {
     key: 'history',
     label: 'Marketing history',
-    weight: 8,
+    weight: 9,
+    required: false,
     test: (f) => f.hasRunAdsBefore === false || f.pastPlatforms.length > 0 || Boolean(f.marketingHistoryNotes.trim()),
   },
 ];
@@ -103,7 +112,9 @@ export const computeCompletion = (form: BusinessOnboardingForm): CompletionRepor
   }
 
   const percent = totalWeight ? Math.round((earned / totalWeight) * 100) : 0;
-  const missingSections = SECTION_CHECKS.filter((s) => !sections[s.key]).map((s) => s.label);
+  const missingSections = SECTION_CHECKS.filter((s) => !s.required && !sections[s.key]).map(
+    (s) => s.label
+  );
 
   const aiScore = Math.min(
     100,
@@ -115,7 +126,8 @@ export const computeCompletion = (form: BusinessOnboardingForm): CompletionRepor
       (form.marketingGoals.length ? 15 : 0) +
       (form.selectedPlatforms.length ? 10 : 0) +
       (form.businessCategory ? 10 : 0) +
-      (form.peakHours.length ? 5 : 0)
+      (form.peakHours.length ? 5 : 0) +
+      (form.brandDescription.trim().length >= 40 ? 10 : 0)
   );
 
   const qualityScore = Math.min(
@@ -125,8 +137,7 @@ export const computeCompletion = (form: BusinessOnboardingForm): CompletionRepor
       (form.openingHours.trim() ? 10 : 0) +
       (form.averageDailyCustomers.trim() ? 15 : 0) +
       (form.incomeLevel ? 10 : 0) +
-      (form.brandVoice ? 10 : 0) +
-      (form.tradeLicenseUrl ? 20 : 0)
+      (form.tradeLicenseUrl ? 30 : 0)
   );
 
   return {
