@@ -1,7 +1,6 @@
 import { useSignIn } from "@clerk/clerk-react";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { startTikTokOAuth } from "./useTikTokAuth";
 
 type SecondFactorStrategy = "email_code" | "phone_code" | "totp";
 
@@ -178,15 +177,6 @@ export const useLogin = () => {
         }
     };
 
-    const handleTikTokAuth = () => {
-        setError(null);
-        if (!role) {
-            setError("Please select a role (Business or Advertiser) before continuing with TikTok.");
-            return;
-        }
-        startTikTokOAuth('signin', role);
-    };
-
     return {
         emailAddress,
         setEmailAddress,
@@ -200,7 +190,6 @@ export const useLogin = () => {
         setRole,
         onSignInPress,
         handleSocialAuth,
-        handleTikTokAuth,
         status,
         verificationCode,
         setVerificationCode,

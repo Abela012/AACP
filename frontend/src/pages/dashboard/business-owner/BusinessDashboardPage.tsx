@@ -48,6 +48,7 @@ import {
 import OnboardingBanner from '@/src/shared/components/OnboardingBanner';
 import { cn } from '@/src/shared/utils/cn';
 import { useUser } from '@/src/shared/context/UserContext';
+import { useProfile } from '@/src/shared/context/ProfileContext';
 import BusinessLayout from '@/src/shared/components/layouts/BusinessLayout';
 import BusinessCompleteProfilePage from '../../profile/complete-profile/BusinessCompleteProfilePage';
 import PendingApprovalState from '@/src/shared/components/PendingApprovalState';
@@ -91,7 +92,8 @@ export default function BusinessDashboardPage() {
   const navigate = useNavigate();
   const { onboardingStatus } = useUser();
   const { user: clerkUser } = useClerkUser();
-  const myId = clerkUser?.id ?? '';
+  const { profile } = useProfile();
+  const myId = profile?._id || clerkUser?.id || '';
   const { sync, isLoading: isSyncing } = useUserSync();
   const isApproved = onboardingStatus === 'approved';
 

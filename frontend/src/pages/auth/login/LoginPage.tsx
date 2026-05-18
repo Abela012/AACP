@@ -4,7 +4,6 @@ import { Eye, EyeOff, Briefcase, Megaphone } from "lucide-react";
 import { useLogin } from "../../../hooks/useLogin";
 import FacebookIcon from "../../../assets/Facebook.png";
 import GoogleIcon from "../../../assets/google.webp";
-import TiktokIcon from "../../../assets/tiktok.jpeg";
 
 export default function LoginForm() {
     const {
@@ -19,7 +18,6 @@ export default function LoginForm() {
         setRole,
         onSignInPress,
         handleSocialAuth,
-        handleTikTokAuth,
         verificationCode,
         setVerificationCode,
         onVerifySecondFactor,
@@ -195,7 +193,7 @@ export default function LoginForm() {
                 </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 gap-3">
                 <button
                     type="button"
                     onClick={() => handleSocialAuth("oauth_facebook")}
@@ -203,14 +201,6 @@ export default function LoginForm() {
                     className="flex h-12 items-center justify-center rounded-xl border border-gray-100 bg-white transition-all hover:bg-gray-50 active:scale-95 disabled:opacity-50 shadow-sm"
                 >
                     <img src={FacebookIcon} alt="Facebook" className="h-6 w-6 object-contain" />
-                </button>
-                <button
-                    type="button"
-                    onClick={handleTikTokAuth}
-                    disabled={loading}
-                    className="flex h-12 items-center justify-center rounded-xl border border-gray-100 bg-white transition-all hover:bg-gray-50 active:scale-95 disabled:opacity-50 shadow-sm"
-                >
-                    <img src={TiktokIcon} alt="TikTok" className="h-6 w-6 object-contain rounded" />
                 </button>
                 <button
                     type="button"

@@ -10,34 +10,49 @@ export type CoinPack = {
   popular?: boolean;
 };
 
+/** ETB price → coins credited (must match backend COIN_PACK_CATALOG). */
 export const COIN_PACKS: Record<CoinPackId, CoinPack> = {
   starter: {
     id: 'starter',
     title: 'Starter',
-    priceEtb: 10,
+    priceEtb: 50,
     coins: 100,
-    features: ['Standard access to all modules', 'No expiration on coins'],
+    features: [
+      '100 coins added to your wallet',
+      'Enough for 2 campaign applications (50 coins each)',
+      'Coins do not expire',
+    ],
   },
   popular: {
     id: 'popular',
     title: 'Popular',
-    priceEtb: 45,
+    priceEtb: 200,
     coins: 500,
-    save: 'Save 10%',
+    save: 'Best value',
     popular: true,
-    features: ['Priority customer support', 'Bonus resource downloads'],
+    features: [
+      '500 coins added to your wallet',
+      'Enough for 10 campaign applications',
+      'Same rate as Starter — lowest cost per coin',
+    ],
   },
   pro: {
     id: 'pro',
     title: 'Pro',
-    priceEtb: 80,
+    priceEtb: 400,
     coins: 1000,
-    save: 'Save 20%',
-    features: ['Unlock all premium features', 'Lifetime account verification'],
+    save: 'Scale up',
+    features: [
+      '1,000 coins added to your wallet',
+      'Enough for 20 campaign applications',
+      'Ideal for active businesses and creators',
+    ],
   },
 };
 
 export const COIN_PACK_LIST = Object.values(COIN_PACKS);
+
+export const APPLICATION_COIN_COST = 50;
 
 /** Format Ethiopian Birr for display (Chapa charges ETB). */
 export const formatBirr = (amount: number, options?: { decimals?: boolean }) => {

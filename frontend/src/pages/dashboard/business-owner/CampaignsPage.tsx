@@ -18,13 +18,15 @@ import { cn } from '@/src/shared/utils/cn';
 import BusinessLayout from '@/src/shared/components/layouts/BusinessLayout';
 
 import { useUser as useClerkUser } from '@clerk/clerk-react';
+import { useProfile } from '@/src/shared/context/ProfileContext';
 import { useMyOpportunities } from '@/src/hooks/useOpportunities';
 import { type Opportunity } from '@/src/api/opportunityApi';
 
 export default function CampaignsPage() {
   const navigate = useNavigate();
   const { user: clerkUser } = useClerkUser();
-  const myId = clerkUser?.id ?? '';
+  const { profile } = useProfile();
+  const myId = profile?._id || clerkUser?.id || '';
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('All Status');
 

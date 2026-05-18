@@ -1,11 +1,10 @@
 import { AuthenticateWithRedirectCallback, useAuth } from '@clerk/clerk-react'
-import { Routes, Route, Navigate } from 'react-router-dom'
+import { Routes, Route, Navigate, useParams } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
 import AuthLayout from './pages/auth/AuthLayout'
 import LoginPage from './pages/auth/login/LoginPage'
 import RegisterPage from './pages/auth/register/RegisterPage'
 import ForgotPasswordPage from './pages/auth/forgot-password/ForgotPasswordPage'
-import TikTokAuthCompletePage from './pages/auth/tiktok/TikTokAuthCompletePage'
 import RoleDashboardRedirectPage from './pages/dashboard/RoleDashboardRedirectPage'
 import BusinessDashboardPage from './pages/dashboard/business-owner/BusinessDashboardPage'
 import AdvertiserDashboardPage from './pages/dashboard/advertiser/AdvertiserDashboardPage'
@@ -35,7 +34,6 @@ import SuperAdminDashboardPage from './pages/dashboard/super-admin/SuperAdminDas
 import AdminUsersPage from './pages/admin/users/AdminUsersPage'
 import AdminUserDetailPage from './pages/admin/users/AdminUserDetailPage'
 import AdminSuspendedUserPage from './pages/admin/users/AdminSuspendedUserPage'
-import UserApprovalPage from './pages/admin/user-approval/UserApprovalPage'
 import AdminPaymentsPage from './pages/admin/payments/AdminPaymentsPage'
 import AdminAnalyticsPage from './pages/admin/analytics/AdminAnalyticsPage'
 import AdminSettingsPage from './pages/admin/settings/AdminSettingsPage'
@@ -83,10 +81,15 @@ const GuestGuard = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
+function AdminVerificationRedirect() {
+  const { id } = useParams()
+  return <Navigate to={id ? `/admin/users/${id}?review=1` : '/admin/users'} replace />
+}
+
 function App() {
   return (
     <>
-      <Toaster />
+      <Toaster position="top-center" toastOptions={{ duration: 6000 }} />
       <Routes>
         {/* Public Routes */}
         <Route
@@ -117,14 +120,6 @@ function App() {
                 <ForgotPasswordPage />
               </AuthLayout>
             </GuestGuard>
-          }
-        />
-        <Route
-          path="/auth/tiktok/complete"
-          element={
-            <AuthLayout>
-              <TikTokAuthCompletePage />
-            </AuthLayout>
           }
         />
         <Route
@@ -277,7 +272,7 @@ function App() {
           element={
             <AuthGuard>
               <RoleGuard allowedRoles={['business_owner']}>
-                <EditProfilePage />
+                <BusinessCompleteProfilePage mode="edit" />
               </RoleGuard>
             </AuthGuard>
           }
@@ -455,7 +450,7 @@ function App() {
         <Route path="/admin/users/:id" element={<AuthGuard><RoleGuard allowedRoles={['admin']}><AdminUserDetailPage /></RoleGuard></AuthGuard>} />
         <Route path="/admin/users/:id/suspended" element={<AuthGuard><RoleGuard allowedRoles={['admin']}><AdminSuspendedUserPage /></RoleGuard></AuthGuard>} />
         <Route path="/admin/verification" element={<Navigate to="/admin/users" replace />} />
-        <Route path="/admin/verification/:id" element={<AuthGuard><RoleGuard allowedRoles={['admin']}><UserApprovalPage /></RoleGuard></AuthGuard>} />
+        <Route path="/admin/verification/:id" element={<AuthGuard><RoleGuard allowedRoles={['admin']}><AdminVerificationRedirect /></RoleGuard></AuthGuard>} />
         <Route path="/admin/payments" element={<AuthGuard><RoleGuard allowedRoles={['admin']}><AdminPaymentsPage /></RoleGuard></AuthGuard>} />
         <Route path="/admin/analytics" element={<AuthGuard><RoleGuard allowedRoles={['admin']}><AdminAnalyticsPage /></RoleGuard></AuthGuard>} />
         <Route path="/admin/settings" element={<AuthGuard><RoleGuard allowedRoles={['admin']}><AdminSettingsPage /></RoleGuard></AuthGuard>} />
