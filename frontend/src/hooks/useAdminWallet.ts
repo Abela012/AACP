@@ -2,7 +2,11 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useApiClient } from '../api/apiClient';
 import { adminApi } from '../api/adminApi';
 
-export const useAdminWalletRequests = (params?: { status?: string; search?: string }) => {
+export const useAdminWalletRequests = (params?: {
+    status?: string;
+    search?: string;
+    channel?: 'manual' | 'chapa';
+}) => {
     const api = useApiClient();
     return useQuery({
         queryKey: ['adminWalletRequests', params],

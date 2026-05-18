@@ -18,7 +18,7 @@ export default function BusinessCheckoutPage() {
       <main className="max-w-[1200px] mx-auto px-4 sm:px-6 py-8 md:py-12">
         <ChapaCheckoutPanel
           packDetails={packDetails}
-          returnUrl="/balance"
+          returnUrl="/wallet"
           buyCoinsPath="/business/buy-coins"
         />
       </main>

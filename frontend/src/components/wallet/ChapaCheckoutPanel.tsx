@@ -1,15 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import {
-  ArrowLeft,
-  Zap,
-  ShieldCheck,
-  Info,
-  Coins,
-  Smartphone,
-  CreditCard,
-  Loader2,
-} from 'lucide-react';
+import { ArrowLeft, Zap, Info, Coins, ShieldCheck, Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { walletApi } from '@/src/api/walletApi';
 import { useApiClient } from '@/src/api/apiClient';
@@ -48,6 +39,14 @@ export default function ChapaCheckoutPanel({ packDetails, returnUrl, buyCoinsPat
       const pkg = response.data?.data;
       if (pkg?.txRef) {
         sessionStorage.setItem(CHAPA_PENDING_TX_KEY, pkg.txRef);
+        sessionStorage.setItem(
+          'chapa_pending_pack',
+          JSON.stringify({
+            coins: packDetails.coins,
+            priceEtb: packDetails.price,
+            title: packDetails.title,
+          })
+        );
       }
       const checkoutUrl = pkg?.checkoutUrl;
       if (!checkoutUrl) {
@@ -89,23 +88,6 @@ export default function ChapaCheckoutPanel({ packDetails, returnUrl, buyCoinsPat
         <div className="lg:col-span-3 space-y-6">
           <div className="bg-white dark:bg-[#111] rounded-[2rem] p-6 md:p-10 shadow-sm border border-gray-100 dark:border-white/5">
             <h2 className="text-xl font-bold mb-6 text-gray-900 dark:text-white">Pay with Chapa</h2>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8">
-              {[
-                { icon: Smartphone, label: 'Mobile money', sub: 'Telebirr, M-Pesa & more' },
-                { icon: CreditCard, label: 'Cards', sub: 'Visa & Mastercard' },
-                { icon: ShieldCheck, label: 'Secure', sub: 'Encrypted checkout' },
-              ].map(({ icon: Icon, label, sub }) => (
-                <div
-                  key={label}
-                  className="rounded-2xl border border-gray-100 dark:border-white/10 bg-gray-50/80 dark:bg-white/5 p-4 text-center"
-                >
-                  <Icon className="w-5 h-5 mx-auto mb-2 text-emerald-600 dark:text-emerald-400" />
-                  <p className="text-xs font-bold text-gray-900 dark:text-white">{label}</p>
-                  <p className="text-[10px] text-gray-500 mt-0.5">{sub}</p>
-                </div>
-              ))}
-            </div>
 
             <div className="bg-emerald-50/60 dark:bg-emerald-500/10 border border-emerald-100 dark:border-emerald-500/20 rounded-2xl p-5 mb-6">
               <div className="flex items-center gap-3">

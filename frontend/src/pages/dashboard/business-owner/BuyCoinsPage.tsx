@@ -7,7 +7,7 @@ export default function BuyCoinsPage() {
       <BuyCoinsPanel
         checkoutPath="/business/checkout"
         manualCheckoutPath="/business/manual-checkout"
-        subtitle="Top up your account to access premium features and post more campaigns. Prices are in Ethiopian Birr (ETB)."
+        subtitle="Top up in Ethiopian Birr (ETB). Coins fund your campaigns and marketplace actions on AACP."
       />
     </BusinessLayout>
   );

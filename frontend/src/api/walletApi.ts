@@ -54,9 +54,31 @@ export const walletApi = {
     getHistory: (api: AxiosInstance) =>
         api.get<WalletTransaction[]>('/wallet/transactions'),
 
-    /** POST /wallet/request-coins — User submits a pending coin purchase request */
-    requestCoins: (api: AxiosInstance, data: { coins: number; paymentMethod: string; pricePaid: number }) =>
-        api.post<{ _id: string; status: string; amount: number }>('/wallet/request-coins', data),
+    /** GET /wallet/manual-payment-instructions */
+    getManualPaymentInstructions: (api: AxiosInstance) =>
+        api.get<{
+            bankName: string;
+            accountName: string;
+            accountNumber: string;
+            telebirrMerchantName: string;
+            telebirrNumber: string;
+            processingNote?: string;
+        }>('/wallet/manual-payment-instructions'),
+
+    /** POST /wallet/request-coins — User submits a pending coin purchase request with proof */
+    requestCoins: (
+        api: AxiosInstance,
+        data: { coins: number; paymentMethod: string; pricePaid: number; proof: File }
+    ) => {
+        const form = new FormData();
+        form.append('coins', String(data.coins));
+        form.append('paymentMethod', data.paymentMethod);
+        form.append('pricePaid', String(data.pricePaid));
+        form.append('proof', data.proof);
+        return api.post<{ _id: string; status: string; amount: number }>('/wallet/request-coins', form, {
+            headers: { 'Content-Type': 'multipart/form-data' },
+        });
+    },
 
     /** POST /payments/chapa/initialize — Start Chapa checkout */
     initializeChapaTopup: (

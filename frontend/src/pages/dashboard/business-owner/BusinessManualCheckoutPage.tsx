@@ -3,9 +3,6 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { 
   ArrowLeft, 
   Info,
-  Building2,
-  Smartphone,
-  Copy,
   Check,
   UploadCloud,
   Clock,
@@ -17,7 +14,8 @@ import { cn } from '@/src/shared/utils/cn';
 import BusinessLayout from '@/src/shared/components/layouts/BusinessLayout';
 import { walletApi } from '@/src/api/walletApi';
 import { useApiClient } from '@/src/api/apiClient';
-import { formatBirr } from '@/src/shared/constants/coinPacks';
+import { COIN_PACKS, formatBirr } from '@/src/shared/constants/coinPacks';
+import ManualPaymentInstructions from '@/src/components/wallet/ManualPaymentInstructions';
 
 export default function BusinessManualCheckoutPage() {
   const navigate = useNavigate();
@@ -26,9 +24,9 @@ export default function BusinessManualCheckoutPage() {
   
   // Passed state from the Buy Coins page or fallback
   const packDetails = location.state?.pack || {
-    coins: 500,
-    price: 45.00,
-    title: '500 Coins Package',
+    coins: COIN_PACKS.popular.coins,
+    price: COIN_PACKS.popular.priceEtb,
+    title: `${COIN_PACKS.popular.coins} Coins Package`,
   };
 
   const [copiedField, setCopiedField] = useState<string | null>(null);
@@ -89,6 +87,7 @@ export default function BusinessManualCheckoutPage() {
         coins: packDetails.coins,
         paymentMethod: 'manual-bank-transfer',
         pricePaid: packDetails.price,
+        proof: selectedFile,
       });
       setIsSuccess(true);
     } catch (err) {
@@ -167,68 +166,7 @@ export default function BusinessManualCheckoutPage() {
                 Please transfer the exact amount to one of the accounts below. Once finished, upload a screenshot or photo of your receipt for verification.
               </p>
 
-              {/* Bank Card */}
-              <div className="bg-gray-50 dark:bg-[#222] border border-gray-100 dark:border-white/5 rounded-2xl p-6 mb-4">
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="w-10 h-10 rounded-xl bg-emerald-500 flex items-center justify-center shadow-lg shadow-emerald-500/20">
-                    <Building2 className="text-black w-5 h-5" />
-                  </div>
-                  <h3 className="font-bold text-gray-900 dark:text-white">Bank Transfer</h3>
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4 mb-6">
-                  <div>
-                    <p className="text-xs text-gray-400 dark:text-gray-500 mb-1">Bank Name</p>
-                    <p className="font-bold text-sm text-gray-900 dark:text-white">Commercial Bank of Ethiopia</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-400 dark:text-gray-500 mb-1">Account Name</p>
-                    <p className="font-bold text-sm text-gray-900 dark:text-white">AACP Platform</p>
-                  </div>
-                </div>
-
-                <div>
-                  <p className="text-xs text-gray-400 dark:text-gray-500 mb-1">Account Number</p>
-                  <div className="flex items-center gap-3">
-                    <p className="font-bold text-lg text-emerald-500 tracking-wider">100013456789</p>
-                    <button 
-                      onClick={() => handleCopy('100013456789', 'cbe')}
-                      className="text-gray-400 dark:text-gray-500 hover:text-emerald-500 transition-colors"
-                    >
-                      {copiedField === 'cbe' ? <Check size={16} className="text-emerald-500" /> : <Copy size={16} />}
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              {/* Telebirr Card */}
-              <div className="bg-gray-50 dark:bg-[#222] border border-gray-100 dark:border-white/5 rounded-2xl p-6">
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="w-10 h-10 rounded-xl bg-emerald-500 flex items-center justify-center shadow-lg shadow-emerald-500/20">
-                    <Smartphone className="text-black w-5 h-5" />
-                  </div>
-                  <h3 className="font-bold text-gray-900 dark:text-white">Telebirr</h3>
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4 mb-6">
-                  <div>
-                    <p className="text-xs text-gray-400 dark:text-gray-500 mb-1">Merchant Name</p>
-                    <p className="font-bold text-sm text-gray-900 dark:text-white">AACP Payments</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-400 dark:text-gray-500 mb-1">Telebirr Number</p>
-                    <div className="flex items-center gap-3">
-                      <p className="font-bold text-lg text-emerald-500 tracking-wider">+251 912 345 678</p>
-                      <button 
-                        onClick={() => handleCopy('+251912345678', 'telebirr')}
-                        className="text-gray-400 dark:text-gray-500 hover:text-emerald-500 transition-colors"
-                      >
-                        {copiedField === 'telebirr' ? <Check size={16} className="text-emerald-500" /> : <Copy size={16} />}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <ManualPaymentInstructions copiedField={copiedField} onCopy={handleCopy} />
 
             </div>
 
