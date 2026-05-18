@@ -21,7 +21,11 @@ export const getDashboardStats = async (req: Request, res: Response, next: NextF
             User.countDocuments({ createdAt: { $gte: thirtyDaysAgo } }),
             User.countDocuments({ isVerified: true }),
             User.countDocuments({ status: { $in: ['banned', 'suspended'] } }),
-            Transaction.countDocuments({ status: 'pending' }),
+            Transaction.countDocuments({
+                status: 'pending',
+                type: 'credit',
+                'metadata.requestType': 'manual',
+            }),
         ]);
 
         return success(res, "Dashboard stats retrieved", {
@@ -78,6 +82,7 @@ import {
     updatePlatformSettings,
     isDatabaseConnected,
 } from "../platform/platformSettings.service";
+import { mergeProfileData, sanitizeProfileDataForStorage } from '../../utils/profileDataMerge';
 
 export const getUserById = async (req: Request, res: Response) => {
     try {
@@ -167,29 +172,54 @@ export const banUser = async (req: Request, res: Response) => {
             return res.status(404).json({ error: "User not found" });
         }
         
-        user.status = status;
-        if (status === 'active' || status === 'approved') {
-            // Apply pending root field updates
-            if ((user as any).pendingUpdates) {
-                const pu = (user as any).pendingUpdates;
-                for (const key in pu) {
-                    (user as any)[key] = pu[key];
+        const isApproval = status === 'active' || status === 'approved';
+        if (isApproval) {
+            user.status = 'active';
+            user.isVerified = true;
+
+            const pendingUpdates = (user as any).pendingUpdates;
+            if (pendingUpdates && typeof pendingUpdates === 'object' && Object.keys(pendingUpdates).length > 0) {
+                for (const key of Object.keys(pendingUpdates)) {
+                    const val = pendingUpdates[key];
+                    if (val !== undefined && val !== null) {
+                        (user as any)[key] = val;
+                    }
+                }
+                if (typeof pendingUpdates.tradeLicenseUrl === 'string' && pendingUpdates.tradeLicenseUrl) {
+                    user.tradeLicenseUrl = pendingUpdates.tradeLicenseUrl;
                 }
                 (user as any).pendingUpdates = null;
                 user.markModified('pendingUpdates');
             }
 
-            // Apply pending profileData updates
-            if (user.pendingProfileData) {
-                user.profileData = {
-                    ...(user.profileData || {}),
-                    ...user.pendingProfileData
-                };
+            if (user.pendingProfileData && typeof user.pendingProfileData === 'object') {
+                const pending = user.pendingProfileData as Record<string, unknown>;
+                const merged = mergeProfileData(
+                    (user.profileData || {}) as Record<string, unknown>,
+                    pending
+                );
+                user.profileData = sanitizeProfileDataForStorage(merged) as typeof user.profileData;
+
+                const licenseFromPending =
+                    (typeof pending.tradeLicenseUrl === 'string' && pending.tradeLicenseUrl) ||
+                    (typeof (user.profileData as Record<string, unknown>)?.tradeLicenseUrl === 'string'
+                        ? ((user.profileData as Record<string, unknown>).tradeLicenseUrl as string)
+                        : '');
+                if (licenseFromPending) {
+                    user.tradeLicenseUrl = licenseFromPending;
+                }
+
                 user.pendingProfileData = null;
-                // Mark modified for Mixed type
                 user.markModified('profileData');
                 user.markModified('pendingProfileData');
+            } else if (user.profileData) {
+                user.profileData = sanitizeProfileDataForStorage(
+                    user.profileData as Record<string, unknown>
+                ) as typeof user.profileData;
+                user.markModified('profileData');
             }
+        } else {
+            user.status = status;
         }
         await user.save();
         
@@ -238,8 +268,9 @@ export const banUser = async (req: Request, res: Response) => {
             });
         }
         res.json(user);
-    } catch (error) {
-        res.status(500).json({ error: "Failed to update user status" });
+    } catch (error: any) {
+        console.error('[Admin] banUser failed:', error?.message || error);
+        res.status(500).json({ error: "Failed to update user status", detail: error?.message });
     }
 }
 
@@ -253,8 +284,18 @@ export const getWalletRequests = async (req: Request, res: Response, next: NextF
     try {
         const status = req.query.status as string;
         const search = req.query.search as string;
+        const channel = String(req.query.channel || 'manual').toLowerCase();
 
         const query: any = {};
+
+        if (channel === 'chapa') {
+            query.type = 'payment';
+            query['metadata.provider'] = 'chapa';
+        } else {
+            query.type = 'credit';
+            query['metadata.requestType'] = 'manual';
+        }
+
         if (status && status !== 'All') {
             query.status = status.toLowerCase();
         }
@@ -270,17 +311,28 @@ export const getWalletRequests = async (req: Request, res: Response, next: NextF
                 ? `${user.firstName} ${user.lastName}` 
                 : user.username || user.email || 'Unknown User';
 
+            const meta = t.metadata || {};
+            const isChapa = channel === 'chapa';
+
             return {
                 _id: t._id,
                 userId: user._id,
                 user: userName,
                 role: user.role,
-                type: t.type === 'credit' ? 'Purchase' : 'Withdrawal',
+                type: isChapa ? 'Chapa top-up' : 'Manual purchase',
                 amount: t.amount,
-                value: `${t.amount} AACP`,
+                value: isChapa
+                    ? `${meta.coinsToCredit ?? meta.coinsCredited ?? '—'} coins · ${t.amount} ETB`
+                    : `${t.amount} coins`,
+                coins: isChapa ? (meta.coinsToCredit ?? meta.coinsCredited) : t.amount,
+                priceEtb: isChapa ? t.amount : meta.pricePaid,
+                paymentMethod: meta.paymentMethod,
+                proofUrl: meta.proofUrl,
+                txRef: meta.tx_ref,
                 date: t.createdAt,
                 status: t.status.toUpperCase(),
-                avatar: user.profilePicture
+                avatar: user.profilePicture,
+                channel,
             };
         });
 
