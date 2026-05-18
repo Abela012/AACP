@@ -16,6 +16,7 @@ export interface ProfileData {
   coverImageUrl: string;
   coverImage?: string;
   phone: string;
+  phoneNumber?: string;
   businessLocation?: string;
   companySize?: string;
   targetAudienceTags?: string[];
