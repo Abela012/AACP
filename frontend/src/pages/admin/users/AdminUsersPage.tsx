@@ -50,7 +50,7 @@ export default function AdminUsersPage() {
 
   const handleApprove = (user: AdminUser) => {
     updateStatus.mutate(
-      { userId: user._id, status: 'approved' },
+      { userId: user._id, status: 'active' },
       {
         onSuccess: () => showToast(`${user.firstName} has been approved.`),
         onError: () => showToast('Failed to approve user.', 'error'),
@@ -247,11 +247,11 @@ export default function AdminUsersPage() {
                             >
                               <Eye size={18} />
                             </Link>
-                            {(!user.isVerified || user.pendingProfileData || user.pendingUpdates) && (
+                            {(!user.isVerified || user.pendingProfileData || user.pendingUpdates || user.status === 'pending') && (
                               <Link
-                                to={`/admin/verification/${user._id}`}
+                                to={`/admin/users/${user._id}?review=1`}
                                 className="p-2 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 rounded-xl transition-all text-emerald-500"
-                                title="Review Changes"
+                                title="Review profile for approval"
                               >
                                 <ShieldCheck size={18} />
                               </Link>

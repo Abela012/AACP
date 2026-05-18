@@ -24,13 +24,17 @@ import {
   Globe
 } from 'lucide-react';
 import { FaInstagram, FaTiktok } from 'react-icons/fa6';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useApiClient } from '@/src/api/apiClient';
 import AdminLayout from '@/src/shared/components/layouts/AdminLayout';
+import AdminBusinessProfileReview from '@/src/components/admin/AdminBusinessProfileReview';
+import AdminTradeLicensePreview from '@/src/components/admin/AdminTradeLicensePreview';
 
 export default function AdminUserDetailPage() {
   const { id } = useParams();
+  const [searchParams] = useSearchParams();
+  const isReviewMode = searchParams.get('review') === '1';
   const api = useApiClient();
   const queryClient = useQueryClient();
   const [toast, setToast] = useState<{ show: boolean, message: string, type: 'success' | 'error' }>({ show: false, message: '', type: 'success' });
@@ -53,6 +57,16 @@ export default function AdminUserDetailPage() {
     ...(user.pendingProfileData || {})
   } : null;
 
+  const tradeLicenseUrl =
+    user?.tradeLicenseUrl ||
+    displayUser?.tradeLicenseUrl ||
+    (user?.pendingUpdates as { tradeLicenseUrl?: string } | undefined)?.tradeLicenseUrl ||
+    (user?.pendingProfileData as { tradeLicenseUrl?: string } | undefined)?.tradeLicenseUrl ||
+    (displayProfileData as { tradeLicenseUrl?: string } | null)?.tradeLicenseUrl;
+
+  const isReviewFlow =
+    isReviewMode || hasPendingChanges || user?.status === 'pending';
+
   const updateStatus = useMutation({
     mutationFn: (newStatus: string) => api.put(`/admin/users/${id}/status`, { status: newStatus }),
     onSuccess: (_, vars) => {
@@ -60,8 +74,12 @@ export default function AdminUserDetailPage() {
       queryClient.invalidateQueries({ queryKey: ['adminUsers'] });
       showToast(`User account status updated to ${vars}.`);
     },
-    onError: () => {
-      showToast('Failed to update status', 'error');
+    onError: (err: unknown) => {
+      const msg =
+        (err as { response?: { data?: { detail?: string; error?: string } } })?.response?.data?.detail ||
+        (err as { response?: { data?: { error?: string } } })?.response?.data?.error ||
+        'Failed to update status';
+      showToast(msg, 'error');
     }
   });
 
@@ -121,7 +139,9 @@ export default function AdminUserDetailPage() {
             <ArrowLeft size={20} className="text-[#6F767E]" />
           </Link>
           <div>
-            <h1 className="text-2xl font-black text-[#1A1D1F] dark:text-white leading-none mb-1">User Profile</h1>
+            <h1 className="text-2xl font-black text-[#1A1D1F] dark:text-white leading-none mb-1">
+              {isReviewMode || hasPendingChanges ? 'Review profile' : 'User profile'}
+            </h1>
             <p className="text-xs text-[#6F767E] dark:text-gray-400 font-medium">Viewing details for UID: {id || '8842-XJ92'}</p>
           </div>
         </div>
@@ -132,6 +152,15 @@ export default function AdminUserDetailPage() {
           </div>
         ) : (
           <>
+            {(isReviewMode || hasPendingChanges) && user.role !== 'admin' && user.role !== 'super_admin' && (
+              <div className="mb-8 p-4 rounded-2xl bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 flex items-center gap-3">
+                <AlertCircle size={18} className="text-amber-600 shrink-0" />
+                <p className="text-xs font-bold text-amber-700 dark:text-amber-400">
+                  Review all submitted data and the trade license below, then approve or reject.
+                </p>
+              </div>
+            )}
+
             {/* Top Section: User Summary and Primary Actions */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-8">
           {/* User Info Card */}
@@ -193,27 +222,31 @@ export default function AdminUserDetailPage() {
           {/* Action Boxes */}
           {user.role !== 'admin' && user.role !== 'super_admin' && (
             <div className="lg:col-span-4 flex flex-col gap-6">
-              <button 
-                onClick={handleEditPermissions}
-                className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-[2.5rem] p-8 flex flex-col items-center justify-center gap-4 shadow-lg shadow-emerald-100 dark:shadow-none transition-all group"
-              >
-                <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center">
-                  <Settings2 size={24} />
-                </div>
-                <span className="font-bold">Edit Permissions</span>
-              </button>
-              <div className="grid grid-cols-2 gap-6 flex-1">
-                <button 
-                  onClick={handleResetPassword}
-                  className="bg-[#F0F0FA] dark:bg-white/5 hover:bg-[#E5E5F5] dark:hover:bg-white/10 rounded-[2.5rem] flex flex-col items-center justify-center gap-2 transition-all p-4"
-                >
-                  <History size={20} className="text-emerald-600" />
-                  <span className="text-xs font-bold text-[#1A1D1F] dark:text-white">Reset PW</span>
-                </button>
+              {!isReviewFlow && (
+                <>
+                  <button 
+                    onClick={handleEditPermissions}
+                    className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-[2.5rem] p-8 flex flex-col items-center justify-center gap-4 shadow-lg shadow-emerald-100 dark:shadow-none transition-all group"
+                  >
+                    <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center">
+                      <Settings2 size={24} />
+                    </div>
+                    <span className="font-bold">Edit Permissions</span>
+                  </button>
+                  <button 
+                    onClick={handleResetPassword}
+                    className="bg-[#F0F0FA] dark:bg-white/5 hover:bg-[#E5E5F5] dark:hover:bg-white/10 rounded-[2.5rem] flex flex-col items-center justify-center gap-2 transition-all p-4"
+                  >
+                    <History size={20} className="text-emerald-600" />
+                    <span className="text-xs font-bold text-[#1A1D1F] dark:text-white">Reset PW</span>
+                  </button>
+                </>
+              )}
 
+              <div className={`grid gap-6 flex-1 ${isReviewFlow ? 'grid-cols-1' : 'grid-cols-2'}`}>
                 {user.status === 'pending' ? (
                   <button 
-                    onClick={() => handleStatusChange('approved')}
+                    onClick={() => handleStatusChange('active')}
                     disabled={updateStatus.isPending}
                     className="bg-emerald-50 dark:bg-emerald-500/10 hover:bg-emerald-100 dark:hover:bg-emerald-500/20 rounded-[2.5rem] flex flex-col items-center justify-center gap-2 transition-all p-4 border border-emerald-100 dark:border-emerald-500/20 disabled:opacity-50"
                   >
@@ -222,7 +255,7 @@ export default function AdminUserDetailPage() {
                   </button>
                 ) : (user.status === 'active' || user.status === 'approved') && hasPendingChanges ? (
                     <button 
-                      onClick={() => handleStatusChange('approved')}
+                      onClick={() => handleStatusChange('active')}
                       disabled={updateStatus.isPending}
                       className="bg-amber-50 dark:bg-amber-500/10 hover:bg-amber-100 dark:hover:bg-amber-500/20 rounded-[2.5rem] flex flex-col items-center justify-center gap-2 transition-all p-4 border border-amber-100 dark:border-amber-500/20 disabled:opacity-50"
                     >
@@ -512,8 +545,28 @@ export default function AdminUserDetailPage() {
           </div>
         </div>
 
-        {/* Verification Documents Section */}
         {user.role === 'business_owner' && (
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-8">
+            <div className="lg:col-span-12 bg-white dark:bg-[#111111] p-8 rounded-[3rem] border border-[#EFEFEF] dark:border-white/5 shadow-sm">
+              <div className="flex justify-between items-center mb-8">
+                <h3 className="font-extrabold text-xl">Business profile (submitted for approval)</h3>
+                {hasPendingChanges && (
+                  <span className="px-4 py-1.5 bg-amber-50 dark:bg-amber-500/10 text-amber-600 rounded-full text-[10px] font-black uppercase tracking-widest">
+                    Pending changes
+                  </span>
+                )}
+              </div>
+              <AdminBusinessProfileReview
+                profileData={displayProfileData as Record<string, unknown>}
+                tradeLicenseUrl={tradeLicenseUrl}
+                hasPendingChanges={hasPendingChanges}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Verification Documents Section (ID only in review flow — license is in business profile block) */}
+        {user.role === 'business_owner' && !isReviewFlow && (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-8">
             <div className="lg:col-span-12 bg-white dark:bg-[#111111] p-8 rounded-[3rem] border border-[#EFEFEF] dark:border-white/5 shadow-sm">
               <div className="flex justify-between items-center mb-8">
@@ -530,9 +583,9 @@ export default function AdminUserDetailPage() {
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <label className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest block">Trade License Image</label>
-                    {user.tradeLicenseUrl && (
+                    {tradeLicenseUrl && (
                       <a 
-                        href={user.tradeLicenseUrl} 
+                        href={tradeLicenseUrl} 
                         target="_blank" 
                         rel="noopener noreferrer"
                         className="text-[10px] font-black text-emerald-500 uppercase tracking-widest hover:underline flex items-center gap-1"
@@ -542,15 +595,15 @@ export default function AdminUserDetailPage() {
                     )}
                   </div>
                   <div className="aspect-video rounded-3xl overflow-hidden bg-gray-50 dark:bg-white/5 border border-[#EFEFEF] dark:border-white/10 flex items-center justify-center group relative">
-                    {user.tradeLicenseUrl ? (
+                    {tradeLicenseUrl ? (
                       <>
                         <img 
-                          src={user.tradeLicenseUrl} 
+                          src={tradeLicenseUrl} 
                           alt="Trade License" 
                           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                         />
                         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                          <a href={user.tradeLicenseUrl} target="_blank" rel="noopener noreferrer" className="p-4 bg-white rounded-2xl text-black hover:bg-emerald-500 hover:text-white transition-all shadow-xl">
+                          <a href={tradeLicenseUrl} target="_blank" rel="noopener noreferrer" className="p-4 bg-white rounded-2xl text-black hover:bg-emerald-500 hover:text-white transition-all shadow-xl">
                             <Eye size={24} />
                           </a>
                         </div>
