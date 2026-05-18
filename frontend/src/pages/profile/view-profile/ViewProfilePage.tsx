@@ -108,10 +108,10 @@ export default function ViewProfilePage() {
       followers: followersTotal,
       avgViews: avgViewsTotal,
       engagementRate: parseFloat(maxER.toFixed(2)),
-      // Ensure location syncs
       ...(pud.location ? { businessLocation: pud.location } : {}),
       ...(pud.profilePicture ? { avatarUrl: pud.profilePicture } : {}),
       ...(pud.coverImage ? { coverImageUrl: pud.coverImage, coverImage: pud.coverImage } : {}),
+      connectedAccounts: ca,
     };
   };
 
@@ -182,18 +182,71 @@ export default function ViewProfilePage() {
         { label: 'Platforms', value: profile.selectedPlatforms?.length.toString() || '0' },
         { label: 'Company Size', value: (profile as any).companySize || 'Private' },
       ]
-      : [
-        { label: 'Followers', value: profile.followers || '0' },
-        { label: 'Avg Views', value: profile.avgViews || '0' },
-        { label: 'Engagement', value: (() => {
-          const er = profile.engagementRate;
-          if (!er) return '0%';
-          if (typeof er === 'number') return `${Math.min(er, 100).toFixed(1)}%`;
-          const parsed = parseFloat(String(er));
-          return isNaN(parsed) ? String(er) : `${Math.min(parsed, 100).toFixed(1)}%`;
-        })() },
-      ],
+      : [],
   };
+
+  const getSocialStats = (p: any) => {
+    const formatNumber = (num: number) => {
+      if (!num) return '0';
+      if (num >= 1000000000) return (num / 1000000000).toFixed(1).replace(/\.0$/, '') + 'B';
+      if (num >= 1000000) return (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
+      if (num >= 1000) return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
+      return String(num);
+    };
+
+    const computeNum = (v: any) => {
+      if (typeof v === 'number') return v;
+      if (typeof v === 'string') {
+        const cleaned = v.toUpperCase().replace(/[^0-9.KMB]/g, '');
+        let multiplier = 1;
+        if (cleaned.endsWith('K')) multiplier = 1000;
+        else if (cleaned.endsWith('M')) multiplier = 1000000;
+        else if (cleaned.endsWith('B')) multiplier = 1000000000;
+        const num = parseFloat(cleaned.replace(/[KMB]/g, ''));
+        return isNaN(num) ? 0 : num * multiplier;
+      }
+      return 0;
+    };
+
+    const computeER = (metrics: any) => {
+      const stored = computeNum(metrics.engagementRate);
+      if (stored > 0 && stored <= 100) return stored;
+      const f = computeNum(metrics.followers);
+      if (f <= 0) return 0;
+      const likes = computeNum(metrics.totalLikes) || computeNum(metrics.avgLikes);
+      const comments = computeNum(metrics.avgComments);
+      const shares = computeNum(metrics.avgShares);
+      const rawER = ((likes + comments + shares) / f) * 100;
+      return Math.min(rawER, 100);
+    };
+
+    const ca = p.connectedAccounts || {};
+    
+    const tMetrics = ca.tiktok?.metrics || p.tiktok || p.profileData?.tiktok || {};
+    const tFollowers = computeNum(tMetrics.followers);
+    const tAvgViews = computeNum(tMetrics.avgViews);
+    const tER = computeER(tMetrics);
+
+    const iMetrics = ca.instagram?.metrics || p.instagram || p.profileData?.instagram || {};
+    const iFollowers = computeNum(iMetrics.followers);
+    const iAvgViews = computeNum(iMetrics.avgViews);
+    const iER = computeER(iMetrics);
+
+    return {
+      tiktok: {
+        followers: formatNumber(tFollowers),
+        avgViews: formatNumber(tAvgViews),
+        engagementRate: tER ? `${tER.toFixed(1)}%` : '0%'
+      },
+      instagram: {
+        followers: formatNumber(iFollowers),
+        avgViews: formatNumber(iAvgViews),
+        engagementRate: iER ? `${iER.toFixed(1)}%` : '0%'
+      }
+    };
+  };
+
+  const socialStats = getSocialStats(profile);
 
   const containerVariants: Variants = {
     hidden: { opacity: 0 },
@@ -364,18 +417,74 @@ export default function ViewProfilePage() {
               </div>
 
               {/* Stats Highlights */}
-              <motion.div variants={itemVariants} className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                {profileData.stats.map((stat, idx) => (
-                  <div
-                    key={idx}
-                    className="bg-white dark:bg-[#111] border border-gray-100 dark:border-white/5 p-8 rounded-[2.5rem] text-center shadow-sm hover:border-emerald-500/30 transition-all group"
-                  >
-                    <p className="text-xs font-black text-gray-400 uppercase tracking-[0.2em] mb-4 group-hover:text-emerald-500 transition-colors">
-                      {stat.label}
-                    </p>
-                    <p className="text-3xl font-black text-gray-900 dark:text-white">{stat.value}</p>
+              <motion.div variants={itemVariants} className="space-y-6">
+                {isTargetProfileBusiness ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                    {profileData.stats.map((stat, idx) => (
+                      <div
+                        key={idx}
+                        className="bg-white dark:bg-[#111] border border-gray-100 dark:border-white/5 p-8 rounded-[2.5rem] text-center shadow-sm hover:border-emerald-500/30 transition-all group"
+                      >
+                        <p className="text-xs font-black text-gray-400 uppercase tracking-[0.2em] mb-4 group-hover:text-emerald-500 transition-colors">
+                          {stat.label}
+                        </p>
+                        <p className="text-3xl font-black text-gray-900 dark:text-white">{stat.value}</p>
+                      </div>
+                    ))}
                   </div>
-                ))}
+                ) : (
+                  <>
+                    {profile.tiktokHandle && (
+                      <div className="bg-white dark:bg-[#111] border border-gray-100 dark:border-white/5 p-8 rounded-[2.5rem] shadow-sm">
+                        <h4 className="text-sm font-black text-gray-900 dark:text-white mb-6 flex items-center gap-2">
+                          <div className="w-6 h-6 rounded-md bg-gray-900 dark:bg-white text-white dark:text-black flex items-center justify-center font-bold text-xs">T</div>
+                          TikTok Stats
+                        </h4>
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 text-center">
+                          <div>
+                            <p className="text-xs font-black text-gray-400 uppercase tracking-[0.2em] mb-4">Followers</p>
+                            <p className="text-3xl font-black text-gray-900 dark:text-white">{socialStats.tiktok.followers}</p>
+                          </div>
+                          <div>
+                            <p className="text-xs font-black text-gray-400 uppercase tracking-[0.2em] mb-4">Avg Views</p>
+                            <p className="text-3xl font-black text-gray-900 dark:text-white">{socialStats.tiktok.avgViews}</p>
+                          </div>
+                          <div>
+                            <p className="text-xs font-black text-gray-400 uppercase tracking-[0.2em] mb-4">Engagement</p>
+                            <p className="text-3xl font-black text-gray-900 dark:text-white">{socialStats.tiktok.engagementRate}</p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                    {profile.instagramHandle && (
+                      <div className="bg-white dark:bg-[#111] border border-gray-100 dark:border-white/5 p-8 rounded-[2.5rem] shadow-sm">
+                        <h4 className="text-sm font-black text-gray-900 dark:text-white mb-6 flex items-center gap-2">
+                          <div className="w-6 h-6 rounded-md bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-500 text-white flex items-center justify-center font-bold text-xs">I</div>
+                          Instagram Stats
+                        </h4>
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 text-center">
+                          <div>
+                            <p className="text-xs font-black text-gray-400 uppercase tracking-[0.2em] mb-4">Followers</p>
+                            <p className="text-3xl font-black text-gray-900 dark:text-white">{socialStats.instagram.followers}</p>
+                          </div>
+                          <div>
+                            <p className="text-xs font-black text-gray-400 uppercase tracking-[0.2em] mb-4">Avg Views</p>
+                            <p className="text-3xl font-black text-gray-900 dark:text-white">{socialStats.instagram.avgViews}</p>
+                          </div>
+                          <div>
+                            <p className="text-xs font-black text-gray-400 uppercase tracking-[0.2em] mb-4">Engagement</p>
+                            <p className="text-3xl font-black text-gray-900 dark:text-white">{socialStats.instagram.engagementRate}</p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                    {!profile.tiktokHandle && !profile.instagramHandle && (
+                      <div className="bg-white dark:bg-[#111] border border-gray-100 dark:border-white/5 p-8 rounded-[2.5rem] shadow-sm text-center">
+                        <p className="text-sm font-medium text-gray-500">No social platforms connected.</p>
+                      </div>
+                    )}
+                  </>
+                )}
               </motion.div>
 
               {/* Marketing & Goals OR Professional Portfolio */}
