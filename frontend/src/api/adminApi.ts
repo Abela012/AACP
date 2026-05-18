@@ -66,7 +66,10 @@ export const adminApi = {
         api.put<AdminUser>(`/admin/users/${userId}/status`, { status }),
 
     /** GET /admin/wallet/requests — List pending coin purchases */
-    getWalletRequests: (api: AxiosInstance, params?: { status?: string; search?: string }) =>
+    getWalletRequests: (
+        api: AxiosInstance,
+        params?: { status?: string; search?: string; channel?: 'manual' | 'chapa' }
+    ) =>
         api.get<{ requests: any[]; total: number }>('/admin/wallet/requests', { params }),
 
     /** POST /admin/wallet/requests/:requestId/approve — Approve a coin purchase */

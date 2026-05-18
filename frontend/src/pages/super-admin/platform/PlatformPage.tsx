@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Loader2, Save, Settings2, ShieldCheck, Coins, KeyRound, Mail } from 'lucide-react';
+import { Loader2, Save, Settings2, ShieldCheck, Coins, KeyRound, Mail, Landmark } from 'lucide-react';
 import SuperAdminLayout from '@/src/shared/components/layouts/SuperAdminLayout';
 import { usePlatformConfig, useUpdatePlatformConfig } from '@/src/hooks/useSuperAdmin';
 
@@ -12,6 +12,14 @@ export default function SuperAdminPlatformPage() {
     coinCostPostingAds: 50,
     coinCostApplicationFee: 10,
     globalCommissionRate: 12.5,
+    manualPayment: {
+      bankName: 'Commercial Bank of Ethiopia',
+      accountName: 'AACP Platform',
+      accountNumber: '100013456789',
+      telebirrMerchantName: 'AACP Payments',
+      telebirrNumber: '+251 912 345 678',
+      processingNote: 'Manual payments are processed within 24-48 hours after admin verification.',
+    },
   });
   const [toast, setToast] = useState<{ show: boolean; message: string; type: 'success' | 'error' }>({
     show: false,
@@ -26,6 +34,16 @@ export default function SuperAdminPlatformPage() {
         coinCostPostingAds: data.coinCostPostingAds,
         coinCostApplicationFee: data.coinCostApplicationFee,
         globalCommissionRate: data.globalCommissionRate,
+        manualPayment: {
+          bankName: data.manualPayment?.bankName ?? 'Commercial Bank of Ethiopia',
+          accountName: data.manualPayment?.accountName ?? 'AACP Platform',
+          accountNumber: data.manualPayment?.accountNumber ?? '100013456789',
+          telebirrMerchantName: data.manualPayment?.telebirrMerchantName ?? 'AACP Payments',
+          telebirrNumber: data.manualPayment?.telebirrNumber ?? '+251 912 345 678',
+          processingNote:
+            data.manualPayment?.processingNote ??
+            'Manual payments are processed within 24-48 hours after admin verification.',
+        },
       });
     }
   }, [data]);
@@ -171,6 +189,60 @@ export default function SuperAdminPlatformPage() {
                       </div>
                     </div>
                   </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white dark:bg-[#111111] p-8 rounded-[2.5rem] border border-[#EFEFEF] dark:border-white/5 shadow-sm">
+              <div className="flex items-center gap-3 mb-8">
+                <Landmark className="text-emerald-600" size={20} />
+                <h3 className="text-xl font-black">Manual payment details</h3>
+              </div>
+              <p className="text-sm text-[#6F767E] dark:text-gray-400 font-medium mb-6">
+                Bank and Telebirr instructions shown to users on manual checkout pages.
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {(
+                  [
+                    ['bankName', 'Bank name'],
+                    ['accountName', 'Account name'],
+                    ['accountNumber', 'Account number'],
+                    ['telebirrMerchantName', 'Telebirr merchant name'],
+                    ['telebirrNumber', 'Telebirr number'],
+                  ] as const
+                ).map(([key, label]) => (
+                  <div key={key}>
+                    <label className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest mb-3 block">
+                      {label}
+                    </label>
+                    <input
+                      type="text"
+                      value={form.manualPayment[key]}
+                      onChange={(e) =>
+                        setForm((prev) => ({
+                          ...prev,
+                          manualPayment: { ...prev.manualPayment, [key]: e.target.value },
+                        }))
+                      }
+                      className="w-full bg-[#F4F4F4] dark:bg-white/5 rounded-2xl px-5 py-4 text-sm font-bold outline-none"
+                    />
+                  </div>
+                ))}
+                <div className="md:col-span-2">
+                  <label className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest mb-3 block">
+                    Processing note
+                  </label>
+                  <textarea
+                    value={form.manualPayment.processingNote}
+                    onChange={(e) =>
+                      setForm((prev) => ({
+                        ...prev,
+                        manualPayment: { ...prev.manualPayment, processingNote: e.target.value },
+                      }))
+                    }
+                    rows={3}
+                    className="w-full bg-[#F4F4F4] dark:bg-white/5 rounded-2xl px-5 py-4 text-sm font-bold outline-none resize-none"
+                  />
                 </div>
               </div>
             </div>

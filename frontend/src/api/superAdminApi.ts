@@ -28,12 +28,22 @@ export type AuditLog = {
   metadata?: any;
 };
 
+export type ManualPaymentConfig = {
+  bankName: string;
+  accountName: string;
+  accountNumber: string;
+  telebirrMerchantName: string;
+  telebirrNumber: string;
+  processingNote?: string;
+};
+
 export type PlatformConfig = {
   _id: string;
   maintenanceMode: boolean;
   coinCostPostingAds: number;
   coinCostApplicationFee: number;
   globalCommissionRate: number;
+  manualPayment?: ManualPaymentConfig;
   chapaSecretKeyMasked: string;
   cloudinaryEnvironmentVariable: string;
   emailTemplates: {
