@@ -302,19 +302,42 @@ export default function CampaignApplicantsPage() {
                               </div>
                             )}
 
-                            {app.applicationData.resumeUrl && (
-                              <div>
-                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Attached Document</p>
-                                <a 
-                                  href={app.applicationData.resumeUrl.startsWith('http') ? app.applicationData.resumeUrl : `https://res.cloudinary.com/dt3zzcvph/image/upload/v1/aacp/uploads/${app.applicationData.resumeUrl}`} 
-                                  target="_blank" 
-                                  rel="noreferrer"
-                                  className="inline-flex items-center gap-2 text-sm font-bold text-emerald-500 hover:text-emerald-400 transition-colors bg-emerald-50 dark:bg-emerald-500/10 px-4 py-2 rounded-xl"
-                                >
-                                  <FileText size={16} /> {app.applicationData.resumeUrl.split('/').pop() || 'View CV'} <Download size={14} />
-                                </a>
-                              </div>
-                            )}
+                            {app.applicationData.resumeUrl && (() => {
+                                const rawUrl = app.applicationData.resumeUrl;
+                                // Use the URL as-is if it's already a full URL (Cloudinary handles PDFs via both image and raw endpoints)
+                                let cvUrl = rawUrl;
+                                if (!rawUrl.startsWith('http')) {
+                                  // Partial path — build as raw upload URL for new uploads
+                                  const cleanPath = rawUrl.replace(/^\/+/, '');
+                                  cvUrl = `https://res.cloudinary.com/dt3zzcvph/raw/upload/${cleanPath}`;
+                                }
+                                const fileName = cvUrl.split('/').pop()?.split('?')[0] || 'CV Document';
+                                return (
+                                  <div>
+                                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Attached Document</p>
+                                    <div className="flex items-center gap-2">
+                                      <a 
+                                        href={cvUrl}
+                                        target="_blank" 
+                                        rel="noreferrer"
+                                        className="inline-flex items-center gap-2 text-sm font-bold text-emerald-500 hover:text-emerald-400 transition-colors bg-emerald-50 dark:bg-emerald-500/10 px-4 py-2 rounded-xl"
+                                      >
+                                        <FileText size={16} /> {fileName}
+                                      </a>
+                                      <a
+                                        href={cvUrl}
+                                        download={fileName}
+                                        className="inline-flex items-center gap-2 text-sm font-bold text-blue-500 hover:text-blue-400 transition-colors bg-blue-50 dark:bg-blue-500/10 px-3 py-2 rounded-xl"
+                                        title="Download CV"
+                                      >
+                                        <Download size={16} />
+                                      </a>
+                                    </div>
+                                  </div>
+                                );
+                              })()}
+
+
                           </div>
                         ) : (
                           <>

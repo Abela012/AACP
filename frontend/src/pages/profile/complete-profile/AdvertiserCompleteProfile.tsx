@@ -249,6 +249,8 @@ export default function AdvertiserCompleteProfile() {
         platform: modalPlatform,
         username: usernameInput,
         verificationCode
+      }, {
+        timeout: 120000 // 2 minutes to allow Apify scraper to finish
       });
 
       if (res.data && res.data.success) {

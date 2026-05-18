@@ -269,14 +269,19 @@ export default function AdvertiserDashboardPage() {
                               </div>
 
                               <div className="flex items-center gap-0.5 text-yellow-500">
-                                {[...Array(5)].map((_, i) => (
-                                  <Star key={i} size={12} className="fill-current" />
-                                ))}
+                                {[...Array(5)].map((_, i) => {
+                                  const rating = opp.businessOwner?.averageRating || 0;
+                                  const isFilled = i < Math.round(rating);
+                                  return (
+                                    <Star 
+                                      key={i} 
+                                      size={12} 
+                                      className={cn("transition-colors", isFilled ? "fill-amber-500 text-amber-500" : "fill-gray-200 text-gray-200 dark:fill-white/10 dark:text-white/10")} 
+                                    />
+                                  );
+                                })}
                               </div>
 
-                              <div className="flex items-center gap-1">
-                                <span className="text-gray-700 dark:text-gray-300">$40K+ spent</span>
-                              </div>
 
                               <div className="flex items-center gap-1 text-gray-500 dark:text-gray-400">
                                 <MapPin size={12} className="text-gray-400" />
