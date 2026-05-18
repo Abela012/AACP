@@ -47,7 +47,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const { signOut } = useClerk();
   const { user: clerkUser } = useClerkUser();
   const { profile } = useProfile();
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(window.innerWidth >= 1024);
   const location = useLocation();
   const { logout: localLogout } = useUser();
   const [showReportModal, setShowReportModal] = useState(false);
@@ -113,7 +113,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
       {/* Sidebar */}
       <aside className={cn(
-        "fixed inset-y-0 left-0 w-64 flex flex-col bg-white dark:bg-[#0A0A0A] z-50 transition-all duration-300 transform lg:translate-x-0 border-r border-[#EFEFEF] dark:border-white/5",
+        "fixed inset-y-0 left-0 w-64 flex flex-col bg-white dark:bg-[#0A0A0A] z-50 transition-all duration-300 transform border-r border-[#EFEFEF] dark:border-white/5",
         isSidebarOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full"
       )}>
         <div className="p-8 pb-4">
@@ -188,10 +188,10 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       </aside>
 
       {/* Main Content */}
-      <div className="lg:ml-64 flex-1 flex flex-col min-w-0">
+      <div className={cn("flex-1 flex flex-col min-w-0 transition-all duration-300", isSidebarOpen ? "lg:ml-64" : "lg:ml-0")}>
         <header className="h-20 bg-white/80 dark:bg-[#0A0A0A]/80 backdrop-blur-lg px-8 flex items-center justify-between sticky top-0 z-40 border-b border-[#EFEFEF] dark:border-white/5">
           <div className="flex items-center gap-6">
-            <button className="lg:hidden p-2 -ml-2" onClick={() => setIsSidebarOpen(true)}>
+            <button className="p-2 -ml-2 text-gray-500 dark:text-gray-400 hover:text-emerald-600 transition-colors" onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
               <Menu size={24} />
             </button>
             <div className="hidden md:flex flex-col">
