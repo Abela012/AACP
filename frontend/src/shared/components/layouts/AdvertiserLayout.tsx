@@ -34,7 +34,7 @@ interface AdvertiserLayoutProps {
 
 export default function AdvertiserLayout({ children }: AdvertiserLayoutProps) {
   const { signOut } = useClerk();
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(window.innerWidth >= 1024);
   const location = useLocation();
   const { onboardingStatus, logout: localLogout } = useUser();
   const { profile } = useProfile();
@@ -100,8 +100,8 @@ export default function AdvertiserLayout({ children }: AdvertiserLayoutProps) {
 
       {/* Sidebar */}
       <aside className={cn(
-        "fixed inset-y-0 left-0 w-64 border-r border-gray-100 dark:border-white/5 flex flex-col bg-white dark:bg-[#0a0a0a] z-50 transition-transform lg:translate-x-0 lg:static lg:h-screen",
-        isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+        "fixed inset-y-0 left-0 w-64 border-r border-gray-100 dark:border-white/5 flex flex-col bg-white dark:bg-[#0a0a0a] z-50 transition-all duration-300 transform",
+        isSidebarOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full"
       )}>
         <div className="p-6 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
@@ -179,11 +179,11 @@ export default function AdvertiserLayout({ children }: AdvertiserLayoutProps) {
       </aside>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col min-w-0 h-screen overflow-y-auto">
+      <div className={cn("flex-1 flex flex-col min-w-0 h-screen overflow-y-auto transition-all duration-300", isSidebarOpen ? "lg:pl-64" : "lg:pl-0")}>
         {/* Header */}
         <header className="h-20 border-b border-gray-100 dark:border-white/5 px-4 sm:px-8 flex items-center justify-between sticky top-0 bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-md z-40">
           <div className="flex items-center gap-4">
-            <button className="lg:hidden p-2" onClick={() => setIsSidebarOpen(true)}>
+            <button className="p-2 -ml-2 text-gray-500 dark:text-gray-400 hover:text-emerald-500 transition-colors" onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
               <Menu size={20} />
             </button>
             <nav className="hidden md:flex items-center gap-8">

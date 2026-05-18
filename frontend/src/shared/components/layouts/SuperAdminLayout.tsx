@@ -36,7 +36,7 @@ export default function SuperAdminLayout({ children }: Props) {
   const { user: clerkUser } = useClerkUser();
   const { logout: localLogout } = useUser();
   const location = useLocation();
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(window.innerWidth >= 1024);
 
   return (
     <div className="min-h-screen bg-[#F6F6FB] dark:bg-[#050505] text-[#1A1D1F] dark:text-white font-sans flex transition-colors duration-300">
@@ -54,7 +54,7 @@ export default function SuperAdminLayout({ children }: Props) {
 
       <aside
         className={cn(
-          'fixed inset-y-0 left-0 w-72 flex flex-col bg-white dark:bg-[#0A0A0A] z-50 transition-all duration-300 transform lg:translate-x-0 border-r border-[#EFEFEF] dark:border-white/5',
+          'fixed inset-y-0 left-0 w-72 flex flex-col bg-white dark:bg-[#0A0A0A] z-50 transition-all duration-300 transform border-r border-[#EFEFEF] dark:border-white/5',
           isSidebarOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'
         )}
       >
@@ -124,10 +124,10 @@ export default function SuperAdminLayout({ children }: Props) {
         </div>
       </aside>
 
-      <div className="lg:ml-72 flex-1 flex flex-col min-w-0">
+      <div className={cn("flex-1 flex flex-col min-w-0 transition-all duration-300", isSidebarOpen ? "lg:ml-72" : "lg:ml-0")}>
         <header className="h-20 bg-white/80 dark:bg-[#0A0A0A]/80 backdrop-blur-lg px-8 flex items-center justify-between sticky top-0 z-40 border-b border-[#EFEFEF] dark:border-white/5">
           <div className="flex items-center gap-6">
-            <button className="lg:hidden p-2 -ml-2" onClick={() => setIsSidebarOpen(true)}>
+            <button className="p-2 -ml-2 text-gray-500 dark:text-gray-400 hover:text-emerald-600 transition-colors" onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
               <Menu size={24} />
             </button>
             <div className="relative hidden lg:block">
