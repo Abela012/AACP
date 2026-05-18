@@ -26,12 +26,9 @@ import {
   Flame,
   CheckCircle2,
   Lock,
-  Instagram,
-  Youtube,
-  Facebook,
-  Twitter,
   ArrowRight,
-  MessageSquare
+  MessageSquare,
+  Users
 } from 'lucide-react';
 import { cn } from '@/src/shared/utils/cn';
 import AdvertiserLayout from '@/src/shared/components/layouts/AdvertiserLayout';
