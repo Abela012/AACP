@@ -177,10 +177,78 @@ export const initializeTopup = async ({
     };
 };
 
+const markPaymentCredited = async (
+    paymentTx: any,
+    extras: Record<string, unknown>,
+    creditedTransactionId?: unknown
+) => {
+    paymentTx.status = 'completed';
+    paymentTx.metadata = {
+        ...(paymentTx.metadata || {}),
+        ...extras,
+        credited: true,
+        ...(creditedTransactionId ? { creditedTransactionId } : {}),
+    };
+    await paymentTx.save();
+};
+
 const creditWalletForTopup = async (paymentTx: any, chapaVerification: any) => {
-    const isAlreadyCompleted = paymentTx.status === 'completed' || paymentTx.metadata?.credited === true;
-    if (isAlreadyCompleted) {
+    const txRef = paymentTx.metadata?.tx_ref;
+    if (!txRef) {
+        const err = new Error('Payment is missing tx_ref');
+        (err as any).statusCode = 500;
+        throw err;
+    }
+
+    if (paymentTx.metadata?.credited === true) {
         return { alreadyProcessed: true };
+    }
+
+    const existingCredit = await Transaction.findOne({
+        type: 'credit',
+        user: paymentTx.user,
+        'metadata.provider': 'chapa',
+        'metadata.tx_ref': txRef,
+        status: 'completed',
+    });
+
+    if (existingCredit) {
+        await markPaymentCredited(paymentTx, {
+            chapaStatus: 'success',
+            chapaTransactionId: chapaVerification?.id,
+            creditedTransactionId: existingCredit._id,
+        });
+        return { alreadyProcessed: true, creditedTransaction: existingCredit };
+    }
+
+    const locked = await Transaction.findOneAndUpdate(
+        {
+            _id: paymentTx._id,
+            'metadata.credited': { $ne: true },
+            'metadata.creditProcessing': { $ne: true },
+        },
+        { $set: { 'metadata.creditProcessing': true } },
+        { new: true }
+    );
+
+    if (!locked) {
+        const creditAfterLock = await Transaction.findOne({
+            type: 'credit',
+            user: paymentTx.user,
+            'metadata.provider': 'chapa',
+            'metadata.tx_ref': txRef,
+            status: 'completed',
+        });
+        if (creditAfterLock) {
+            const freshPayment = await Transaction.findById(paymentTx._id);
+            if (freshPayment) {
+                await markPaymentCredited(freshPayment, {
+                    chapaStatus: 'success',
+                    creditedTransactionId: creditAfterLock._id,
+                });
+            }
+        }
+        return { alreadyProcessed: true, creditedTransaction: creditAfterLock || undefined };
     }
 
     const amountPaid = Number(chapaVerification?.amount ?? paymentTx.amount);
@@ -192,41 +260,47 @@ const creditWalletForTopup = async (paymentTx: any, chapaVerification: any) => {
         }
     }
     if (!Number.isFinite(coinsToCredit) || coinsToCredit <= 0) {
+        await Transaction.findByIdAndUpdate(paymentTx._id, {
+            $unset: { 'metadata.creditProcessing': '' },
+        });
         const err = new Error('Missing coin credit amount for this payment');
         (err as any).statusCode = 500;
         throw err;
     }
 
-    const creditResult = await walletService.creditCoins({
-        userId: String(paymentTx.user),
-        amount: coinsToCredit,
-        description: `Wallet top-up: ${coinsToCredit} coins via Chapa`,
-        metadata: {
-            provider: 'chapa',
-            paymentTransactionId: String(paymentTx._id),
-            tx_ref: paymentTx.metadata?.tx_ref,
+    try {
+        const creditResult = await walletService.creditCoins({
+            userId: String(paymentTx.user),
+            amount: coinsToCredit,
+            description: `Wallet top-up: ${coinsToCredit} coins via Chapa`,
+            metadata: {
+                provider: 'chapa',
+                paymentTransactionId: String(paymentTx._id),
+                tx_ref: txRef,
+                chapaTransactionId: chapaVerification?.id,
+                paidAmount: amountPaid,
+                coinsCredited: coinsToCredit,
+                currency: chapaVerification?.currency,
+            },
+            performedBy: paymentTx.user,
+        });
+
+        await markPaymentCredited(locked, {
+            chapaStatus: 'success',
             chapaTransactionId: chapaVerification?.id,
             paidAmount: amountPaid,
             coinsCredited: coinsToCredit,
             currency: chapaVerification?.currency,
-        },
-        performedBy: paymentTx.user,
-    });
+            creditedTransactionId: creditResult.transaction?._id,
+        });
 
-    paymentTx.status = 'completed';
-    paymentTx.metadata = {
-        ...(paymentTx.metadata || {}),
-        chapaStatus: 'success',
-        chapaTransactionId: chapaVerification?.id,
-        credited: true,
-        creditedTransactionId: creditResult.transaction?._id,
-        paidAmount: amountPaid,
-        coinsCredited: coinsToCredit,
-        currency: chapaVerification?.currency,
-    };
-    await paymentTx.save();
-
-    return { alreadyProcessed: false, creditedTransaction: creditResult.transaction };
+        return { alreadyProcessed: false, creditedTransaction: creditResult.transaction };
+    } catch (error) {
+        await Transaction.findByIdAndUpdate(paymentTx._id, {
+            $unset: { 'metadata.creditProcessing': '' },
+        });
+        throw error;
+    }
 };
 
 export const verifyTopup = async (txRef: string, requestingUserId?: string) => {
@@ -285,12 +359,15 @@ export const verifyTopup = async (txRef: string, requestingUserId?: string) => {
     }
 
     const result = await creditWalletForTopup(paymentTx, chapaData);
+    const coinsCredited = Number(paymentTx.metadata?.coinsToCredit) || 0;
 
     return {
         txRef,
         status: 'completed',
         verified: true,
         alreadyProcessed: result.alreadyProcessed,
+        coinsCredited,
+        amountEtb: Number(chapaData?.amount ?? paymentTx.amount),
         chapa: chapaData,
     };
 };

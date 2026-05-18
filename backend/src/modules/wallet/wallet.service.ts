@@ -1,5 +1,6 @@
 import Wallet from '../../database/models/Wallet';
 import Transaction from '../../database/models/Transaction';
+import PlatformConfig from '../../database/models/PlatformConfig';
 import Collaboration from '../../database/models/Collaboration';
 import Application from '../../database/models/Application';
 import Opportunity from '../../database/models/Opportunity';
@@ -353,16 +354,29 @@ export const getTransactions = async (userId: string) => {
     const wallet = await Wallet.findOne({ user: mongoUserId });
     if (!wallet) return [];
 
-    return await Transaction.find({ wallet: wallet._id }).sort({ createdAt: -1 });
+    return await Transaction.find({
+        wallet: wallet._id,
+        type: { $nin: ['payment'] },
+    }).sort({ createdAt: -1 });
 };
 
 /**
  * Create a PENDING coin purchase request.
  * Does NOT credit the wallet immediately — an admin must approve it.
  */
-export const requestCoins = async (userId: string, coins: number, paymentMethod: string, pricePaid: number) => {
+export const requestCoins = async (
+    userId: string,
+    coins: number,
+    paymentMethod: string,
+    pricePaid: number,
+    proofUrl?: string
+) => {
     if (!userId) throw buildBadRequestError('userId is required');
     assertValidAmount(coins);
+
+    if (!proofUrl) {
+        throw buildBadRequestError('Payment proof is required for manual requests');
+    }
 
     const mongoUserId = await resolveMongoUserId(userId);
     if (!mongoUserId) throw buildNotFoundError('User not found');
@@ -378,10 +392,16 @@ export const requestCoins = async (userId: string, coins: number, paymentMethod:
         type: 'credit',
         amount: coins,
         balanceBefore: wallet.totalCoins,
-        balanceAfter: wallet.totalCoins, // unchanged until approved
+        balanceAfter: wallet.totalCoins,
         status: 'pending',
-        description: `Coin purchase request: ${coins} coins via ${paymentMethod} ($${pricePaid})`,
-        metadata: { paymentMethod, pricePaid, requestedAt: new Date() },
+        description: `Manual wallet top-up: ${coins} coins (${paymentMethod})`,
+        metadata: {
+            requestType: 'manual',
+            paymentMethod,
+            pricePaid,
+            proofUrl,
+            requestedAt: new Date(),
+        },
     });
 
     return { transaction, message: 'Coin purchase request submitted. Awaiting admin approval.' };
@@ -395,6 +415,12 @@ export const approveRequest = async (transactionId: string, performedBy: string)
     const transaction = await Transaction.findById(transactionId);
     if (!transaction) throw buildNotFoundError('Transaction not found');
     if (transaction.status !== 'pending') throw buildBadRequestError('Transaction is already processed');
+    if (transaction.metadata?.requestType !== 'manual') {
+        throw buildBadRequestError('Only manual coin requests can be approved here');
+    }
+    if (!transaction.metadata?.proofUrl) {
+        throw buildBadRequestError('Cannot approve a manual request without payment proof');
+    }
 
     const wallet = await Wallet.findById(transaction.wallet);
     if (!wallet) throw buildNotFoundError('Wallet not found');
@@ -421,10 +447,32 @@ export const approveRequest = async (transactionId: string, performedBy: string)
  * Reject a pending coin purchase request.
  * Marks transaction as 'failed'.
  */
+export const getManualPaymentInstructions = async () => {
+    let config = await PlatformConfig.findOne();
+    if (!config) {
+        config = await PlatformConfig.create({});
+    }
+
+    const manual = config.manualPayment || ({} as Record<string, string>);
+    return {
+        bankName: manual.bankName || 'Commercial Bank of Ethiopia',
+        accountName: manual.accountName || 'AACP Platform',
+        accountNumber: manual.accountNumber || '100013456789',
+        telebirrMerchantName: manual.telebirrMerchantName || 'AACP Payments',
+        telebirrNumber: manual.telebirrNumber || '+251 912 345 678',
+        processingNote:
+            manual.processingNote ||
+            'Manual payments are processed within 24-48 hours after admin verification.',
+    };
+};
+
 export const rejectRequest = async (transactionId: string, performedBy: string, reason?: string) => {
     const transaction = await Transaction.findById(transactionId);
     if (!transaction) throw buildNotFoundError('Transaction not found');
     if (transaction.status !== 'pending') throw buildBadRequestError('Transaction is already processed');
+    if (transaction.metadata?.requestType !== 'manual') {
+        throw buildBadRequestError('Only manual coin requests can be rejected here');
+    }
 
     transaction.status = 'failed';
     transaction.metadata = { 

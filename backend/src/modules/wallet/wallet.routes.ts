@@ -1,9 +1,14 @@
 import express from 'express';
+import multer from 'multer';
 import * as walletController from './wallet.controller';
 import { protect } from '../../middlewares/auth.middleware';
 import { authorize } from '../../middlewares/role.middleware';
 
 const router = express.Router();
+const upload = multer({
+    storage: multer.memoryStorage(),
+    limits: { fileSize: 5 * 1024 * 1024 },
+});
 
 /**
  * Wallet routes
@@ -310,6 +315,8 @@ router.post('/unlock', authorize('admin', 'super_admin'), walletController.unloc
  *       401:
  *         description: Unauthorized
  */
-router.post('/request-coins', walletController.requestCoins);
+router.get('/manual-payment-instructions', walletController.getManualPaymentInstructions);
+
+router.post('/request-coins', upload.single('proof'), walletController.requestCoins);
 
 export default router;

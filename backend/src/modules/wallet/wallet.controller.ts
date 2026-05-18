@@ -1,6 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
 import * as walletService from './wallet.service';
 import { success } from '../../utils/response';
+import { uploadBufferToCloudinary } from '../../utils/cloudinaryUpload';
+
+interface MulterRequest extends Request {
+    file?: Express.Multer.File;
+}
 
 const isAdmin = (user: any) => ['admin', 'super_admin'].includes(user?.role);
 
@@ -115,15 +120,33 @@ export const getTransactions = async (req: Request, res: Response, next: NextFun
     }
 };
 
-export const requestCoins = async (req: Request, res: Response, next: NextFunction) => {
+export const getManualPaymentInstructions = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const instructions = await walletService.getManualPaymentInstructions();
+        return success(res, 'Manual payment instructions retrieved', instructions);
+    } catch (err) {
+        return next(err);
+    }
+};
+
+export const requestCoins = async (req: MulterRequest, res: Response, next: NextFunction) => {
     try {
         const userId = (req as any).user?.clerkId || (req as any).user?._id;
-        const { coins, paymentMethod, pricePaid } = req.body;
+        const coins = Number(req.body.coins);
+        const paymentMethod = String(req.body.paymentMethod || 'manual-bank-transfer');
+        const pricePaid = Number(req.body.pricePaid) || 0;
+
+        if (!req.file) {
+            return res.status(400).json({ success: false, message: 'Payment proof file is required' });
+        }
+
+        const uploaded = await uploadBufferToCloudinary(req.file.buffer);
         const result = await walletService.requestCoins(
             userId,
-            Number(coins),
-            paymentMethod || 'unknown',
-            Number(pricePaid) || 0,
+            coins,
+            paymentMethod,
+            pricePaid,
+            uploaded.secure_url
         );
         
         // Notify admins

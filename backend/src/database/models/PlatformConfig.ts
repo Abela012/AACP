@@ -1,10 +1,20 @@
 import mongoose, { Document, Schema } from 'mongoose';
 
+export interface IManualPaymentInstructions {
+    bankName: string;
+    accountName: string;
+    accountNumber: string;
+    telebirrMerchantName: string;
+    telebirrNumber: string;
+    processingNote?: string;
+}
+
 export interface IPlatformConfig extends Document {
     maintenanceMode: boolean;
     coinCostPostingAds: number;
     coinCostApplicationFee: number;
     globalCommissionRate: number;
+    manualPayment: IManualPaymentInstructions;
     chapaSecretKeyMasked: string;
     cloudinaryEnvironmentVariable: string;
     emailTemplates: {
@@ -22,6 +32,17 @@ const platformConfigSchema = new Schema(
         coinCostPostingAds: { type: Number, default: 50, min: 0 },
         coinCostApplicationFee: { type: Number, default: 10, min: 0 },
         globalCommissionRate: { type: Number, default: 12.5, min: 0 },
+        manualPayment: {
+            bankName: { type: String, default: 'Commercial Bank of Ethiopia' },
+            accountName: { type: String, default: 'AACP Platform' },
+            accountNumber: { type: String, default: '100013456789' },
+            telebirrMerchantName: { type: String, default: 'AACP Payments' },
+            telebirrNumber: { type: String, default: '+251 912 345 678' },
+            processingNote: {
+                type: String,
+                default: 'Manual payments are processed within 24-48 hours after admin verification.',
+            },
+        },
         chapaSecretKeyMasked: { type: String, default: '' },
         cloudinaryEnvironmentVariable: { type: String, default: '' },
         emailTemplates: {
