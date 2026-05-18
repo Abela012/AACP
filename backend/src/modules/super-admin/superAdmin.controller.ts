@@ -335,6 +335,27 @@ export const updatePlatformConfig = async (req: Request, res: Response, next: Ne
             }
         }
 
+        if (req.body.manualPayment && typeof req.body.manualPayment === 'object') {
+            const mp = req.body.manualPayment;
+            const manualFields = [
+                'bankName',
+                'accountName',
+                'accountNumber',
+                'telebirrMerchantName',
+                'telebirrNumber',
+                'processingNote',
+            ] as const;
+            if (!(config as any).manualPayment) {
+                (config as any).manualPayment = {};
+            }
+            for (const key of manualFields) {
+                if (mp[key] !== undefined) {
+                    (config as any).manualPayment[key] = String(mp[key]).trim();
+                }
+            }
+            config.markModified('manualPayment');
+        }
+
         await config.save();
 
         if (actor?._id && actor?.role) {
@@ -366,7 +387,11 @@ export const getSecuritySummary = async (req: Request, res: Response, next: Next
                 createdAt: { $gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) },
                 action: { $in: ['DISPUTE_ESCALATED', 'USER_STATUS_UPDATED', 'SYSTEM_CONFIG_UPDATED'] },
             }),
-            Transaction.countDocuments({ status: 'pending' }),
+            Transaction.countDocuments({
+                status: 'pending',
+                type: 'credit',
+                'metadata.requestType': 'manual',
+            }),
             User.countDocuments({ status: { $in: ['banned', 'suspended'] } }),
             AuditLog.find()
                 .populate('actor', 'firstName lastName username email role profilePicture')
