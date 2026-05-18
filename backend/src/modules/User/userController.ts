@@ -7,6 +7,7 @@ import { getPlatformSettings } from '../platform/platformSettings.service';
 import { mergeProfileData } from '../../utils/profileDataMerge';
 import { mergeAdvertiserProfileOnSubmit } from '../../utils/advertiserProfileSync';
 import { validateBusinessProfileSubmit } from './businessProfile.validation';
+import { hasRequiredBusinessFieldChanges } from './businessProfileChanges';
 
 interface MulterRequest extends Request {
   file?: Express.Multer.File;
