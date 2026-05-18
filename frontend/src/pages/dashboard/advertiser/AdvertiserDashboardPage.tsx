@@ -191,7 +191,7 @@ export default function AdvertiserDashboardPage() {
                     ].filter(Boolean);
 
                     const applicantCount = Array.isArray(opp.applicants) ? opp.applicants.length : 0;
-                    const proposalText = applicantCount < 5 ? "Less than 5" : applicantCount.toString();
+                    const proposalText = applicantCount.toString();
                     const budgetAmount = typeof opp.budget === 'object' ? (opp.budget.amount || 0) : (opp.budget || 0);
                     const paymentType = opp.paymentType || 'Fixed-price';
                     const expLevel = opp.experienceLevel || 'Expert';
@@ -293,7 +293,7 @@ export default function AdvertiserDashboardPage() {
                               {paymentType}
                             </span>
                             <div className="text-2xl sm:text-3xl font-black text-gray-900 dark:text-white mt-1 leading-none">
-                              ${budgetAmount.toLocaleString()}
+                              {budgetAmount.toLocaleString()} ETB
                             </div>
                             <div className="text-xs text-gray-500 dark:text-gray-400 font-bold mt-1.5 flex items-center gap-1 justify-start lg:justify-end">
                               <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>

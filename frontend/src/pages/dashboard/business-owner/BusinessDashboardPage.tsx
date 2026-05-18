@@ -460,7 +460,7 @@ export default function BusinessDashboardPage() {
                           <Badge variant={opp.status === 'open' ? 'success' : 'neutral'}>{opp.status}</Badge>
                         </td>
                         <td className="py-5">
-                          <p className="text-sm font-bold text-gray-900 dark:text-white">${opp.budget?.amount || opp.budget}</p>
+                          <p className="text-sm font-bold text-gray-900 dark:text-white">{(opp.budget?.amount || opp.budget || 0).toLocaleString()} ETB</p>
                         </td>
                         <td className="py-5">
                           <div className="flex items-center justify-center gap-2">

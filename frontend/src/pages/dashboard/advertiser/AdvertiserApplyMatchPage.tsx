@@ -27,6 +27,7 @@ import { useApply } from '@/src/hooks/useApplications';
 import { useWalletBalance } from '@/src/hooks/useWallet';
 import { toast } from 'react-hot-toast';
 import { useApiClient } from '@/src/api/apiClient';
+import { useProfile } from '@/src/shared/context/ProfileContext';
 
 export default function AdvertiserApplyMatchPage() {
   const navigate = useNavigate();
@@ -39,6 +40,7 @@ export default function AdvertiserApplyMatchPage() {
 
   const { data: walletData } = useWalletBalance();
   const applyMutation = useApply();
+  const { profile } = useProfile();
 
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -92,15 +94,41 @@ export default function AdvertiserApplyMatchPage() {
   });
 
   useEffect(() => {
-    if (clerkUser) {
+    if (clerkUser || profile) {
+      let cityVal = '';
+      let countryVal = '';
+      if (profile?.businessLocation) {
+        const parts = profile.businessLocation.split(',');
+        cityVal = parts[0]?.trim() || '';
+        countryVal = parts[1]?.trim() || '';
+      }
+
+      let socialVal = '';
+      if (profile?.website) {
+        socialVal = profile.website;
+      } else if (profile?.tiktokHandle) {
+        const handle = profile.tiktokHandle.replace(/^@/, '');
+        socialVal = `https://www.tiktok.com/@${handle}`;
+      } else if (profile?.instagramHandle) {
+        const handle = profile.instagramHandle.replace(/^@/, '');
+        socialVal = `https://instagram.com/${handle}`;
+      } else if (profile?.facebookHandle) {
+        const handle = profile.facebookHandle.replace(/^@/, '');
+        socialVal = `https://facebook.com/${handle}`;
+      }
+
       setFormData(prev => ({
         ...prev,
-        firstName: clerkUser.firstName || '',
-        lastName: clerkUser.lastName || '',
-        email: clerkUser.emailAddresses[0]?.emailAddress || '',
+        firstName: profile?.firstName || clerkUser?.firstName || prev.firstName,
+        lastName: profile?.lastName || clerkUser?.lastName || prev.lastName,
+        email: profile?.email || clerkUser?.emailAddresses[0]?.emailAddress || prev.email,
+        phone: profile?.phone || prev.phone,
+        city: cityVal || prev.city,
+        country: countryVal || prev.country,
+        linkedin: socialVal || prev.linkedin,
       }));
     }
-  }, [clerkUser]);
+  }, [clerkUser, profile]);
 
   const [skillsInput, setSkillsInput] = useState('');
 
@@ -134,6 +162,13 @@ export default function AdvertiserApplyMatchPage() {
 
   const handleSubmit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
+
+    // Enforce that Resume / CV is strictly required to proceed from Step 1
+    if (currentStep === 1 && !resume) {
+      toast.error("Please upload your Resume / CV to proceed.");
+      return;
+    }
+
     if (currentStep < 3) {
       setCurrentStep(currentStep + 1);
       return;
@@ -291,7 +326,7 @@ export default function AdvertiserApplyMatchPage() {
               <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500 font-medium">
                 <span className="flex items-center gap-1.5"><Building2 size={16} /> {activeJobData.owner?.firstName || activeJobData?.businessOwner?.firstName || 'Global Brand'}</span>
                 <span className="flex items-center gap-1.5"><MapPin size={16} /> {activeJobData.location || activeJobData.requirements?.location || 'Remote'}</span>
-                <span className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-500"><DollarSign size={16} /> {(typeof activeJobData.budget === 'object' ? activeJobData.budget.amount : (activeJobData.budget || 0)).toLocaleString()}</span>
+                <span className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-500"><span className="text-[10px] font-black uppercase tracking-wider bg-emerald-500/10 dark:bg-emerald-500/20 px-1.5 py-0.5 rounded-md">ETB</span> {(typeof activeJobData.budget === 'object' ? activeJobData.budget.amount : (activeJobData.budget || 0)).toLocaleString()}</span>
               </div>
             </div>
             <button className="w-12 h-12 bg-gray-50 dark:bg-white/5 rounded-2xl flex items-center justify-center text-gray-400 hover:text-emerald-500 transition-colors">
@@ -362,7 +397,7 @@ export default function AdvertiserApplyMatchPage() {
                 <section className="bg-white dark:bg-[#111] p-6 md:p-8 rounded-[2.5rem] border border-gray-100 dark:border-white/5 shadow-sm">
                   <div className="flex items-center gap-2 mb-6">
                     <div className="w-8 h-8 rounded-xl bg-purple-500/10 text-purple-500 flex items-center justify-center"><FileText size={16} /></div>
-                    <h2 className="text-xl font-bold text-gray-900 dark:text-white">Resume / CV</h2>
+                    <h2 className="text-xl font-bold text-gray-900 dark:text-white">Resume / CV *</h2>
                   </div>
 
                   <input
@@ -477,23 +512,6 @@ export default function AdvertiserApplyMatchPage() {
                         placeholder="Briefly explain why you're a good fit..."
                         className="w-full bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl p-4 text-sm focus:border-emerald-500 outline-none resize-none text-gray-900 dark:text-white"
                       />
-                    </div>
-
-                    <div className="pt-6 border-t border-gray-100 dark:border-white/5 space-y-6">
-                      <h3 className="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-2"><AlertCircle size={16} className="text-amber-500" /> Screening Questions</h3>
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="space-y-2">
-                          <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Expected Rate (ETB)?</label>
-                          <input type="text" name="expectedSalary" value={formData.expectedSalary} onChange={handleInputChange} className="w-full bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2 text-sm focus:border-emerald-500 outline-none text-gray-900 dark:text-white" />
-                        </div>
-                        <div className="space-y-2">
-                          <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Are you willing to relocate?</label>
-                          <select name="relocate" value={formData.relocate} onChange={handleInputChange} className="w-full bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2 text-sm focus:border-emerald-500 outline-none text-gray-900 dark:text-white">
-                            <option>Yes</option><option>No</option><option>Maybe</option>
-                          </select>
-                        </div>
-                      </div>
                     </div>
                   </div>
                 </section>

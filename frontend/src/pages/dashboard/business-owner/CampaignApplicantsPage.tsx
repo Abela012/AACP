@@ -305,23 +305,14 @@ export default function CampaignApplicantsPage() {
                             {app.applicationData.resumeUrl && (
                               <div>
                                 <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Attached Document</p>
-                                {app.applicationData.resumeUrl.startsWith('http') ? (
-                                  <a 
-                                    href={app.applicationData.resumeUrl} 
-                                    target="_blank" 
-                                    rel="noreferrer"
-                                    className="inline-flex items-center gap-2 text-sm font-bold text-emerald-500 hover:text-emerald-400 transition-colors bg-emerald-50 dark:bg-emerald-500/10 px-4 py-2 rounded-xl"
-                                  >
-                                    <FileText size={16} /> {app.applicationData.resumeUrl.split('/').pop() || 'View CV'} <Download size={14} />
-                                  </a>
-                                ) : (
-                                  <button
-                                    onClick={() => alert(`This application contains a legacy file: ${app.applicationData.resumeUrl}. Please ask the applicant to re-submit with the new file upload feature.`)}
-                                    className="inline-flex items-center gap-2 text-sm font-bold text-amber-500 hover:text-amber-400 transition-colors bg-amber-50 dark:bg-amber-500/10 px-4 py-2 rounded-xl"
-                                  >
-                                    <FileText size={16} /> {app.applicationData.resumeUrl} <AlertCircle size={14} />
-                                  </button>
-                                )}
+                                <a 
+                                  href={app.applicationData.resumeUrl.startsWith('http') ? app.applicationData.resumeUrl : `https://res.cloudinary.com/dt3zzcvph/image/upload/v1/aacp/uploads/${app.applicationData.resumeUrl}`} 
+                                  target="_blank" 
+                                  rel="noreferrer"
+                                  className="inline-flex items-center gap-2 text-sm font-bold text-emerald-500 hover:text-emerald-400 transition-colors bg-emerald-50 dark:bg-emerald-500/10 px-4 py-2 rounded-xl"
+                                >
+                                  <FileText size={16} /> {app.applicationData.resumeUrl.split('/').pop() || 'View CV'} <Download size={14} />
+                                </a>
                               </div>
                             )}
                           </div>
