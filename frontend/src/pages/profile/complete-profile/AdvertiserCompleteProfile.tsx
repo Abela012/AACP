@@ -492,10 +492,10 @@ export default function AdvertiserCompleteProfile() {
             <div className="mt-4">
               {connectedAccounts.tiktok.connected && connectedAccounts.tiktok.verified ? (
                 <button
-                  onClick={() => handleDisconnect('tiktok')}
-                  className="w-full text-xs font-bold py-2 bg-red-500/10 text-red-500 hover:bg-red-500/20 rounded-xl transition-all"
+                  disabled
+                  className="w-full text-xs font-bold py-2.5 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-xl cursor-not-allowed flex items-center justify-center gap-1.5"
                 >
-                  Disconnect
+                  <Check size={14} /> Connected
                 </button>
               ) : (
                 <button
@@ -507,7 +507,7 @@ export default function AdvertiserCompleteProfile() {
               )}
             </div>
           </div>
-
+ 
           {/* Instagram Connection Card */}
           <div className="bg-gray-50 dark:bg-[#151515] border border-gray-100 dark:border-white/5 rounded-2xl p-5 flex flex-col justify-between min-h-[170px] relative overflow-hidden transition-all hover:border-emerald-500/20">
             <div>
@@ -536,10 +536,10 @@ export default function AdvertiserCompleteProfile() {
             <div className="mt-4">
               {connectedAccounts.instagram.connected && connectedAccounts.instagram.verified ? (
                 <button
-                  onClick={() => handleDisconnect('instagram')}
-                  className="w-full text-xs font-bold py-2 bg-red-500/10 text-red-500 hover:bg-red-500/20 rounded-xl transition-all"
+                  disabled
+                  className="w-full text-xs font-bold py-2.5 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-xl cursor-not-allowed flex items-center justify-center gap-1.5"
                 >
-                  Disconnect
+                  <Check size={14} /> Connected
                 </button>
               ) : (
                 <button
@@ -551,7 +551,7 @@ export default function AdvertiserCompleteProfile() {
               )}
             </div>
           </div>
-
+ 
           {/* Facebook Connection Card */}
           <div className="bg-gray-50 dark:bg-[#151515] border border-gray-100 dark:border-white/5 rounded-2xl p-5 flex flex-col justify-between min-h-[170px] relative overflow-hidden transition-all hover:border-emerald-500/20">
             <div>
@@ -580,10 +580,10 @@ export default function AdvertiserCompleteProfile() {
             <div className="mt-4">
               {connectedAccounts.facebook.connected && connectedAccounts.facebook.verified ? (
                 <button
-                  onClick={() => handleDisconnect('facebook')}
-                  className="w-full text-xs font-bold py-2 bg-red-500/10 text-red-500 hover:bg-red-500/20 rounded-xl transition-all"
+                  disabled
+                  className="w-full text-xs font-bold py-2.5 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-xl cursor-not-allowed flex items-center justify-center gap-1.5"
                 >
-                  Disconnect
+                  <Check size={14} /> Connected
                 </button>
               ) : (
                 <button

@@ -128,7 +128,7 @@ export default function OpportunityListPage() {
 
               // Handle application count string
               const applicantCount = Array.isArray(opp.applicants) ? opp.applicants.length : 0;
-              const proposalText = applicantCount < 5 ? "Less than 5" : applicantCount.toString();
+              const proposalText = applicantCount.toString();
 
               if (idx === 0) {
                 return (
@@ -165,7 +165,7 @@ export default function OpportunityListPage() {
                           <span className="w-1.5 h-1.5 rounded-full bg-gray-300 dark:bg-gray-700" />
                           <span>{opp.experienceLevel || 'Expert'}</span>
                           <span className="w-1.5 h-1.5 rounded-full bg-gray-300 dark:bg-gray-700" />
-                          <span>Est. Budget: {opp.budget?.currency === 'AACP' ? '' : '$'}{opp.budget?.amount?.toLocaleString() || '0'} {opp.budget?.currency === 'AACP' ? 'AACP' : ''}</span>
+                          <span>Est. Budget: {opp.budget?.amount?.toLocaleString() || '0'} {opp.budget?.currency || 'ETB'}</span>
                         </div>
                       </div>
 
@@ -258,7 +258,7 @@ export default function OpportunityListPage() {
                   </div>
 
                   <div className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-4">
-                    {opp.paymentType || 'Fixed-price'} - {opp.experienceLevel || 'Expert'} - Est. Budget: {opp.budget?.currency === 'AACP' ? '' : '$'}{opp.budget?.amount?.toLocaleString() || '0'} {opp.budget?.currency === 'AACP' ? 'AACP' : ''}
+                    {opp.paymentType || 'Fixed-price'} - {opp.experienceLevel || 'Expert'} - Est. Budget: {opp.budget?.amount?.toLocaleString() || '0'} {opp.budget?.currency || 'ETB'}
                   </div>
 
                   <div className="text-sm text-gray-700 dark:text-gray-300 mb-6 relative">

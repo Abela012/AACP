@@ -144,7 +144,7 @@ export default function CampaignsPage() {
                       </td>
                       <td className="px-8 py-6">
                         <p className="text-sm font-bold text-gray-900 dark:text-white">
-                          ${(typeof c.budget === 'object' ? c.budget.amount : (c.budget || 0)).toLocaleString()}
+                          {(typeof c.budget === 'object' ? c.budget.amount : (c.budget || 0)).toLocaleString()} ETB
                         </p>
                       </td>
 

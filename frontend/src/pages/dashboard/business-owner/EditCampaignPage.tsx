@@ -108,7 +108,7 @@ export default function EditCampaignPage() {
           deliverables,
           budget: {
             amount: Number(budgetAmount),
-            currency: 'USD'
+            currency: 'ETB'
           },
           deadline: deadline ? new Date(deadline).toISOString() : undefined,
           requirements: {
@@ -218,14 +218,14 @@ export default function EditCampaignPage() {
                   )}
                 </div>
                 <div>
-                  <label className="block text-sm font-bold text-gray-900 dark:text-white mb-2">Budget (USD) *</label>
+                  <label className="block text-sm font-bold text-gray-900 dark:text-white mb-2">Budget (Birr) *</label>
                   <div className="relative">
-                    <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xs font-black text-gray-400">ETB</span>
                     <input 
                       type="number"
                       value={budgetAmount}
                       onChange={(e) => setBudgetAmount(e.target.value)}
-                      className="w-full bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl pl-10 pr-4 py-3 text-sm text-gray-900 dark:text-white focus:outline-none focus:border-emerald-500 transition-all"
+                      className="w-full bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl pl-12 pr-4 py-3 text-sm text-gray-900 dark:text-white focus:outline-none focus:border-emerald-500 transition-all"
                       required
                     />
                   </div>
