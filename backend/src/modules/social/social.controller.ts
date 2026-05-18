@@ -222,15 +222,35 @@ export const verifyConnection = async (req: Request, res: Response): Promise<voi
             const bio = userData?.biography || '';
             bioHasCode = bio.toLowerCase().includes(verificationCode.toLowerCase());
 
+            const latestPosts = userData?.latestPosts || [];
+            let avgViews = 0, avgLikes = 0, avgComments = 0;
+            let engagementRate = 0;
+            let totalLikes = 0;
+            
+            if (latestPosts.length > 0) {
+                const totalPostViews = latestPosts.reduce((s: number, p: any) => s + (p.videoViewCount || 0), 0);
+                totalLikes = latestPosts.reduce((s: number, p: any) => s + (p.likesCount || 0), 0);
+                const totalPostComments = latestPosts.reduce((s: number, p: any) => s + (p.commentsCount || 0), 0);
+                
+                avgViews = Math.round(totalPostViews / latestPosts.length);
+                avgLikes = Math.round(totalLikes / latestPosts.length);
+                avgComments = Math.round(totalPostComments / latestPosts.length);
+            }
+            
+            const followers = userData?.followersCount || 0;
+            if (followers > 0 && (avgLikes > 0 || avgComments > 0)) {
+                engagementRate = parseFloat((((avgLikes + avgComments) / followers) * 100).toFixed(2));
+            }
+
             metrics = {
-                followers: userData?.followersCount || 0,
+                followers,
                 following: userData?.followsCount || 0,
                 totalPosts: userData?.postsCount || 0,
-                totalLikes: 0,
-                avgViews: 0,
-                avgLikes: 0,
-                avgComments: 0,
-                engagementRate: 0
+                totalLikes,
+                avgViews,
+                avgLikes,
+                avgComments,
+                engagementRate
             };
             profilePic = userData?.profilePicUrlHD || userData?.profilePicUrl || '';
         } else {

@@ -89,7 +89,7 @@ export const uploadFile = async (
         const stream = cloudinary.uploader.upload_stream(
           {
             folder: "aacp/uploads",
-            resource_type: "auto",
+            resource_type: "raw",
           },
           (error, result) => {
             if (result) resolve(result);

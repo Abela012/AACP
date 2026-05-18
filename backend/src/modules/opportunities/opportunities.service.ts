@@ -1,5 +1,6 @@
 import Opportunity, { IOpportunity } from '../../database/models/Opportunity';
 import User from '../../database/models/User';
+import Application from '../../database/models/Application';
 import mongoose from 'mongoose';
 
 /**
@@ -31,15 +32,25 @@ export const createOpportunity = async (data: Partial<IOpportunity>): Promise<IO
  * Get all opportunities (with optional population of businessOwner)
  * @returns List of all opportunities
  */
-export const getAllOpportunities = async (): Promise<IOpportunity[]> => {
+export const getAllOpportunities = async (): Promise<any[]> => {
     try {
         console.log('[OpportunityService] Fetching all opportunities...');
         const opportunities = await Opportunity.find()
-            .populate('businessOwner', 'firstName lastName email profilePicture')
+            .populate('businessOwner', 'firstName lastName email profilePicture username averageRating totalReviews')
             .sort({ createdAt: -1 })
-            .maxTimeMS(15000);
-        console.log(`[OpportunityService] Found ${opportunities.length} opportunities`);
-        return opportunities;
+            .maxTimeMS(15000)
+            .lean();
+            
+        const oppsWithApplicants = await Promise.all(opportunities.map(async (opp) => {
+            const count = await Application.countDocuments({ opportunity: opp._id });
+            return {
+                ...opp,
+                applicants: Array(count).fill({})
+            };
+        }));
+        
+        console.log(`[OpportunityService] Found ${oppsWithApplicants.length} opportunities`);
+        return oppsWithApplicants;
     } catch (err: any) {
         console.error(`[OpportunityService] Error in getAllOpportunities: ${err.message}`);
         throw err;
@@ -93,7 +104,7 @@ export const deleteOpportunity = async (id: string): Promise<IOpportunity | null
  * @param userId - MongoDB user _id or Clerk user id
  * @returns List of opportunities by the user
  */
-export const getOpportunitiesByUser = async (userId: string): Promise<IOpportunity[]> => {
+export const getOpportunitiesByUser = async (userId: string): Promise<any[]> => {
     try {
         let ownerId: mongoose.Types.ObjectId;
 
@@ -109,12 +120,20 @@ export const getOpportunitiesByUser = async (userId: string): Promise<IOpportuni
         }
 
         const opportunities = await Opportunity.find({ businessOwner: ownerId })
-            .populate('businessOwner', 'firstName lastName email profilePicture')
+            .populate('businessOwner', 'firstName lastName email profilePicture username averageRating totalReviews')
             .sort({ createdAt: -1 })
             .maxTimeMS(15000)
             .lean();
+            
+        const oppsWithApplicants = await Promise.all(opportunities.map(async (opp) => {
+            const count = await Application.countDocuments({ opportunity: opp._id });
+            return {
+                ...opp,
+                applicants: Array(count).fill({})
+            };
+        }));
 
-        return opportunities as unknown as IOpportunity[];
+        return oppsWithApplicants;
     } catch (err: any) {
         console.error(`[OpportunityService] getOpportunitiesByUser failed for ${userId}:`, err.message);
         throw err;
