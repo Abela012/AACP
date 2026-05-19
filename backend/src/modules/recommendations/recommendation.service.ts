@@ -261,7 +261,7 @@ export const getRecommendationsForUser = async (userId: string): Promise<Recomme
                     engagementRate: advMetrics.engagementRate,
                     username: adv.username,
                     niches: advMetrics.niches,
-                    bio: advProfile.bio || '',
+                    bio: advProfile.bio || advDoc?.bio || adv.about || '',
                     platforms: advMetrics.platforms,
                     averageRating: advDoc?.averageRating || 0,
                     totalReviews: advDoc?.totalReviews || 0,
