@@ -77,6 +77,8 @@ import Wallet from "../../database/models/Wallet";
 import AuditLog from "../../database/models/AuditLog";
 import Opportunity from "../../database/models/Opportunity";
 import Application from "../../database/models/Application";
+import BusinessOwner from "../../database/models/businessOwner";
+import AdvertiserProfile from "../../database/models/AdvertiserProfile";
 import {
     getPlatformSettings,
     updatePlatformSettings,
@@ -177,46 +179,66 @@ export const banUser = async (req: Request, res: Response) => {
             user.status = 'active';
             user.isVerified = true;
 
-            const pendingUpdates = (user as any).pendingUpdates;
-            if (pendingUpdates && typeof pendingUpdates === 'object' && Object.keys(pendingUpdates).length > 0) {
-                for (const key of Object.keys(pendingUpdates)) {
-                    const val = pendingUpdates[key];
-                    if (val !== undefined && val !== null) {
-                        (user as any)[key] = val;
-                    }
+            let profileDoc: any = null;
+            if (user.role === 'business_owner') {
+                profileDoc = await BusinessOwner.findOne({ userId: user._id });
+                if (!profileDoc) {
+                    profileDoc = new BusinessOwner({ userId: user._id });
                 }
-                if (typeof pendingUpdates.tradeLicenseUrl === 'string' && pendingUpdates.tradeLicenseUrl) {
-                    user.tradeLicenseUrl = pendingUpdates.tradeLicenseUrl;
+            } else if (user.role === 'advertiser') {
+                profileDoc = await AdvertiserProfile.findOne({ userId: user._id });
+                if (!profileDoc) {
+                    profileDoc = new AdvertiserProfile({ userId: user._id });
                 }
-                (user as any).pendingUpdates = null;
-                user.markModified('pendingUpdates');
             }
 
-            if (user.pendingProfileData && typeof user.pendingProfileData === 'object') {
-                const pending = user.pendingProfileData as Record<string, unknown>;
-                const merged = mergeProfileData(
-                    (user.profileData || {}) as Record<string, unknown>,
-                    pending
-                );
-                user.profileData = sanitizeProfileDataForStorage(merged) as typeof user.profileData;
-
-                const licenseFromPending =
-                    (typeof pending.tradeLicenseUrl === 'string' && pending.tradeLicenseUrl) ||
-                    (typeof (user.profileData as Record<string, unknown>)?.tradeLicenseUrl === 'string'
-                        ? ((user.profileData as Record<string, unknown>).tradeLicenseUrl as string)
-                        : '');
-                if (licenseFromPending) {
-                    user.tradeLicenseUrl = licenseFromPending;
+            if (profileDoc) {
+                const pendingUpdates = profileDoc.pendingUpdates;
+                if (pendingUpdates && typeof pendingUpdates === 'object' && Object.keys(pendingUpdates).length > 0) {
+                    for (const key of Object.keys(pendingUpdates)) {
+                        const val = pendingUpdates[key];
+                        if (val !== undefined && val !== null) {
+                            if (['tradeLicenseUrl', 'idVerificationUrl', 'bio', 'location', 'businessName'].includes(key)) {
+                                profileDoc[key] = val;
+                            } else {
+                                (user as any)[key] = val;
+                            }
+                        }
+                    }
+                    if (typeof pendingUpdates.tradeLicenseUrl === 'string' && pendingUpdates.tradeLicenseUrl) {
+                        profileDoc.tradeLicenseUrl = pendingUpdates.tradeLicenseUrl;
+                    }
+                    profileDoc.pendingUpdates = null;
                 }
 
-                user.pendingProfileData = null;
-                user.markModified('profileData');
-                user.markModified('pendingProfileData');
-            } else if (user.profileData) {
-                user.profileData = sanitizeProfileDataForStorage(
-                    user.profileData as Record<string, unknown>
-                ) as typeof user.profileData;
-                user.markModified('profileData');
+                if (profileDoc.pendingProfileData && typeof profileDoc.pendingProfileData === 'object') {
+                    const pending = profileDoc.pendingProfileData as Record<string, unknown>;
+                    const merged = mergeProfileData(
+                        (profileDoc.profileData || {}) as Record<string, unknown>,
+                        pending
+                    );
+                    profileDoc.profileData = sanitizeProfileDataForStorage(merged);
+
+                    const licenseFromPending =
+                        (typeof pending.tradeLicenseUrl === 'string' && pending.tradeLicenseUrl) ||
+                        (typeof (profileDoc.profileData as Record<string, unknown>)?.tradeLicenseUrl === 'string'
+                            ? ((profileDoc.profileData as Record<string, unknown>).tradeLicenseUrl as string)
+                            : '');
+                    if (licenseFromPending) {
+                        profileDoc.tradeLicenseUrl = licenseFromPending;
+                    }
+
+                    profileDoc.pendingProfileData = null;
+                } else if (profileDoc.profileData) {
+                    profileDoc.profileData = sanitizeProfileDataForStorage(
+                        profileDoc.profileData as Record<string, unknown>
+                    );
+                }
+                
+                profileDoc.markModified('profileData');
+                profileDoc.markModified('pendingUpdates');
+                profileDoc.markModified('pendingProfileData');
+                await profileDoc.save();
             }
         } else {
             user.status = status;

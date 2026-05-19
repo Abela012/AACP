@@ -4,7 +4,7 @@ const norm = (v: unknown) => (v == null ? '' : String(v).trim());
 
 /** Fields that require admin re-approval when changed on an already-approved business profile. */
 export const hasRequiredBusinessFieldChanges = (
-    user: IUser,
+    user: any,
     body: Record<string, unknown>
 ): boolean => {
     const current = (user.profileData || {}) as Record<string, unknown>;

@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import User from '../../database/models/User';
 import VerificationCode from '../../database/models/VerificationCode';
+import AdvertiserProfile from '../../database/models/AdvertiserProfile';
 import { getAuth } from '@clerk/express';
 import * as crypto from 'crypto';
 import { ApifyClient } from 'apify-client';
@@ -28,6 +29,29 @@ export const getProfileSetup = async (req: Request, res: Response): Promise<void
             }
         }
 
+        const advertiserProfile = await AdvertiserProfile.findOne({ userId: user._id });
+        const connectedAccounts = {
+            tiktok: { connected: false, verified: false },
+            instagram: { connected: false, verified: false },
+            facebook: { connected: false, verified: false }
+        };
+
+        if (advertiserProfile && advertiserProfile.socialProfiles) {
+            for (const sp of advertiserProfile.socialProfiles) {
+                const plat = sp.platform.toLowerCase();
+                if (plat === 'tiktok' || plat === 'instagram' || plat === 'facebook') {
+                    connectedAccounts[plat as 'tiktok' | 'instagram' | 'facebook'] = {
+                        connected: true,
+                        verified: sp.verified,
+                        username: sp.username,
+                        displayName: sp.username,
+                        followers: sp.followers,
+                        engagementRate: sp.engagementRate
+                    } as any;
+                }
+            }
+        }
+
         res.status(200).json({
             success: true,
             user: {
@@ -36,16 +60,12 @@ export const getProfileSetup = async (req: Request, res: Response): Promise<void
                 phoneNumber: user.phoneNumber || "",
                 email: user.email || "",
                 emailVerified: user.emailVerified || false,
-                connectedAccounts: user.connectedAccounts || {
-                    tiktok: { connected: false, verified: false },
-                    instagram: { connected: false, verified: false },
-                    facebook: { connected: false, verified: false }
-                },
-                profileCompleted: user.profileCompleted || false,
-                niche: user.niche || "",
-                contentTypes: user.contentTypes || [],
-                targetAudience: user.targetAudience || { ageRange: "", gender: "", interests: [] },
-                experienceLevel: user.experienceLevel || ""
+                connectedAccounts,
+                profileCompleted: advertiserProfile?.profileCompleted || user.profileCompleted || false,
+                niche: advertiserProfile?.niche || user.niche || "",
+                contentTypes: advertiserProfile?.contentFormats || user.contentTypes || [],
+                targetAudience: advertiserProfile?.targetAudience || user.targetAudience || { ageRange: "", gender: "", interests: [] },
+                experienceLevel: advertiserProfile?.experienceLevel || user.experienceLevel || ""
             }
         });
     } catch (error: any) {
@@ -405,36 +425,78 @@ export const verifySocialConnection = async (req: Request, res: Response): Promi
         codeRecord.status = 'verified';
         await codeRecord.save();
 
-        if (!user.connectedAccounts) {
-            user.connectedAccounts = {};
+        let advertiserProfile = await AdvertiserProfile.findOne({ userId: user._id });
+        if (!advertiserProfile) {
+            advertiserProfile = new AdvertiserProfile({ userId: user._id });
         }
 
-        user.connectedAccounts[normalizedPlatform] = {
-            connected: true,
-            verified: true,
+        const schemaPlatform = normalizedPlatform === 'tiktok' ? 'TikTok' :
+                             normalizedPlatform === 'instagram' ? 'Instagram' : 'Facebook';
+
+        if (!advertiserProfile.socialProfiles) {
+            advertiserProfile.socialProfiles = [];
+        }
+        advertiserProfile.socialProfiles = advertiserProfile.socialProfiles.filter(
+            sp => sp.platform !== schemaPlatform
+        );
+
+        advertiserProfile.socialProfiles.push({
+            platform: schemaPlatform as any,
             username: cleanUsername,
-            displayName,
-            bio,
-            profilePicture: profilePic,
-            metrics,
-            verifiedBadge,
-            lastSynced: new Date(),
-            connectedAt: new Date()
-        };
+            profileLink: `https://www.${normalizedPlatform}.com/${cleanUsername}`,
+            verified: true,
+            followers: metrics?.followers || 0,
+            following: metrics?.following || 0,
+            engagementRate: metrics?.engagementRate || 0,
+            postingFrequency: 'weekly',
+            niches: [],
+            contentStyles: [],
+            analytics: metrics,
+            audience: {},
+            audienceQuality: {},
+            sentimentAnalysis: {},
+            brandSafety: {},
+            collaborationHistory: {},
+            conversionMetrics: {},
+            aiScores: {},
+            aiInsights: {},
+            connectedAt: new Date(),
+            lastSynced: new Date()
+        });
 
         // Update profilePicture if empty
         if (!user.profilePicture) {
             user.profilePicture = profilePic;
+            await user.save();
         }
 
-        user.markModified('connectedAccounts');
-        await user.save();
+        advertiserProfile.markModified('socialProfiles');
+        await advertiserProfile.save();
+
+        const connectedAccounts = {
+            tiktok: { connected: false, verified: false },
+            instagram: { connected: false, verified: false },
+            facebook: { connected: false, verified: false }
+        };
+        for (const sp of advertiserProfile.socialProfiles) {
+            const plat = sp.platform.toLowerCase();
+            if (plat === 'tiktok' || plat === 'instagram' || plat === 'facebook') {
+                connectedAccounts[plat as 'tiktok' | 'instagram' | 'facebook'] = {
+                    connected: true,
+                    verified: sp.verified,
+                    username: sp.username,
+                    displayName: sp.username,
+                    followers: sp.followers,
+                    engagementRate: sp.engagementRate
+                } as any;
+            }
+        }
 
         res.status(200).json({
             success: true,
             message: `${platform} connected successfully`,
             user: {
-                connectedAccounts: user.connectedAccounts
+                connectedAccounts
             }
         });
     } catch (error: any) {
@@ -468,29 +530,43 @@ export const disconnectSocialConnection = async (req: Request, res: Response): P
             }
         }
 
-        if (user.connectedAccounts && user.connectedAccounts[normalizedPlatform]) {
-            user.connectedAccounts[normalizedPlatform] = {
-                connected: false,
-                verified: false,
-                username: undefined,
-                displayName: undefined,
-                bio: undefined,
-                profilePicture: undefined,
-                metrics: undefined,
-                verifiedBadge: false,
-                lastSynced: undefined,
-                connectedAt: undefined
-            };
+        let advertiserProfile = await AdvertiserProfile.findOne({ userId: user._id });
+        if (advertiserProfile && advertiserProfile.socialProfiles) {
+            const schemaPlatform = normalizedPlatform === 'tiktok' ? 'TikTok' :
+                                 normalizedPlatform === 'instagram' ? 'Instagram' : 'Facebook';
+            advertiserProfile.socialProfiles = advertiserProfile.socialProfiles.filter(
+                sp => sp.platform !== schemaPlatform
+            );
+            advertiserProfile.markModified('socialProfiles');
+            await advertiserProfile.save();
         }
 
-        user.markModified('connectedAccounts');
-        await user.save();
+        const connectedAccounts = {
+            tiktok: { connected: false, verified: false },
+            instagram: { connected: false, verified: false },
+            facebook: { connected: false, verified: false }
+        };
+        if (advertiserProfile && advertiserProfile.socialProfiles) {
+            for (const sp of advertiserProfile.socialProfiles) {
+                const plat = sp.platform.toLowerCase();
+                if (plat === 'tiktok' || plat === 'instagram' || plat === 'facebook') {
+                    connectedAccounts[plat as 'tiktok' | 'instagram' | 'facebook'] = {
+                        connected: true,
+                        verified: sp.verified,
+                        username: sp.username,
+                        displayName: sp.username,
+                        followers: sp.followers,
+                        engagementRate: sp.engagementRate
+                    } as any;
+                }
+            }
+        }
 
         res.status(200).json({
             success: true,
             message: `${platform} account disconnected successfully`,
             user: {
-                connectedAccounts: user.connectedAccounts
+                connectedAccounts
             }
         });
     } catch (error: any) {
@@ -523,13 +599,14 @@ export const updateContentNiche = async (req: Request, res: Response): Promise<v
             return;
         }
 
-        // Validate that at least one social media account is connected
-        let hasConnected = false;
-        if (user.connectedAccounts) {
-            hasConnected = ['tiktok', 'instagram', 'facebook'].some(
-                p => user.connectedAccounts[p] && user.connectedAccounts[p].connected && user.connectedAccounts[p].verified
-            );
+        // 🚀 Auto-approve: Create or update AdvertiserProfile directly (no pending staging)
+        let advertiserProfile = await AdvertiserProfile.findOne({ userId: user._id });
+        if (!advertiserProfile) {
+            advertiserProfile = new AdvertiserProfile({ userId: user._id });
         }
+
+        // Validate that at least one social media account is connected
+        let hasConnected = advertiserProfile.socialProfiles && advertiserProfile.socialProfiles.length > 0 && advertiserProfile.socialProfiles.some(sp => sp.verified);
 
         if (!hasConnected) {
             res.status(400).json({ success: false, message: "Please connect at least one social media account" });
@@ -546,6 +623,34 @@ export const updateContentNiche = async (req: Request, res: Response): Promise<v
         user.isVerified = true;
 
         await user.save();
+
+        advertiserProfile.niche = niche;
+        advertiserProfile.experienceLevel = experienceLevel;
+        advertiserProfile.contentFormats = contentTypes;
+        advertiserProfile.targetAudience = targetAudience;
+        advertiserProfile.profileCompleted = true;
+        advertiserProfile.profileCompletedAt = new Date();
+        advertiserProfile.phoneNumber = user.phoneNumber;
+        advertiserProfile.bio = user.bio;
+        advertiserProfile.location = user.location;
+
+        // Clean up pending approval fields
+        advertiserProfile.pendingProfileData = null;
+        advertiserProfile.pendingUpdates = null;
+
+        // Propagate niche and contentTypes onto the connected socialProfiles niches/styles lists
+        if (advertiserProfile.socialProfiles) {
+            for (const sp of advertiserProfile.socialProfiles) {
+                sp.niches = [niche];
+                sp.contentStyles = contentTypes;
+            }
+        }
+
+        advertiserProfile.markModified('socialProfiles');
+        advertiserProfile.markModified('targetAudience');
+        advertiserProfile.markModified('pendingProfileData');
+        advertiserProfile.markModified('pendingUpdates');
+        await advertiserProfile.save();
 
         res.status(200).json({
             success: true,

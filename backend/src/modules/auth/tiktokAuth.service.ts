@@ -127,7 +127,6 @@ const createMongoUserForTikTok = async (
         username,
         profilePicture: profilePicture || '',
         role,
-        tiktokOpenId,
         status: 'incomplete',
     });
 
@@ -192,7 +191,8 @@ export const completeTikTokOAuth = async (
     }
 
     const openId = profile.id;
-    let user = await User.findOne({ tiktokOpenId: openId });
+    const connection = await SocialConnection.findOne({ platformUserId: openId, platform: 'tiktok' });
+    let user = connection ? await User.findById(connection.userId) : null;
 
     if (!user && state.mode === 'signin') {
         throw new Error('No account is linked to this TikTok. Sign up first or use email login.');
@@ -225,9 +225,6 @@ export const completeTikTokOAuth = async (
             throw dbErr;
         }
     } else {
-        if (!user.tiktokOpenId) {
-            user.tiktokOpenId = openId;
-        }
         if (profile.avatar && !user.profilePicture) {
             user.profilePicture = profile.avatar;
         }
@@ -247,7 +244,7 @@ export const completeTikTokOAuth = async (
     );
 
     const signInToken = await clerkClient.signInTokens.createSignInToken({
-        userId: user.clerkId,
+        userId: user.clerkId as string,
         expiresInSeconds: 120,
     });
 

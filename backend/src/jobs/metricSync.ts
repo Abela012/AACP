@@ -1,6 +1,6 @@
 import cron from 'node-cron';
 import { ApifyClient } from 'apify-client';
-import User from '../database/models/User';
+import AdvertiserProfile from '../database/models/AdvertiserProfile';
 import logger from '../utils/logger';
 
 // Sync social metrics for all users
@@ -15,17 +15,18 @@ export const syncAllUserMetrics = async () => {
 
         const client = new ApifyClient({ token: apifyToken });
 
-        // Find all TikTok-First advertisers
-        const advertisers = await User.find({
-            role: 'advertiser',
-            tiktokUsername: { $exists: true, $ne: null },
-            status: 'active'
+        // Find all advertisers with connected TikTok profiles
+        const advertisers = await AdvertiserProfile.find({
+            "socialProfiles.platform": "TikTok"
         });
 
         logger.info(`[SyncJob] Found ${advertisers.length} TikTok-First advertisers to sync.`);
 
-        for (const user of advertisers) {
-            const username = user.tiktokUsername!;
+        for (const profile of advertisers) {
+            const tiktokProfile = profile.socialProfiles.find(p => p.platform === 'TikTok');
+            if (!tiktokProfile) continue;
+            
+            const username = tiktokProfile.username;
             try {
                 logger.info(`[SyncJob] Syncing TikTok metrics for @${username}`);
 
@@ -45,49 +46,21 @@ export const syncAllUserMetrics = async () => {
                     const avgComments = userData?.avgComments || 0;
                     const engagementRate = followers > 0 ? parseFloat((((avgLikes + avgComments) / followers) * 100).toFixed(2)) : 0;
 
-                    user.tiktokProfile = {
-                        displayName: userData?.authorMeta?.nickName || user.tiktokProfile?.displayName || username,
-                        bio: userData?.authorMeta?.bio || user.tiktokProfile?.bio || '',
-                        profilePicture: userData?.authorMeta?.avatar || user.tiktokProfile?.profilePicture || '',
-                        verifiedBadge: userData?.authorMeta?.verified || false,
-                        metrics: {
-                            followers,
-                            following,
-                            totalLikes,
-                            totalPosts,
-                            avgViews,
-                            avgLikes,
-                            avgComments,
-                            engagementRate
-                        },
-                        lastSynced: new Date()
+                    tiktokProfile.followers = followers;
+                    tiktokProfile.following = following;
+                    tiktokProfile.engagementRate = engagementRate;
+                    tiktokProfile.verified = userData?.authorMeta?.verified || false;
+                    tiktokProfile.analytics = {
+                        ...(tiktokProfile.analytics || {}),
+                        totalLikes,
+                        totalPosts,
+                        avgViews,
+                        avgLikes,
+                        avgComments
                     };
+                    tiktokProfile.lastSynced = new Date();
 
-                    // Update legacy profile sync if it exists
-                    if (user.socialProfiles && user.socialProfiles.length > 0) {
-                        user.socialProfiles = user.socialProfiles.map((p: any) => {
-                            if (p.platform?.toLowerCase() === 'tiktok') {
-                                return {
-                                    ...p,
-                                    followers,
-                                    following,
-                                    verified: userData?.authorMeta?.verified || false,
-                                    tiktokAnalytics: {
-                                        ...p.tiktokAnalytics,
-                                        followers,
-                                        following,
-                                        totalLikes,
-                                        avgViews,
-                                        avgLikes,
-                                        avgComments
-                                    }
-                                };
-                            }
-                            return p;
-                        });
-                    }
-
-                    await user.save();
+                    await profile.save();
                     logger.info(`[SyncJob] Successfully updated TikTok metrics for @${username}`);
                 }
             } catch (err: any) {

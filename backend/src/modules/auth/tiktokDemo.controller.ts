@@ -5,6 +5,7 @@ import { ApifyClient } from 'apify-client';
 import bcrypt from 'bcryptjs';
 import VerificationCode from '../../database/models/VerificationCode';
 import User from '../../database/models/User';
+import AdvertiserProfile from '../../database/models/AdvertiserProfile';
 import logger from '../../utils/logger';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'super_secret_jwt_key_for_tiktok_demo';
@@ -238,30 +239,12 @@ export const verifyTikTokCode = async (req: Request, res: Response) => {
                 role: 'advertiser',
                 status: 'active',
                 profilePicture: userData?.authorMeta?.avatar || '',
-                bio: userData?.authorMeta?.bio || '',
-                tiktokUsername,
-                tiktokUserId: userData?.authorMeta?.id || userData?.id || `tt_${Date.now()}`,
-                tiktokProfile: {
-                    displayName: userData?.authorMeta?.nickName || tiktokUsername,
-                    bio: userData?.authorMeta?.bio || '',
-                    profilePicture: userData?.authorMeta?.avatar || '',
-                    verifiedBadge: userData?.authorMeta?.verified || false,
-                    metrics: {
-                        followers,
-                        following,
-                        totalLikes,
-                        totalPosts,
-                        avgViews,
-                        avgLikes,
-                        avgComments,
-                        engagementRate
-                    },
-                    lastSynced: new Date()
-                },
-                verifiedAt: new Date(),
-                lastVerifiedAt: new Date(),
-                nextVerificationRequiredAt: next30Days,
-                lastLogin: new Date(),
+                lastLogin: new Date()
+            });
+            await user.save();
+
+            const advertiserProfile = new AdvertiserProfile({
+                userId: user._id,
                 socialProfiles: [{
                     platform: 'TikTok',
                     username: tiktokUsername,
@@ -269,41 +252,63 @@ export const verifyTikTokCode = async (req: Request, res: Response) => {
                     verified: userData?.authorMeta?.verified || false,
                     followers,
                     following,
-                    tiktokAnalytics: {
-                        followers,
-                        following,
+                    engagementRate,
+                    analytics: {
                         totalLikes,
+                        totalPosts,
                         avgViews,
                         avgLikes,
-                        avgComments,
-                        avgShares: 0
-                    }
-                }]
+                        avgComments
+                    },
+                    lastSynced: new Date()
+                }],
+                profileCompleted: false
             });
-            await user.save();
+            await advertiserProfile.save();
         } else {
             user.lastLogin = new Date();
-            user.tiktokUsername = tiktokUsername;
-            user.tiktokProfile = {
-                displayName: userData?.authorMeta?.nickName || user.tiktokProfile?.displayName || tiktokUsername,
-                bio: userData?.authorMeta?.bio || user.tiktokProfile?.bio || '',
-                profilePicture: userData?.authorMeta?.avatar || user.tiktokProfile?.profilePicture || '',
-                verifiedBadge: userData?.authorMeta?.verified || false,
-                metrics: {
-                    followers,
-                    following,
+            await user.save();
+
+            let advertiserProfile = await AdvertiserProfile.findOne({ userId: user._id });
+            if (!advertiserProfile) {
+                advertiserProfile = new AdvertiserProfile({ userId: user._id, socialProfiles: [] });
+            }
+            
+            let tiktokProfile = advertiserProfile.socialProfiles.find((p: any) => p.platform === 'TikTok');
+            if (tiktokProfile) {
+                tiktokProfile.username = tiktokUsername;
+                tiktokProfile.followers = followers;
+                tiktokProfile.following = following;
+                tiktokProfile.engagementRate = engagementRate;
+                tiktokProfile.verified = userData?.authorMeta?.verified || false;
+                tiktokProfile.analytics = {
                     totalLikes,
                     totalPosts,
                     avgViews,
                     avgLikes,
-                    avgComments,
-                    engagementRate
-                },
-                lastSynced: new Date()
-            };
-            user.lastVerifiedAt = new Date();
-            user.nextVerificationRequiredAt = next30Days;
-            await user.save();
+                    avgComments
+                };
+                tiktokProfile.lastSynced = new Date();
+            } else {
+                advertiserProfile.socialProfiles.push({
+                    platform: 'TikTok',
+                    username: tiktokUsername,
+                    profileLink: `https://www.tiktok.com/@${tiktokUsername}`,
+                    verified: userData?.authorMeta?.verified || false,
+                    followers,
+                    following,
+                    engagementRate,
+                    analytics: {
+                        totalLikes,
+                        totalPosts,
+                        avgViews,
+                        avgLikes,
+                        avgComments
+                    },
+                    lastSynced: new Date()
+                });
+            }
+            await advertiserProfile.save();
         }
 
         // Generate JWT

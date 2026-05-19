@@ -6,11 +6,113 @@ import * as walletService from '../wallet/wallet.service';
 import { getPlatformSettings } from '../platform/platformSettings.service';
 import { mergeProfileData } from '../../utils/profileDataMerge';
 import { mergeAdvertiserProfileOnSubmit } from '../../utils/advertiserProfileSync';
+import AdvertiserProfile from "../../database/models/AdvertiserProfile";
+import BusinessOwner from "../../database/models/businessOwner";
+import AdminProfile from "../../database/models/AdminProfile";
+import Opportunity from "../../database/models/Opportunity";
 import { validateBusinessProfileSubmit } from './businessProfile.validation';
 import { hasRequiredBusinessFieldChanges } from './businessProfileChanges';
 
 interface MulterRequest extends Request {
   file?: Express.Multer.File;
+}
+
+export async function enrichUserWithProfile(user: any) {
+  if (!user) return user;
+  const userObj = typeof user.toObject === 'function' ? user.toObject() : JSON.parse(JSON.stringify(user));
+
+  if (userObj.role === 'advertiser') {
+    const advertiserProfile = await AdvertiserProfile.findOne({ userId: userObj._id }).lean();
+    if (advertiserProfile) {
+      const connectedAccounts = {
+        tiktok: { connected: false, verified: false },
+        instagram: { connected: false, verified: false },
+        facebook: { connected: false, verified: false }
+      };
+      if (advertiserProfile.socialProfiles) {
+        for (const sp of advertiserProfile.socialProfiles) {
+          const plat = sp.platform.toLowerCase();
+          if (plat === 'tiktok' || plat === 'instagram' || plat === 'facebook') {
+            connectedAccounts[plat as 'tiktok' | 'instagram' | 'facebook'] = {
+              connected: true,
+              verified: sp.verified,
+              username: sp.username,
+              displayName: sp.username,
+              followers: sp.followers,
+              engagementRate: sp.engagementRate
+            } as any;
+          }
+        }
+      }
+      userObj.connectedAccounts = connectedAccounts;
+      userObj.profileCompleted = advertiserProfile.profileCompleted || userObj.profileCompleted || false;
+      userObj.niche = advertiserProfile.niche || userObj.niche || "";
+      userObj.contentTypes = advertiserProfile.contentFormats || userObj.contentTypes || [];
+      userObj.targetAudience = advertiserProfile.targetAudience || userObj.targetAudience || { ageRange: "", gender: "", interests: [] };
+      userObj.experienceLevel = advertiserProfile.experienceLevel || userObj.experienceLevel || "";
+      userObj.profileData = advertiserProfile.profileData || userObj.profileData || {};
+    }
+  } else if (userObj.role === 'business_owner') {
+    const businessProfile = await BusinessOwner.findOne({ userId: userObj._id }).lean();
+    if (businessProfile) {
+      userObj.businessName = businessProfile.businessName || userObj.businessName || "";
+      userObj.location = businessProfile.location || userObj.location || "";
+      userObj.bio = businessProfile.bio || userObj.bio || "";
+      userObj.tradeLicenseUrl = businessProfile.tradeLicenseUrl || userObj.tradeLicenseUrl || "";
+      userObj.idVerificationUrl = businessProfile.idVerificationUrl || userObj.idVerificationUrl || "";
+      userObj.profileData = businessProfile.profileData || userObj.profileData || {};
+    }
+  }
+  return userObj;
+}
+
+export async function syncBusinessOwnerProfile(user: any) {
+  if (!user || user.role !== 'business_owner') return;
+
+  let businessProfile = await BusinessOwner.findOne({ userId: user._id });
+  if (!businessProfile) {
+    businessProfile = new BusinessOwner({ userId: user._id });
+  }
+
+  // Extract from user fields
+  const pData = user.profileData || {};
+  const pendingPData = user.pendingProfileData || {};
+
+  // Map to BusinessOwner fields
+  businessProfile.businessName = pData.businessName ?? pendingPData.businessName ?? user.businessName ?? businessProfile.businessName;
+  businessProfile.businessEmail = pData.businessEmail ?? pendingPData.businessEmail ?? user.businessEmail ?? businessProfile.businessEmail;
+  businessProfile.phoneNumber = pData.phone ?? pendingPData.phone ?? pData.phoneNumber ?? pendingPData.phoneNumber ?? user.phoneNumber ?? user.phone ?? businessProfile.phoneNumber;
+  businessProfile.website = pData.websiteUrl ?? pendingPData.websiteUrl ?? pData.website ?? pendingPData.website ?? user.websiteUrl ?? user.website ?? businessProfile.website;
+  businessProfile.industry = pData.businessCategory ?? pendingPData.businessCategory ?? pData.industry ?? pendingPData.industry ?? user.industry ?? businessProfile.industry;
+  businessProfile.companySize = pData.companySize ?? pendingPData.companySize ?? user.companySize ?? businessProfile.companySize;
+  businessProfile.location = pData.businessLocation ?? pendingPData.businessLocation ?? user.location ?? businessProfile.location;
+  businessProfile.bio = pData.brandDescription ?? pendingPData.brandDescription ?? user.bio ?? businessProfile.bio;
+  businessProfile.tradeLicenseUrl = pData.tradeLicenseUrl ?? pendingPData.tradeLicenseUrl ?? user.tradeLicenseUrl ?? businessProfile.tradeLicenseUrl;
+  businessProfile.idVerificationUrl = pData.idVerificationUrl ?? pendingPData.idVerificationUrl ?? user.idVerificationUrl ?? businessProfile.idVerificationUrl;
+
+  // Sync structural objects
+  businessProfile.profileData = user.profileData || businessProfile.profileData;
+  businessProfile.pendingProfileData = user.pendingProfileData || businessProfile.pendingProfileData;
+  businessProfile.pendingUpdates = user.pendingUpdates || businessProfile.pendingUpdates;
+
+  // Save the BusinessOwner profile
+  await businessProfile.save();
+}
+
+export async function syncAdminProfile(user: any) {
+  if (!user || (user.role !== 'admin' && user.role !== 'super_admin')) return;
+
+  let adminProfile = await AdminProfile.findOne({ userId: user._id });
+  if (!adminProfile) {
+    adminProfile = new AdminProfile({
+      userId: user._id,
+      role: user.role,
+      systemAccess: true
+    });
+  } else {
+    adminProfile.role = user.role;
+  }
+  await adminProfile.save();
 }
 
 export const uploadProfilePicture = async (
@@ -30,6 +132,12 @@ export const uploadProfilePicture = async (
   }
 
   try {
+    const user = await User.findOne({ clerkId: userId });
+    if (!user) {
+      res.status(404).json({ message: "User not found" });
+      return;
+    }
+
     // Upload using stream instead of dataURI for better reliability
     const uploadFromBuffer = (buffer: Buffer) => {
       return new Promise((resolve, reject) => {
@@ -53,23 +161,25 @@ export const uploadProfilePicture = async (
     if (req.query.type === 'license') type = 'tradeLicenseUrl';
     if (req.query.type === 'id_verification') type = 'idVerificationUrl';
 
-    const user = await User.findOneAndUpdate(
-      { clerkId: userId },
-      { $set: { [type]: result.secure_url } },
-      { new: true }
-    );
-
-    if (!user) {
-      res.status(404).json({ message: "User not found" });
-      return;
+    if (type === 'tradeLicenseUrl' || type === 'idVerificationUrl') {
+      await BusinessOwner.findOneAndUpdate(
+        { userId: user._id },
+        { $set: { [type]: result.secure_url } },
+        { new: true, upsert: true }
+      );
+    } else {
+      user.set(type, result.secure_url);
+      await user.save();
     }
 
+    const enriched = await enrichUserWithProfile(user);
+
     res.status(200).json({
-      message: "Profile picture updated successfully",
-      user,
+      message: "File uploaded successfully",
+      user: enriched,
     });
   } catch (error: any) {
-    console.error("Error uploading profile picture:", error);
+    console.error("Error uploading file:", error);
     res.status(500).json({ message: "Upload failed", error: error.message });
   }
 };
@@ -205,12 +315,16 @@ export const updateUserProfile = async (
 
     user.set(updates);
     const updatedUser = await user.save();
-    const userResponse = updatedUser.toObject();
-    delete (userResponse as any).__v;
+    if (updatedUser.role === 'business_owner') {
+      await syncBusinessOwnerProfile(updatedUser);
+    } else if (updatedUser.role === 'admin' || updatedUser.role === 'super_admin') {
+      await syncAdminProfile(updatedUser);
+    }
+    const enrichedUser = await enrichUserWithProfile(updatedUser);
 
     res.status(200).json({
       message: "Profile updated successfully",
-      user: userResponse,
+      user: enrichedUser,
     });
     return
   } catch (error) {
@@ -255,7 +369,100 @@ export const submitProfileForReview = async (
       }
     }
 
-    const hasVerifiedSocial = 
+    if (user.role === "advertiser") {
+      // 🚀 Auto-approve: set status to active and verified, bypass admin review
+      user.status = "active";
+      user.isVerified = true;
+
+      for (const key of ALLOWED_FIELDS) {
+        if (req.body[key] !== undefined) {
+          (user as any)[key] = req.body[key];
+        }
+      }
+
+      const applyAdvertiserProfileMerge = () => {
+        return mergeAdvertiserProfileOnSubmit({
+          profileData: (req.body.profileData ?? user.profileData) as Record<string, unknown>,
+          socialProfiles: req.body.socialProfiles ?? user.socialProfiles,
+          bio: req.body.bio ?? user.bio,
+          location: req.body.location ?? user.location,
+        });
+      };
+
+      const mergedAdv = applyAdvertiserProfileMerge();
+      if (mergedAdv) {
+        user.profileData = mergeProfileData(
+          (user.profileData || {}) as Record<string, unknown>,
+          mergedAdv.profileData
+        );
+        user.socialProfiles = mergedAdv.socialProfiles as any;
+      } else if (req.body.profileData && typeof req.body.profileData === "object") {
+        user.profileData = mergeProfileData(
+          (user.profileData || {}) as Record<string, unknown>,
+          req.body.profileData as Record<string, unknown>
+        );
+      }
+
+      // Clear any pending updates/profileData since it's applied directly
+      user.pendingProfileData = null;
+      user.pendingUpdates = null;
+
+      // Sync/Create AdvertiserProfile document directly (for AI/recommendations)
+      let advertiserProfile = await AdvertiserProfile.findOne({ userId: user._id });
+      if (!advertiserProfile) {
+        advertiserProfile = new AdvertiserProfile({ userId: user._id });
+      }
+
+      // Sync fields
+      advertiserProfile.niche = (req.body.niche ?? advertiserProfile.niche ?? (user.profileData as any)?.niche);
+      advertiserProfile.experienceLevel = (req.body.experienceLevel ?? advertiserProfile.experienceLevel ?? (user.profileData as any)?.experienceLevel);
+      advertiserProfile.contentFormats = (req.body.contentTypes ?? advertiserProfile.contentFormats ?? (user.profileData as any)?.contentTypes);
+      advertiserProfile.targetAudience = (req.body.targetAudience ?? advertiserProfile.targetAudience ?? (user.profileData as any)?.targetAudience);
+      advertiserProfile.phoneNumber = user.phoneNumber;
+      advertiserProfile.bio = user.bio;
+      advertiserProfile.location = user.location;
+
+      // Determine if at least one social media account is connected
+      let hasConnected = false;
+      if (user.connectedAccounts) {
+        hasConnected = ['tiktok', 'instagram', 'facebook'].some(
+          p => user.connectedAccounts[p] && user.connectedAccounts[p].connected && user.connectedAccounts[p].verified
+        );
+      } else if (user.socialProfiles && user.socialProfiles.length > 0) {
+        hasConnected = user.socialProfiles.some((p: any) => p.verified);
+      }
+
+      if (hasConnected) {
+        advertiserProfile.profileCompleted = true;
+        advertiserProfile.profileCompletedAt = new Date();
+        user.profileCompleted = true;
+      }
+
+      advertiserProfile.profileData = user.profileData;
+      advertiserProfile.socialProfiles = user.socialProfiles as any;
+      advertiserProfile.pendingProfileData = null;
+      advertiserProfile.pendingUpdates = null;
+
+      advertiserProfile.markModified('socialProfiles');
+      advertiserProfile.markModified('profileData');
+      advertiserProfile.markModified('targetAudience');
+      advertiserProfile.markModified('pendingProfileData');
+      advertiserProfile.markModified('pendingUpdates');
+      await advertiserProfile.save();
+
+      const updatedUser = await user.save();
+      const userResponse = updatedUser.toObject();
+      delete (userResponse as any).__v;
+
+      res.status(200).json({
+        message: "Profile updated and approved successfully",
+        user: userResponse,
+        appliedDirectly: true
+      });
+      return;
+    }
+
+    const hasVerifiedSocial =
       (user.socialProfiles && user.socialProfiles.some((p: any) => p.platform?.toLowerCase() === "tiktok" && p.verified)) ||
       (req.body.socialProfiles && req.body.socialProfiles.some((p: any) => p.platform?.toLowerCase() === "tiktok" && p.verified));
 
@@ -329,6 +536,9 @@ export const submitProfileForReview = async (
           const userResponse = updatedUser.toObject();
           delete (userResponse as any).__v;
 
+          // Sync directly to BusinessOwner
+          await syncBusinessOwnerProfile(updatedUser);
+
           res.status(200).json({
             message: "Profile updated successfully",
             user: userResponse,
@@ -376,6 +586,27 @@ export const submitProfileForReview = async (
 
       user.markModified("pendingUpdates");
       user.markModified("pendingProfileData");
+
+      if (user.role === "business_owner") {
+        let businessProfile = await BusinessOwner.findOne({ userId: user._id });
+        if (!businessProfile) {
+          businessProfile = new BusinessOwner({ userId: user._id });
+        }
+        businessProfile.pendingUpdates = {
+          ...(businessProfile.pendingUpdates || {}),
+          ...rootUpdates,
+        };
+        if (req.body.profileData && typeof req.body.profileData === "object") {
+          businessProfile.pendingProfileData = mergeProfileData(
+            mergeProfileData(
+              (businessProfile.profileData || {}) as Record<string, unknown>,
+              (businessProfile.pendingProfileData || {}) as Record<string, unknown>
+            ),
+            req.body.profileData as Record<string, unknown>
+          );
+        }
+        await businessProfile.save();
+      }
     } else {
       if (user.role === "business_owner") {
         const validation = validateBusinessProfileSubmit(req.body as Record<string, unknown>);
@@ -416,8 +647,34 @@ export const submitProfileForReview = async (
       }
 
       user.set(updates);
+
+      if (user.role === "business_owner") {
+        let businessProfile = await BusinessOwner.findOne({ userId: user._id });
+        if (!businessProfile) {
+          businessProfile = new BusinessOwner({ userId: user._id });
+        }
+        const bpUpdates = { ...req.body };
+        delete bpUpdates.profileData;
+        businessProfile.pendingUpdates = {
+          ...(businessProfile.pendingUpdates || {}),
+          ...bpUpdates,
+        };
+        if (req.body.profileData && typeof req.body.profileData === "object") {
+          businessProfile.pendingProfileData = mergeProfileData(
+            mergeProfileData(
+              (businessProfile.profileData || {}) as Record<string, unknown>,
+              (businessProfile.pendingProfileData || {}) as Record<string, unknown>
+            ),
+            req.body.profileData as Record<string, unknown>
+          );
+        }
+        await businessProfile.save();
+      }
     }
     const updatedUser = await user.save();
+    if (updatedUser.role === 'business_owner') {
+      await syncBusinessOwnerProfile(updatedUser);
+    }
     const userResponse = updatedUser.toObject();
     delete (userResponse as any).__v;
 
@@ -447,25 +704,24 @@ export const getCurrentUser = async (
   req: Request,
   res: Response
 ): Promise<void> => {
-  const user = (req as any).user;
-  if (user) {
-    res.status(200).json({ user });
-    return;
+  let user = (req as any).user;
+  if (!user) {
+    // Fallback in case route wasn't protected by middleware
+    const { userId } = getAuth(req);
+    if (!userId) {
+      res.status(401).json({ message: "Unauthorized" });
+      return;
+    }
+
+    user = await User.findOne({ clerkId: userId });
+    if (!user) {
+      res.status(404).json({ message: "User not found" });
+      return;
+    }
   }
 
-  // Fallback in case route wasn't protected by middleware
-  const { userId } = getAuth(req);
-  if (!userId) {
-    res.status(401).json({ message: "Unauthorized" });
-    return;
-  }
-
-  const dbUser = await User.findOne({ clerkId: userId }).lean();
-  if (!dbUser) {
-    res.status(404).json({ message: "User not found" });
-    return;
-  }
-  res.status(200).json({ user: dbUser });
+  const enriched = await enrichUserWithProfile(user);
+  res.status(200).json({ user: enriched });
 };
 
 export const getUserById = async (
@@ -474,12 +730,13 @@ export const getUserById = async (
 ): Promise<void> => {
   try {
     const { id } = req.params;
-    const user = await User.findById(id).lean();
+    const user = await User.findById(id);
     if (!user) {
       res.status(404).json({ message: "User not found" });
       return;
     }
-    res.status(200).json({ user });
+    const enriched = await enrichUserWithProfile(user);
+    res.status(200).json({ user: enriched });
   } catch (error) {
     res.status(500).json({ message: "Internal server error" });
   }
@@ -496,9 +753,10 @@ export const syncUser = async (req: Request, res: Response): Promise<void> => {
   // check if user already exists in db
   const existingUser = await User.findOne({ clerkId: userId });
   if (existingUser) {
+    const enriched = await enrichUserWithProfile(existingUser);
     res
       .status(200)
-      .json({ user: existingUser, message: "User already exists" });
+      .json({ user: enriched, message: "User already exists" });
     return;
   }
   try {
@@ -517,7 +775,13 @@ export const syncUser = async (req: Request, res: Response): Promise<void> => {
       console.log(`[syncUser] Email ${email} exists with different clerkId. Updating clerkId.`);
       userByEmail.clerkId = userId;
       await userByEmail.save();
-      res.status(200).json({ user: userByEmail, message: "User re-linked" });
+      if (userByEmail.role === 'business_owner') {
+        await syncBusinessOwnerProfile(userByEmail);
+      } else if (userByEmail.role === 'admin' || userByEmail.role === 'super_admin') {
+        await syncAdminProfile(userByEmail);
+      }
+      const enriched = await enrichUserWithProfile(userByEmail);
+      res.status(200).json({ user: enriched, message: "User re-linked" });
       return;
     }
 
@@ -538,13 +802,16 @@ export const syncUser = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    // Only allow public-facing roles via sync endpoint
-    // Admin and super_admin roles must be assigned manually by an admin
+    // Only allow public-facing roles via self-assign sync endpoint
+    // Admin and super_admin roles must be assigned via Clerk metadata or by an admin
     const ALLOWED_SELF_ASSIGN_ROLES = ['business_owner', 'advertiser'];
+    const clerkRole = clerkUser.publicMetadata?.role as string;
     const requestedRole = req.body?.role;
-    const resolvedRole = (requestedRole && ALLOWED_SELF_ASSIGN_ROLES.includes(requestedRole))
-      ? requestedRole
-      : 'advertiser';
+    const resolvedRole = (clerkRole && ['super_admin', 'admin', 'business_owner', 'advertiser'].includes(clerkRole))
+      ? clerkRole
+      : (requestedRole && ALLOWED_SELF_ASSIGN_ROLES.includes(requestedRole))
+        ? requestedRole
+        : 'advertiser';
 
     const userData = {
       clerkId: userId,
@@ -561,6 +828,11 @@ export const syncUser = async (req: Request, res: Response): Promise<void> => {
     try {
       const user = await User.create(userData);
       console.log("User successfully created in MongoDB:", user._id);
+      if (user.role === 'business_owner') {
+        await syncBusinessOwnerProfile(user);
+      } else if (user.role === 'admin' || user.role === 'super_admin') {
+        await syncAdminProfile(user);
+      }
 
       const startingCoins = Math.max(0, Math.round(platformSettings.newUserStartingCoins ?? 1000));
       // Credit starting coins to allow them to post campaigns immediately
@@ -578,7 +850,8 @@ export const syncUser = async (req: Request, res: Response): Promise<void> => {
         // Don't fail the whole user creation if wallet credit fails
       }
 
-      res.status(201).json({ user, message: "User created Successfully" });
+      const enriched = await enrichUserWithProfile(user);
+      res.status(201).json({ user: enriched, message: "User created Successfully" });
     } catch (createError: any) {
       if (createError.code === 11000) {
         // Last-resort fallback: find by either clerkId or email
@@ -588,8 +861,14 @@ export const syncUser = async (req: Request, res: Response): Promise<void> => {
         if (existing && existing.clerkId !== userId) {
           existing.clerkId = userId;
           await existing.save();
+          if (existing.role === 'business_owner') {
+            await syncBusinessOwnerProfile(existing);
+          } else if (existing.role === 'admin' || existing.role === 'super_admin') {
+            await syncAdminProfile(existing);
+          }
         }
-        res.status(200).json({ user: existing, message: "User already exists" });
+        const enriched = await enrichUserWithProfile(existing);
+        res.status(200).json({ user: enriched, message: "User already exists" });
         return;
       }
       throw createError;
@@ -623,29 +902,43 @@ export const toggleSavedOpportunity = async (
       }
     }
 
+    if (user.role !== "advertiser") {
+      res.status(403).json({ message: "Only advertisers can save opportunities" });
+      return;
+    }
+
     if (!opportunityId) {
       res.status(400).json({ message: "Opportunity ID is required" });
       return;
     }
 
-    const isSaved = user.savedOpportunities.some((id: any) => id.toString() === opportunityId.toString());
+    let advertiserProfile = await AdvertiserProfile.findOne({ userId: user._id });
+    if (!advertiserProfile) {
+      advertiserProfile = new AdvertiserProfile({ userId: user._id });
+    }
+
+    if (!advertiserProfile.savedOpportunities) {
+      advertiserProfile.savedOpportunities = [];
+    }
+
+    const isSaved = advertiserProfile.savedOpportunities.some((id: any) => id.toString() === opportunityId.toString());
 
     if (isSaved) {
       // Unsave
-      user.savedOpportunities = user.savedOpportunities.filter(
+      advertiserProfile.savedOpportunities = advertiserProfile.savedOpportunities.filter(
         (id) => id.toString() !== opportunityId.toString()
       );
     } else {
       // Save
-      user.savedOpportunities.push(opportunityId);
+      advertiserProfile.savedOpportunities.push(opportunityId);
     }
 
-    await user.save();
+    await advertiserProfile.save();
 
     res.status(200).json({
       message: isSaved ? "Opportunity removed from saved" : "Opportunity saved successfully",
       isSaved: !isSaved,
-      savedOpportunities: user.savedOpportunities
+      savedOpportunities: advertiserProfile.savedOpportunities
     });
   } catch (error: any) {
     console.error("Toggle saved opportunity error:", error);
@@ -665,18 +958,23 @@ export const getSavedOpportunities = async (
         res.status(401).json({ message: "Unauthorized" });
         return;
       }
-      user = await User.findOne({ clerkId: userId }).populate('savedOpportunities');
+      user = await User.findOne({ clerkId: userId });
       if (!user) {
         res.status(404).json({ message: "User not found" });
         return;
       }
-    } else {
-      // Need to populate if we're using the middleware's user
-      await user.populate('savedOpportunities');
     }
 
+    if (user.role !== "advertiser") {
+      res.status(200).json({ savedOpportunities: [] });
+      return;
+    }
+
+    const advertiserProfile = await AdvertiserProfile.findOne({ userId: user._id }).populate('savedOpportunities');
+    const saved = advertiserProfile?.savedOpportunities || [];
+
     res.status(200).json({
-      savedOpportunities: user.savedOpportunities
+      savedOpportunities: saved
     });
   } catch (error: any) {
     console.error("Get saved opportunities error:", error);
@@ -801,7 +1099,7 @@ export const completeAdvertiserProfile = async (req: Request, res: Response): Pr
     user.status = 'active';
     user.isVerified = true;
     user.markModified('profileInfo');
-    
+
     await user.save();
 
     res.status(200).json({
