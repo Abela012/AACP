@@ -47,6 +47,7 @@ import CreateCampaignPage from './pages/dashboard/business-owner/CreateCampaignP
 import EditCampaignPage from './pages/dashboard/business-owner/EditCampaignPage'
 import CampaignApplicantsPage from './pages/dashboard/business-owner/CampaignApplicantsPage'
 import PendingApprovalPage from './pages/auth/PendingApprovalPage'
+import SSOCallbackPage from './pages/auth/SSOCallbackPage'
 import SuperAdminAdminManagementPage from './pages/super-admin/admin-management/AdminManagementPage'
 import SuperAdminAuditTrailPage from './pages/super-admin/audit-trail/AuditTrailPage'
 import SuperAdminPlatformPage from './pages/super-admin/platform/PlatformPage'
@@ -124,25 +125,16 @@ function App() {
         />
         <Route
           path="/sso-callback"
-          element={
-            <GuestGuard>
-              <AuthenticateWithRedirectCallback signInForceRedirectUrl="/dashboard" signUpForceRedirectUrl="/dashboard" />
-            </GuestGuard>
-          }
+          element={<SSOCallbackPage />}
         />
 
         {/* Protected Dashboard Routes */}
         <Route
           path="/dashboard"
           element={
-            <>
-              <AuthGuard>
-                <RoleDashboardRedirectPage />
-              </AuthGuard>
-              <GuestGuard>
-                <Navigate to="/auth/login" replace />
-              </GuestGuard>
-            </>
+            <AuthGuard>
+              <RoleDashboardRedirectPage />
+            </AuthGuard>
           }
         />
 

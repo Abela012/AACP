@@ -1,20 +1,20 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  FaTiktok, 
-  FaInstagram, 
-  FaFacebook 
+import {
+  FaTiktok,
+  FaInstagram,
+  FaFacebook
 } from 'react-icons/fa6';
-import { 
-  User, 
-  Phone, 
-  Check, 
-  Copy, 
-  Loader2, 
-  AlertCircle, 
-  ArrowRight, 
-  Globe, 
+import {
+  User,
+  Phone,
+  Check,
+  Copy,
+  Loader2,
+  AlertCircle,
+  ArrowRight,
+  Globe,
   Sparkles,
   Link,
   Target,
@@ -79,7 +79,7 @@ export default function AdvertiserCompleteProfile() {
   const [niche, setNiche] = useState('');
   const [contentTypes, setContentTypes] = useState<string[]>([]);
   const [experienceLevel, setExperienceLevel] = useState('');
-  
+
   // Target Audience States
   const [ageRange, setAgeRange] = useState('');
   const [gender, setGender] = useState('');
@@ -92,7 +92,7 @@ export default function AdvertiserCompleteProfile() {
   const [usernameInput, setUsernameInput] = useState('');
   const [verificationCode, setVerificationCode] = useState('');
   const [codeExpiresAt, setCodeExpiresAt] = useState<string>('');
-  
+
   // Verification Processing States
   const [verifying, setVerifying] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -113,7 +113,7 @@ export default function AdvertiserCompleteProfile() {
             instagram: { connected: false, verified: false },
             facebook: { connected: false, verified: false }
           });
-          
+
           if (user.niche) setNiche(user.niche);
           if (user.contentTypes) setContentTypes(user.contentTypes);
           if (user.experienceLevel) setExperienceLevel(user.experienceLevel);
@@ -334,7 +334,7 @@ export default function AdvertiserCompleteProfile() {
 
       if (res.data && res.data.success) {
         toast.success("Profile complete! Welcome to AACP 🎉", { duration: 4000 });
-        navigate('/dashboard/advertiser', { replace: true });
+        navigate('/dashboard', { replace: true });
       }
     } catch (error: any) {
       console.error("Profile completion failed:", error);
@@ -356,7 +356,7 @@ export default function AdvertiserCompleteProfile() {
   return (
     <div className="max-w-4xl mx-auto px-4 pb-32 space-y-8">
       {/* ── Progress Navigation bar ── */}
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: -16 }}
         animate={{ opacity: 1, y: 0 }}
         className="bg-white/80 dark:bg-black/60 backdrop-blur-md border border-gray-100 dark:border-white/5 rounded-3xl p-4 md:p-6 shadow-sm sticky top-4 z-40 flex flex-col md:flex-row md:items-center justify-between gap-4"
@@ -373,9 +373,9 @@ export default function AdvertiserCompleteProfile() {
 
         <div className="flex-1 max-w-md flex items-center gap-3">
           <div className="flex-1 h-2 rounded-full bg-gray-100 dark:bg-white/10 overflow-hidden">
-            <motion.div 
-              className="h-full bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full" 
-              animate={{ width: `${progressPercent()}%` }} 
+            <motion.div
+              className="h-full bg-linear-to-r from-emerald-500 to-teal-400 rounded-full"
+              animate={{ width: `${progressPercent()}%` }}
               transition={{ duration: 0.5, ease: "easeOut" }}
             />
           </div>
@@ -384,7 +384,7 @@ export default function AdvertiserCompleteProfile() {
       </motion.div>
 
       {/* ── SECTION 1: Basic Information ── */}
-      <motion.section 
+      <motion.section
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
@@ -451,7 +451,7 @@ export default function AdvertiserCompleteProfile() {
       </motion.section>
 
       {/* ── SECTION 2: Social Connections ── */}
-      <motion.section 
+      <motion.section
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
@@ -471,11 +471,10 @@ export default function AdvertiserCompleteProfile() {
             <div>
               <div className="flex items-center justify-between mb-4">
                 <span className="w-10 h-10 rounded-xl bg-black flex items-center justify-center text-white"><FaTiktok size={18} /></span>
-                <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider ${
-                  connectedAccounts.tiktok.connected && connectedAccounts.tiktok.verified
+                <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider ${connectedAccounts.tiktok.connected && connectedAccounts.tiktok.verified
                     ? "bg-emerald-500/10 text-emerald-500 border border-emerald-500/20"
                     : "bg-gray-200 dark:bg-white/5 text-gray-500 dark:text-gray-400"
-                }`}>
+                  }`}>
                   {connectedAccounts.tiktok.connected && connectedAccounts.tiktok.verified ? "Connected" : "Disconnected"}
                 </span>
               </div>
@@ -509,17 +508,16 @@ export default function AdvertiserCompleteProfile() {
               )}
             </div>
           </div>
- 
+
           {/* Instagram Connection Card */}
           <div className="bg-gray-50 dark:bg-[#151515] border border-gray-100 dark:border-white/5 rounded-2xl p-5 flex flex-col justify-between min-h-[170px] relative overflow-hidden transition-all hover:border-emerald-500/20">
             <div>
               <div className="flex items-center justify-between mb-4">
-                <span className="w-10 h-10 rounded-xl bg-gradient-to-tr from-yellow-500 via-pink-500 to-purple-600 flex items-center justify-center text-white"><FaInstagram size={18} /></span>
-                <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider ${
-                  connectedAccounts.instagram.connected && connectedAccounts.instagram.verified
+                <span className="w-10 h-10 rounded-xl bg-linear-to-tr from-yellow-500 via-pink-500 to-purple-600 flex items-center justify-center text-white"><FaInstagram size={18} /></span>
+                <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider ${connectedAccounts.instagram.connected && connectedAccounts.instagram.verified
                     ? "bg-emerald-500/10 text-emerald-500 border border-emerald-500/20"
                     : "bg-gray-200 dark:bg-white/5 text-gray-500 dark:text-gray-400"
-                }`}>
+                  }`}>
                   {connectedAccounts.instagram.connected && connectedAccounts.instagram.verified ? "Connected" : "Disconnected"}
                 </span>
               </div>
@@ -553,17 +551,16 @@ export default function AdvertiserCompleteProfile() {
               )}
             </div>
           </div>
- 
+
           {/* Facebook Connection Card */}
           <div className="bg-gray-50 dark:bg-[#151515] border border-gray-100 dark:border-white/5 rounded-2xl p-5 flex flex-col justify-between min-h-[170px] relative overflow-hidden transition-all hover:border-emerald-500/20">
             <div>
               <div className="flex items-center justify-between mb-4">
                 <span className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white"><FaFacebook size={18} /></span>
-                <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider ${
-                  connectedAccounts.facebook.connected && connectedAccounts.facebook.verified
+                <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider ${connectedAccounts.facebook.connected && connectedAccounts.facebook.verified
                     ? "bg-emerald-500/10 text-emerald-500 border border-emerald-500/20"
                     : "bg-gray-200 dark:bg-white/5 text-gray-500 dark:text-gray-400"
-                }`}>
+                  }`}>
                   {connectedAccounts.facebook.connected && connectedAccounts.facebook.verified ? "Connected" : "Disconnected"}
                 </span>
               </div>
@@ -603,7 +600,7 @@ export default function AdvertiserCompleteProfile() {
       {/* ── SECTION 3: Content & Niche (Shown AFTER at least one connection is verified) ── */}
       <AnimatePresence mode="wait">
         {isAnySocialConnected ? (
-          <motion.section 
+          <motion.section
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
@@ -664,11 +661,10 @@ export default function AdvertiserCompleteProfile() {
                       key={c.id}
                       type="button"
                       onClick={() => handleToggleContentType(c.id)}
-                      className={`px-4 py-2.5 rounded-xl border text-xs font-semibold text-left transition-all ${
-                        contentTypes.includes(c.id)
+                      className={`px-4 py-2.5 rounded-xl border text-xs font-semibold text-left transition-all ${contentTypes.includes(c.id)
                           ? "bg-emerald-500/10 text-emerald-600 border-emerald-500 dark:text-emerald-400"
                           : "bg-gray-50 dark:bg-[#181818] text-gray-600 dark:text-gray-400 border-gray-200 dark:border-white/5 hover:border-emerald-300"
-                      }`}
+                        }`}
                     >
                       {c.label}
                     </button>
@@ -679,7 +675,7 @@ export default function AdvertiserCompleteProfile() {
               {/* Target Audience Age, Gender & Interests */}
               <div className="space-y-4 pt-4 border-t border-gray-100 dark:border-white/5">
                 <h4 className="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest flex items-center gap-1.5"><Globe size={14} /> Demographics of your Audience</h4>
-                
+
                 <div className="grid md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Target Age Range</label>
@@ -734,13 +730,13 @@ export default function AdvertiserCompleteProfile() {
                   {interests.length > 0 && (
                     <div className="flex flex-wrap gap-1.5 pt-2">
                       {interests.map(tag => (
-                        <span 
+                        <span
                           key={tag}
                           className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-semibold rounded-full border border-emerald-500/10"
                         >
                           #{tag}
-                          <button 
-                            type="button" 
+                          <button
+                            type="button"
                             onClick={() => handleRemoveInterest(tag)}
                             className="hover:text-red-500 text-[10px] font-bold p-0.5"
                           >
@@ -771,7 +767,7 @@ export default function AdvertiserCompleteProfile() {
             </div>
           </motion.section>
         ) : (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             className="bg-emerald-500/5 border border-emerald-500/10 rounded-3xl p-6 text-center text-sm text-gray-500 dark:text-gray-400"
@@ -782,7 +778,7 @@ export default function AdvertiserCompleteProfile() {
       </AnimatePresence>
 
       {/* ── SECTION 4: Submit Button ── */}
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         className="flex flex-col items-center justify-center pt-6 space-y-4"
@@ -790,11 +786,10 @@ export default function AdvertiserCompleteProfile() {
         <button
           onClick={handleCompleteProfile}
           disabled={!isFormValid || saving}
-          className={`w-full md:w-auto md:min-w-[280px] flex items-center justify-center gap-2 font-black py-4 px-8 rounded-2xl transition-all duration-300 text-sm tracking-wide ${
-            isFormValid
-              ? "bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white shadow-lg shadow-emerald-500/25 cursor-pointer scale-100 hover:scale-[1.01]"
+          className={`w-full md:w-auto md:min-w-[280px] flex items-center justify-center gap-2 font-black py-4 px-8 rounded-2xl transition-all duration-300 text-sm tracking-wide ${isFormValid
+              ? "bg-linear-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white shadow-lg shadow-emerald-500/25 cursor-pointer scale-100 hover:scale-[1.01]"
               : "bg-gray-200 dark:bg-white/5 text-gray-400 dark:text-gray-500 cursor-not-allowed"
-          }`}
+            }`}
         >
           {saving ? (
             <>
@@ -821,7 +816,7 @@ export default function AdvertiserCompleteProfile() {
         {modalPlatform !== null && (
           <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
             {/* Backdrop */}
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -830,7 +825,7 @@ export default function AdvertiserCompleteProfile() {
             />
 
             {/* Modal Body */}
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 16 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 16 }}
@@ -839,11 +834,10 @@ export default function AdvertiserCompleteProfile() {
               {/* Top Row / Icon */}
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-3">
-                  <span className={`w-10 h-10 rounded-2xl flex items-center justify-center text-white ${
-                    modalPlatform === 'tiktok' ? "bg-black" :
-                    modalPlatform === 'instagram' ? "bg-gradient-to-tr from-yellow-500 via-pink-500 to-purple-600" :
-                    "bg-blue-600"
-                  }`}>
+                  <span className={`w-10 h-10 rounded-2xl flex items-center justify-center text-white ${modalPlatform === 'tiktok' ? "bg-black" :
+                      modalPlatform === 'instagram' ? "bg-linear-to-tr from-yellow-500 via-pink-500 to-purple-600" :
+                        "bg-blue-600"
+                    }`}>
                     {modalPlatform === 'tiktok' && <FaTiktok size={18} />}
                     {modalPlatform === 'instagram' && <FaInstagram size={18} />}
                     {modalPlatform === 'facebook' && <FaFacebook size={18} />}
@@ -854,7 +848,7 @@ export default function AdvertiserCompleteProfile() {
                   </div>
                 </div>
                 {!verifying && (
-                  <button 
+                  <button
                     onClick={() => setModalPlatform(null)}
                     className="w-8 h-8 rounded-full bg-gray-50 dark:bg-white/5 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-white/10 transition-colors text-gray-400 font-bold"
                   >
@@ -898,7 +892,7 @@ export default function AdvertiserCompleteProfile() {
                     <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block">Your Unique Code</span>
                     <div className="flex items-center justify-center gap-3">
                       <code className="text-xl md:text-2xl font-black text-gray-900 dark:text-white tracking-widest">{verificationCode}</code>
-                      <button 
+                      <button
                         onClick={handleCopyCode}
                         className="w-8 h-8 rounded-xl bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 flex items-center justify-center hover:bg-gray-50 transition-all"
                       >

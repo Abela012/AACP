@@ -89,8 +89,8 @@ export default function RoleDashboardRedirectPage() {
 
   const normalizedRole = (rawRole && String(rawRole) !== 'null')
     ? String(rawRole)
-        .toLowerCase()
-        .replace(/[-\s]/g, "_") as UserRole
+      .toLowerCase()
+      .replace(/[-\s]/g, "_") as UserRole
     : null;
 
   useLayoutEffect(() => {
@@ -110,8 +110,8 @@ export default function RoleDashboardRedirectPage() {
         <div className="w-12 h-12 border-4 border-[#14a800] border-t-transparent rounded-full animate-spin mb-4 mx-auto"></div>
         <div className="text-lg font-medium text-gray-700">Verifying access permissions...</div>
         <div className="mt-2 text-sm text-gray-400">
-          {isLongLoading 
-            ? "The server is taking a bit longer to wake up. Please wait..." 
+          {isLongLoading
+            ? "The server is taking a bit longer to wake up. Please wait..."
             : "Connecting to secure database"}
         </div>
       </div>
@@ -144,11 +144,11 @@ export default function RoleDashboardRedirectPage() {
   }
 
   if (isError || isSyncError) {
-    const errorMessage = (isError as any)?.message || 
-                        (isError as any)?.response?.data?.message || 
-                        (syncError as any)?.message || 
-                        (syncError as any)?.response?.data?.message || 
-                        "Unknown error during synchronization";
+    const errorMessage = (isError as any)?.message ||
+      (isError as any)?.response?.data?.message ||
+      (syncError as any)?.message ||
+      (syncError as any)?.response?.data?.message ||
+      "Unknown error during synchronization";
 
     return (
       <div className="flex flex-col items-center justify-center min-h-screen p-6 bg-red-50">

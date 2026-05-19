@@ -297,29 +297,90 @@ export default function BusinessOnboardingWizard({ isInsideDashboard, mode = 'on
                   <input className={inputClass} value={form.businessLocation} onChange={(e) => patch('businessLocation', e.target.value)} />
                 </FormField>
                 <FormField label="Trade license" helper="Upload a clear photo or PDF of your business license." required error={errors.tradeLicenseUrl}>
-                  <label className="flex flex-col items-center justify-center border-2 border-dashed border-gray-200 dark:border-white/10 rounded-2xl p-6 cursor-pointer hover:border-emerald-400 transition-colors">
-                    <input
-                      type="file"
-                      accept="image/*,.pdf"
-                      className="hidden"
-                      onChange={async (e) => {
-                        const file = e.target.files?.[0];
-                        if (!file) return;
-                        setIsUploadingLicense(true);
-                        try {
-                          const u = await uploadFile(file, 'license');
-                          if (u.tradeLicenseUrl) patch('tradeLicenseUrl', u.tradeLicenseUrl);
-                        } finally {
-                          setIsUploadingLicense(false);
-                        }
-                      }}
-                    />
-                    {form.tradeLicenseUrl ? (
-                      <span className="text-sm font-bold text-emerald-600">License uploaded ✓</span>
-                    ) : (
-                      <span className="text-sm text-gray-500">{isUploadingLicense ? 'Uploading…' : 'Click to upload'}</span>
-                    )}
-                  </label>
+                  {form.tradeLicenseUrl ? (
+                    <div className="flex flex-col items-center p-4 border border-emerald-100 dark:border-emerald-500/20 bg-emerald-50/30 dark:bg-emerald-500/5 rounded-2xl">
+                      {form.tradeLicenseUrl.toLowerCase().endsWith('.pdf') ? (
+                        <div className="flex items-center gap-3 mb-3">
+                          <div className="w-12 h-12 bg-red-500/10 text-red-500 rounded-xl flex items-center justify-center font-bold text-xs">PDF</div>
+                          <div className="text-left">
+                            <p className="text-sm font-bold text-gray-800 dark:text-gray-200">Trade License Document</p>
+                            <a
+                              href={form.tradeLicenseUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-xs text-emerald-600 hover:underline font-semibold"
+                            >
+                              View uploaded PDF
+                            </a>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="relative group mb-3 w-full max-h-48 overflow-hidden rounded-xl border border-gray-100 bg-white">
+                          <img
+                            src={form.tradeLicenseUrl}
+                            alt="Trade License"
+                            className="w-full h-full object-contain max-h-48"
+                          />
+                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                            <a
+                              href={form.tradeLicenseUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-xs text-white bg-emerald-600 px-3 py-1.5 rounded-lg font-semibold hover:bg-emerald-700 transition-colors"
+                            >
+                              Open Full Image
+                            </a>
+                          </div>
+                        </div>
+                      )}
+                      
+                      <label className="text-xs font-bold text-red-500 hover:text-red-600 cursor-pointer transition-colors bg-white dark:bg-white/5 border border-red-200 dark:border-red-500/20 px-4 py-2 rounded-xl">
+                        Replace File
+                        <input
+                          type="file"
+                          accept="image/*,.pdf"
+                          className="hidden"
+                          onChange={async (e) => {
+                            const file = e.target.files?.[0];
+                            if (!file) return;
+                            setIsUploadingLicense(true);
+                            try {
+                              const u = await uploadFile(file, 'license');
+                              if (u.tradeLicenseUrl) patch('tradeLicenseUrl', u.tradeLicenseUrl);
+                            } finally {
+                              setIsUploadingLicense(false);
+                            }
+                          }}
+                        />
+                      </label>
+                    </div>
+                  ) : (
+                    <label className="flex flex-col items-center justify-center border-2 border-dashed border-gray-200 dark:border-white/10 rounded-2xl p-8 cursor-pointer hover:border-emerald-400 transition-colors w-full">
+                      <input
+                        type="file"
+                        accept="image/*,.pdf"
+                        className="hidden"
+                        onChange={async (e) => {
+                          const file = e.target.files?.[0];
+                          if (!file) return;
+                          setIsUploadingLicense(true);
+                          try {
+                            const u = await uploadFile(file, 'license');
+                            if (u.tradeLicenseUrl) patch('tradeLicenseUrl', u.tradeLicenseUrl);
+                          } finally {
+                            setIsUploadingLicense(false);
+                          }
+                        }}
+                      />
+                      <div className="w-10 h-10 rounded-xl bg-gray-50 dark:bg-white/5 flex items-center justify-center mb-3">
+                        <Camera size={20} className="text-gray-400" />
+                      </div>
+                      <span className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1">
+                        {isUploadingLicense ? 'Uploading document...' : 'Click to upload'}
+                      </span>
+                      <span className="text-xs text-gray-400">PDF, PNG, JPG, or JPEG up to 10MB</span>
+                    </label>
+                  )}
                 </FormField>
               </SectionCard>
             )}

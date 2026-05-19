@@ -7,7 +7,7 @@ class SocketService {
     private isConnecting: boolean = false;
     private static instance: SocketService;
 
-    private constructor() {}
+    private constructor() { }
 
     public static getInstance(): SocketService {
         if (!SocketService.instance) {
@@ -106,7 +106,7 @@ export const getSocket = () => socketService.getSocket();
 // Helper methods for specific features
 export const joinRoom = (roomId: string) => socketService.emit('room:join', roomId);
 export const leaveRoom = (roomId: string) => socketService.emit('room:leave', roomId);
-export const sendMessage = (roomId: string, text: string, recipientId?: string) => 
+export const sendMessage = (roomId: string, text: string, recipientId?: string) =>
     socketService.emit('message:send', { roomId, text, recipientId });
 export const startTyping = (roomId: string) => socketService.emit('typing:start', roomId);
 export const stopTyping = (roomId: string) => socketService.emit('typing:stop', roomId);
