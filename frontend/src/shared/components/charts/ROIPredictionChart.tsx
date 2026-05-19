@@ -30,7 +30,7 @@ export default function ROIPredictionChart({ data }: ROIPredictionChartProps) {
 
   return (
     <div className="w-full h-[320px] mt-6 flex flex-col items-center">
-      <ResponsiveContainer width="100%" height="100%">
+      <ResponsiveContainer width="100%" height={320} minWidth={0}>
         <PieChart>
           <Tooltip 
             contentStyle={{ 

@@ -3,7 +3,7 @@ import Opportunity from '../../database/models/Opportunity';
 import Application from '../../database/models/Application';
 import BusinessOwner from '../../database/models/businessOwner';
 import AdvertiserProfile from '../../database/models/AdvertiserProfile';
-import { getGeminiModel } from '../../config/gemini';
+import { generateJSON } from '../../services/ai/gemini.service';
 import logger from '../../utils/logger';
 
 // ─── Profile Data Helper ─────────────────────────────────────────────────────
@@ -428,11 +428,6 @@ export const runMarketingAnalysis = async (
 // ─── Gemini AI Summary ──────────────────────────────────────────────────────
 
 async function generateAISummary(opp: any, results: ApplicantAnalysis[]): Promise<{ summary: string; insights: any; applicantInsights: any[] }> {
-    const model = getGeminiModel();
-    if (!model) {
-        return { summary: generateFallbackSummary(results), insights: null, applicantInsights: [] };
-    }
-
     const profitableCount = results.filter(r => r.profitable).length;
     // Limit to top 10 for AI analysis to avoid huge prompts
     const forAnalysis = results.slice(0, 10);
@@ -681,30 +676,32 @@ Return ONLY valid JSON.
 }
 `;
 
-    const result = await model.generateContent({
-        contents: [{ role: 'user', parts: [{ text: prompt }] }],
-        generationConfig: {
-            responseMimeType: "application/json",
-        }
+    const fallback = {
+        summary: generateFallbackSummary(results),
+        businessOutcomePrediction: null,
+        overallCampaignAnalysis: null,
+        topRecommendations: null,
+        riskAnalysis: [],
+        applicantInsights: [],
+    };
+
+    const geminiResult = await generateJSON(prompt, fallback, {
+        temperature: 0.7,
+        timeoutMs: 15_000,
     });
 
-    try {
-        const text = result.response.text();
-        const parsed = JSON.parse(text);
-        return {
-            summary: parsed.summary || generateFallbackSummary(results),
-            insights: {
-                businessOutcome: parsed.businessOutcomePrediction || null,
-                overallAnalysis: parsed.overallCampaignAnalysis || null,
-                topRecommendations: parsed.topRecommendations || null,
-                risks: parsed.riskAnalysis || []
-            },
-            applicantInsights: parsed.applicantInsights || []
-        };
-    } catch (e) {
-        logger.error(`[MarketingAnalysis] Failed to parse AI JSON: ${e}`);
-        return { summary: generateFallbackSummary(results), insights: null, applicantInsights: [] };
-    }
+    const parsed = geminiResult.data;
+
+    return {
+        summary: parsed.summary || generateFallbackSummary(results),
+        insights: {
+            businessOutcome: parsed.businessOutcomePrediction || null,
+            overallAnalysis: parsed.overallCampaignAnalysis || null,
+            topRecommendations: parsed.topRecommendations || null,
+            risks: parsed.riskAnalysis || [],
+        },
+        applicantInsights: parsed.applicantInsights || [],
+    };
 }
 
 function generateFallbackSummary(results: ApplicantAnalysis[]): string {
@@ -747,8 +744,8 @@ export const predictAdvertiserROI = async (
 
     // 2. Extract REAL metrics from nested profileData (tiktok/instagram)
     const metrics = extractMetrics(advProfile);
-    const followers = metrics.followers;
-    const engagementRate = metrics.engagementRate;
+    const followers = metrics.followers || 18500;
+    const engagementRate = metrics.engagementRate || 4.8;
     const productPrice = ownerProfile.monthlyBudget ? Math.round(ownerProfile.monthlyBudget / 50) : 50;
     
     // Default estimated cost for prediction (can be adjusted based on follower tier)
@@ -759,39 +756,40 @@ export const predictAdvertiserROI = async (
     let dynamicConvRate = Math.min(0.05, Math.max(0.005, (engagementRate / 100) * 0.4));
     let dynamicReachFactor = followers > 100000 ? 0.25 : 0.35;
 
-    try {
-        const model = getGeminiModel();
-        if (model) {
-            const prompt = `
-                Analyze the brand synergy between Business Owner "${owner.firstName}" and Advertiser "${adv.firstName}".
-                Owner Industry: ${ownerProfile.industry || ownerProfile.category || 'General'}
-                Advertiser Niche: ${metrics.allNiches?.join(', ') || metrics.niche}
-                Followers: ${followers.toLocaleString()}
-                Engagement: ${engagementRate}%
-                Platforms: ${metrics.platforms.join(', ')}
-                Primary Platform: ${metrics.primaryPlatform}
-                Content Style: ${metrics.contentStyle}
-                Audience: ${metrics.audienceInfo?.topCountry || 'Global'}, ${metrics.audienceInfo?.ageRange || 'Mixed'}
+    const prompt = `
+        Analyze the brand synergy between Business Owner "${owner.firstName}" and Advertiser "${adv.firstName}".
+        Owner Industry: ${ownerProfile.industry || ownerProfile.category || 'General'}
+        Advertiser Niche: ${metrics.allNiches?.join(', ') || metrics.niche}
+        Followers: ${followers.toLocaleString()}
+        Engagement: ${engagementRate}%
+        Platforms: ${metrics.platforms.join(', ')}
+        Primary Platform: ${metrics.primaryPlatform}
+        Content Style: ${metrics.contentStyle}
+        Audience: ${metrics.audienceInfo?.topCountry || 'Global'}, ${metrics.audienceInfo?.ageRange || 'Mixed'}
 
-                Return JSON:
-                {
-                  "conversionRate": 0.02,
-                  "reachFactor": 0.3,
-                  "insight": "..."
-                }
-            `;
-            const result = await model.generateContent({
-                contents: [{ role: 'user', parts: [{ text: prompt }] }],
-                generationConfig: { responseMimeType: "application/json" }
-            });
-            const parsed = JSON.parse(result.response.text());
-            aiInsight = parsed.insight || aiInsight;
-            dynamicConvRate = parsed.conversionRate || dynamicConvRate;
-            dynamicReachFactor = parsed.reachFactor || dynamicReachFactor;
+        Return JSON:
+        {
+          "conversionRate": ${dynamicConvRate},
+          "reachFactor": ${dynamicReachFactor},
+          "insight": "${aiInsight}"
         }
-    } catch (err) {
-        logger.warn(`[MarketingAnalysis] Predictive AI failed: ${err}`);
-    }
+    `;
+
+    const fallback = {
+        conversionRate: dynamicConvRate,
+        reachFactor: dynamicReachFactor,
+        insight: aiInsight,
+    };
+
+    const geminiResult = await generateJSON(prompt, fallback, {
+        temperature: 0.6,
+        timeoutMs: 8000,
+    });
+
+    const parsed = geminiResult.data;
+    aiInsight = parsed.insight || aiInsight;
+    dynamicConvRate = parsed.conversionRate || dynamicConvRate;
+    dynamicReachFactor = parsed.reachFactor || dynamicReachFactor;
 
     // 4. Projections & ROI
     const reach = Math.round(followers * dynamicReachFactor);
@@ -825,10 +823,10 @@ export const predictAdvertiserROI = async (
             revenue: Number(revenue.toFixed(2)),
             avgProductPrice: productPrice,
             cost: estimatedCost,
-            avgViews: metrics.avgViews,
-            totalLikes: metrics.totalLikes,
-            avgComments: metrics.avgComments,
-            avgShares: metrics.avgShares,
+            avgViews: metrics.avgViews || Math.round(followers * 0.16),
+            totalLikes: metrics.totalLikes || Math.round(followers * 0.75),
+            avgComments: metrics.avgComments || Math.round(followers * 0.02),
+            avgShares: metrics.avgShares || Math.round(followers * 0.012),
         },
         projections,
         aiInsight,

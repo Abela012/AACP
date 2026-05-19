@@ -5,8 +5,8 @@ import type { AxiosResponse } from "axios";
 import { isAxiosError } from "axios";
 import { useApiClient } from "../api/apiClient";
 import { userApi } from "../api/userApi";
-import { useUser } from "../shared/context/UserContext";
-import { useProfile } from "../shared/context/ProfileContext";
+import { useUser } from "@/src/shared/context/UserContext";
+import { useProfile } from "@/src/shared/context/ProfileContext";
 
 type AppUserRole = 'business_owner' | 'advertiser' | 'admin' | 'super_admin';
 

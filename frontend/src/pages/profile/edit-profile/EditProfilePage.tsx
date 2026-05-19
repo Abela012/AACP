@@ -150,7 +150,7 @@ export default function EditProfilePage() {
       setBaseRate(profile.baseRate || '');
       setPortfolioUrl(profile.website || '');
       setCoverPreview(profile.coverImageUrl || '');
-      
+
       setIsFacebookConnected(!!profile.facebook || !!profile.facebookConnected || !!(profile as any).connectedAccounts?.facebook?.connected);
       setIsTiktokConnected(!!(profile as any).connectedAccounts?.tiktok?.connected);
       setIsInstagramConnected(!!(profile as any).connectedAccounts?.instagram?.connected);
@@ -227,7 +227,7 @@ export default function EditProfilePage() {
       }
 
       console.log('Attempting password update...');
-      
+
       // Use Clerk's updatePassword method
       const result = await clerkUser.updatePassword({
         currentPassword,
@@ -235,7 +235,7 @@ export default function EditProfilePage() {
       });
 
       console.log('Password update successful:', result);
-      
+
       setPasswordSuccess('Password updated successfully!');
       setCurrentPassword('');
       setNewPassword('');
@@ -244,19 +244,19 @@ export default function EditProfilePage() {
       setTimeout(() => setPasswordSuccess(''), 5000);
     } catch (error: any) {
       console.error('Password update error:', error);
-      
+
       // Handle Clerk-specific errors
       const clerkError = error?.errors?.[0];
       const errorCode = clerkError?.code || error?.code;
       const errorMsg = clerkError?.message || error?.message || 'Failed to update password.';
-      
+
       console.error('Error details:', { errorCode, errorMsg, fullError: error });
-      
+
       // Check if reverification is needed
       if (
-        errorCode === 'session_reverification_required' || 
-        errorMsg.includes('reverification') || 
-        errorMsg.includes('re-verification') || 
+        errorCode === 'session_reverification_required' ||
+        errorMsg.includes('reverification') ||
+        errorMsg.includes('re-verification') ||
         errorMsg.includes('additional verification') ||
         errorCode === 'verification_expired'
       ) {
@@ -291,7 +291,7 @@ export default function EditProfilePage() {
       alert('Image must be under 2MB.');
       return;
     }
-    
+
     setIsSaving(true);
     try {
       const formData = new FormData();
@@ -299,7 +299,7 @@ export default function EditProfilePage() {
       const res = await api.post('/users/profile/picture?type=avatar', formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
-      
+
       const newUrl = res.data.user.profilePicture;
       setAvatarPreview(newUrl);
       updateProfile({ avatarUrl: newUrl });
@@ -310,35 +310,35 @@ export default function EditProfilePage() {
       setIsSaving(false);
     }
   }, [api, updateProfile]);
-  
-    const handleCoverChange = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0];
-      if (!file) return;
-      
-      console.log('[EditProfile] Starting cover upload for file:', file.name);
-      setIsSaving(true);
-      try {
-        const formData = new FormData();
-        formData.append('image', file);
-        const res = await api.post('/users/profile/picture?type=cover', formData, {
-          headers: { 'Content-Type': 'multipart/form-data' }
-        });
-        
-        console.log('[EditProfile] Cover upload response:', res.data);
-        const newUrl = res.data.user.coverImage;
-        if (newUrl) {
-          setCoverPreview(newUrl);
-          updateProfile({ coverImageUrl: newUrl, coverImage: newUrl });
-          console.log('[EditProfile] Updated cover preview and profile context with:', newUrl);
-        }
-      } catch (error) {
-        console.error('[EditProfile] Failed to upload cover:', error);
-        alert('Failed to upload image. Please check your connection or file size.');
-      } finally {
-        setIsSaving(false);
-        if (e.target) e.target.value = ''; // Reset input to allow re-uploading same file
+
+  const handleCoverChange = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    console.log('[EditProfile] Starting cover upload for file:', file.name);
+    setIsSaving(true);
+    try {
+      const formData = new FormData();
+      formData.append('image', file);
+      const res = await api.post('/users/profile/picture?type=cover', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+
+      console.log('[EditProfile] Cover upload response:', res.data);
+      const newUrl = res.data.user.coverImage;
+      if (newUrl) {
+        setCoverPreview(newUrl);
+        updateProfile({ coverImageUrl: newUrl, coverImage: newUrl });
+        console.log('[EditProfile] Updated cover preview and profile context with:', newUrl);
       }
-    }, [api, updateProfile]);
+    } catch (error) {
+      console.error('[EditProfile] Failed to upload cover:', error);
+      alert('Failed to upload image. Please check your connection or file size.');
+    } finally {
+      setIsSaving(false);
+      if (e.target) e.target.value = ''; // Reset input to allow re-uploading same file
+    }
+  }, [api, updateProfile]);
 
   const handleRemoveAvatar = () => {
     setAvatarPreview('');
@@ -475,15 +475,15 @@ export default function EditProfilePage() {
 
   const confirmDisconnect = async () => {
     if (!platformToDisconnect) return;
-    
+
     setIsSaving(true);
     try {
       await api.delete(`/social/disconnect/${platformToDisconnect.toLowerCase()}`);
-      
+
       if (platformToDisconnect.toLowerCase() === 'tiktok') setIsTiktokConnected(false);
       else if (platformToDisconnect.toLowerCase() === 'instagram') setIsInstagramConnected(false);
       else if (platformToDisconnect.toLowerCase() === 'facebook') setIsFacebookConnected(false);
-      
+
       toast.success(`${platformToDisconnect} account disconnected successfully.`);
       refreshProfile();
     } catch (error) {
@@ -633,25 +633,25 @@ export default function EditProfilePage() {
                   <div className="mb-8 space-y-4">
                     <label className={labelCls}>Cover Image</label>
                     <div className="relative h-40 w-full rounded-2xl overflow-hidden group border border-gray-200 dark:border-white/10">
-                      <img 
-                        src={coverPreview || (isBusiness 
-                          ? 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2672&auto=format&fit=crop' 
-                          : 'https://images.unsplash.com/photo-1557683316-973673baf926?q=80&w=2629&auto=format&fit=crop')} 
-                        alt="Cover" 
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
+                      <img
+                        src={coverPreview || (isBusiness
+                          ? 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2672&auto=format&fit=crop'
+                          : 'https://images.unsplash.com/photo-1557683316-973673baf926?q=80&w=2629&auto=format&fit=crop')}
+                        alt="Cover"
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                       />
                       <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors" />
-                      
-                      <button 
+
+                      <button
                         type="button"
                         onClick={() => coverInputRef.current?.click()}
                         className="absolute bottom-4 right-4 bg-white/20 backdrop-blur-md hover:bg-white/40 text-white px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 border border-white/30 transition-all active:scale-95 shadow-xl"
                       >
-                         <ImageIcon size={16} />
-                         Change Cover
+                        <ImageIcon size={16} />
+                        Change Cover
                       </button>
 
-                      <input 
+                      <input
                         ref={coverInputRef}
                         type="file"
                         className="hidden"
@@ -756,18 +756,16 @@ export default function EditProfilePage() {
                         />
                       </div>
                     </div>
-                    {isBusiness && (
-                      <div className="space-y-2 sm:col-span-2">
-                        <label className={labelCls}>Brand Description</label>
-                        <textarea
-                          rows={4}
-                          value={bio}
-                          onChange={(e) => setBio(e.target.value)}
-                          placeholder="Describe your brand in a few sentences..."
-                          className="w-full bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl p-4 text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all text-gray-900 dark:text-white resize-none"
-                        />
-                      </div>
-                    )}
+                    <div className="space-y-2 sm:col-span-2">
+                      <label className={labelCls}>{isBusiness ? 'Brand Description' : 'About Me / Biography'}</label>
+                      <textarea
+                        rows={4}
+                        value={bio}
+                        onChange={(e) => setBio(e.target.value)}
+                        placeholder={isBusiness ? "Describe your brand in a few sentences..." : "Tell us about your content creation style, niches, and personality..."}
+                        className="w-full bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl p-4 text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all text-gray-900 dark:text-white resize-none"
+                      />
+                    </div>
                   </div>
                 </div>
               )}
@@ -778,7 +776,7 @@ export default function EditProfilePage() {
                   <h2 className="text-xl font-bold text-gray-900 dark:text-white">
                     {isBusiness ? 'Business Profile' : 'Professional Details'}
                   </h2>
-                  
+
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
                     {isBusiness && (
                       <>
@@ -794,7 +792,7 @@ export default function EditProfilePage() {
                             />
                           </div>
                         </div>
-                        
+
                         <div className="space-y-2">
                           <label className={labelCls}>Industry</label>
                           <select
@@ -862,121 +860,121 @@ export default function EditProfilePage() {
 
                         {/* Marketing Strategy */}
                         <div className="sm:col-span-2 pt-4 border-t border-gray-100 dark:border-white/5 space-y-6">
-                           <h3 className="text-sm font-black text-gray-400 uppercase tracking-widest">Marketing Strategy</h3>
-                           
-                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                              <div className="space-y-2">
-                                <label className={labelCls}>Monthly Budget (ETB)</label>
-                                <input
-                                  type="number"
-                                  value={monthlyBudget}
-                                  onChange={(e) => setMonthlyBudget(Number(e.target.value))}
-                                  className={inputCls.replace('pl-10', 'pl-4')}
-                                />
-                              </div>
-                              <div className="space-y-2">
-                                <label className={labelCls}>Max Budget per Post (ETB)</label>
-                                <input
-                                  type="number"
-                                  value={maxSpendPerPostETB}
-                                  onChange={(e) => setMaxSpendPerPostETB(Number(e.target.value))}
-                                  className={inputCls.replace('pl-10', 'pl-4')}
-                                />
-                              </div>
-                              <div className="space-y-2">
-                                <label className={labelCls}>Min. Engagement (%)</label>
-                                <input
-                                  type="text"
-                                  value={minEngagementPercent}
-                                  onChange={(e) => setMinEngagementPercent(e.target.value)}
-                                  className={inputCls.replace('pl-10', 'pl-4')}
-                                />
-                              </div>
-                              <div className="space-y-2">
-                                <label className={labelCls}>Promoters Needed</label>
-                                <input
-                                  type="text"
-                                  value={promotersNeededCount}
-                                  onChange={(e) => setPromotersNeededCount(e.target.value)}
-                                  className={inputCls.replace('pl-10', 'pl-4')}
-                                  placeholder="e.g. 5"
-                                />
-                              </div>
-                              <div className="space-y-2">
-                                <label className={labelCls}>Brand Voice</label>
-                                <select
-                                  value={brandVoice}
-                                  onChange={(e) => setBrandVoice(e.target.value)}
-                                  className="w-full bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-500 transition-all text-gray-900 dark:text-white appearance-none"
-                                >
-                                  {brandVoiceOptions.map(bv => <option key={bv} value={bv}>{bv}</option>)}
-                                </select>
-                              </div>
-                           </div>
+                          <h3 className="text-sm font-black text-gray-400 uppercase tracking-widest">Marketing Strategy</h3>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            <div className="space-y-2">
+                              <label className={labelCls}>Monthly Budget (ETB)</label>
+                              <input
+                                type="number"
+                                value={monthlyBudget}
+                                onChange={(e) => setMonthlyBudget(Number(e.target.value))}
+                                className={inputCls.replace('pl-10', 'pl-4')}
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <label className={labelCls}>Max Budget per Post (ETB)</label>
+                              <input
+                                type="number"
+                                value={maxSpendPerPostETB}
+                                onChange={(e) => setMaxSpendPerPostETB(Number(e.target.value))}
+                                className={inputCls.replace('pl-10', 'pl-4')}
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <label className={labelCls}>Min. Engagement (%)</label>
+                              <input
+                                type="text"
+                                value={minEngagementPercent}
+                                onChange={(e) => setMinEngagementPercent(e.target.value)}
+                                className={inputCls.replace('pl-10', 'pl-4')}
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <label className={labelCls}>Promoters Needed</label>
+                              <input
+                                type="text"
+                                value={promotersNeededCount}
+                                onChange={(e) => setPromotersNeededCount(e.target.value)}
+                                className={inputCls.replace('pl-10', 'pl-4')}
+                                placeholder="e.g. 5"
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <label className={labelCls}>Brand Voice</label>
+                              <select
+                                value={brandVoice}
+                                onChange={(e) => setBrandVoice(e.target.value)}
+                                className="w-full bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-500 transition-all text-gray-900 dark:text-white appearance-none"
+                              >
+                                {brandVoiceOptions.map(bv => <option key={bv} value={bv}>{bv}</option>)}
+                              </select>
+                            </div>
+                          </div>
                         </div>
 
                         {/* Goals & KPIs */}
                         <div className="sm:col-span-2 pt-4 border-t border-gray-100 dark:border-white/5 space-y-6">
-                           <div className="space-y-4">
-                              <label className={labelCls}>Promotion Goals</label>
-                              <div className="flex flex-wrap gap-2">
-                                {businessGoals.map(goal => (
-                                  <button
-                                    key={goal}
-                                    onClick={() => toggleItem(promotionGoals, setPromotionGoals, goal)}
-                                    className={cn(
-                                      "px-4 py-2 rounded-xl text-xs font-bold transition-all border",
-                                      promotionGoals.includes(goal)
-                                        ? "bg-emerald-500 text-black border-emerald-500"
-                                        : "bg-gray-100 dark:bg-white/5 text-gray-500 border-gray-200 dark:border-white/10 hover:border-emerald-500/50"
-                                    )}
-                                  >
-                                    {goal}
-                                  </button>
-                                ))}
-                              </div>
-                           </div>
+                          <div className="space-y-4">
+                            <label className={labelCls}>Promotion Goals</label>
+                            <div className="flex flex-wrap gap-2">
+                              {businessGoals.map(goal => (
+                                <button
+                                  key={goal}
+                                  onClick={() => toggleItem(promotionGoals, setPromotionGoals, goal)}
+                                  className={cn(
+                                    "px-4 py-2 rounded-xl text-xs font-bold transition-all border",
+                                    promotionGoals.includes(goal)
+                                      ? "bg-emerald-500 text-black border-emerald-500"
+                                      : "bg-gray-100 dark:bg-white/5 text-gray-500 border-gray-200 dark:border-white/10 hover:border-emerald-500/50"
+                                  )}
+                                >
+                                  {goal}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
 
-                           <div className="space-y-4">
-                              <label className={labelCls}>Primary Success Metrics (KPIs)</label>
-                              <div className="flex flex-wrap gap-2">
-                                {kpiOptions.map(kpi => (
-                                  <button
-                                    key={kpi}
-                                    onClick={() => toggleItem(primaryKpis, setPrimaryKpis, kpi)}
-                                    className={cn(
-                                      "px-4 py-2 rounded-xl text-xs font-bold transition-all border",
-                                      primaryKpis.includes(kpi)
-                                        ? "bg-cyan-500 text-white border-cyan-500"
-                                        : "bg-gray-100 dark:bg-white/5 text-gray-500 border-gray-200 dark:border-white/10 hover:border-cyan-500/50"
-                                    )}
-                                  >
-                                    {kpi}
-                                  </button>
-                                ))}
-                              </div>
-                           </div>
+                          <div className="space-y-4">
+                            <label className={labelCls}>Primary Success Metrics (KPIs)</label>
+                            <div className="flex flex-wrap gap-2">
+                              {kpiOptions.map(kpi => (
+                                <button
+                                  key={kpi}
+                                  onClick={() => toggleItem(primaryKpis, setPrimaryKpis, kpi)}
+                                  className={cn(
+                                    "px-4 py-2 rounded-xl text-xs font-bold transition-all border",
+                                    primaryKpis.includes(kpi)
+                                      ? "bg-cyan-500 text-white border-cyan-500"
+                                      : "bg-gray-100 dark:bg-white/5 text-gray-500 border-gray-200 dark:border-white/10 hover:border-cyan-500/50"
+                                  )}
+                                >
+                                  {kpi}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
                         </div>
 
                         {/* Target Audience */}
                         <div className="sm:col-span-2 pt-4 border-t border-gray-100 dark:border-white/5 space-y-6">
-                           <h3 className="text-sm font-black text-gray-400 uppercase tracking-widest">Target Audience</h3>
-                           <div className="flex flex-wrap gap-2">
-                              {ageRanges.map(age => (
-                                <button
-                                  key={age}
-                                  onClick={() => toggleItem(targetAudienceAgeRanges, setTargetAudienceAgeRanges, age)}
-                                  className={cn(
-                                    "px-4 py-2 rounded-xl text-xs font-bold transition-all border",
-                                    targetAudienceAgeRanges.includes(age)
-                                      ? "bg-amber-500 text-black border-amber-500"
-                                      : "bg-gray-100 dark:bg-white/5 text-gray-500 border-gray-200 dark:border-white/10 hover:border-amber-500/50"
-                                  )}
-                                >
-                                  {age}
-                                </button>
-                              ))}
-                           </div>
+                          <h3 className="text-sm font-black text-gray-400 uppercase tracking-widest">Target Audience</h3>
+                          <div className="flex flex-wrap gap-2">
+                            {ageRanges.map(age => (
+                              <button
+                                key={age}
+                                onClick={() => toggleItem(targetAudienceAgeRanges, setTargetAudienceAgeRanges, age)}
+                                className={cn(
+                                  "px-4 py-2 rounded-xl text-xs font-bold transition-all border",
+                                  targetAudienceAgeRanges.includes(age)
+                                    ? "bg-amber-500 text-black border-amber-500"
+                                    : "bg-gray-100 dark:bg-white/5 text-gray-500 border-gray-200 dark:border-white/10 hover:border-amber-500/50"
+                                )}
+                              >
+                                {age}
+                              </button>
+                            ))}
+                          </div>
                         </div>
                       </>
                     ) : (
@@ -1154,16 +1152,15 @@ export default function EditProfilePage() {
                                     key={c.id}
                                     type="button"
                                     onClick={() => {
-                                      setContentTypes(selected 
+                                      setContentTypes(selected
                                         ? contentTypes.filter(x => x !== c.id)
                                         : [...contentTypes, c.id]
                                       );
                                     }}
-                                    className={`px-4 py-2.5 rounded-xl border text-xs font-semibold text-left transition-all ${
-                                      selected
-                                        ? "bg-emerald-500/10 text-emerald-600 border-emerald-500 dark:text-emerald-400"
-                                        : "bg-gray-50 dark:bg-black/50 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-white/10 hover:border-emerald-500/50"
-                                    }`}
+                                    className={`px-4 py-2.5 rounded-xl border text-xs font-semibold text-left transition-all ${selected
+                                      ? "bg-emerald-500/10 text-emerald-600 border-emerald-500 dark:text-emerald-400"
+                                      : "bg-gray-50 dark:bg-black/50 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-white/10 hover:border-emerald-500/50"
+                                      }`}
                                   >
                                     {c.label}
                                   </button>
@@ -1447,14 +1444,14 @@ export default function EditProfilePage() {
                       </div>
                       <div className="flex items-center gap-3">
                         {isFacebookConnected ? (
-                          <button 
+                          <button
                             disabled
                             className="px-4 py-2 bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400 text-xs font-bold rounded-xl cursor-default"
                           >
                             Connected
                           </button>
                         ) : (
-                          <button 
+                          <button
                             onClick={handleConnectFacebook}
                             disabled={isSaving}
                             className="px-4 py-2 bg-blue-600 text-white text-xs font-bold rounded-xl hover:bg-blue-700 transition-colors disabled:opacity-50"
@@ -1480,14 +1477,14 @@ export default function EditProfilePage() {
                       </div>
                       <div className="flex items-center gap-3">
                         {isTiktokConnected ? (
-                          <button 
+                          <button
                             disabled
                             className="px-4 py-2 bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400 text-xs font-bold rounded-xl cursor-default"
                           >
                             Connected
                           </button>
                         ) : (
-                          <button 
+                          <button
                             onClick={() => setActiveConnectionModal('tiktok')}
                             disabled={isSaving}
                             className="px-4 py-2 bg-black text-white dark:bg-white dark:text-black text-xs font-bold rounded-xl hover:opacity-80 transition-colors disabled:opacity-50"
@@ -1513,24 +1510,24 @@ export default function EditProfilePage() {
                       </div>
                       <div className="flex items-center gap-3">
                         {isInstagramConnected ? (
-                          <button 
+                          <button
                             disabled
                             className="px-4 py-2 bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400 text-xs font-bold rounded-xl cursor-default"
                           >
                             Connected
                           </button>
                         ) : (
-                          <button 
+                          <button
                             onClick={() => setActiveConnectionModal('instagram')}
                             disabled={isSaving}
-                            className="px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs font-bold rounded-xl hover:opacity-90 transition-colors disabled:opacity-50"
+                            className="px-4 py-2 bg-linear-to-r from-purple-500 to-pink-500 text-white text-xs font-bold rounded-xl hover:opacity-90 transition-colors disabled:opacity-50"
                           >
                             Connect
                           </button>
                         )}
                       </div>
                     </div>
-                    
+
                     {/* Link to Data Deletion Instructions */}
                     <div className="p-4 bg-gray-50 dark:bg-black/50 border border-dashed border-gray-300 dark:border-white/10 rounded-xl">
                       <p className="text-xs text-gray-500 text-center">
@@ -1551,7 +1548,7 @@ export default function EditProfilePage() {
       {/* Submission Success Modal */}
       <AnimatePresence>
         {showSubmitModal && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-100 flex items-center justify-center p-4">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -1566,17 +1563,17 @@ export default function EditProfilePage() {
               className="relative w-full max-w-[440px] bg-white dark:bg-[#111] border border-gray-100 dark:border-white/10 rounded-[2.5rem] p-8 shadow-2xl text-center overflow-hidden"
             >
               <div className="absolute -top-24 -right-24 w-48 h-48 bg-emerald-500/10 rounded-full blur-3xl" />
-              
+
               <div className="relative">
                 <div className="w-20 h-20 bg-emerald-500/10 rounded-3xl flex items-center justify-center mx-auto mb-6 rotate-3 border border-emerald-500/20">
                   <Info className="text-emerald-500" size={32} />
                 </div>
-                
+
                 <h2 className="text-2xl font-black text-gray-900 dark:text-white mb-4 tracking-tight">
                   Submission Received!
                 </h2>
                 <p className="text-gray-500 dark:text-gray-400 text-sm leading-relaxed mb-8">
-                  Your detailed business information has been submitted for admin review. 
+                  Your detailed business information has been submitted for admin review.
                   <br /><br />
                   <span className="text-emerald-500 font-bold">What happens next?</span><br />
                   Our team will verify the details, and once approved, your public profile will be updated automatically.
@@ -1611,7 +1608,7 @@ export default function EditProfilePage() {
       {/* Disconnect Confirmation Modal */}
       <AnimatePresence>
         {platformToDisconnect && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-100 flex items-center justify-center p-4">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -1623,12 +1620,12 @@ export default function EditProfilePage() {
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative w-full max-w-md bg-white dark:bg-[#1a1a1a] border border-gray-100 dark:border-white/10 rounded-[2rem] p-8 shadow-2xl text-center overflow-hidden"
+              className="relative w-full max-w-md bg-white dark:bg-[#1a1a1a] border border-gray-100 dark:border-white/10 rounded-4xl p-8 shadow-2xl text-center overflow-hidden"
             >
               <div className="w-16 h-16 bg-red-500/10 rounded-2xl flex items-center justify-center mx-auto mb-6 text-red-500">
                 <AlertTriangle size={32} />
               </div>
-              
+
               <h2 className="text-xl font-black text-gray-900 dark:text-white mb-3">
                 Disconnect {platformToDisconnect}?
               </h2>

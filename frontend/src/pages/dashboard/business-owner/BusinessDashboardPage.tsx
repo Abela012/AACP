@@ -395,7 +395,7 @@ export default function BusinessDashboardPage() {
               </div>
             }>
               <div className="h-80 w-full mt-4">
-                <ResponsiveContainer width="100%" height="100%">
+                <ResponsiveContainer width="100%" height={320} minWidth={0}>
                   <AreaChart data={performanceData}>
                     <defs>
                       <linearGradient id="colorViews" x1="0" y1="0" x2="0" y2="1">

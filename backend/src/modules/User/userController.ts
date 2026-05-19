@@ -8,7 +8,6 @@ import { mergeProfileData } from '../../utils/profileDataMerge';
 import { mergeAdvertiserProfileOnSubmit } from '../../utils/advertiserProfileSync';
 import AdvertiserProfile from "../../database/models/AdvertiserProfile";
 import BusinessOwner from "../../database/models/businessOwner";
-import AdminProfile from "../../database/models/AdminProfile";
 import Opportunity from "../../database/models/Opportunity";
 import { validateBusinessProfileSubmit } from './businessProfile.validation';
 import { hasRequiredBusinessFieldChanges } from './businessProfileChanges';
@@ -100,19 +99,7 @@ export async function syncBusinessOwnerProfile(user: any) {
 }
 
 export async function syncAdminProfile(user: any) {
-  if (!user || (user.role !== 'admin' && user.role !== 'super_admin')) return;
-
-  let adminProfile = await AdminProfile.findOne({ userId: user._id });
-  if (!adminProfile) {
-    adminProfile = new AdminProfile({
-      userId: user._id,
-      role: user.role,
-      systemAccess: true
-    });
-  } else {
-    adminProfile.role = user.role;
-  }
-  await adminProfile.save();
+  // AdminProfile collection was removed by request
 }
 
 export const uploadProfilePicture = async (
@@ -234,6 +221,7 @@ export const updateUserProfile = async (
     "profilePicture",
     "coverImage",
     "bio",
+    "about",
     "location",
     "tradeLicenseUrl",
     "idVerificationUrl",
@@ -265,6 +253,13 @@ export const updateUserProfile = async (
       if (req.body[key] !== undefined) {
         updates[key] = req.body[key];
       }
+    }
+
+    // Auto-synchronize bio and about
+    if (updates.bio !== undefined) {
+      updates.about = updates.bio;
+    } else if (updates.about !== undefined) {
+      updates.bio = updates.about;
     }
 
     if (updates.username) {
@@ -1007,10 +1002,14 @@ export const toggleSavedCreator = async (
       return;
     }
 
+    if (!user.savedCreators) {
+      user.savedCreators = [];
+    }
+
     const isSaved = user.savedCreators.some((id: any) => id.toString() === creatorId.toString());
 
     if (isSaved) {
-      user.savedCreators = user.savedCreators.filter(id => id.toString() !== creatorId.toString());
+      user.savedCreators = user.savedCreators.filter((id: any) => id.toString() !== creatorId.toString());
     } else {
       user.savedCreators.push(creatorId);
     }
@@ -1050,7 +1049,7 @@ export const getSavedCreators = async (
     }
 
     res.status(200).json({
-      savedCreators: user.savedCreators
+      savedCreators: user.savedCreators || []
     });
   } catch (error: any) {
     console.error("Get saved creators error:", error);

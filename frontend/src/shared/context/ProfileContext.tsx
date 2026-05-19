@@ -241,7 +241,7 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
           firstName: userData.firstName || '',
           lastName: userData.lastName || '',
           email: userData.email || '',
-          bio: userData.bio || '',
+          bio: userData.about || userData.bio || '',
           businessLocation: userData.location || '',
           avatarUrl: userData.profilePicture || '',
           coverImageUrl: userData.coverImage || '',

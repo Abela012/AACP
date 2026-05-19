@@ -89,8 +89,8 @@ export default function MatchesPage() {
       return [...filteredCreators].sort((a, b) => new Date(b.meta?.createdAt || 0).getTime() - new Date(a.meta?.createdAt || 0).getTime());
     }
     if (activeTab === 'Creator Feed') {
-       // Just a shuffle or alternative sort for 'Feed'
-       return [...filteredCreators].reverse();
+      // Just a shuffle or alternative sort for 'Feed'
+      return [...filteredCreators].reverse();
     }
     return filteredCreators;
   })();
@@ -108,114 +108,143 @@ export default function MatchesPage() {
               />
               <motion.div
                 initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                className="relative bg-white dark:bg-[#1a1a1a] w-full max-w-2xl rounded-[2.5rem] overflow-hidden shadow-2xl border border-gray-100 dark:border-white/10 z-10 flex flex-col max-h-[90vh]"
+                className="relative bg-white dark:bg-[#0d0d0d] w-full max-w-6xl rounded-[2.5rem] overflow-hidden shadow-2xl border border-gray-100 dark:border-white/10 z-10 flex flex-col max-h-[90vh]"
               >
-                <div className="h-48 relative shrink-0">
-                  <img
-                    src={selectedCreator.meta?.profilePicture || `https://ui-avatars.com/api/?name=${selectedCreator.name}&background=10b981&color=fff`}
-                    alt={selectedCreator.name}
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute inset-0 bg-linear-to-t from-black/80 to-transparent"></div>
-                  <button onClick={() => setSelectedCreator(null)} className="absolute top-4 right-4 bg-white/10 hover:bg-white/20 backdrop-blur-md text-white p-2 rounded-full transition-colors">
-                    <X size={20} />
-                  </button>
-                  <div className="absolute bottom-6 left-8">
-                    <h2 className="text-3xl font-black text-white mb-1">{selectedCreator.name}</h2>
-                    <p className="text-emerald-400 font-bold flex items-center gap-2">
-                      <ShieldCheck size={16} />
-                      Verified Creator
-                    </p>
-                  </div>
-                </div>
+                {/* Close Button */}
+                <button
+                  onClick={() => setSelectedCreator(null)}
+                  className="absolute top-6 right-6 bg-black/40 hover:bg-black/60 dark:bg-white/10 dark:hover:bg-white/20 backdrop-blur-md text-white p-2.5 rounded-full transition-all z-30 shadow-lg"
+                >
+                  <X size={20} />
+                </button>
 
-                <div className="p-8 overflow-y-auto">
-                  <div className="flex flex-wrap gap-4 mb-8">
-                    <span className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold px-4 py-2 rounded-xl text-sm flex items-center gap-2">
-                      <Target size={16} />
-                      {selectedCreator.category || 'Lifestyle'}
-                    </span>
-                    <span className="bg-blue-500/10 text-blue-600 dark:text-blue-400 font-bold px-4 py-2 rounded-xl text-sm flex items-center gap-2">
-                      <Users size={16} />
-                      {selectedCreator.meta?.followers?.toLocaleString() || '10K+'} Followers
-                    </span>
-                    <span className="bg-amber-500/10 text-amber-600 dark:text-amber-400 font-bold px-4 py-2 rounded-xl text-sm flex items-center gap-2">
-                      <Star size={16} fill="currentColor" />
-                      {selectedCreator.meta?.averageRating || '0.0'} ({selectedCreator.meta?.totalReviews || 0} reviews)
-                    </span>
-                    <span className="bg-gray-100 dark:bg-white/5 text-gray-700 dark:text-gray-300 font-bold px-4 py-2 rounded-xl text-sm flex items-center gap-2">
-                      <MapPin size={16} />
-                      {selectedCreator.location || 'Remote'}
-                    </span>
-                  </div>
+                {/* Main Grid Content */}
+                <div className="p-6 md:p-10 overflow-y-auto grid grid-cols-1 lg:grid-cols-12 gap-8 scrollbar-thin">
 
-                  <div className="space-y-6 text-gray-600 dark:text-gray-300 text-sm leading-relaxed mb-8">
-                    <div>
-                      <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">About Content Creator</h3>
-                      <p>{selectedCreator.meta?.bio || "A passionate content creator focused on delivering high-quality visual stories and engaging community experiences."}</p>
-                    </div>
-
-                    <div className="bg-white dark:bg-white/2 rounded-[2.5rem] border border-gray-100 dark:border-white/5 overflow-hidden shadow-sm">
-                      <div className="p-1 bg-linear-to-r from-emerald-500 to-blue-500">
-                        <div className="bg-white dark:bg-[#1a1a1a] rounded-[2.3rem] p-6">
-                          <div className="flex items-center justify-between mb-6">
-                            <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 bg-emerald-500/10 text-emerald-500 rounded-xl flex items-center justify-center">
-                                <Sparkles size={20} />
-                              </div>
-                              <div>
-                                <h4 className="text-sm font-black text-gray-900 dark:text-white uppercase tracking-widest">AI Market Analysis</h4>
-                                <p className="text-[10px] text-emerald-500 font-bold">Real-time Strategy Projection</p>
-                              </div>
-                            </div>
-                            <div className="text-right">
-                              <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Match Strength</p>
-                              <p className="text-xl font-black text-emerald-500">{selectedCreator.score}%</p>
-                            </div>
-                          </div>
-
-                          {isLoadingPrediction ? (
-                            <div className="py-20 flex flex-col items-center justify-center gap-4">
-                              <Loader2 size={32} className="animate-spin text-emerald-500" />
-                              <p className="text-xs font-bold text-gray-400 animate-pulse">Gemini is analyzing market data...</p>
-                            </div>
-                          ) : predictionData ? (
-                            <PredictiveAnalysisDashboard data={predictionData} />
-                          ) : (
-                            <div className="py-10 text-center">
-                              <AlertCircle size={32} className="text-gray-300 mx-auto mb-2" />
-                              <p className="text-xs font-bold text-gray-400">Analysis unavailable</p>
-                            </div>
-                          )}
+                  {/* Left Column: Creator Profile Showcase (4 cols) */}
+                  <div className="lg:col-span-4 space-y-6">
+                    {/* Immersive Image Display */}
+                    <div className="w-full h-64 rounded-3xl overflow-hidden relative shadow-md group">
+                      <img
+                        src={selectedCreator.meta?.profilePicture || `https://ui-avatars.com/api/?name=${selectedCreator.name}&background=10b981&color=fff`}
+                        alt={selectedCreator.name}
+                        className="w-full h-full object-cover transition-transform group-hover:scale-105 duration-500"
+                      />
+                      <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/40 to-transparent flex flex-col justify-end p-6">
+                        <h2 className="text-2xl font-black text-white leading-tight mb-1">{selectedCreator.name}</h2>
+                        <div className="flex items-center gap-1.5 text-emerald-400 text-xs font-bold">
+                          <ShieldCheck size={14} className="fill-current" />
+                          <span>Verified Creator Partner</span>
                         </div>
                       </div>
                     </div>
 
-                    <div>
-                      <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">Primary Platforms</h3>
-                      <div className="flex gap-2">
-                        {selectedCreator.meta?.platforms?.map((p: string) => (
-                          <span key={p} className="bg-gray-50 dark:bg-white/5 px-3 py-1 rounded-lg font-bold text-xs">{p}</span>
-                        )) || <span className="bg-gray-50 dark:bg-white/5 px-3 py-1 rounded-lg font-bold text-xs">Instagram</span>}
+                    {/* Quick Stats Grid */}
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="bg-gray-50 dark:bg-white/3 p-3 rounded-2xl border border-gray-100 dark:border-white/5 shadow-xs">
+                        <span className="text-[8px] font-bold text-gray-400 uppercase tracking-widest block mb-0.5">Niche</span>
+                        <span className="text-xs font-black text-emerald-600 dark:text-emerald-400 truncate block">{selectedCreator.category || 'Lifestyle'}</span>
                       </div>
+                      <div className="bg-gray-50 dark:bg-white/3 p-3 rounded-2xl border border-gray-100 dark:border-white/5 shadow-xs">
+                        <span className="text-[8px] font-bold text-gray-400 uppercase tracking-widest block mb-0.5">Reach</span>
+                        <span className="text-xs font-black text-blue-600 dark:text-blue-400 block truncate">{(selectedCreator.meta?.followers || selectedCreator.profileData?.followers || 10000).toLocaleString()}</span>
+                      </div>
+                      <div className="bg-gray-50 dark:bg-white/3 p-3 rounded-2xl border border-gray-100 dark:border-white/5 shadow-xs">
+                        <span className="text-[8px] font-bold text-gray-400 uppercase tracking-widest block mb-0.5">Rating</span>
+                        <span className="text-xs font-black text-amber-500 flex items-center gap-1">
+                          <Star size={12} fill="currentColor" />
+                          {selectedCreator.meta?.averageRating || '0.0'}
+                        </span>
+                      </div>
+                      <div className="bg-gray-50 dark:bg-white/3 p-3 rounded-2xl border border-gray-100 dark:border-white/5 shadow-xs">
+                        <span className="text-[8px] font-bold text-gray-400 uppercase tracking-widest block mb-0.5">Location</span>
+                        <span className="text-xs font-black text-gray-700 dark:text-gray-300 truncate block">{selectedCreator.location || 'Remote'}</span>
+                      </div>
+                    </div>
+
+                    {/* Biography block */}
+                    <div className="bg-gray-50/50 dark:bg-white/2 p-5 rounded-3xl border border-gray-100/50 dark:border-white/5 space-y-2 shadow-xs">
+                      <h3 className="text-[10px] font-black text-gray-900 dark:text-white uppercase tracking-widest">About Creator</h3>
+                      <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 leading-relaxed">
+                        {selectedCreator.meta?.bio || "A passionate content creator focused on delivering high-quality visual stories and engaging community experiences."}
+                      </p>
+                    </div>
+
+                    {/* Active Channels */}
+                    <div className="bg-gray-50/50 dark:bg-white/2 p-5 rounded-3xl border border-gray-100/50 dark:border-white/5 space-y-3 shadow-xs">
+                      <h3 className="text-[10px] font-black text-gray-900 dark:text-white uppercase tracking-widest">Platforms</h3>
+                      <div className="flex flex-wrap gap-2">
+                        {selectedCreator.meta?.platforms?.map((p: string) => (
+                          <span key={p} className="bg-white dark:bg-white/5 border border-gray-100 dark:border-white/10 px-3 py-1.5 rounded-xl font-bold text-xs text-gray-700 dark:text-gray-300 shadow-xs">{p}</span>
+                        )) || <span className="bg-white dark:bg-white/5 border border-gray-100 dark:border-white/10 px-3 py-1.5 rounded-xl font-bold text-xs text-gray-700 dark:text-gray-300 shadow-xs">Instagram</span>}
+                      </div>
+                    </div>
+
+                    {/* Quick Profile Actions */}
+                    <div className="flex flex-col gap-3 pt-4 border-t border-gray-100 dark:border-white/5">
+                      <button
+                        onClick={() => navigate('/messages', { state: { creator: selectedCreator } })}
+                        className="w-full py-4 bg-emerald-500 hover:bg-emerald-400 text-black rounded-2xl font-black text-sm transition-all shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2"
+                      >
+                        Invite to Campaign
+                        <ArrowRight size={16} />
+                      </button>
+                      <button
+                        onClick={() => navigate(`/admin/users/${selectedCreator.targetId}`)}
+                        className="w-full py-3.5 border border-gray-100 dark:border-white/10 rounded-2xl flex items-center justify-center gap-2 text-xs font-bold text-gray-500 dark:text-gray-400 hover:text-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 transition-all shadow-xs"
+                      >
+                        <ExternalLink size={14} /> View Full Profile
+                      </button>
                     </div>
                   </div>
 
-                  <div className="flex gap-4 pt-6 border-t border-gray-100 dark:border-white/10">
-                    <button
-                      onClick={() => navigate('/messages', { state: { creator: selectedCreator } })}
-                      className="flex-1 py-4 bg-emerald-500 text-black rounded-2xl font-bold text-lg hover:bg-emerald-400 transition-all shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2"
-                    >
-                      Invite to Campaign
-                      <ArrowRight size={20} />
-                    </button>
-                    <button
-                      onClick={() => navigate(`/admin/users/${selectedCreator.targetId}`)}
-                      className="w-14 h-14 border border-gray-100 dark:border-white/10 rounded-2xl flex items-center justify-center text-gray-400 dark:text-gray-500 hover:text-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 transition-all"
-                    >
-                      <ExternalLink size={20} />
-                    </button>
+                  {/* Right Column: AI Insights & ROI Projections (8 cols) */}
+                  <div className="lg:col-span-8 space-y-6">
+                    {/* Header */}
+                    <div className="flex items-center justify-between border-b border-gray-100 dark:border-white/5 pb-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-emerald-500/10 text-emerald-500 rounded-xl flex items-center justify-center shadow-inner">
+                          <Sparkles size={20} className="animate-pulse" />
+                        </div>
+                        <div>
+                          <h4 className="text-base font-black text-gray-900 dark:text-white uppercase tracking-widest flex items-center gap-1.5">
+                            Gemini AI Market Analysis
+                          </h4>
+                          <p className="text-[10px] text-emerald-500 font-bold">Real-time Strategy & Profit Projections</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <span className="text-[8px] font-bold text-gray-400 uppercase tracking-widest block mb-0.5">Match Strength</span>
+                        <span className="text-xl font-black text-emerald-500 bg-emerald-500/10 px-3 py-1 rounded-2xl border border-emerald-500/20 shadow-xs">{selectedCreator.score || '95'}%</span>
+                      </div>
+                    </div>
+
+                    {/* Loaded dashboard container */}
+                    {isLoadingPrediction ? (
+                      <div className="py-32 flex flex-col items-center justify-center gap-4 bg-gray-50/50 dark:bg-white/2 rounded-4xl border border-gray-100 dark:border-white/5">
+                        <Loader2 size={40} className="animate-spin text-emerald-500" />
+                        <div className="text-center">
+                          <p className="text-xs font-black text-gray-900 dark:text-white uppercase tracking-widest animate-pulse">Running Calculations...</p>
+                          <p className="text-[10px] text-gray-400 font-bold mt-1 px-4 max-w-sm mx-auto leading-relaxed">
+                            Gemini is evaluating platform statistics, ROI conversion funnels, and target audience synergies.
+                          </p>
+                        </div>
+                      </div>
+                    ) : predictionData ? (
+                      <div className="bg-white dark:bg-white/2 rounded-4xl border border-gray-100 dark:border-white/5 p-2 shadow-xs">
+                        <PredictiveAnalysisDashboard data={predictionData} />
+                      </div>
+                    ) : (
+                      <div className="py-24 text-center bg-gray-50/50 dark:bg-white/2 rounded-4xl border border-gray-100 dark:border-white/5">
+                        <AlertCircle size={40} className="text-gray-300 mx-auto mb-4" />
+                        <p className="text-sm font-black text-gray-500 uppercase tracking-widest">Analysis Unavailable</p>
+                        <p className="text-xs text-gray-400 mt-1 max-w-xs mx-auto leading-relaxed">
+                          Please ensure that the creator's social profiles are connected and populated with verified metrics.
+                        </p>
+                      </div>
+                    )}
                   </div>
+
                 </div>
               </motion.div>
             </div>
@@ -305,7 +334,7 @@ export default function MatchesPage() {
                     <Sparkles size={10} />
                     {c.score || '95'}% Match
                   </div>
-                  <button 
+                  <button
                     onClick={(e) => handleToggleBookmark(e, c.targetId || c._id)}
                     className={cn(
                       "absolute bottom-4 right-4 p-2 rounded-full backdrop-blur-md transition-all shadow-lg z-20",
@@ -322,8 +351,8 @@ export default function MatchesPage() {
                     <div>
                       <h3 className="text-xl font-black text-gray-900 dark:text-white mb-1 line-clamp-1">{c.name || `${c.firstName} ${c.lastName}`}</h3>
                       <div className="flex gap-1 overflow-hidden">
-                        {(c.meta?.niches || c.profileData?.niches || [c.category]).slice(0, 2).map((n: string) => (
-                          <span key={n} className="text-[9px] text-emerald-600 dark:text-emerald-500 font-black uppercase tracking-widest bg-emerald-50 dark:bg-emerald-500/10 px-1.5 py-0.5 rounded-md whitespace-nowrap">
+                        {(c.meta?.niches || c.profileData?.niches || [c.category]).slice(0, 2).map((n: string, idx: number) => (
+                          <span key={`${n || 'niche'}-${idx}`} className="text-[9px] text-emerald-600 dark:text-emerald-500 font-black uppercase tracking-widest bg-emerald-50 dark:bg-emerald-500/10 px-1.5 py-0.5 rounded-md whitespace-nowrap">
                             {n}
                           </span>
                         ))}
