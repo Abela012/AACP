@@ -1,6 +1,8 @@
 import User from '../../database/models/User';
 import Opportunity from '../../database/models/Opportunity';
 import Application from '../../database/models/Application';
+import BusinessOwner from '../../database/models/businessOwner';
+import AdvertiserProfile from '../../database/models/AdvertiserProfile';
 import logger from '../../utils/logger';
 import { extractMetrics, normalizeEngagementRate } from '../../utils/metrics';
 
@@ -199,11 +201,19 @@ export const getRecommendationsForUser = async (userId: string): Promise<Recomme
         throw new Error('User not found');
     }
 
+    let userProfileDoc: any = null;
+    if (user.role === 'business_owner') {
+        userProfileDoc = await BusinessOwner.findOne({ userId: user._id });
+    } else if (user.role === 'advertiser') {
+        userProfileDoc = await AdvertiserProfile.findOne({ userId: user._id });
+    }
+
     const userProfile = {
-        ...(user.profileData || {}),
-        ...(user.pendingProfileData || {}),
-        ...(user.pendingUpdates || {}),
+        ...(userProfileDoc?.profileData || {}),
+        ...(userProfileDoc?.pendingProfileData || {}),
+        ...(userProfileDoc?.pendingUpdates || {}),
     };
+    const userLocation = userProfileDoc?.location || userProfile.location;
     const results: RecommendationItem[] = [];
 
     // ── CASE 1: Business Owner → Recommend Advertisers ──
@@ -214,22 +224,27 @@ export const getRecommendationsForUser = async (userId: string): Promise<Recomme
             _id: { $ne: user._id },
         }).lean();
 
+        const advertiserIds = advertisers.map(a => a._id);
+        const advProfilesDocs = await AdvertiserProfile.find({ userId: { $in: advertiserIds } }).lean();
+        const advProfileMap = new Map(advProfilesDocs.map((p: any) => [p.userId.toString(), p]));
+
         for (const adv of advertisers) {
-            const advProfile = adv.profileData || {};
+            const advDoc: any = advProfileMap.get((adv._id as any).toString());
+            const advProfile = advDoc?.profileData || {};
             const advMetrics = extractMetrics(advProfile);
 
             const rawScore = calculateMatchScore(
                 userProfile,
-                user.location,
+                userLocation,
                 {
                     ...advProfile,
                     niches: advMetrics.niches,
                     platforms: advMetrics.platforms,
                     followers: advMetrics.followers,
                     engagementRate: advMetrics.engagementRate,
-                    averageRating: adv.averageRating || 0,
+                    averageRating: advDoc?.averageRating || 0,
                 },
-                adv.location
+                advDoc?.location
             );
 
             results.push({
@@ -238,7 +253,7 @@ export const getRecommendationsForUser = async (userId: string): Promise<Recomme
                 score: rawScore,
                 name: `${adv.firstName} ${adv.lastName}`.trim() || adv.username,
                 category: advMetrics.niche,
-                location: adv.location,
+                location: advDoc?.location,
                 meta: {
                     rawScore,
                     profilePicture: adv.profilePicture,
@@ -248,8 +263,8 @@ export const getRecommendationsForUser = async (userId: string): Promise<Recomme
                     niches: advMetrics.niches,
                     bio: advProfile.bio || '',
                     platforms: advMetrics.platforms,
-                    averageRating: adv.averageRating || 0,
-                    totalReviews: adv.totalReviews || 0,
+                    averageRating: advDoc?.averageRating || 0,
+                    totalReviews: advDoc?.totalReviews || 0,
                 },
             });
         }
@@ -269,7 +284,7 @@ export const getRecommendationsForUser = async (userId: string): Promise<Recomme
         for (const opp of opportunities) {
             const score = calculateMatchScore(
                 userProfile,
-                user.location,
+                userLocation,
                 {
                     category: opp.category,
                     budget: opp.budget,

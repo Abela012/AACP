@@ -1,6 +1,8 @@
+import User from '../../database/models/User';
 import Opportunity from '../../database/models/Opportunity';
 import Application from '../../database/models/Application';
-import User from '../../database/models/User';
+import BusinessOwner from '../../database/models/businessOwner';
+import AdvertiserProfile from '../../database/models/AdvertiserProfile';
 import { getGeminiModel } from '../../config/gemini';
 import logger from '../../utils/logger';
 
@@ -304,6 +306,16 @@ export const runMarketingAnalysis = async (
     // Determine average product price
     const productPrice = avgProductPrice ?? (opp.budget?.amount ? Math.round(opp.budget.amount / 10) : 50);
 
+    // Get profiles for owner and applicants
+    const oppOwnerDoc = opp.businessOwner ? await BusinessOwner.findOne({ userId: (opp.businessOwner as any)._id }) : null;
+    if (oppOwnerDoc) {
+        (opp.businessOwner as any).profileData = oppOwnerDoc.profileData || {};
+    }
+
+    const advertiserIds = applications.map(a => (a.advertiser as any)?._id).filter(Boolean);
+    const advProfilesDocs = await AdvertiserProfile.find({ userId: { $in: advertiserIds } });
+    const advProfileMap = new Map(advProfilesDocs.map(p => [p.userId.toString(), p]));
+
     // 3. Calculate profitability for each applicant
     const results: ApplicantAnalysis[] = [];
 
@@ -312,7 +324,8 @@ export const runMarketingAnalysis = async (
         if (!adv) continue;
 
         // Extract REAL metrics from nested profileData (tiktok/instagram)
-        const advProfile = adv.profileData || {};
+        const advDoc = advProfileMap.get(adv._id.toString());
+        const advProfile = advDoc?.profileData || {};
         const metrics = extractMetrics(advProfile);
         const followers = metrics.followers;
         const engagementRate = metrics.engagementRate;
@@ -726,8 +739,11 @@ export const predictAdvertiserROI = async (
 
     if (!owner || !adv) throw new Error('User not found');
 
-    const advProfile = adv.profileData || {};
-    const ownerProfile = owner.profileData || {};
+    const ownerProfileDoc = await BusinessOwner.findOne({ userId: businessOwnerId });
+    const advProfileDoc = await AdvertiserProfile.findOne({ userId: advertiserId });
+
+    const advProfile = advProfileDoc?.profileData || {};
+    const ownerProfile = ownerProfileDoc?.profileData || {};
 
     // 2. Extract REAL metrics from nested profileData (tiktok/instagram)
     const metrics = extractMetrics(advProfile);
