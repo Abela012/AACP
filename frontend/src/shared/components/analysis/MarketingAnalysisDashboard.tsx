@@ -100,12 +100,12 @@ export default function MarketingAnalysisDashboard({ data, onSelectApplicant }: 
         <div className="space-y-8 animate-in fade-in duration-700">
             {/* 1. TOP ANALYTICS SECTION */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <motion.div 
+                <motion.div
                     initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
                     className={cn(
-                        "p-6 rounded-[2rem] border shadow-sm flex flex-col justify-between relative overflow-hidden",
-                        topApplicant?.profitable 
-                            ? "bg-emerald-50/50 border-emerald-100 dark:bg-emerald-500/5 dark:border-emerald-500/20" 
+                        "p-6 rounded-4xl border shadow-sm flex flex-col justify-between relative overflow-hidden",
+                        topApplicant?.profitable
+                            ? "bg-emerald-50/50 border-emerald-100 dark:bg-emerald-500/5 dark:border-emerald-500/20"
                             : "bg-amber-50/50 border-amber-100 dark:bg-amber-500/5 dark:border-amber-500/20"
                     )}
                 >
@@ -134,9 +134,9 @@ export default function MarketingAnalysisDashboard({ data, onSelectApplicant }: 
                     </div>
                 </motion.div>
 
-                <motion.div 
+                <motion.div
                     initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
-                    className="p-6 rounded-[2rem] bg-white dark:bg-white/5 border border-gray-100 dark:border-white/5 shadow-sm flex flex-col justify-between"
+                    className="p-6 rounded-4xl bg-white dark:bg-white/5 border border-gray-100 dark:border-white/5 shadow-sm flex flex-col justify-between"
                 >
                     <div className="flex justify-between items-start mb-4">
                         <div className="w-12 h-12 bg-blue-100 dark:bg-blue-500/10 rounded-2xl flex items-center justify-center text-blue-600">
@@ -155,9 +155,9 @@ export default function MarketingAnalysisDashboard({ data, onSelectApplicant }: 
                     </div>
                 </motion.div>
 
-                <motion.div 
+                <motion.div
                     initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
-                    className="p-6 rounded-[2rem] bg-white dark:bg-white/5 border border-gray-100 dark:border-white/5 shadow-sm flex flex-col justify-between"
+                    className="p-6 rounded-4xl bg-white dark:bg-white/5 border border-gray-100 dark:border-white/5 shadow-sm flex flex-col justify-between"
                 >
                     <div className="flex justify-between items-start mb-4">
                         <div className="w-12 h-12 bg-purple-100 dark:bg-purple-500/10 rounded-2xl flex items-center justify-center text-purple-600">
@@ -171,17 +171,17 @@ export default function MarketingAnalysisDashboard({ data, onSelectApplicant }: 
                     <div>
                         <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">AI Audience Fit</p>
                         <div className="w-full h-2 bg-gray-100 dark:bg-white/10 rounded-full overflow-hidden mt-2">
-                            <div 
-                                className="h-full bg-purple-500 transition-all duration-1000" 
-                                style={{ width: `${topApplicant?.aiMatchScore || 0}%` }} 
+                            <div
+                                className="h-full bg-purple-500 transition-all duration-1000"
+                                style={{ width: `${topApplicant?.aiMatchScore || 0}%` }}
                             />
                         </div>
                     </div>
                 </motion.div>
 
-                <motion.div 
+                <motion.div
                     initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}
-                    className="p-6 rounded-[2rem] bg-white dark:bg-white/5 border border-gray-100 dark:border-white/5 shadow-sm flex flex-col justify-between"
+                    className="p-6 rounded-4xl bg-white dark:bg-white/5 border border-gray-100 dark:border-white/5 shadow-sm flex flex-col justify-between"
                 >
                     <div className="flex justify-between items-start mb-4">
                         <div className="w-12 h-12 bg-amber-100 dark:bg-amber-500/10 rounded-2xl flex items-center justify-center text-amber-600">
@@ -227,7 +227,7 @@ export default function MarketingAnalysisDashboard({ data, onSelectApplicant }: 
             {/* 2. PERFORMANCE CHARTS */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* Followers vs Reach Bar Chart */}
-                <motion.div 
+                <motion.div
                     initial={{ opacity: 0, scale: 0.98 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }}
                     className="bg-white dark:bg-white/5 p-8 rounded-[2.5rem] border border-gray-100 dark:border-white/5 shadow-sm"
                 >
@@ -239,12 +239,12 @@ export default function MarketingAnalysisDashboard({ data, onSelectApplicant }: 
                         <BarChart3 className="text-gray-300" />
                     </div>
                     <div className="h-72 w-full">
-                        <ResponsiveContainer width="100%" height="100%">
+                        <ResponsiveContainer width="100%" height={288} minWidth={0}>
                             <BarChart data={reachVsEngagementData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" className="dark:stroke-white/5" />
                                 <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#9ca3af', fontWeight: 700 }} dy={10} />
                                 <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#9ca3af', fontWeight: 700 }} />
-                                <Tooltip 
+                                <Tooltip
                                     contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', backgroundColor: '#1a1a1a', color: '#fff' }}
                                     cursor={{ fill: 'rgba(0,0,0,0.02)' }}
                                 />
@@ -256,7 +256,7 @@ export default function MarketingAnalysisDashboard({ data, onSelectApplicant }: 
                 </motion.div>
 
                 {/* ROI & Profit Line Chart */}
-                <motion.div 
+                <motion.div
                     initial={{ opacity: 0, scale: 0.98 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }}
                     className="bg-white dark:bg-white/5 p-8 rounded-[2.5rem] border border-gray-100 dark:border-white/5 shadow-sm"
                 >
@@ -268,18 +268,18 @@ export default function MarketingAnalysisDashboard({ data, onSelectApplicant }: 
                         <TrendingUp className="text-gray-300" />
                     </div>
                     <div className="h-72 w-full">
-                        <ResponsiveContainer width="100%" height="100%">
+                        <ResponsiveContainer width="100%" height={288} minWidth={0}>
                             <AreaChart data={roiProfitData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                                 <defs>
                                     <linearGradient id="colorRoi" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3}/>
-                                        <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0}/>
+                                        <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3} />
+                                        <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
                                     </linearGradient>
                                 </defs>
                                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" className="dark:stroke-white/5" />
                                 <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#9ca3af', fontWeight: 700 }} dy={10} />
                                 <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#9ca3af', fontWeight: 700 }} />
-                                <Tooltip 
+                                <Tooltip
                                     contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', backgroundColor: '#1a1a1a', color: '#fff' }}
                                 />
                                 <Area type="monotone" dataKey="roi" name="ROI %" stroke="#8b5cf6" strokeWidth={3} fillOpacity={1} fill="url(#colorRoi)" />
@@ -290,7 +290,7 @@ export default function MarketingAnalysisDashboard({ data, onSelectApplicant }: 
                 </motion.div>
 
                 {/* Audience Demographics */}
-                <motion.div 
+                <motion.div
                     initial={{ opacity: 0, scale: 0.98 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }}
                     className="bg-white dark:bg-white/5 p-8 rounded-[2.5rem] border border-gray-100 dark:border-white/5 shadow-sm"
                 >
@@ -303,7 +303,7 @@ export default function MarketingAnalysisDashboard({ data, onSelectApplicant }: 
                     </div>
                     <div className="flex flex-col md:flex-row items-center gap-8">
                         <div className="h-60 w-full md:w-1/2">
-                            <ResponsiveContainer width="100%" height="100%">
+                            <ResponsiveContainer width="100%" height={240} minWidth={0}>
                                 <PieChart>
                                     <Pie
                                         data={audienceData}
@@ -339,7 +339,7 @@ export default function MarketingAnalysisDashboard({ data, onSelectApplicant }: 
                 </motion.div>
 
                 {/* AI Predictive Radar */}
-                <motion.div 
+                <motion.div
                     initial={{ opacity: 0, scale: 0.98 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }}
                     className="bg-white dark:bg-white/5 p-8 rounded-[2.5rem] border border-gray-100 dark:border-white/5 shadow-sm"
                 >
@@ -351,7 +351,7 @@ export default function MarketingAnalysisDashboard({ data, onSelectApplicant }: 
                         <Sparkles className="text-gray-300" />
                     </div>
                     <div className="h-64 w-full">
-                        <ResponsiveContainer width="100%" height="100%">
+                        <ResponsiveContainer width="100%" height={256} minWidth={0}>
                             <RadarChart cx="50%" cy="50%" outerRadius="80%" data={[
                                 { subject: 'ROI', A: topApplicant?.profitPercentage > 100 ? 100 : topApplicant?.profitPercentage || 0, fullMark: 100 },
                                 { subject: 'Reach', A: (topApplicant?.followers / 500000) * 100, fullMark: 100 },
@@ -370,7 +370,7 @@ export default function MarketingAnalysisDashboard({ data, onSelectApplicant }: 
             </div>
 
             {/* 3. AI BUSINESS INSIGHT SECTION */}
-            <motion.section 
+            <motion.section
                 initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
                 className="bg-linear-to-br from-emerald-500 to-emerald-600 rounded-[3rem] p-1 shadow-2xl overflow-hidden"
             >
@@ -464,12 +464,12 @@ export default function MarketingAnalysisDashboard({ data, onSelectApplicant }: 
                 ].map((rec) => {
                     const recData = (insights?.topRecommendations as any)?.[rec.key];
                     const advertiser = data.analysis.find(a => a.advertiserId === recData?.advertiserId);
-                    
+
                     return (
-                        <motion.div 
+                        <motion.div
                             key={rec.key}
                             initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }}
-                            className="bg-white dark:bg-white/5 p-6 rounded-[2rem] border border-gray-100 dark:border-white/5 shadow-sm group hover:border-emerald-500/30 transition-all cursor-pointer"
+                            className="bg-white dark:bg-white/5 p-6 rounded-4xl border border-gray-100 dark:border-white/5 shadow-sm group hover:border-emerald-500/30 transition-all cursor-pointer"
                             onClick={() => advertiser && onSelectApplicant?.(advertiser.advertiserId)}
                         >
                             <div className="flex items-center gap-3 mb-4">
@@ -478,7 +478,7 @@ export default function MarketingAnalysisDashboard({ data, onSelectApplicant }: 
                                 </div>
                                 <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{rec.title}</h4>
                             </div>
-                            
+
                             {advertiser ? (
                                 <div className="space-y-4">
                                     <div className="flex items-center gap-3">

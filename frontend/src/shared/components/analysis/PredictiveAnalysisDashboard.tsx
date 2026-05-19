@@ -72,7 +72,9 @@ export default function PredictiveAnalysisDashboard({ data }: Props) {
                     </div>
                     <div>
                         <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-0.5">ROI Score</p>
-                        <h3 className={cn("text-lg font-black", profitable ? "text-emerald-600" : "text-amber-600")}>+{(roi || 0)}%</h3>
+                        <h3 className={cn("text-lg font-black", profitable ? "text-emerald-600" : "text-amber-600")}>
+                            {(roi || 0) > 0 ? '+' : ''}{(roi || 0)}%
+                        </h3>
                     </div>
                 </div>
 
@@ -121,7 +123,7 @@ export default function PredictiveAnalysisDashboard({ data }: Props) {
                         <TrendingUp size={12} /> 6-Month ROI Projection
                     </h4>
                     <div className="h-48 w-full">
-                        <ResponsiveContainer width="100%" height="100%">
+                        <ResponsiveContainer width="100%" height={192} minWidth={0}>
                             <AreaChart data={projections} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
                                 <defs>
                                     <linearGradient id="colorProfit" x1="0" y1="0" x2="0" y2="1">
@@ -147,7 +149,7 @@ export default function PredictiveAnalysisDashboard({ data }: Props) {
                         <PieChartIcon size={12} /> Campaign Funnel
                     </h4>
                     <div className="h-48 w-full">
-                        <ResponsiveContainer width="100%" height="100%">
+                        <ResponsiveContainer width="100%" height={192} minWidth={0}>
                             <PieChart>
                                 <Pie
                                     data={funnelData}
