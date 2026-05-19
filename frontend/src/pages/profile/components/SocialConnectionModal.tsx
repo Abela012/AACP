@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Loader2, Copy, CheckCircle2, AlertTriangle } from 'lucide-react';
 import { FaInstagram, FaFacebook } from 'react-icons/fa6';
-import { socialApi } from '../../../api/socialApi';
-import { useApiClient } from '../../../api/apiClient';
-import { useProfile } from '../../../shared/context/ProfileContext';
+import { socialApi } from '@/src/api/socialApi';
+import { useApiClient } from '@/src/api/apiClient';
+import { useProfile } from '@/src/shared/context/ProfileContext';
 import toast from 'react-hot-toast';
 
 const TikTokIcon = () => (
@@ -111,7 +111,7 @@ export const SocialConnectionModal: React.FC<SocialConnectionModalProps> = ({ pl
     const platformName = platform.charAt(0).toUpperCase() + platform.slice(1);
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+        <div className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
             <motion.div
                 initial={{ scale: 0.95, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
@@ -188,7 +188,7 @@ export const SocialConnectionModal: React.FC<SocialConnectionModalProps> = ({ pl
 
                         <button
                             onClick={handleVerify}
-                            className={`w-full py-4 rounded-2xl font-bold hover:brightness-105 transition-all mb-4 ${platform === 'tiktok' ? 'bg-[#00f2fe] text-black' : 'bg-gradient-to-r from-purple-500 to-pink-500 text-white'}`}
+                            className={`w-full py-4 rounded-2xl font-bold hover:brightness-105 transition-all mb-4 ${platform === 'tiktok' ? 'bg-[#00f2fe] text-black' : 'bg-linear-to-r from-purple-500 to-pink-500 text-white'}`}
                         >
                             I've pasted it in my bio
                         </button>

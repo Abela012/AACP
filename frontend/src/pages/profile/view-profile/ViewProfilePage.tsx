@@ -65,7 +65,7 @@ export default function ViewProfilePage() {
     if (!raw) return null;
     // If already flattened (from ProfileContext), return as-is
     if (!raw.profileData && raw.selectedStyles) return raw;
-    
+
     const pd = raw.profileData || {};
     const ppd = raw.pendingProfileData || {};
     const pud = raw.pendingUpdates || {};
@@ -80,7 +80,7 @@ export default function ViewProfilePage() {
     const tMetrics = ca.tiktok?.metrics || pd.tiktok || {};
     const iMetrics = ca.instagram?.metrics || pd.instagram || {};
     const fMetrics = ca.facebook?.metrics || {};
-    
+
     const followersTotal = computeNum(tMetrics.followers) + computeNum(iMetrics.followers) + computeNum(fMetrics.followers);
     const avgViewsTotal = computeNum(tMetrics.avgViews) + computeNum(iMetrics.avgViews);
     const computeER = (p: any) => {
@@ -103,7 +103,7 @@ export default function ViewProfilePage() {
       firstName: raw.firstName || '',
       lastName: raw.lastName || '',
       email: raw.email || '',
-      bio: raw.bio || '',
+      bio: raw.about || raw.bio || '',
       businessLocation: raw.location || '',
       avatarUrl: raw.profilePicture || '',
       coverImageUrl: raw.coverImage || '',
@@ -148,7 +148,7 @@ export default function ViewProfilePage() {
   const isTargetProfileBusiness = profile.role === 'business_owner';
 
   // When viewing someone else's profile, derive status from their data
-  const targetStatus = profileId 
+  const targetStatus = profileId
     ? ((profile as any).status === 'active' || (profile as any).status === 'approved' ? 'approved' : (profile as any).status || 'incomplete')
     : onboardingStatus;
 
@@ -175,7 +175,7 @@ export default function ViewProfilePage() {
     badges: isTargetProfileBusiness
       ? (profile as any).promotionGoals?.length > 0 ? (profile as any).promotionGoals : ['Verified Business', 'Direct Advertiser']
       : profile.selectedStyles?.length > 0 ? profile.selectedStyles : ['Content Creator', 'Social Media'],
-    
+
     // Extended Business Data
     businessDetails: {
       services: (profile as any).servicesOffered || 'General Services',
@@ -236,7 +236,7 @@ export default function ViewProfilePage() {
     };
 
     const ca = p.connectedAccounts || {};
-    
+
     const tMetrics = ca.tiktok?.metrics || p.tiktok || p.profileData?.tiktok || {};
     const tFollowers = computeNum(tMetrics.followers);
     const tAvgViews = computeNum(tMetrics.avgViews);
@@ -298,11 +298,11 @@ export default function ViewProfilePage() {
           >
             {/* Cover Image with Ambient Light Overlay */}
             <div className="h-56 md:h-80 w-full relative overflow-hidden group">
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0c0c0c] via-black/30 to-transparent z-10" />
-              <img 
-                src={profileData.coverImage} 
-                alt="Cover" 
-                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
+              <div className="absolute inset-0 bg-linear-to-t from-[#0c0c0c] via-black/30 to-transparent z-10" />
+              <img
+                src={profileData.coverImage}
+                alt="Cover"
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
               />
               <div className="absolute bottom-6 right-6 z-20 flex flex-wrap gap-2">
                 <span className={cn(
@@ -427,8 +427,8 @@ export default function ViewProfilePage() {
                     <tab.icon size={14} />
                     {tab.label}
                     {isActive && (
-                      <motion.span 
-                        layoutId="activeProfileTab" 
+                      <motion.span
+                        layoutId="activeProfileTab"
                         className="absolute inset-0 bg-emerald-600 rounded-2xl -z-10"
                         transition={{ type: "spring", stiffness: 380, damping: 30 }}
                       />
@@ -449,7 +449,7 @@ export default function ViewProfilePage() {
               transition={{ duration: 0.25 }}
               className="grid grid-cols-1 lg:grid-cols-12 gap-8"
             >
-              
+
               {/* TAB CONTENT: OVERVIEW */}
               {activeTab === 'overview' && (
                 <>
@@ -472,7 +472,7 @@ export default function ViewProfilePage() {
                         <Globe size={14} className="text-cyan-500" />
                         Target Audience & Reach
                       </h3>
-                      
+
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                         {/* Gender Distribution Gauge */}
                         <div className="space-y-6">
@@ -586,7 +586,7 @@ export default function ViewProfilePage() {
                         <Mail size={14} className="text-cyan-500" />
                         Direct Communication
                       </h3>
-                      
+
                       <div className="space-y-3">
                         <a href={`mailto:${profileData.email}`} className="flex items-center gap-3.5 p-4 rounded-2xl bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/5 group hover:border-emerald-500/30 transition-all">
                           <div className="w-10 h-10 rounded-xl bg-white dark:bg-black flex items-center justify-center text-gray-400 group-hover:text-emerald-500 transition-colors shadow-sm">
@@ -597,7 +597,7 @@ export default function ViewProfilePage() {
                             <span className="text-sm font-bold text-gray-800 dark:text-gray-200 truncate block">{profileData.email}</span>
                           </div>
                         </a>
-                        
+
                         <a href={`tel:${profileData.phone}`} className="flex items-center gap-3.5 p-4 rounded-2xl bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/5 group hover:border-emerald-500/30 transition-all">
                           <div className="w-10 h-10 rounded-xl bg-white dark:bg-black flex items-center justify-center text-gray-400 group-hover:text-emerald-500 transition-colors shadow-sm">
                             <Phone size={16} />
@@ -700,11 +700,11 @@ export default function ViewProfilePage() {
 
                       {/* Instagram Card */}
                       {profile.instagramHandle ? (
-                        <div className="bg-gradient-to-br from-[#120610] to-[#040003] text-white p-8 sm:p-10 rounded-[2.5rem] border border-pink-500/10 shadow-2xl relative overflow-hidden group">
+                        <div className="bg-linear-to-br from-[#120610] to-[#040003] text-white p-8 sm:p-10 rounded-[2.5rem] border border-pink-500/10 shadow-2xl relative overflow-hidden group">
                           <div className="absolute top-0 right-0 w-44 h-44 bg-pink-500/5 rounded-full blur-3xl opacity-60" />
                           <div className="flex justify-between items-center mb-8">
                             <div className="flex items-center gap-3">
-                              <div className="w-12 h-12 bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-500 text-white rounded-2xl flex items-center justify-center font-black text-xl">
+                              <div className="w-12 h-12 bg-linear-to-tr from-yellow-400 via-pink-500 to-purple-500 text-white rounded-2xl flex items-center justify-center font-black text-xl">
                                 📸
                               </div>
                               <div>
@@ -873,8 +873,8 @@ export default function ViewProfilePage() {
                   <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                     {/* Radial Affinity Gauge (5 cols) */}
                     <div className="lg:col-span-5 bg-[#070707] text-white p-8 sm:p-10 rounded-[2.5rem] border border-white/5 shadow-2xl flex flex-col justify-between relative overflow-hidden">
-                      <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 via-transparent to-transparent opacity-60" />
-                      
+                      <div className="absolute inset-0 bg-linear-to-br from-emerald-500/10 via-transparent to-transparent opacity-60" />
+
                       <div className="space-y-2 relative z-10">
                         <span className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-400">Velocity Intelligence</span>
                         <h4 className="text-xl font-black leading-tight">AI Matching Score</h4>
@@ -882,8 +882,8 @@ export default function ViewProfilePage() {
 
                       {/* Giant Gauge Visual */}
                       <div className="py-10 flex flex-col items-center justify-center relative z-10">
-                        <div className="w-40 h-40 rounded-full border-[10px] border-emerald-500/20 flex items-center justify-center relative">
-                          <div className="absolute inset-0 rounded-full border-[10px] border-emerald-500 border-t-transparent border-l-transparent animate-spin duration-3000" />
+                        <div className="w-40 h-40 rounded-full border-10 border-emerald-500/20 flex items-center justify-center relative">
+                          <div className="absolute inset-0 rounded-full border-10 border-emerald-500 border-t-transparent border-l-transparent animate-spin duration-3000" />
                           <span className="text-4xl font-black text-white">96%</span>
                         </div>
                         <p className="text-xs text-gray-400 font-bold mt-4">Extraordinary Affinity Match</p>

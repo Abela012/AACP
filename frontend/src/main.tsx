@@ -5,9 +5,9 @@ import { BrowserRouter } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import './index.css'
 import App from './App.tsx'
-import { UserProvider } from './shared/context/UserContext'
-import { ThemeProvider } from './shared/context/ThemeContext'
-import { ProfileProvider } from './shared/context/ProfileContext'
+import { UserProvider } from '@/src/shared/context/UserContext'
+import { ThemeProvider } from '@/src/shared/context/ThemeContext'
+import { ProfileProvider } from '@/src/shared/context/ProfileContext'
 import { setupConsoleInterceptor } from './utils/consoleInterceptor'
 
 // Initialize production console interceptor to prevent noise
