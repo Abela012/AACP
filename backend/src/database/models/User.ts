@@ -26,6 +26,10 @@ export interface IUser extends Document {
 
     emailVerified?: boolean;
 
+    about?: string;
+
+    savedCreators: mongoose.Types.ObjectId[];
+
     lastLogin?: Date;
 
     createdAt: Date;
@@ -98,6 +102,19 @@ const userSchema = new Schema(
             type: Boolean,
             default: false,
         },
+
+        about: {
+            type: String,
+            default: "",
+        },
+
+        savedCreators: [
+            {
+                type: Schema.Types.ObjectId,
+                ref: "User",
+                default: [],
+            },
+        ],
 
         lastLogin: {
             type: Date,
