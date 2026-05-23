@@ -146,8 +146,8 @@ export default function CreateCampaignPage() {
         </button>
 
         <div className="mb-10">
-          <div className="w-16 h-16 bg-emerald-500/10 rounded-2xl flex items-center justify-center mb-4">
-            <Megaphone className="w-8 h-8 text-emerald-500" />
+          <div className="w-16 h-16 bg-aacp-olive/10 rounded-2xl flex items-center justify-center mb-4">
+            <Megaphone className="w-8 h-8 text-aacp-olive" />
           </div>
           <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">Create New Campaign</h1>
           <p className="text-gray-500 dark:text-gray-400">Post an opportunity and find the perfect creators for your brand.</p>
@@ -163,7 +163,7 @@ export default function CreateCampaignPage() {
           {/* Basic Details */}
           <section className="bg-white dark:bg-[#111] border border-gray-100 dark:border-white/10 rounded-[2.5rem] p-8 shadow-sm">
             <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
-              <FileText size={20} className="text-emerald-500" />
+              <FileText size={20} className="text-aacp-olive" />
               Basic Details
             </h2>
             
@@ -175,7 +175,7 @@ export default function CreateCampaignPage() {
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="e.g. Summer Skincare Launch Video"
-                  className="w-full bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-emerald-500 transition-all"
+                  className="w-full bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-aacp-olive transition-all"
                   required
                 />
               </div>
@@ -188,7 +188,7 @@ export default function CreateCampaignPage() {
                   placeholder="Describe what you need, your brand values, and campaign goals... (Minimum 20 characters)"
                   rows={5}
                   minLength={20}
-                  className="w-full bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-emerald-500 transition-all resize-none"
+                  className="w-full bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-aacp-olive transition-all resize-none"
                   required
                 />
               </div>
@@ -199,7 +199,7 @@ export default function CreateCampaignPage() {
                   <select
                     value={category}
                     onChange={(e) => setCategory(e.target.value)}
-                    className="w-full bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm text-gray-900 dark:text-white focus:outline-none focus:border-emerald-500 transition-all mb-4"
+                    className="w-full bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm text-gray-900 dark:text-white focus:outline-none focus:border-aacp-olive transition-all mb-4"
                   >
                     {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
                   </select>
@@ -214,7 +214,7 @@ export default function CreateCampaignPage() {
                         value={customCategory}
                         onChange={(e) => setCustomCategory(e.target.value)}
                         placeholder="Type your category..."
-                        className="w-full bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-emerald-500 transition-all"
+                        className="w-full bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-aacp-olive transition-all"
                         required
                       />
                     </motion.div>
@@ -230,7 +230,7 @@ export default function CreateCampaignPage() {
                       value={budgetAmount}
                       onChange={(e) => setBudgetAmount(e.target.value)}
                       placeholder="e.g. 30000"
-                      className="w-full bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl pl-12 pr-4 py-3 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-emerald-500 transition-all"
+                      className="w-full bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl pl-12 pr-4 py-3 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-aacp-olive transition-all"
                       required
                     />
                   </div>
@@ -244,7 +244,7 @@ export default function CreateCampaignPage() {
                       value={deadline}
                       onChange={(e) => setDeadline(e.target.value)}
                       min={new Date().toISOString().split('T')[0]}
-                      className="w-full bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl pl-10 pr-4 py-3 text-sm text-gray-900 dark:text-white focus:outline-none focus:border-emerald-500 transition-all"
+                      className="w-full bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl pl-10 pr-4 py-3 text-sm text-gray-900 dark:text-white focus:outline-none focus:border-aacp-olive transition-all"
                       required
                     />
                   </div>
@@ -254,7 +254,7 @@ export default function CreateCampaignPage() {
                   <select
                     value={paymentType}
                     onChange={(e) => setPaymentType(e.target.value as 'Fixed-price' | 'Hourly')}
-                    className="w-full bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm text-gray-900 dark:text-white focus:outline-none focus:border-emerald-500 transition-all"
+                    className="w-full bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm text-gray-900 dark:text-white focus:outline-none focus:border-aacp-olive transition-all"
                   >
                     <option value="Fixed-price">Fixed-price</option>
                     <option value="Hourly">Hourly</option>
@@ -265,7 +265,7 @@ export default function CreateCampaignPage() {
                   <select
                     value={experienceLevel}
                     onChange={(e) => setExperienceLevel(e.target.value as 'Beginner' | 'Intermediate' | 'Expert')}
-                    className="w-full bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm text-gray-900 dark:text-white focus:outline-none focus:border-emerald-500 transition-all"
+                    className="w-full bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm text-gray-900 dark:text-white focus:outline-none focus:border-aacp-olive transition-all"
                   >
                     <option value="Beginner">Beginner</option>
                     <option value="Intermediate">Intermediate</option>
@@ -279,7 +279,7 @@ export default function CreateCampaignPage() {
           {/* Requirements & Platforms */}
           <section className="bg-white dark:bg-[#111] border border-gray-100 dark:border-white/10 rounded-[2.5rem] p-8 shadow-sm">
             <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
-              <Target size={20} className="text-emerald-500" />
+              <Target size={20} className="text-aacp-olive" />
               Requirements & Reach
             </h2>
             
@@ -295,8 +295,8 @@ export default function CreateCampaignPage() {
                       className={cn(
                         "px-4 py-2 rounded-xl text-sm font-bold transition-all border",
                         selectedPlatforms.includes(platform)
-                          ? "bg-emerald-500 text-black border-emerald-500 shadow-md shadow-emerald-500/20"
-                          : "bg-gray-50 dark:bg-white/5 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-white/10 hover:border-emerald-500/50"
+                          ? "bg-aacp-olive text-black border-aacp-olive shadow-md shadow-aacp-olive/20"
+                          : "bg-gray-50 dark:bg-white/5 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-white/10 hover:border-aacp-olive/50"
                       )}
                     >
                       {platform}
@@ -315,7 +315,7 @@ export default function CreateCampaignPage() {
                     value={minFollowers}
                     onChange={(e) => setMinFollowers(e.target.value)}
                     placeholder="e.g. 10000"
-                    className="w-full bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl pl-10 pr-4 py-3 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-emerald-500 transition-all"
+                    className="w-full bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl pl-10 pr-4 py-3 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-aacp-olive transition-all"
                   />
                 </div>
               </div>
@@ -327,7 +327,7 @@ export default function CreateCampaignPage() {
                   value={locationReq}
                   onChange={(e) => setLocationReq(e.target.value)}
                   placeholder="e.g. Global, US Only, UK Only"
-                  className="w-full max-w-xs bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-emerald-500 transition-all"
+                  className="w-full max-w-xs bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-aacp-olive transition-all"
                 />
               </div>
 
@@ -340,7 +340,7 @@ export default function CreateCampaignPage() {
                     onChange={(e) => setNewDeliverable(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addDeliverable())}
                     placeholder="e.g. 1x 60s TikTok Video"
-                    className="flex-1 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm text-gray-900 dark:text-white focus:outline-none focus:border-emerald-500 transition-all"
+                    className="flex-1 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm text-gray-900 dark:text-white focus:outline-none focus:border-aacp-olive transition-all"
                   />
                   <button
                     type="button"
@@ -354,7 +354,7 @@ export default function CreateCampaignPage() {
                   <div className="flex flex-wrap gap-2">
                     {deliverables.map(d => (
                       <span key={d} className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 dark:bg-white/10 rounded-lg text-sm text-gray-700 dark:text-gray-300">
-                        <CheckCircle2 size={14} className="text-emerald-500" />
+                        <CheckCircle2 size={14} className="text-aacp-olive" />
                         {d}
                         <button type="button" onClick={() => removeDeliverable(d)} className="ml-1 text-gray-400 hover:text-red-500">
                           <X size={14} />
@@ -381,8 +381,8 @@ export default function CreateCampaignPage() {
               className={cn(
                 "px-10 py-4 rounded-2xl font-bold text-white transition-all shadow-xl",
                 isPending 
-                  ? "bg-emerald-400 cursor-not-allowed" 
-                  : "bg-emerald-500 hover:bg-emerald-400 shadow-emerald-500/20 hover:shadow-emerald-500/40 hover:-translate-y-0.5"
+                  ? "bg-aacp-gold cursor-not-allowed" 
+                  : "bg-aacp-olive hover:bg-aacp-gold shadow-aacp-olive/20 hover:shadow-aacp-olive/40 hover:-translate-y-0.5"
               )}
             >
               {isPending ? (

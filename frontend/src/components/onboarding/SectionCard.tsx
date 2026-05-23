@@ -12,7 +12,7 @@ export default function SectionCard({ icon, title, description, children }: Sect
     <section className="bg-white dark:bg-[#111] rounded-3xl border border-gray-100 dark:border-white/5 p-6 md:p-8 shadow-sm">
       <div className="flex items-start gap-3 mb-6">
         {icon && (
-          <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center shrink-0">
+          <div className="w-10 h-10 rounded-xl bg-aacp-olive/10 text-aacp-olive flex items-center justify-center shrink-0">
             {icon}
           </div>
         )}

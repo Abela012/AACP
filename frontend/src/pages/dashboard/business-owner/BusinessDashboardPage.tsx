@@ -77,7 +77,7 @@ const Card = ({ children, className, title, extra }: any) => (
 
 const Badge = ({ children, variant = 'neutral' }: any) => {
   const variants: any = {
-    success: 'bg-emerald-500/10 text-emerald-600',
+    success: 'bg-aacp-olive/10 text-aacp-olive',
     warning: 'bg-amber-500/10 text-amber-600',
     danger: 'bg-red-500/10 text-red-600',
     info: 'bg-blue-500/10 text-blue-600',
@@ -175,7 +175,7 @@ export default function BusinessDashboardPage() {
     text: tx.description,
     time: new Date(tx.createdAt).toLocaleDateString(),
     icon: tx.type === 'credit' ? DollarSign : tx.type === 'debit' ? Wallet : Activity,
-    color: tx.type === 'credit' ? 'text-emerald-500' : 'text-blue-500'
+    color: tx.type === 'credit' ? 'text-aacp-olive' : 'text-blue-500'
   }));
 
   // 1. Status / Alert Banner Logic
@@ -275,7 +275,7 @@ export default function BusinessDashboardPage() {
         {/* HEADER SECTION */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
-            <h1 className="text-3xl font-black text-gray-900 dark:text-white">Business <span className="text-emerald-500">Command Center</span></h1>
+            <h1 className="text-3xl font-black text-gray-900 dark:text-white">Business <span className="text-aacp-olive">Command Center</span></h1>
             <p className="text-sm text-gray-500 mt-1">Manage your advertisement ecosystem and track performance real-time.</p>
           </div>
           <div className="flex items-center gap-3">
@@ -287,7 +287,7 @@ export default function BusinessDashboardPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {[
             { label: 'Total Campaigns', value: isLoadingOpps ? '...' : opportunities.length, trend: '+2', trendType: 'up', subtext: 'Since last month', icon: Megaphone, color: 'text-blue-500', link: '/campaigns' },
-            { label: 'Active Creators', value: isLoadingCollabs ? '...' : collaborations.filter((c: any) => c.status === 'active').length, trend: '+12%', trendType: 'up', subtext: 'High engagement', icon: Users, color: 'text-emerald-500', link: '/collaborations' },
+            { label: 'Active Creators', value: isLoadingCollabs ? '...' : collaborations.filter((c: any) => c.status === 'active').length, trend: '+12%', trendType: 'up', subtext: 'High engagement', icon: Users, color: 'text-aacp-olive', link: '/collaborations' },
             { label: 'Wallet Balance', value: isLoadingWallet ? '...' : `${walletData?.balance?.toLocaleString() ?? 0}`, trend: 'AACP', trendType: 'neutral', subtext: 'Available funds', icon: Wallet, color: 'text-amber-500', link: '/wallet' },
             { label: 'Trust Score', value: '78/100', trend: '+4', trendType: 'up', subtext: 'Top 10% Business', icon: ShieldCheck, color: 'text-indigo-500', link: '/profile' },
           ].map((stat, idx) => (
@@ -297,13 +297,13 @@ export default function BusinessDashboardPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: idx * 0.1 }}
               onClick={() => navigate(stat.link)}
-              className="bg-white dark:bg-[#111] p-6 rounded-4xl border border-gray-100 dark:border-white/5 shadow-sm hover:border-emerald-500/30 transition-all group text-left"
+              className="bg-white dark:bg-[#111] p-6 rounded-4xl border border-gray-100 dark:border-white/5 shadow-sm hover:border-aacp-olive/30 transition-all group text-left"
             >
               <div className="flex justify-between items-start mb-4">
                 <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center bg-gray-50 dark:bg-white/5", stat.color)}>
                   <stat.icon size={24} />
                 </div>
-                <div className={cn("flex items-center gap-1 text-xs font-bold", stat.trendType === 'up' ? 'text-emerald-500' : 'text-gray-400')}>
+                <div className={cn("flex items-center gap-1 text-xs font-bold", stat.trendType === 'up' ? 'text-aacp-olive' : 'text-gray-400')}>
                   {stat.trendType === 'up' ? <ArrowUpRight size={14} /> : null}
                   {stat.trend}
                 </div>
@@ -316,7 +316,7 @@ export default function BusinessDashboardPage() {
         </div>
 
         {/* 3. QUICK ACTIONS BAR */}
-        <div className="flex flex-wrap gap-4 p-6 bg-emerald-600 rounded-3xl shadow-xl shadow-emerald-600/20 relative overflow-hidden">
+        <div className="flex flex-wrap gap-4 p-6 bg-aacp-olive rounded-3xl shadow-xl shadow-aacp-olive/20 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -mr-32 -mt-32"></div>
           <div className="relative z-10 flex flex-col md:flex-row items-center gap-6 w-full">
             <div className="flex-1">
@@ -353,12 +353,12 @@ export default function BusinessDashboardPage() {
               <div className="space-y-4">
                 {realTasks.length === 0 ? (
                   <div className="flex flex-col items-center py-6 text-center">
-                    <CheckCircle2 className="text-emerald-500 mb-2" size={32} />
+                    <CheckCircle2 className="text-aacp-olive mb-2" size={32} />
                     <p className="text-sm font-bold text-gray-900 dark:text-white">All caught up!</p>
                     <p className="text-xs text-gray-400">No urgent tasks requiring your attention.</p>
                   </div>
                 ) : realTasks.map((task) => (
-                  <div key={task.id} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-white/5 rounded-2xl border border-gray-100 dark:border-white/5 group hover:border-emerald-500/30 transition-all">
+                  <div key={task.id} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-white/5 rounded-2xl border border-gray-100 dark:border-white/5 group hover:border-aacp-olive/30 transition-all">
                     <div className="flex items-center gap-4">
                       <div className={cn("w-2 h-2 rounded-full", task.priority === 'high' ? 'bg-red-500' : 'bg-amber-500')}></div>
                       <div>
@@ -368,7 +368,7 @@ export default function BusinessDashboardPage() {
                     </div>
                     <button
                       onClick={() => navigate(task.link || '/')}
-                      className="px-4 py-2 bg-white dark:bg-white/10 text-gray-900 dark:text-white rounded-xl text-xs font-bold border border-gray-100 dark:border-white/10 group-hover:bg-emerald-600 group-hover:text-white transition-all"
+                      className="px-4 py-2 bg-white dark:bg-white/10 text-gray-900 dark:text-white rounded-xl text-xs font-bold border border-gray-100 dark:border-white/10 group-hover:bg-aacp-olive group-hover:text-white transition-all"
                     >
                       {task.action}
                     </button>
@@ -386,7 +386,7 @@ export default function BusinessDashboardPage() {
                     onClick={() => setTimeFilter(t)}
                     className={cn(
                       "px-3 py-1 rounded-lg text-[10px] font-bold transition-all",
-                      timeFilter === t ? "bg-white dark:bg-white/10 text-emerald-500 shadow-sm" : "text-gray-400 hover:text-emerald-500"
+                      timeFilter === t ? "bg-white dark:bg-white/10 text-aacp-olive shadow-sm" : "text-gray-400 hover:text-aacp-olive"
                     )}
                   >
                     {t}
@@ -415,8 +415,8 @@ export default function BusinessDashboardPage() {
                 </ResponsiveContainer>
               </div>
               <div className="grid grid-cols-2 gap-4 mt-8">
-                <div className="p-4 bg-emerald-50 dark:bg-emerald-500/5 rounded-2xl border border-emerald-100 dark:border-emerald-500/20">
-                  <div className="flex items-center gap-2 text-emerald-600 mb-1">
+                <div className="p-4 bg-aacp-gold/15 dark:bg-aacp-olive/5 rounded-2xl border border-aacp-gold/25 dark:border-aacp-olive/20">
+                  <div className="flex items-center gap-2 text-aacp-olive mb-1">
                     <TrendingUp size={16} />
                     <span className="text-[10px] font-black uppercase tracking-widest">Top Campaign</span>
                   </div>
@@ -435,7 +435,7 @@ export default function BusinessDashboardPage() {
             </Card>
 
             {/* 4. CAMPAIGN OVERVIEW SECTION */}
-            <Card title="Your Campaigns" extra={<button className="text-xs font-bold text-emerald-600 hover:underline">View All</button>}>
+            <Card title="Your Campaigns" extra={<button className="text-xs font-bold text-aacp-olive hover:underline">View All</button>}>
               <div className="overflow-x-auto">
                 <table className="w-full text-left">
                   <thead>
@@ -449,7 +449,7 @@ export default function BusinessDashboardPage() {
                   </thead>
                   <tbody className="divide-y divide-gray-50 dark:divide-white/5">
                     {isLoadingOpps ? (
-                      <tr><td colSpan={5} className="py-8 text-center"><Loader2 className="animate-spin mx-auto text-emerald-600" /></td></tr>
+                      <tr><td colSpan={5} className="py-8 text-center"><Loader2 className="animate-spin mx-auto text-aacp-olive" /></td></tr>
                     ) : opportunities.length === 0 ? (
                       <tr><td colSpan={5} className="py-8 text-center text-sm text-gray-500">No campaigns found.</td></tr>
                     ) : opportunities.slice(0, 5).map((opp: any) => (
@@ -466,9 +466,9 @@ export default function BusinessDashboardPage() {
                         </td>
                         <td className="py-5">
                           <div className="flex items-center justify-center gap-2">
-                            <span className="text-xs font-bold text-emerald-500">4.2%</span>
+                            <span className="text-xs font-bold text-aacp-olive">4.2%</span>
                             <div className="w-16 h-1.5 bg-gray-100 dark:bg-white/10 rounded-full overflow-hidden">
-                              <div className="h-full bg-emerald-500" style={{ width: '42%' }}></div>
+                              <div className="h-full bg-aacp-olive" style={{ width: '42%' }}></div>
                             </div>
                           </div>
                         </td>
@@ -476,7 +476,7 @@ export default function BusinessDashboardPage() {
                           <div className="flex justify-end gap-2">
                             <button
                               onClick={() => navigate(`/campaign/edit/${opp._id}`)}
-                              className="p-2 bg-white dark:bg-white/5 rounded-xl border border-gray-100 dark:border-white/10 text-gray-400 hover:text-emerald-500 transition-all"
+                              className="p-2 bg-white dark:bg-white/5 rounded-xl border border-gray-100 dark:border-white/10 text-gray-400 hover:text-aacp-olive transition-all"
                             >
                               <Edit size={16} />
                             </button>
@@ -484,7 +484,7 @@ export default function BusinessDashboardPage() {
                               onClick={() => handleStatusToggle(opp._id, opp.status)}
                               className={cn(
                                 "p-2 bg-white dark:bg-white/5 rounded-xl border border-gray-100 dark:border-white/10 transition-all",
-                                opp.status === 'open' ? "text-gray-400 hover:text-amber-500" : "text-emerald-500 hover:text-emerald-600"
+                                opp.status === 'open' ? "text-gray-400 hover:text-amber-500" : "text-aacp-olive hover:text-aacp-olive"
                               )}
                             >
                               {opp.status === 'open' ? <Pause size={16} /> : <Play size={16} />}
@@ -499,10 +499,10 @@ export default function BusinessDashboardPage() {
             </Card>
 
             {/* 5. ACTIVE COLLABORATIONS */}
-            <Card title="Active Partnerships" extra={<button className="text-xs font-bold text-emerald-600 hover:underline">View Details</button>}>
+            <Card title="Active Partnerships" extra={<button className="text-xs font-bold text-aacp-olive hover:underline">View Details</button>}>
               <div className="space-y-6">
                 {isLoadingCollabs ? (
-                  <div className="flex justify-center py-8"><Loader2 className="animate-spin text-emerald-600" /></div>
+                  <div className="flex justify-center py-8"><Loader2 className="animate-spin text-aacp-olive" /></div>
                 ) : collaborations.length === 0 ? (
                   <div className="text-center py-8 text-sm text-gray-500">No active collaborations.</div>
                 ) : collaborations.slice(0, 3).map((collab: any) => (
@@ -511,7 +511,7 @@ export default function BusinessDashboardPage() {
                       {collab.advertiser?.profilePicture ? (
                         <img src={collab.advertiser.profilePicture} alt="" className="w-12 h-12 rounded-xl object-cover" />
                       ) : (
-                        <div className="w-12 h-12 bg-emerald-600/10 rounded-xl flex items-center justify-center text-emerald-600 font-bold">{collab.advertiser?.username?.[0] || 'A'}</div>
+                        <div className="w-12 h-12 bg-aacp-olive/10 rounded-xl flex items-center justify-center text-aacp-olive font-bold">{collab.advertiser?.username?.[0] || 'A'}</div>
                       )}
                       <div>
                         <h4 className="text-sm font-bold text-gray-900 dark:text-white">{collab.advertiser?.firstName} {collab.advertiser?.lastName}</h4>
@@ -550,7 +550,7 @@ export default function BusinessDashboardPage() {
             {/* 10. WALLET SUMMARY */}
             <Card title="Wallet Summary">
               <div className="p-6 bg-gray-900 dark:bg-white dark:text-black rounded-3xl text-white relative overflow-hidden mb-6">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/20 rounded-full blur-2xl -mr-16 -mt-16"></div>
+                <div className="absolute top-0 right-0 w-32 h-32 bg-aacp-olive/20 rounded-full blur-2xl -mr-16 -mt-16"></div>
                 <p className="text-white/60 dark:text-black/60 text-[10px] font-bold uppercase tracking-widest mb-1">Available Balance</p>
                 <h3 className="text-4xl font-black mb-6">{walletData?.balance?.toLocaleString() ?? 0} <span className="text-xs font-bold">AACP</span></h3>
                 <div className="flex justify-between items-end">
@@ -558,7 +558,7 @@ export default function BusinessDashboardPage() {
                     <p className="text-white/40 dark:text-black/40 text-[9px] font-bold uppercase tracking-widest">Locked</p>
                     <p className="text-sm font-bold">{walletData?.lockedBalance ?? 0} AACP</p>
                   </div>
-                  <button onClick={() => navigate('/wallet')} className="px-4 py-2 bg-emerald-500 text-black rounded-xl text-xs font-bold hover:bg-emerald-400 transition-all">Top Up</button>
+                  <button onClick={() => navigate('/wallet')} className="px-4 py-2 bg-aacp-olive text-black rounded-xl text-xs font-bold hover:bg-aacp-gold transition-all">Top Up</button>
                 </div>
               </div>
               <div className="space-y-4">
@@ -579,7 +579,7 @@ export default function BusinessDashboardPage() {
                 <div className="relative w-32 h-32 flex items-center justify-center">
                   <svg className="w-full h-full transform -rotate-90">
                     <circle cx="64" cy="64" r="58" stroke="currentColor" strokeWidth="12" fill="transparent" className="text-gray-100 dark:text-white/5" />
-                    <circle cx="64" cy="64" r="58" stroke="currentColor" strokeWidth="12" fill="transparent" strokeDasharray={364.42} strokeDashoffset={364.42 * (1 - 0.78)} className="text-emerald-500" strokeLinecap="round" />
+                    <circle cx="64" cy="64" r="58" stroke="currentColor" strokeWidth="12" fill="transparent" strokeDasharray={364.42} strokeDashoffset={364.42 * (1 - 0.78)} className="text-aacp-olive" strokeLinecap="round" />
                   </svg>
                   <div className="absolute flex flex-col items-center">
                     <span className="text-3xl font-black text-gray-900 dark:text-white">78</span>
@@ -588,12 +588,12 @@ export default function BusinessDashboardPage() {
                 </div>
                 <div className="mt-6 w-full space-y-4">
                   <div className="p-3 bg-gray-50 dark:bg-white/5 rounded-2xl flex items-center gap-3">
-                    <ShieldCheck className="text-emerald-500" size={18} />
+                    <ShieldCheck className="text-aacp-olive" size={18} />
                     <p className="text-xs text-gray-600 dark:text-gray-400">Profile 90% complete. Verify trade license to reach 100.</p>
                   </div>
                   <button
                     onClick={() => navigate('/profile')}
-                    className="w-full py-3 bg-emerald-600/10 text-emerald-600 font-bold rounded-2xl text-xs hover:bg-emerald-600/20 transition-all"
+                    className="w-full py-3 bg-aacp-olive/10 text-aacp-olive font-bold rounded-2xl text-xs hover:bg-aacp-olive/20 transition-all"
                   >
                     Improve Score
                   </button>
@@ -605,7 +605,7 @@ export default function BusinessDashboardPage() {
             <Card title="AI Matches" extra={<Sparkles className="text-cyan-500" size={16} />}>
               <div className="space-y-4">
                 {isLoadingRecs ? (
-                  <div className="flex justify-center py-4"><Loader2 className="animate-spin text-emerald-600" /></div>
+                  <div className="flex justify-center py-4"><Loader2 className="animate-spin text-aacp-olive" /></div>
                 ) : (recsData?.recommendations ?? []).length === 0 ? (
                   <p className="text-center text-xs text-gray-400">Complete profile for matches</p>
                 ) : (recsData?.recommendations ?? []).slice(0, 3).map((rec: any) => (
@@ -614,23 +614,23 @@ export default function BusinessDashboardPage() {
                       <img src={rec.meta?.profilePicture} className="w-10 h-10 rounded-xl object-cover" alt="" />
                       <div>
                         <h4 className="text-xs font-bold text-gray-900 dark:text-white">{rec.name}</h4>
-                        <p className="text-[10px] text-emerald-600 font-bold">{rec.score}% Match</p>
+                        <p className="text-[10px] text-aacp-olive font-bold">{rec.score}% Match</p>
                       </div>
                     </div>
-                    <button className="p-2 bg-emerald-600/10 text-emerald-600 rounded-lg hover:bg-emerald-600 hover:text-white transition-all">
+                    <button className="p-2 bg-aacp-olive/10 text-aacp-olive rounded-lg hover:bg-aacp-olive hover:text-white transition-all">
                       <Plus size={16} />
                     </button>
                   </div>
                 ))}
               </div>
-              <button onClick={() => navigate('/matches')} className="w-full mt-6 py-3 border border-dashed border-gray-200 dark:border-white/10 text-gray-400 text-xs font-bold rounded-2xl hover:border-emerald-500 hover:text-emerald-500 transition-all">View All Matches</button>
+              <button onClick={() => navigate('/matches')} className="w-full mt-6 py-3 border border-dashed border-gray-200 dark:border-white/10 text-gray-400 text-xs font-bold rounded-2xl hover:border-aacp-olive hover:text-aacp-olive transition-all">View All Matches</button>
             </Card>
 
             {/* 8. RECENT ACTIVITY FEED */}
             <Card title="Recent Activity">
               <div className="space-y-6 relative before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-[2px] before:bg-gray-50 dark:before:bg-white/5">
                 {isLoadingHistory ? (
-                  <div className="flex justify-center py-4"><Loader2 className="animate-spin text-emerald-600" /></div>
+                  <div className="flex justify-center py-4"><Loader2 className="animate-spin text-aacp-olive" /></div>
                 ) : realActivity.length === 0 ? (
                   <p className="text-center text-xs text-gray-400">No recent activity</p>
                 ) : realActivity.map((activity) => (
@@ -646,10 +646,10 @@ export default function BusinessDashboardPage() {
             </Card>
 
             {/* 9. NOTIFICATIONS PREVIEW */}
-            <Card title="Notifications" extra={<button onClick={handleMarkAllRead} className="text-[10px] font-bold text-emerald-600 hover:underline transition-all">Mark all read</button>}>
+            <Card title="Notifications" extra={<button onClick={handleMarkAllRead} className="text-[10px] font-bold text-aacp-olive hover:underline transition-all">Mark all read</button>}>
               <div className="space-y-4">
                 {isLoadingConvs ? (
-                  <div className="flex justify-center py-4"><Loader2 className="animate-spin text-emerald-600" /></div>
+                  <div className="flex justify-center py-4"><Loader2 className="animate-spin text-aacp-olive" /></div>
                 ) : conversations.length === 0 ? (
                   <p className="text-center text-xs text-gray-400">No new messages</p>
                 ) : conversations.slice(0, 5).map((conv: any) => {
@@ -678,7 +678,7 @@ export default function BusinessDashboardPage() {
                   );
                 })}
               </div>
-              <button onClick={() => navigate('/messages')} className="w-full mt-6 py-2 text-gray-400 text-xs font-bold hover:text-emerald-600 transition-colors">View All Messages</button>
+              <button onClick={() => navigate('/messages')} className="w-full mt-6 py-2 text-gray-400 text-xs font-bold hover:text-aacp-olive transition-colors">View All Messages</button>
             </Card>
 
           </div>

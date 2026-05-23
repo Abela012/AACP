@@ -11,17 +11,17 @@ export default function SuperAdminSecurityPage() {
       label: 'Active Admins',
       value: data?.overview.activeAdmins ?? 0,
       icon: Shield,
-      color: 'text-emerald-600',
-      bg: 'bg-emerald-50 dark:bg-emerald-500/10',
-      border: 'border-emerald-100 dark:border-emerald-500/20',
+      color: 'text-aacp-olive',
+      bg: 'bg-aacp-gold/15 dark:bg-aacp-olive/10',
+      border: 'border-aacp-gold/25 dark:border-aacp-olive/20',
     },
     {
       label: 'Super Admins',
       value: data?.overview.superAdmins ?? 0,
       icon: ShieldCheck,
-      color: 'text-emerald-600',
-      bg: 'bg-emerald-50 dark:bg-emerald-500/10',
-      border: 'border-emerald-100 dark:border-emerald-500/20',
+      color: 'text-aacp-olive',
+      bg: 'bg-aacp-gold/15 dark:bg-aacp-olive/10',
+      border: 'border-aacp-gold/25 dark:border-aacp-olive/20',
     },
     {
       label: 'Critical Events (7d)',
@@ -61,7 +61,7 @@ export default function SuperAdminSecurityPage() {
 
         {isLoading ? (
           <div className="flex items-center justify-center h-80">
-            <Loader2 className="w-10 h-10 text-emerald-600 animate-spin" />
+            <Loader2 className="w-10 h-10 text-aacp-olive animate-spin" />
           </div>
         ) : isError ? (
           <div className="bg-white dark:bg-[#111111] p-10 rounded-[2.5rem] border border-[#EFEFEF] dark:border-white/5 shadow-sm text-center">
@@ -100,7 +100,7 @@ export default function SuperAdminSecurityPage() {
                       <span
                         className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest ${
                           control.status === 'healthy'
-                            ? 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600'
+                            ? 'bg-aacp-gold/25 dark:bg-aacp-olive/20 text-aacp-olive'
                             : 'bg-amber-100 dark:bg-amber-500/20 text-amber-600'
                         }`}
                       >
@@ -113,7 +113,7 @@ export default function SuperAdminSecurityPage() {
 
               <div className="lg:col-span-7 bg-white dark:bg-[#111111] p-8 rounded-[2.5rem] border border-[#EFEFEF] dark:border-white/5 shadow-sm">
                 <div className="flex items-center gap-3 mb-8">
-                  <Clock className="text-emerald-600" size={20} />
+                  <Clock className="text-aacp-olive" size={20} />
                   <h3 className="text-xl font-black">Recent Security Events</h3>
                 </div>
                 <div className="space-y-4">

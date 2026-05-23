@@ -60,19 +60,19 @@ export default function PredictiveAnalysisDashboard({ data }: Props) {
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                 <div className={cn(
                     "p-4 rounded-2xl border shadow-xs flex flex-col justify-between",
-                    profitable ? "bg-emerald-50/50 border-emerald-100 dark:bg-emerald-500/5 dark:border-emerald-500/20" : "bg-amber-50/50 border-amber-100 dark:bg-amber-500/5 dark:border-amber-500/20"
+                    profitable ? "bg-aacp-gold/15/50 border-aacp-gold/25 dark:bg-aacp-olive/5 dark:border-aacp-olive/20" : "bg-amber-50/50 border-amber-100 dark:bg-amber-500/5 dark:border-amber-500/20"
                 )}>
                     <div className="flex justify-between items-start mb-2">
-                        <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center", profitable ? "bg-emerald-100 text-emerald-600" : "bg-amber-100 text-amber-600")}>
+                        <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center", profitable ? "bg-aacp-gold/25 text-aacp-olive" : "bg-amber-100 text-amber-600")}>
                             <TrendingUp size={16} />
                         </div>
-                        <span className={cn("text-[8px] font-black uppercase tracking-tighter", profitable ? "text-emerald-600" : "text-amber-600")}>
+                        <span className={cn("text-[8px] font-black uppercase tracking-tighter", profitable ? "text-aacp-olive" : "text-amber-600")}>
                             {profitable ? 'Profitable' : 'Risky'}
                         </span>
                     </div>
                     <div>
                         <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-0.5">ROI Score</p>
-                        <h3 className={cn("text-lg font-black", profitable ? "text-emerald-600" : "text-amber-600")}>
+                        <h3 className={cn("text-lg font-black", profitable ? "text-aacp-olive" : "text-amber-600")}>
                             {(roi || 0) > 0 ? '+' : ''}{(roi || 0)}%
                         </h3>
                     </div>
@@ -198,21 +198,21 @@ export default function PredictiveAnalysisDashboard({ data }: Props) {
                     </div>
                     <div>
                         <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Engagement</p>
-                        <p className="text-xs font-black text-emerald-600">{(metrics?.engagementRate || 0)}%</p>
+                        <p className="text-xs font-black text-aacp-olive">{(metrics?.engagementRate || 0)}%</p>
                     </div>
                 </div>
             </div>
 
             {/* 4. AI INSIGHT SECTION */}
-            <div className="bg-emerald-500/5 p-6 rounded-3xl border border-emerald-500/10">
+            <div className="bg-aacp-olive/5 p-6 rounded-3xl border border-aacp-olive/10">
                 <div className="flex items-center gap-2 mb-4">
-                    <Sparkles className="text-emerald-500" size={16} />
+                    <Sparkles className="text-aacp-olive" size={16} />
                     <h4 className="text-[10px] font-black text-gray-900 dark:text-white uppercase tracking-widest">AI Strategic Verdict</h4>
                 </div>
                 <p className="text-xs text-gray-700 dark:text-gray-300 leading-relaxed font-medium italic">
                     "{summary}"
                 </p>
-                <div className="mt-6 flex items-center gap-2 text-[10px] font-black text-emerald-600 uppercase tracking-widest bg-emerald-500/10 w-fit px-3 py-1 rounded-full">
+                <div className="mt-6 flex items-center gap-2 text-[10px] font-black text-aacp-olive uppercase tracking-widest bg-aacp-olive/10 w-fit px-3 py-1 rounded-full">
                     <CheckCircle2 size={12} /> Suitable for Brand Awareness
                 </div>
             </div>

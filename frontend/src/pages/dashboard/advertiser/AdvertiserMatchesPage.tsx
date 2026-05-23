@@ -253,19 +253,19 @@ export default function AdvertiserMatchesPage() {
         <motion.div 
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="relative overflow-hidden rounded-[2.5rem] border border-gray-150 dark:border-white/5 bg-gradient-to-br from-emerald-500/[0.06] via-emerald-600/[0.02] to-violet-500/[0.04] p-8 sm:p-10 mb-8"
+          className="relative overflow-hidden rounded-[2.5rem] border border-gray-150 dark:border-white/5 bg-gradient-to-br from-aacp-olive/[0.06] via-aacp-olive/[0.02] to-violet-500/[0.04] p-8 sm:p-10 mb-8"
         >
-          <div className="absolute top-0 right-0 w-72 h-72 bg-emerald-500/10 rounded-full blur-[80px] pointer-events-none animate-pulse duration-[8000ms]" />
+          <div className="absolute top-0 right-0 w-72 h-72 bg-aacp-olive/10 rounded-full blur-[80px] pointer-events-none animate-pulse duration-[8000ms]" />
           <div className="absolute bottom-0 left-1/3 w-64 h-64 bg-violet-500/5 rounded-full blur-[60px] pointer-events-none" />
 
           <div className="relative flex flex-col lg:flex-row lg:items-center justify-between gap-8 z-10">
             <div className="max-w-xl">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-black uppercase tracking-wider mb-4 border border-emerald-500/20">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-aacp-olive/10 text-aacp-olive dark:text-aacp-gold text-[10px] font-black uppercase tracking-wider mb-4 border border-aacp-olive/20">
                 <Sparkles size={11} className="animate-spin duration-3000" />
                 AI Match Engine Active
               </div>
               <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-gray-900 dark:text-white mb-3">
-                Discover campaigns that <span className="bg-gradient-to-r from-emerald-600 to-teal-400 dark:from-emerald-400 dark:to-teal-300 bg-clip-text text-transparent">match you perfectly</span>
+                Discover campaigns that <span className="bg-gradient-to-r from-aacp-olive to-teal-400 dark:from-aacp-gold dark:to-teal-300 bg-clip-text text-transparent">match you perfectly</span>
               </h1>
               <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
                 Our advanced recommendation model scans campaign objectives, platform requirements, and budget ranges to map high-relevance matches specifically to your creator profile.
@@ -276,7 +276,7 @@ export default function AdvertiserMatchesPage() {
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 lg:w-auto shrink-0">
               <div className="bg-white/70 dark:bg-white/[0.01] border border-gray-100 dark:border-white/5 rounded-3xl p-5 backdrop-blur-md">
                 <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider block mb-1">Avg. Match Rate</span>
-                <div className="flex items-baseline gap-1 text-2xl font-black text-emerald-500">
+                <div className="flex items-baseline gap-1 text-2xl font-black text-aacp-olive">
                   96%
                   <span className="text-xs text-gray-400 font-medium">accuracy</span>
                 </div>
@@ -308,7 +308,7 @@ export default function AdvertiserMatchesPage() {
               placeholder="Search by keywords, niches, platform or brand..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-12 pr-4 py-4 rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.01] focus:border-emerald-500 dark:focus:border-emerald-500/50 outline-none text-gray-900 dark:text-white transition-all text-sm shadow-sm focus:shadow-[0_0_20px_rgba(16,185,129,0.06)]"
+              className="w-full pl-12 pr-4 py-4 rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.01] focus:border-aacp-olive dark:focus:border-aacp-olive/50 outline-none text-gray-900 dark:text-white transition-all text-sm shadow-sm focus:shadow-[0_0_20px_rgba(16,185,129,0.06)]"
             />
           </div>
           
@@ -317,7 +317,7 @@ export default function AdvertiserMatchesPage() {
             className={cn(
               "flex items-center justify-center gap-2 px-6 py-4 rounded-2xl border transition-all text-sm font-bold shadow-sm cursor-pointer",
               showFiltersPanel || hasActiveFilters
-                ? "bg-emerald-500 text-black border-emerald-500 hover:bg-emerald-400"
+                ? "bg-aacp-olive text-black border-aacp-olive hover:bg-aacp-gold"
                 : "bg-white dark:bg-white/[0.01] text-gray-600 dark:text-gray-300 border-gray-200 dark:border-white/10 hover:bg-gray-50 dark:hover:bg-white/5"
             )}
           >
@@ -352,8 +352,8 @@ export default function AdvertiserMatchesPage() {
                           className={cn(
                             "px-3.5 py-2 text-xs font-bold rounded-xl transition-all border cursor-pointer",
                             selectedPlatform === p
-                              ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/30"
-                              : "bg-white dark:bg-black/20 text-gray-500 dark:text-gray-400 border-gray-200 dark:border-white/5 hover:border-emerald-500/30 hover:text-emerald-500"
+                              ? "bg-aacp-olive/10 text-aacp-olive border-aacp-olive/30"
+                              : "bg-white dark:bg-black/20 text-gray-500 dark:text-gray-400 border-gray-200 dark:border-white/5 hover:border-aacp-olive/30 hover:text-aacp-olive"
                           )}
                         >
                           {p}
@@ -373,8 +373,8 @@ export default function AdvertiserMatchesPage() {
                           className={cn(
                             "px-3.5 py-2 text-xs font-bold rounded-xl transition-all border cursor-pointer",
                             selectedBudgetRange === b
-                              ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/30"
-                              : "bg-white dark:bg-black/20 text-gray-500 dark:text-gray-400 border-gray-200 dark:border-white/5 hover:border-emerald-500/30 hover:text-emerald-500"
+                              ? "bg-aacp-olive/10 text-aacp-olive border-aacp-olive/30"
+                              : "bg-white dark:bg-black/20 text-gray-500 dark:text-gray-400 border-gray-200 dark:border-white/5 hover:border-aacp-olive/30 hover:text-aacp-olive"
                           )}
                         >
                           {b}
@@ -394,8 +394,8 @@ export default function AdvertiserMatchesPage() {
                           className={cn(
                             "px-3.5 py-2 text-xs font-bold rounded-xl transition-all border cursor-pointer",
                             sortBy === s
-                              ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/30"
-                              : "bg-white dark:bg-black/20 text-gray-500 dark:text-gray-400 border-gray-200 dark:border-white/5 hover:border-emerald-500/30 hover:text-emerald-500"
+                              ? "bg-aacp-olive/10 text-aacp-olive border-aacp-olive/30"
+                              : "bg-white dark:bg-black/20 text-gray-500 dark:text-gray-400 border-gray-200 dark:border-white/5 hover:border-aacp-olive/30 hover:text-aacp-olive"
                           )}
                         >
                           {s}
@@ -457,7 +457,7 @@ export default function AdvertiserMatchesPage() {
                     />
                   )}
                   <span className="relative z-10 flex items-center gap-1.5">
-                    {tab === 'Recommended Campaigns' && <Sparkles size={13} className="text-emerald-500" />}
+                    {tab === 'Recommended Campaigns' && <Sparkles size={13} className="text-aacp-olive" />}
                     {tab === 'Recently Posted' && <Clock size={13} className="text-violet-500" />}
                     {tab === 'Campaign Feed' && <TrendingUp size={13} className="text-blue-500" />}
                     {isBookmarked && <Heart size={13} className="text-pink-500" />}
@@ -465,7 +465,7 @@ export default function AdvertiserMatchesPage() {
                     {isBookmarked && savedJobs.length > 0 && (
                       <span className={cn(
                         "px-1.5 py-0.5 rounded-full text-[9px] font-black",
-                        isActive ? "bg-emerald-500 text-black" : "bg-emerald-500/10 text-emerald-500"
+                        isActive ? "bg-aacp-olive text-black" : "bg-aacp-olive/10 text-aacp-olive"
                       )}>
                         {savedJobs.length}
                       </span>
@@ -485,8 +485,8 @@ export default function AdvertiserMatchesPage() {
         {isLoading ? (
           <div className="flex flex-col items-center py-32">
             <div className="relative mb-4">
-              <div className="absolute inset-0 bg-emerald-500/10 rounded-full blur-[10px] pointer-events-none animate-pulse" />
-              <Loader2 size={44} className="text-emerald-500 animate-spin relative z-10" />
+              <div className="absolute inset-0 bg-aacp-olive/10 rounded-full blur-[10px] pointer-events-none animate-pulse" />
+              <Loader2 size={44} className="text-aacp-olive animate-spin relative z-10" />
             </div>
             <p className="text-sm font-bold text-gray-500 dark:text-gray-400">Scanning matching campaigns...</p>
             <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">This takes only a second</p>
@@ -515,7 +515,7 @@ export default function AdvertiserMatchesPage() {
                   setSelectedBudgetRange('All Budgets');
                   setSortBy('Best Match Score');
                 }}
-                className="mt-6 px-6 py-2.5 bg-gray-200 dark:bg-white/10 hover:bg-emerald-500 dark:hover:bg-emerald-500 hover:text-black text-gray-700 dark:text-white text-xs font-bold rounded-xl transition-all cursor-pointer"
+                className="mt-6 px-6 py-2.5 bg-gray-200 dark:bg-white/10 hover:bg-aacp-olive dark:hover:bg-aacp-olive hover:text-black text-gray-700 dark:text-white text-xs font-bold rounded-xl transition-all cursor-pointer"
               >
                 Clear Active Filters
               </button>
@@ -546,7 +546,7 @@ export default function AdvertiserMatchesPage() {
                 const brandInitials = opp.brand ? opp.brand.slice(0, 2).toUpperCase() : 'CO';
                 const gradientIndex = (opp.brand || '').length % 5;
                 const gradients = [
-                  'from-emerald-400 to-teal-500',
+                  'from-aacp-gold to-teal-500',
                   'from-pink-500 to-rose-400',
                   'from-violet-500 to-purple-600',
                   'from-blue-400 to-indigo-500',
@@ -569,7 +569,7 @@ export default function AdvertiserMatchesPage() {
                   : '';
                 const fitColor = roundedScore !== undefined
                   ? roundedScore >= 85
-                    ? 'text-emerald-500 bg-emerald-500/10 border-emerald-500/20'
+                    ? 'text-aacp-olive bg-aacp-olive/10 border-aacp-olive/20'
                     : roundedScore >= 70
                       ? 'text-violet-500 bg-violet-500/10 border-violet-500/20'
                       : roundedScore >= 45
@@ -587,12 +587,12 @@ export default function AdvertiserMatchesPage() {
                     transition={{ delay: idx * 0.03, duration: 0.3 }}
                     className={cn(
                       "relative overflow-hidden rounded-[2rem] border transition-all duration-300 p-6 sm:p-8 bg-white dark:bg-white/[0.015] border-gray-150 dark:border-white/5",
-                      "hover:border-emerald-500/30 dark:hover:border-emerald-500/20 hover:shadow-[0_20px_50px_rgba(16,185,129,0.03)] dark:hover:shadow-[0_20px_50px_rgba(16,185,129,0.06)] hover:-translate-y-1"
+                      "hover:border-aacp-olive/30 dark:hover:border-aacp-olive/20 hover:shadow-[0_20px_50px_rgba(16,185,129,0.03)] dark:hover:shadow-[0_20px_50px_rgba(16,185,129,0.06)] hover:-translate-y-1"
                     )}
                   >
                     {/* Glow Accents */}
                     {score && score >= 85 && (
-                      <div className="absolute top-0 left-0 w-[4px] h-full bg-emerald-500" />
+                      <div className="absolute top-0 left-0 w-[4px] h-full bg-aacp-olive" />
                     )}
 
                     <div className="flex flex-col sm:flex-row justify-between items-start gap-4 mb-4">
@@ -645,7 +645,7 @@ export default function AdvertiserMatchesPage() {
                           </span>
                         </div>
                         <Link to={`/advertiser/matches/${opp._id}/apply`}>
-                          <h3 className="text-xl font-black text-gray-900 dark:text-white hover:text-emerald-500 dark:hover:text-emerald-400 transition-colors line-clamp-2 leading-snug">
+                          <h3 className="text-xl font-black text-gray-900 dark:text-white hover:text-aacp-olive dark:hover:text-aacp-gold transition-colors line-clamp-2 leading-snug">
                             {opp.title}
                           </h3>
                         </Link>
@@ -663,7 +663,7 @@ export default function AdvertiserMatchesPage() {
                       {opp.description && opp.description.length > 200 && (
                         <button
                           onClick={(e) => toggleExpandJob(e, opp._id)}
-                          className="text-emerald-500 hover:text-emerald-400 font-black text-xs mt-3 flex items-center gap-0.5 transition-colors cursor-pointer focus:outline-none"
+                          className="text-aacp-olive hover:text-aacp-gold font-black text-xs mt-3 flex items-center gap-0.5 transition-colors cursor-pointer focus:outline-none"
                         >
                           {expandedJobs.includes(opp._id) ? (
                             <>Show Less Details <ChevronUp size={13} /></>
@@ -689,7 +689,7 @@ export default function AdvertiserMatchesPage() {
                               isInstagram && "bg-pink-500/10 text-pink-500 border-pink-500/20 dark:bg-pink-500/5",
                               isTikTok && "bg-black/10 dark:bg-white/10 text-gray-800 dark:text-white border-gray-300 dark:border-white/20",
                               isYouTube && "bg-red-500/10 text-red-500 border-red-500/20 dark:bg-red-500/5",
-                              !isInstagram && !isTikTok && !isYouTube && "bg-emerald-500/10 text-emerald-500 border-emerald-500/20 dark:bg-emerald-500/5"
+                              !isInstagram && !isTikTok && !isYouTube && "bg-aacp-olive/10 text-aacp-olive border-aacp-olive/20 dark:bg-aacp-olive/5"
                             )}
                           >
                             <span className={cn(
@@ -697,7 +697,7 @@ export default function AdvertiserMatchesPage() {
                               isInstagram && "bg-pink-500 animate-pulse",
                               isTikTok && "bg-gray-800 dark:bg-white animate-pulse",
                               isYouTube && "bg-red-500 animate-pulse",
-                              !isInstagram && !isTikTok && !isYouTube && "bg-emerald-500 animate-pulse"
+                              !isInstagram && !isTikTok && !isYouTube && "bg-aacp-olive animate-pulse"
                             )} />
                             {platform}
                           </span>
@@ -725,7 +725,7 @@ export default function AdvertiserMatchesPage() {
                       <div className={cn(
                         "mb-6 px-4 py-3 border rounded-2xl flex flex-wrap gap-x-6 gap-y-2 text-xs font-bold",
                         roundedScore >= 70
-                          ? "bg-emerald-500/[0.03] dark:bg-emerald-500/[0.01] border-emerald-500/15 text-gray-600 dark:text-gray-300"
+                          ? "bg-aacp-olive/[0.03] dark:bg-aacp-olive/[0.01] border-aacp-olive/15 text-gray-600 dark:text-gray-300"
                           : roundedScore >= 45
                             ? "bg-sky-500/[0.03] dark:bg-sky-500/[0.01] border-sky-500/15 text-gray-600 dark:text-gray-300"
                             : "bg-gray-50 dark:bg-white/[0.01] border-gray-200 dark:border-white/5 text-gray-500 dark:text-gray-400"
@@ -733,16 +733,16 @@ export default function AdvertiserMatchesPage() {
                         {roundedScore >= 70 ? (
                           <>
                             <div className="flex items-center gap-1.5">
-                              <Check className="text-emerald-500" size={13} />
+                              <Check className="text-aacp-olive" size={13} />
                               <span>Niche Aligns with Creator Profile</span>
                             </div>
                             <div className="flex items-center gap-1.5">
-                              <Check className="text-emerald-500" size={13} />
+                              <Check className="text-aacp-olive" size={13} />
                               <span>Platform matches focus</span>
                             </div>
                             {budgetAmount >= 1000 && (
                               <div className="flex items-center gap-1.5">
-                                <Check className="text-emerald-500" size={13} />
+                                <Check className="text-aacp-olive" size={13} />
                                 <span>High-paying premium budget</span>
                               </div>
                             )}
@@ -856,17 +856,17 @@ export default function AdvertiserMatchesPage() {
                         <div className="flex items-center gap-3">
                           <div className="text-right hidden sm:block">
                             <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block">Est. Budget</span>
-                            <span className="text-base font-black text-emerald-500">{budgetAmount.toLocaleString()} ETB</span>
+                            <span className="text-base font-black text-aacp-olive">{budgetAmount.toLocaleString()} ETB</span>
                           </div>
 
                           {hasApplied(opp._id) ? (
                             <button disabled className="px-6 py-3.5 bg-gray-100 dark:bg-white/5 text-gray-400 dark:text-gray-500 text-xs font-black rounded-2xl border border-gray-200/50 dark:border-white/5 flex items-center gap-1.5 cursor-not-allowed">
                               Applied
-                              <CheckCircle2 size={14} className="text-emerald-500" />
+                              <CheckCircle2 size={14} className="text-aacp-olive" />
                             </button>
                           ) : (
                             <Link to={`/advertiser/matches/${opp._id}/apply`}>
-                              <button className="px-6 py-3.5 bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-black rounded-2xl shadow-lg shadow-emerald-500/10 hover:shadow-emerald-500/25 transition-all duration-300 flex items-center gap-1.5 group cursor-pointer">
+                              <button className="px-6 py-3.5 bg-aacp-olive hover:bg-aacp-gold text-black text-xs font-black rounded-2xl shadow-lg shadow-aacp-olive/10 hover:shadow-aacp-olive/25 transition-all duration-300 flex items-center gap-1.5 group cursor-pointer">
                                 Apply to Match
                                 <ArrowUpRight size={14} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
                               </button>

@@ -53,7 +53,7 @@ export default function SuperAdminNotificationsPage() {
               onClick={() => setFilter(item.id)}
               className={`px-5 py-2.5 rounded-2xl text-xs font-black transition-all ${
                 filter === item.id
-                  ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-100 dark:shadow-none'
+                  ? 'bg-aacp-olive text-white shadow-lg shadow-aacp-gold/25 dark:shadow-none'
                   : 'bg-white dark:bg-white/5 border border-[#EFEFEF] dark:border-white/10 text-[#6F767E]'
               }`}
             >
@@ -65,7 +65,7 @@ export default function SuperAdminNotificationsPage() {
         <div className="bg-white dark:bg-[#111111] p-8 rounded-[3rem] border border-[#EFEFEF] dark:border-white/5 shadow-sm">
           {isLoading ? (
             <div className="py-20 text-center">
-              <Bell className="w-10 h-10 text-emerald-600 mx-auto mb-4 animate-pulse" />
+              <Bell className="w-10 h-10 text-aacp-olive mx-auto mb-4 animate-pulse" />
               <p className="text-sm font-bold text-[#6F767E]">Loading notifications...</p>
             </div>
           ) : isError ? (
@@ -88,7 +88,7 @@ export default function SuperAdminNotificationsPage() {
                     <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${
                       notif.priority === 'high'
                         ? 'bg-red-50 dark:bg-red-500/10 text-red-500'
-                        : 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600'
+                        : 'bg-aacp-gold/15 dark:bg-aacp-olive/10 text-aacp-olive'
                     }`}>
                       <Icon size={20} />
                     </div>

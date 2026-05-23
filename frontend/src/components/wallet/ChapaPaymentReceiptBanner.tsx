@@ -13,15 +13,15 @@ export default function ChapaPaymentReceiptBanner({ receipt, onDismiss }: Props)
   return (
     <div
       role="status"
-      className="mb-8 rounded-2xl border border-emerald-200 dark:border-emerald-500/30 bg-emerald-50 dark:bg-emerald-500/10 p-6 shadow-sm"
+      className="mb-8 rounded-2xl border border-aacp-gold/30 dark:border-aacp-olive/30 bg-aacp-gold/15 dark:bg-aacp-olive/10 p-6 shadow-sm"
     >
       <div className="flex items-start justify-between gap-4">
         <div className="flex gap-4">
-          <div className="w-12 h-12 rounded-xl bg-emerald-500 flex items-center justify-center shrink-0">
+          <div className="w-12 h-12 rounded-xl bg-aacp-olive flex items-center justify-center shrink-0">
             <CheckCircle2 className="text-black w-7 h-7" />
           </div>
           <div>
-            <p className="text-[10px] font-black uppercase tracking-widest text-emerald-700 dark:text-emerald-400 mb-1">
+            <p className="text-[10px] font-black uppercase tracking-widest text-aacp-olive dark:text-aacp-gold mb-1">
               Payment receipt
             </p>
             <h2 className="text-xl font-black text-gray-900 dark:text-white mb-1">Payment successful</h2>
@@ -56,7 +56,7 @@ export default function ChapaPaymentReceiptBanner({ receipt, onDismiss }: Props)
         <button
           type="button"
           onClick={onDismiss}
-          className="p-2 rounded-lg hover:bg-emerald-100 dark:hover:bg-emerald-500/20 text-gray-500 transition-colors shrink-0"
+          className="p-2 rounded-lg hover:bg-aacp-gold/25 dark:hover:bg-aacp-olive/20 text-gray-500 transition-colors shrink-0"
           aria-label="Dismiss receipt"
         >
           <X size={18} />

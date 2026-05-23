@@ -22,7 +22,7 @@ export default function ManualPaymentInstructions({ copiedField, onCopy }: Props
     <>
       <div className="bg-gray-50 dark:bg-[#222] border border-gray-100 dark:border-white/5 rounded-2xl p-6 mb-4">
         <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 rounded-xl bg-emerald-500 flex items-center justify-center shadow-lg shadow-emerald-500/20">
+          <div className="w-10 h-10 rounded-xl bg-aacp-olive flex items-center justify-center shadow-lg shadow-aacp-olive/20">
             <Building2 className="text-black w-5 h-5" />
           </div>
           <h3 className="font-bold text-gray-900 dark:text-white">Bank Transfer</h3>
@@ -42,13 +42,13 @@ export default function ManualPaymentInstructions({ copiedField, onCopy }: Props
         <div>
           <p className="text-xs text-gray-400 dark:text-gray-500 mb-1">Account Number</p>
           <div className="flex items-center gap-3">
-            <p className="font-bold text-lg text-emerald-500 tracking-wider">{data.accountNumber}</p>
+            <p className="font-bold text-lg text-aacp-olive tracking-wider">{data.accountNumber}</p>
             <button
               type="button"
               onClick={() => onCopy(data.accountNumber, 'cbe')}
-              className="text-gray-400 dark:text-gray-500 hover:text-emerald-500 transition-colors"
+              className="text-gray-400 dark:text-gray-500 hover:text-aacp-olive transition-colors"
             >
-              {copiedField === 'cbe' ? <Check size={16} className="text-emerald-500" /> : <Copy size={16} />}
+              {copiedField === 'cbe' ? <Check size={16} className="text-aacp-olive" /> : <Copy size={16} />}
             </button>
           </div>
         </div>
@@ -56,7 +56,7 @@ export default function ManualPaymentInstructions({ copiedField, onCopy }: Props
 
       <div className="bg-gray-50 dark:bg-[#222] border border-gray-100 dark:border-white/5 rounded-2xl p-6">
         <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 rounded-xl bg-emerald-500 flex items-center justify-center shadow-lg shadow-emerald-500/20">
+          <div className="w-10 h-10 rounded-xl bg-aacp-olive flex items-center justify-center shadow-lg shadow-aacp-olive/20">
             <Smartphone className="text-black w-5 h-5" />
           </div>
           <h3 className="font-bold text-gray-900 dark:text-white">Telebirr</h3>
@@ -70,13 +70,13 @@ export default function ManualPaymentInstructions({ copiedField, onCopy }: Props
           <div>
             <p className="text-xs text-gray-400 dark:text-gray-500 mb-1">Telebirr Number</p>
             <div className="flex items-center gap-3">
-              <p className="font-bold text-lg text-emerald-500 tracking-wider">{data.telebirrNumber}</p>
+              <p className="font-bold text-lg text-aacp-olive tracking-wider">{data.telebirrNumber}</p>
               <button
                 type="button"
                 onClick={() => onCopy(data.telebirrNumber.replace(/\s/g, ''), 'telebirr')}
-                className="text-gray-400 dark:text-gray-500 hover:text-emerald-500 transition-colors"
+                className="text-gray-400 dark:text-gray-500 hover:text-aacp-olive transition-colors"
               >
-                {copiedField === 'telebirr' ? <Check size={16} className="text-emerald-500" /> : <Copy size={16} />}
+                {copiedField === 'telebirr' ? <Check size={16} className="text-aacp-olive" /> : <Copy size={16} />}
               </button>
             </div>
           </div>

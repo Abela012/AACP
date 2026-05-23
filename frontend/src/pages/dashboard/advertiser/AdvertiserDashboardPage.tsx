@@ -75,7 +75,7 @@ export default function AdvertiserDashboardPage() {
   const matchCount = opportunities.length;
 
   const stats = [
-    { label: 'Trust Score', value: 'N/A', subValue: '', trend: 'New Account', trendType: 'neutral', icon: ShieldCheck, color: 'text-emerald-500' },
+    { label: 'Trust Score', value: 'N/A', subValue: '', trend: 'New Account', trendType: 'neutral', icon: ShieldCheck, color: 'text-aacp-olive' },
     { label: 'Total Balance', value: isLoadingWallet ? '...' : `${walletData?.balance?.toLocaleString() ?? 0} AACP`, trend: 'Available to withdraw', trendType: 'neutral', icon: DollarSign, color: 'text-blue-500' },
     { label: 'Active Campaigns', value: isLoadingApps ? '...' : activeCount.toString(), trend: `${pendingCount} pending`, trendType: 'neutral', icon: Zap, color: 'text-indigo-500' },
     { label: 'AI Matches', value: isLoadingOpps ? '...' : matchCount.toString(), trend: matchCount > 0 ? 'New matches found' : 'No matches yet', trendType: matchCount > 0 ? 'up' : 'neutral', icon: Sparkles, color: 'text-cyan-500' },
@@ -119,7 +119,7 @@ export default function AdvertiserDashboardPage() {
 
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-10 gap-4">
               <div>
-                <h1 className="text-3xl sm:text-4xl font-bold mb-2 text-gray-900 dark:text-white">Dashboard <span className="text-emerald-500">Overview</span></h1>
+                <h1 className="text-3xl sm:text-4xl font-bold mb-2 text-gray-900 dark:text-white">Dashboard <span className="text-aacp-olive">Overview</span></h1>
                 <p className="text-gray-500 dark:text-gray-400 text-sm">Welcome back, {clerkUser?.firstName || 'User'}. Explore the latest opportunities tailored for you.</p>
               </div>
             </div>
@@ -129,7 +129,7 @@ export default function AdvertiserDashboardPage() {
                 <button
                   key={idx}
                   onClick={() => handleStatClick(stat.label)}
-                  className="w-full text-left bg-white dark:bg-white/5 p-6 rounded-4xl border border-gray-100 dark:border-white/5 hover:border-emerald-500/30 transition-all group shadow-sm dark:shadow-none"
+                  className="w-full text-left bg-white dark:bg-white/5 p-6 rounded-4xl border border-gray-100 dark:border-white/5 hover:border-aacp-olive/30 transition-all group shadow-sm dark:shadow-none"
                 >
                   <div className="flex justify-between items-start mb-4">
                     <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">{stat.label}</h3>
@@ -143,7 +143,7 @@ export default function AdvertiserDashboardPage() {
                   </div>
                   <div className={cn(
                     "text-xs font-medium",
-                    stat.trendType === 'up' ? "text-emerald-500" : "text-gray-500"
+                    stat.trendType === 'up' ? "text-aacp-olive" : "text-gray-500"
                   )}>
                     {stat.trend}
                   </div>
@@ -156,7 +156,7 @@ export default function AdvertiserDashboardPage() {
                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Latest Opportunities</h2>
                 <button
                   onClick={() => navigate('/advertiser/matches')}
-                  className="text-sm font-bold text-emerald-500 hover:underline flex items-center gap-1"
+                  className="text-sm font-bold text-aacp-olive hover:underline flex items-center gap-1"
                 >
                   View all <ChevronRight size={16} />
                 </button>
@@ -165,7 +165,7 @@ export default function AdvertiserDashboardPage() {
               {!isApproved && (
                 <div className="absolute inset-0 z-20 flex items-center justify-center bg-white/40 dark:bg-black/40 backdrop-blur-[2px] rounded-[2.5rem]">
                   <div className="bg-white dark:bg-[#1a1a1a] p-6 rounded-3xl shadow-2xl border border-gray-100 dark:border-white/10 flex flex-col items-center gap-4 text-center">
-                    <div className="w-16 h-16 bg-emerald-500/10 rounded-2xl flex items-center justify-center text-emerald-500">
+                    <div className="w-16 h-16 bg-aacp-olive/10 rounded-2xl flex items-center justify-center text-aacp-olive">
                       <Lock size={32} />
                     </div>
                     <div>
@@ -179,7 +179,7 @@ export default function AdvertiserDashboardPage() {
               <div className={cn("flex flex-col", !isApproved && "opacity-50 pointer-events-none")}>
                 {isLoadingOpps ? (
                   <div className="flex flex-col items-center py-20">
-                    <Loader2 size={40} className="text-emerald-500 animate-spin mb-4" />
+                    <Loader2 size={40} className="text-aacp-olive animate-spin mb-4" />
                     <p className="text-sm font-bold text-gray-500">Fetching opportunities...</p>
                   </div>
                 ) : opportunities.length > 0 ? (
@@ -211,18 +211,18 @@ export default function AdvertiserDashboardPage() {
                         initial={{ opacity: 0, y: 15 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: idx * 0.08 }}
-                        className="mb-6 p-6 sm:p-8 bg-white dark:bg-[#181a20]/40 rounded-[2rem] border border-gray-100 dark:border-white/[0.05] hover:border-emerald-500/30 dark:hover:border-emerald-500/30 shadow-sm dark:shadow-none hover:shadow-xl hover:shadow-emerald-500/[0.03] transition-all duration-300 group flex flex-col lg:flex-row gap-6 items-start lg:items-stretch justify-between relative overflow-hidden backdrop-blur-md"
+                        className="mb-6 p-6 sm:p-8 bg-white dark:bg-[#181a20]/40 rounded-[2rem] border border-gray-100 dark:border-white/[0.05] hover:border-aacp-olive/30 dark:hover:border-aacp-olive/30 shadow-sm dark:shadow-none hover:shadow-xl hover:shadow-aacp-olive/[0.03] transition-all duration-300 group flex flex-col lg:flex-row gap-6 items-start lg:items-stretch justify-between relative overflow-hidden backdrop-blur-md"
                       >
                         <div className="flex-1 flex flex-col justify-between">
                           <div>
                             {/* Meta Badges */}
                             <div className="flex flex-wrap items-center gap-2 mb-4">
                               <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-gray-50 dark:bg-white/[0.04] text-gray-500 dark:text-gray-400 text-xs font-semibold border border-gray-100 dark:border-white/5">
-                                <Clock size={12} className="text-emerald-500" />
+                                <Clock size={12} className="text-aacp-olive" />
                                 Posted {timeAgo}
                               </span>
-                              <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-semibold border border-emerald-100/30 dark:border-emerald-500/10">
-                                <Briefcase size={12} className="text-emerald-500" />
+                              <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-aacp-gold/15 dark:bg-aacp-olive/10 text-aacp-olive dark:text-aacp-gold text-xs font-semibold border border-aacp-gold/25/30 dark:border-aacp-olive/10">
+                                <Briefcase size={12} className="text-aacp-olive" />
                                 {proposalText} proposals
                               </span>
                             </div>
@@ -230,9 +230,9 @@ export default function AdvertiserDashboardPage() {
                             {/* Title */}
                             <div 
                               onClick={() => navigate(`/advertiser/matches/${opp._id}/apply`)}
-                              className="cursor-pointer group-hover:text-emerald-500 dark:group-hover:text-emerald-400 transition-colors"
+                              className="cursor-pointer group-hover:text-aacp-olive dark:group-hover:text-aacp-gold transition-colors"
                             >
-                              <h3 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white leading-snug line-clamp-2 mb-2 group-hover:text-emerald-500 dark:group-hover:text-emerald-400 transition-colors">
+                              <h3 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white leading-snug line-clamp-2 mb-2 group-hover:text-aacp-olive dark:group-hover:text-aacp-gold transition-colors">
                                 {opp.title}
                               </h3>
                             </div>
@@ -301,7 +301,7 @@ export default function AdvertiserDashboardPage() {
                               {budgetAmount.toLocaleString()} ETB
                             </div>
                             <div className="text-xs text-gray-500 dark:text-gray-400 font-bold mt-1.5 flex items-center gap-1 justify-start lg:justify-end">
-                              <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>
+                              <span className="w-1.5 h-1.5 bg-aacp-olive rounded-full"></span>
                               {expLevel}
                             </div>
                           </div>
@@ -309,7 +309,7 @@ export default function AdvertiserDashboardPage() {
                           <div className="flex items-center gap-2.5 w-full sm:w-auto lg:w-full mt-2 sm:mt-0 lg:mt-4">
                             <button
                               onClick={() => navigate(`/advertiser/matches/${opp._id}/apply`)}
-                              className="flex-1 px-5 py-3 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-bold rounded-2xl transition-all duration-300 shadow-md shadow-emerald-500/10 hover:shadow-lg hover:shadow-emerald-500/20 flex items-center justify-center gap-2 group/btn active:scale-95"
+                              className="flex-1 px-5 py-3 bg-aacp-olive hover:bg-aacp-olive text-white text-sm font-bold rounded-2xl transition-all duration-300 shadow-md shadow-aacp-olive/10 hover:shadow-lg hover:shadow-aacp-olive/20 flex items-center justify-center gap-2 group/btn active:scale-95"
                             >
                               <span>Details</span>
                               <ArrowRight size={14} className="transition-transform group-hover/btn:translate-x-1" />

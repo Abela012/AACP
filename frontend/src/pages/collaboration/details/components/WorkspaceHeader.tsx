@@ -19,7 +19,7 @@ interface WorkspaceHeaderProps {
 export const WorkspaceHeader: React.FC<WorkspaceHeaderProps> = ({ campaign, collaboration, status }) => {
   const getStatusColor = (s: string) => {
     switch (s) {
-      case 'active': return 'bg-emerald-500/10 text-emerald-500';
+      case 'active': return 'bg-aacp-olive/10 text-aacp-olive';
       case 'pending': return 'bg-amber-500/10 text-amber-500';
       case 'review': return 'bg-blue-500/10 text-blue-500';
       case 'completed': return 'bg-gray-100 dark:bg-white/10 text-gray-500';
@@ -35,7 +35,7 @@ export const WorkspaceHeader: React.FC<WorkspaceHeaderProps> = ({ campaign, coll
   return (
     <div className="bg-white dark:bg-[#0a0a0a] rounded-[2.5rem] border border-gray-100 dark:border-white/5 p-8 mb-8 shadow-sm relative overflow-hidden">
       {/* Background decoration */}
-      <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/5 rounded-full blur-3xl -mr-20 -mt-20" />
+      <div className="absolute top-0 right-0 w-64 h-64 bg-aacp-olive/5 rounded-full blur-3xl -mr-20 -mt-20" />
       
       <div className="relative z-10">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-8">
@@ -44,7 +44,7 @@ export const WorkspaceHeader: React.FC<WorkspaceHeaderProps> = ({ campaign, coll
               {campaign?.brandLogo ? (
                 <img src={campaign.brandLogo} alt="" className="w-full h-full object-contain" />
               ) : (
-                <Target className="text-emerald-500 w-10 h-10" />
+                <Target className="text-aacp-olive w-10 h-10" />
               )}
             </div>
             <div>
@@ -76,7 +76,7 @@ export const WorkspaceHeader: React.FC<WorkspaceHeaderProps> = ({ campaign, coll
             <div className="text-right hidden sm:block">
               <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Total Budget</p>
               <p className="text-2xl font-black text-gray-900 dark:text-white">
-                {collaboration?.agreedBudget?.amount?.toLocaleString() || '0'} <span className="text-sm font-bold text-emerald-500">{collaboration?.agreedBudget?.currency || 'ETB'}</span>
+                {collaboration?.agreedBudget?.amount?.toLocaleString() || '0'} <span className="text-sm font-bold text-aacp-olive">{collaboration?.agreedBudget?.currency || 'ETB'}</span>
               </p>
             </div>
           </div>
@@ -93,7 +93,7 @@ export const WorkspaceHeader: React.FC<WorkspaceHeaderProps> = ({ campaign, coll
           </div>
           <div className="p-4 bg-gray-50/50 dark:bg-white/[0.02] rounded-2xl border border-gray-100 dark:border-white/5">
             <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 flex items-center gap-1.5">
-              <Target size={12} className="text-emerald-500" /> Completion
+              <Target size={12} className="text-aacp-olive" /> Completion
             </p>
             <div className="flex items-center gap-3">
                <p className="text-lg font-black text-gray-900 dark:text-white">{collaboration?.overallProgress || 0}%</p>
@@ -101,7 +101,7 @@ export const WorkspaceHeader: React.FC<WorkspaceHeaderProps> = ({ campaign, coll
                  <motion.div 
                     initial={{ width: 0 }}
                     animate={{ width: `${collaboration?.overallProgress || 0}%` }}
-                    className="h-full bg-emerald-500"
+                    className="h-full bg-aacp-olive"
                  />
                </div>
             </div>

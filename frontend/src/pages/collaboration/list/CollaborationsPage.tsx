@@ -104,7 +104,7 @@ export default function CollaborationsPage() {
               placeholder="Search collaborations..." 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 rounded-xl border border-gray-100 dark:border-white/10 bg-white dark:bg-white/5 focus:border-emerald-600 dark:focus:border-emerald-500 outline-none text-sm dark:text-white"
+              className="w-full pl-10 pr-4 py-2 rounded-xl border border-gray-100 dark:border-white/10 bg-white dark:bg-white/5 focus:border-aacp-olive dark:focus:border-aacp-olive outline-none text-sm dark:text-white"
             />
           </div>
           <div className="flex gap-3">
@@ -126,7 +126,7 @@ export default function CollaborationsPage() {
         <div className="grid grid-cols-1 gap-6">
           {isLoading ? (
             <div className="py-20 flex flex-col items-center justify-center gap-4">
-              <Loader2 size={40} className="animate-spin text-emerald-500" />
+              <Loader2 size={40} className="animate-spin text-aacp-olive" />
               <p className="text-gray-500 font-bold">Loading your collaborations...</p>
             </div>
           ) : filteredCollaborations.length > 0 ? (
@@ -147,18 +147,18 @@ export default function CollaborationsPage() {
                       <div className="flex items-center gap-4 mb-6">
                         <div className={cn(
                           "w-12 h-12 rounded-2xl flex items-center justify-center text-white font-black",
-                          c.status === 'active' ? "bg-emerald-500" : "bg-gray-400"
+                          c.status === 'active' ? "bg-aacp-olive" : "bg-gray-400"
                         )}>
                           {c.opportunity?.title?.[0]?.toUpperCase() || 'P'}
                         </div>
                         <div>
-                          <h3 className="text-lg font-black text-gray-900 dark:text-white group-hover:text-emerald-600 transition-colors">
+                          <h3 className="text-lg font-black text-gray-900 dark:text-white group-hover:text-aacp-olive transition-colors">
                             {c.opportunity?.title || 'Project Collaboration'}
                           </h3>
                           <div className="flex items-center gap-3 mt-1">
                             <span className={cn(
                               "text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded",
-                              c.status === 'active' ? "bg-emerald-500/10 text-emerald-600" : 
+                              c.status === 'active' ? "bg-aacp-olive/10 text-aacp-olive" : 
                               c.status === 'completed' ? "bg-blue-500/10 text-blue-600" :
                               "bg-gray-100 text-gray-500"
                             )}>
@@ -197,7 +197,7 @@ export default function CollaborationsPage() {
                           <div className="flex items-center gap-3">
                             <div className="flex-1 h-1.5 bg-gray-100 dark:bg-white/10 rounded-full overflow-hidden">
                               <div 
-                                className="h-full bg-emerald-500 rounded-full transition-all duration-500" 
+                                className="h-full bg-aacp-olive rounded-full transition-all duration-500" 
                                 style={{ width: `${c.overallProgress || 0}%` }}
                               />
                             </div>
@@ -211,7 +211,7 @@ export default function CollaborationsPage() {
                       {c.status === 'active' && userRole === 'business_owner' && (
                         <button 
                           onClick={(e) => { e.stopPropagation(); handleComplete(c._id, partnerName); }}
-                          className="w-full h-12 bg-emerald-600 text-white font-black rounded-xl hover:bg-emerald-500 transition-all shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2"
+                          className="w-full h-12 bg-aacp-olive text-white font-black rounded-xl hover:bg-aacp-olive transition-all shadow-lg shadow-aacp-olive/20 flex items-center justify-center gap-2"
                         >
                           <CheckCircle2 size={18} /> Complete Project
                         </button>

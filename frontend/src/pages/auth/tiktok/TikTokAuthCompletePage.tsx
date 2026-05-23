@@ -82,12 +82,12 @@ export default function TikTokAuthCompletePage() {
 
     return (
         <div className="flex min-h-[40vh] flex-col items-center justify-center px-6 text-center">
-            <p className="text-lg font-semibold text-[#001e00]">{message}</p>
+            <p className="text-lg font-semibold text-aacp-ink">{message}</p>
             {errorParam ? (
                 <button
                     type="button"
                     onClick={() => navigate('/auth/login', { replace: true })}
-                    className="mt-6 text-sm font-bold text-[#14a800] hover:underline"
+                    className="mt-6 text-sm font-bold text-aacp-olive hover:underline"
                 >
                     Back to login
                 </button>

@@ -24,20 +24,20 @@ export default function CompletionProgress({ step, completion, onStepClick }: Co
       <div className="flex items-center justify-between gap-4">
         <div>
           <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Profile completion</p>
-          <p className="text-2xl font-black text-emerald-600">{completion.percent}%</p>
+          <p className="text-2xl font-black text-aacp-olive">{completion.percent}%</p>
         </div>
         <div className="text-right text-xs">
           <p className="font-bold text-gray-700 dark:text-gray-300">
-            AI readiness: <span className="text-emerald-600">{completion.aiReadiness}</span>
+            AI readiness: <span className="text-aacp-olive">{completion.aiReadiness}</span>
           </p>
           <p className="font-bold text-gray-700 dark:text-gray-300 mt-0.5">
-            Data quality: <span className="text-emerald-600">{completion.dataQuality}</span>
+            Data quality: <span className="text-aacp-olive">{completion.dataQuality}</span>
           </p>
         </div>
       </div>
       <div className="h-2 bg-gray-100 dark:bg-white/5 rounded-full overflow-hidden">
         <div
-          className="h-full bg-emerald-500 rounded-full transition-all duration-500"
+          className="h-full bg-aacp-olive rounded-full transition-all duration-500"
           style={{ width: `${completion.percent}%` }}
         />
       </div>
@@ -53,7 +53,7 @@ export default function CompletionProgress({ step, completion, onStepClick }: Co
               className={cn(
                 'text-left p-2 rounded-xl border text-[10px] font-bold transition-all',
                 step === s.id
-                  ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700'
+                  ? 'border-aacp-olive bg-aacp-gold/15 dark:bg-aacp-olive/10 text-aacp-olive'
                   : done
                     ? 'border-gray-200 dark:border-white/10 text-gray-600'
                     : 'border-gray-100 dark:border-white/5 text-gray-400'

@@ -63,6 +63,12 @@ import FacebookAnalyticsPage from './pages/social/facebook-analytics/FacebookAna
 import DataDeletionPage from './pages/social/DataDeletionPage'
 import './App.css'
 
+/**
+ * Design system note: Public landing and auth surfaces use the warm aacp-* palette
+ * (#978F66, #E4D6A9, #F3E4C9). Dashboard and in-app UI are being migrated from legacy
+ * emerald / #14a800 accents to the same tokens via layout and shared components.
+ */
+
 // Custom wrappers to support both Clerk Auth and Custom TikTok JWT
 const AuthGuard = ({ children }: { children: React.ReactNode }) => {
   const { isLoaded, isSignedIn } = useAuth();

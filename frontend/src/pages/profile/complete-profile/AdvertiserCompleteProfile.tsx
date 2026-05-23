@@ -28,7 +28,7 @@ import { toast } from 'react-hot-toast';
 
 // Curated Harmony Color Palette & Sleek styling constants
 const SECTION_STYLE = "bg-white dark:bg-[#111] rounded-3xl border border-gray-100 dark:border-white/5 p-6 md:p-8 shadow-[0_4px_20px_rgba(0,0,0,0.02)] transition-all hover:shadow-[0_4px_30px_rgba(0,0,0,0.04)]";
-const INPUT_STYLE = "w-full bg-gray-50 dark:bg-[#181818] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3.5 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30 transition-all duration-200";
+const INPUT_STYLE = "w-full bg-gray-50 dark:bg-[#181818] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3.5 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:border-aacp-olive focus:ring-1 focus:ring-aacp-olive/30 transition-all duration-200";
 
 interface SocialPlatformData {
   connected: boolean;
@@ -347,7 +347,7 @@ export default function AdvertiserCompleteProfile() {
   if (loading) {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center gap-3">
-        <Loader2 size={36} className="text-emerald-500 animate-spin" />
+        <Loader2 size={36} className="text-aacp-olive animate-spin" />
         <p className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">Loading Configuration...</p>
       </div>
     );
@@ -362,7 +362,7 @@ export default function AdvertiserCompleteProfile() {
         className="bg-white/80 dark:bg-black/60 backdrop-blur-md border border-gray-100 dark:border-white/5 rounded-3xl p-4 md:p-6 shadow-sm sticky top-4 z-40 flex flex-col md:flex-row md:items-center justify-between gap-4"
       >
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-emerald-500/10 dark:bg-emerald-500/20 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+          <div className="w-10 h-10 rounded-2xl bg-aacp-olive/10 dark:bg-aacp-olive/20 flex items-center justify-center text-aacp-olive dark:text-aacp-gold">
             <Sparkles size={20} />
           </div>
           <div>
@@ -374,12 +374,12 @@ export default function AdvertiserCompleteProfile() {
         <div className="flex-1 max-w-md flex items-center gap-3">
           <div className="flex-1 h-2 rounded-full bg-gray-100 dark:bg-white/10 overflow-hidden">
             <motion.div
-              className="h-full bg-linear-to-r from-emerald-500 to-teal-400 rounded-full"
+              className="h-full bg-linear-to-r from-aacp-olive to-teal-400 rounded-full"
               animate={{ width: `${progressPercent()}%` }}
               transition={{ duration: 0.5, ease: "easeOut" }}
             />
           </div>
-          <span className="text-xs font-black text-emerald-600 dark:text-emerald-400 min-w-8 text-right">{progressPercent()}%</span>
+          <span className="text-xs font-black text-aacp-olive dark:text-aacp-gold min-w-8 text-right">{progressPercent()}%</span>
         </div>
       </motion.div>
 
@@ -391,7 +391,7 @@ export default function AdvertiserCompleteProfile() {
         className={SECTION_STYLE}
       >
         <div className="flex items-center gap-3 mb-6">
-          <span className="text-emerald-500 bg-emerald-500/10 p-2 rounded-xl"><User size={20} /></span>
+          <span className="text-aacp-olive bg-aacp-olive/10 p-2 rounded-xl"><User size={20} /></span>
           <div>
             <h3 className="text-lg font-bold text-gray-900 dark:text-white">Section 1: Basic Information</h3>
             <p className="text-xs text-gray-400">Fill in your professional display identity.</p>
@@ -411,7 +411,7 @@ export default function AdvertiserCompleteProfile() {
                 className={INPUT_STYLE}
               />
               {firstName.trim() !== '' && (
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-emerald-500"><Check size={18} /></span>
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-aacp-olive"><Check size={18} /></span>
               )}
             </div>
           </div>
@@ -428,7 +428,7 @@ export default function AdvertiserCompleteProfile() {
                 className={INPUT_STYLE}
               />
               {lastName.trim() !== '' && (
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-emerald-500"><Check size={18} /></span>
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-aacp-olive"><Check size={18} /></span>
               )}
             </div>
           </div>
@@ -458,7 +458,7 @@ export default function AdvertiserCompleteProfile() {
         className={SECTION_STYLE}
       >
         <div className="flex items-center gap-3 mb-6">
-          <span className="text-emerald-500 bg-emerald-500/10 p-2 rounded-xl"><Link size={20} /></span>
+          <span className="text-aacp-olive bg-aacp-olive/10 p-2 rounded-xl"><Link size={20} /></span>
           <div>
             <h3 className="text-lg font-bold text-gray-900 dark:text-white">Section 2: Social Connections</h3>
             <p className="text-xs text-gray-400">Connect at least one active creator account. We'll verify ownership & auto-import stats.</p>
@@ -467,12 +467,12 @@ export default function AdvertiserCompleteProfile() {
 
         <div className="grid md:grid-cols-3 gap-4">
           {/* TikTok Connection Card */}
-          <div className="bg-gray-50 dark:bg-[#151515] border border-gray-100 dark:border-white/5 rounded-2xl p-5 flex flex-col justify-between min-h-[170px] relative overflow-hidden transition-all hover:border-emerald-500/20">
+          <div className="bg-gray-50 dark:bg-[#151515] border border-gray-100 dark:border-white/5 rounded-2xl p-5 flex flex-col justify-between min-h-[170px] relative overflow-hidden transition-all hover:border-aacp-olive/20">
             <div>
               <div className="flex items-center justify-between mb-4">
                 <span className="w-10 h-10 rounded-xl bg-black flex items-center justify-center text-white"><FaTiktok size={18} /></span>
                 <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider ${connectedAccounts.tiktok.connected && connectedAccounts.tiktok.verified
-                    ? "bg-emerald-500/10 text-emerald-500 border border-emerald-500/20"
+                    ? "bg-aacp-olive/10 text-aacp-olive border border-aacp-olive/20"
                     : "bg-gray-200 dark:bg-white/5 text-gray-500 dark:text-gray-400"
                   }`}>
                   {connectedAccounts.tiktok.connected && connectedAccounts.tiktok.verified ? "Connected" : "Disconnected"}
@@ -481,7 +481,7 @@ export default function AdvertiserCompleteProfile() {
               <h4 className="font-bold text-gray-900 dark:text-white">TikTok</h4>
               {connectedAccounts.tiktok.connected && connectedAccounts.tiktok.verified ? (
                 <div className="mt-2 space-y-1">
-                  <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">@{connectedAccounts.tiktok.username}</p>
+                  <p className="text-xs font-semibold text-aacp-olive dark:text-aacp-gold">@{connectedAccounts.tiktok.username}</p>
                   <p className="text-[10px] text-gray-400">
                     📈 {((connectedAccounts.tiktok.metrics?.followers ?? 0) / 1000).toFixed(0)}K followers • {connectedAccounts.tiktok.metrics?.engagementRate}% eng
                   </p>
@@ -494,14 +494,14 @@ export default function AdvertiserCompleteProfile() {
               {connectedAccounts.tiktok.connected && connectedAccounts.tiktok.verified ? (
                 <button
                   disabled
-                  className="w-full text-xs font-bold py-2.5 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-xl cursor-not-allowed flex items-center justify-center gap-1.5"
+                  className="w-full text-xs font-bold py-2.5 bg-aacp-olive/10 text-aacp-olive dark:text-aacp-gold rounded-xl cursor-not-allowed flex items-center justify-center gap-1.5"
                 >
                   <Check size={14} /> Connected
                 </button>
               ) : (
                 <button
                   onClick={() => handleOpenConnect('tiktok')}
-                  className="w-full text-xs font-bold py-2 bg-emerald-500 text-white hover:bg-emerald-400 rounded-xl transition-all shadow-md shadow-emerald-500/15"
+                  className="w-full text-xs font-bold py-2 bg-aacp-olive text-white hover:bg-aacp-gold rounded-xl transition-all shadow-md shadow-aacp-olive/15"
                 >
                   Connect Account
                 </button>
@@ -510,12 +510,12 @@ export default function AdvertiserCompleteProfile() {
           </div>
 
           {/* Instagram Connection Card */}
-          <div className="bg-gray-50 dark:bg-[#151515] border border-gray-100 dark:border-white/5 rounded-2xl p-5 flex flex-col justify-between min-h-[170px] relative overflow-hidden transition-all hover:border-emerald-500/20">
+          <div className="bg-gray-50 dark:bg-[#151515] border border-gray-100 dark:border-white/5 rounded-2xl p-5 flex flex-col justify-between min-h-[170px] relative overflow-hidden transition-all hover:border-aacp-olive/20">
             <div>
               <div className="flex items-center justify-between mb-4">
                 <span className="w-10 h-10 rounded-xl bg-linear-to-tr from-yellow-500 via-pink-500 to-purple-600 flex items-center justify-center text-white"><FaInstagram size={18} /></span>
                 <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider ${connectedAccounts.instagram.connected && connectedAccounts.instagram.verified
-                    ? "bg-emerald-500/10 text-emerald-500 border border-emerald-500/20"
+                    ? "bg-aacp-olive/10 text-aacp-olive border border-aacp-olive/20"
                     : "bg-gray-200 dark:bg-white/5 text-gray-500 dark:text-gray-400"
                   }`}>
                   {connectedAccounts.instagram.connected && connectedAccounts.instagram.verified ? "Connected" : "Disconnected"}
@@ -537,14 +537,14 @@ export default function AdvertiserCompleteProfile() {
               {connectedAccounts.instagram.connected && connectedAccounts.instagram.verified ? (
                 <button
                   disabled
-                  className="w-full text-xs font-bold py-2.5 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-xl cursor-not-allowed flex items-center justify-center gap-1.5"
+                  className="w-full text-xs font-bold py-2.5 bg-aacp-olive/10 text-aacp-olive dark:text-aacp-gold rounded-xl cursor-not-allowed flex items-center justify-center gap-1.5"
                 >
                   <Check size={14} /> Connected
                 </button>
               ) : (
                 <button
                   onClick={() => handleOpenConnect('instagram')}
-                  className="w-full text-xs font-bold py-2 bg-emerald-500 text-white hover:bg-emerald-400 rounded-xl transition-all shadow-md shadow-emerald-500/15"
+                  className="w-full text-xs font-bold py-2 bg-aacp-olive text-white hover:bg-aacp-gold rounded-xl transition-all shadow-md shadow-aacp-olive/15"
                 >
                   Connect Account
                 </button>
@@ -553,12 +553,12 @@ export default function AdvertiserCompleteProfile() {
           </div>
 
           {/* Facebook Connection Card */}
-          <div className="bg-gray-50 dark:bg-[#151515] border border-gray-100 dark:border-white/5 rounded-2xl p-5 flex flex-col justify-between min-h-[170px] relative overflow-hidden transition-all hover:border-emerald-500/20">
+          <div className="bg-gray-50 dark:bg-[#151515] border border-gray-100 dark:border-white/5 rounded-2xl p-5 flex flex-col justify-between min-h-[170px] relative overflow-hidden transition-all hover:border-aacp-olive/20">
             <div>
               <div className="flex items-center justify-between mb-4">
                 <span className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white"><FaFacebook size={18} /></span>
                 <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider ${connectedAccounts.facebook.connected && connectedAccounts.facebook.verified
-                    ? "bg-emerald-500/10 text-emerald-500 border border-emerald-500/20"
+                    ? "bg-aacp-olive/10 text-aacp-olive border border-aacp-olive/20"
                     : "bg-gray-200 dark:bg-white/5 text-gray-500 dark:text-gray-400"
                   }`}>
                   {connectedAccounts.facebook.connected && connectedAccounts.facebook.verified ? "Connected" : "Disconnected"}
@@ -580,14 +580,14 @@ export default function AdvertiserCompleteProfile() {
               {connectedAccounts.facebook.connected && connectedAccounts.facebook.verified ? (
                 <button
                   disabled
-                  className="w-full text-xs font-bold py-2.5 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-xl cursor-not-allowed flex items-center justify-center gap-1.5"
+                  className="w-full text-xs font-bold py-2.5 bg-aacp-olive/10 text-aacp-olive dark:text-aacp-gold rounded-xl cursor-not-allowed flex items-center justify-center gap-1.5"
                 >
                   <Check size={14} /> Connected
                 </button>
               ) : (
                 <button
                   onClick={() => handleOpenConnect('facebook')}
-                  className="w-full text-xs font-bold py-2 bg-emerald-500 text-white hover:bg-emerald-400 rounded-xl transition-all shadow-md shadow-emerald-500/15"
+                  className="w-full text-xs font-bold py-2 bg-aacp-olive text-white hover:bg-aacp-gold rounded-xl transition-all shadow-md shadow-aacp-olive/15"
                 >
                   Connect Account
                 </button>
@@ -607,7 +607,7 @@ export default function AdvertiserCompleteProfile() {
             className={SECTION_STYLE}
           >
             <div className="flex items-center gap-3 mb-6">
-              <span className="text-emerald-500 bg-emerald-500/10 p-2 rounded-xl"><Target size={20} /></span>
+              <span className="text-aacp-olive bg-aacp-olive/10 p-2 rounded-xl"><Target size={20} /></span>
               <div>
                 <h3 className="text-lg font-bold text-gray-900 dark:text-white">Section 3: Content & Niche</h3>
                 <p className="text-xs text-gray-400">Customize your influencer categories and select your brand collaboration interests.</p>
@@ -621,7 +621,7 @@ export default function AdvertiserCompleteProfile() {
                 <select
                   value={niche}
                   onChange={(e) => setNiche(e.target.value)}
-                  className="w-full bg-gray-50 dark:bg-[#181818] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3.5 text-sm text-gray-900 dark:text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30 transition-all cursor-pointer"
+                  className="w-full bg-gray-50 dark:bg-[#181818] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3.5 text-sm text-gray-900 dark:text-white focus:outline-none focus:border-aacp-olive focus:ring-1 focus:ring-aacp-olive/30 transition-all cursor-pointer"
                 >
                   <option value="" disabled>Select Primary Niche</option>
                   <option value="beauty">Beauty & Cosmetics</option>
@@ -662,7 +662,7 @@ export default function AdvertiserCompleteProfile() {
                       type="button"
                       onClick={() => handleToggleContentType(c.id)}
                       className={`px-4 py-2.5 rounded-xl border text-xs font-semibold text-left transition-all ${contentTypes.includes(c.id)
-                          ? "bg-emerald-500/10 text-emerald-600 border-emerald-500 dark:text-emerald-400"
+                          ? "bg-aacp-olive/10 text-aacp-olive border-aacp-olive dark:text-aacp-gold"
                           : "bg-gray-50 dark:bg-[#181818] text-gray-600 dark:text-gray-400 border-gray-200 dark:border-white/5 hover:border-emerald-300"
                         }`}
                     >
@@ -674,7 +674,7 @@ export default function AdvertiserCompleteProfile() {
 
               {/* Target Audience Age, Gender & Interests */}
               <div className="space-y-4 pt-4 border-t border-gray-100 dark:border-white/5">
-                <h4 className="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest flex items-center gap-1.5"><Globe size={14} /> Demographics of your Audience</h4>
+                <h4 className="text-xs font-bold text-aacp-olive dark:text-aacp-gold uppercase tracking-widest flex items-center gap-1.5"><Globe size={14} /> Demographics of your Audience</h4>
 
                 <div className="grid md:grid-cols-2 gap-4">
                   <div className="space-y-2">
@@ -682,7 +682,7 @@ export default function AdvertiserCompleteProfile() {
                     <select
                       value={ageRange}
                       onChange={(e) => setAgeRange(e.target.value)}
-                      className="w-full bg-gray-50 dark:bg-[#181818] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3.5 text-xs text-gray-900 dark:text-white focus:outline-none focus:border-emerald-500 transition-all"
+                      className="w-full bg-gray-50 dark:bg-[#181818] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3.5 text-xs text-gray-900 dark:text-white focus:outline-none focus:border-aacp-olive transition-all"
                     >
                       <option value="">Select Age Group</option>
                       <option value="13-17">Gen Z Teens (13-17)</option>
@@ -698,7 +698,7 @@ export default function AdvertiserCompleteProfile() {
                     <select
                       value={gender}
                       onChange={(e) => setGender(e.target.value)}
-                      className="w-full bg-gray-50 dark:bg-[#181818] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3.5 text-xs text-gray-900 dark:text-white focus:outline-none focus:border-emerald-500 transition-all"
+                      className="w-full bg-gray-50 dark:bg-[#181818] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3.5 text-xs text-gray-900 dark:text-white focus:outline-none focus:border-aacp-olive transition-all"
                     >
                       <option value="">Select Gender Balance</option>
                       <option value="all">Balanced / All Genders</option>
@@ -718,7 +718,7 @@ export default function AdvertiserCompleteProfile() {
                       placeholder="e.g. fashion, food, technology"
                       value={interestInput}
                       onChange={(e) => setInterestInput(e.target.value)}
-                      className="flex-1 bg-gray-50 dark:bg-[#181818] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3.5 text-xs text-gray-900 dark:text-white focus:outline-none focus:border-emerald-500 transition-all"
+                      className="flex-1 bg-gray-50 dark:bg-[#181818] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3.5 text-xs text-gray-900 dark:text-white focus:outline-none focus:border-aacp-olive transition-all"
                     />
                     <button
                       type="submit"
@@ -732,7 +732,7 @@ export default function AdvertiserCompleteProfile() {
                       {interests.map(tag => (
                         <span
                           key={tag}
-                          className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-semibold rounded-full border border-emerald-500/10"
+                          className="inline-flex items-center gap-1.5 px-3 py-1 bg-aacp-olive/10 text-aacp-olive dark:text-aacp-gold text-xs font-semibold rounded-full border border-aacp-olive/10"
                         >
                           #{tag}
                           <button
@@ -755,7 +755,7 @@ export default function AdvertiserCompleteProfile() {
                 <select
                   value={experienceLevel}
                   onChange={(e) => setExperienceLevel(e.target.value)}
-                  className="w-full bg-gray-50 dark:bg-[#181818] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3.5 text-sm text-gray-900 dark:text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30 transition-all cursor-pointer"
+                  className="w-full bg-gray-50 dark:bg-[#181818] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3.5 text-sm text-gray-900 dark:text-white focus:outline-none focus:border-aacp-olive focus:ring-1 focus:ring-aacp-olive/30 transition-all cursor-pointer"
                 >
                   <option value="" disabled>Select Creator Tier / Experience</option>
                   <option value="beginner">Beginner (Under 1 Year / Passionate)</option>
@@ -770,9 +770,9 @@ export default function AdvertiserCompleteProfile() {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="bg-emerald-500/5 border border-emerald-500/10 rounded-3xl p-6 text-center text-sm text-gray-500 dark:text-gray-400"
+            className="bg-aacp-olive/5 border border-aacp-olive/10 rounded-3xl p-6 text-center text-sm text-gray-500 dark:text-gray-400"
           >
-            🔒 <span className="font-bold text-emerald-600 dark:text-emerald-400">Niche & Content Customizer:</span> Please connect at least one social media account above to unlock Niche selection.
+            🔒 <span className="font-bold text-aacp-olive dark:text-aacp-gold">Niche & Content Customizer:</span> Please connect at least one social media account above to unlock Niche selection.
           </motion.div>
         )}
       </AnimatePresence>
@@ -787,7 +787,7 @@ export default function AdvertiserCompleteProfile() {
           onClick={handleCompleteProfile}
           disabled={!isFormValid || saving}
           className={`w-full md:w-auto md:min-w-[280px] flex items-center justify-center gap-2 font-black py-4 px-8 rounded-2xl transition-all duration-300 text-sm tracking-wide ${isFormValid
-              ? "bg-linear-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white shadow-lg shadow-emerald-500/25 cursor-pointer scale-100 hover:scale-[1.01]"
+              ? "bg-linear-to-r from-aacp-olive to-teal-500 hover:from-aacp-gold hover:to-teal-400 text-white shadow-lg shadow-aacp-olive/25 cursor-pointer scale-100 hover:scale-[1.01]"
               : "bg-gray-200 dark:bg-white/5 text-gray-400 dark:text-gray-500 cursor-not-allowed"
             }`}
         >
@@ -873,7 +873,7 @@ export default function AdvertiserCompleteProfile() {
                       />
                     </div>
                     <p className="text-[10px] text-gray-400 dark:text-gray-500 leading-normal">
-                      💡 Tip: Use a mock account handle like <span className="font-semibold text-emerald-500 dark:text-emerald-400">@tiktok_star</span>, <span className="font-semibold text-emerald-500 dark:text-emerald-400">@instagram_star</span>, or <span className="font-semibold text-emerald-500 dark:text-emerald-400">@facebook_star</span> to skip real Apify bio verification during development testing.
+                      💡 Tip: Use a mock account handle like <span className="font-semibold text-aacp-olive dark:text-aacp-gold">@tiktok_star</span>, <span className="font-semibold text-aacp-olive dark:text-aacp-gold">@instagram_star</span>, or <span className="font-semibold text-aacp-olive dark:text-aacp-gold">@facebook_star</span> to skip real Apify bio verification during development testing.
                     </p>
                   </div>
                   <button
@@ -896,7 +896,7 @@ export default function AdvertiserCompleteProfile() {
                         onClick={handleCopyCode}
                         className="w-8 h-8 rounded-xl bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 flex items-center justify-center hover:bg-gray-50 transition-all"
                       >
-                        {copied ? <Check size={14} className="text-emerald-500" /> : <Copy size={14} />}
+                        {copied ? <Check size={14} className="text-aacp-olive" /> : <Copy size={14} />}
                       </button>
                     </div>
                     <p className="text-[10px] text-red-500/80 flex items-center justify-center gap-1.5 mt-2">
@@ -906,19 +906,19 @@ export default function AdvertiserCompleteProfile() {
 
                   <div className="space-y-4">
                     <div className="flex items-start gap-3">
-                      <span className="w-6 h-6 rounded-full bg-emerald-500/10 text-emerald-500 font-bold text-xs flex items-center justify-center shrink-0">1</span>
+                      <span className="w-6 h-6 rounded-full bg-aacp-olive/10 text-aacp-olive font-bold text-xs flex items-center justify-center shrink-0">1</span>
                       <p className="text-xs text-gray-500 dark:text-gray-400 leading-normal">
                         Copy the generated 10-character code above.
                       </p>
                     </div>
                     <div className="flex items-start gap-3">
-                      <span className="w-6 h-6 rounded-full bg-emerald-500/10 text-emerald-500 font-bold text-xs flex items-center justify-center shrink-0">2</span>
+                      <span className="w-6 h-6 rounded-full bg-aacp-olive/10 text-aacp-olive font-bold text-xs flex items-center justify-center shrink-0">2</span>
                       <p className="text-xs text-gray-500 dark:text-gray-400 leading-normal">
                         Go to your {modalPlatform} profile settings.
                       </p>
                     </div>
                     <div className="flex items-start gap-3">
-                      <span className="w-6 h-6 rounded-full bg-emerald-500/10 text-emerald-500 font-bold text-xs flex items-center justify-center shrink-0">3</span>
+                      <span className="w-6 h-6 rounded-full bg-aacp-olive/10 text-aacp-olive font-bold text-xs flex items-center justify-center shrink-0">3</span>
                       <p className="text-xs text-gray-500 dark:text-gray-400 leading-normal">
                         Paste the code directly in your <span className="font-semibold text-gray-900 dark:text-white">Bio</span> (profile description). You can delete it immediately after ownership is verified.
                       </p>
@@ -934,7 +934,7 @@ export default function AdvertiserCompleteProfile() {
                     </button>
                     <button
                       onClick={() => setModalStep(3)}
-                      className="flex-1 font-bold py-3.5 bg-emerald-500 text-white rounded-2xl text-xs hover:bg-emerald-400 transition-all shadow-md shadow-emerald-500/15"
+                      className="flex-1 font-bold py-3.5 bg-aacp-olive text-white rounded-2xl text-xs hover:bg-aacp-gold transition-all shadow-md shadow-aacp-olive/15"
                     >
                       Code is Added
                     </button>
@@ -945,7 +945,7 @@ export default function AdvertiserCompleteProfile() {
               {/* STEP 3: Verify Bio */}
               {modalStep === 3 && (
                 <div className="space-y-6 text-center">
-                  <div className="w-16 h-16 rounded-full bg-emerald-500/10 flex items-center justify-center mx-auto text-emerald-500 mb-2">
+                  <div className="w-16 h-16 rounded-full bg-aacp-olive/10 flex items-center justify-center mx-auto text-aacp-olive mb-2">
                     <HelpCircle size={28} />
                   </div>
                   <div>
@@ -964,7 +964,7 @@ export default function AdvertiserCompleteProfile() {
                     </button>
                     <button
                       onClick={handleVerifyConnection}
-                      className="flex-1 font-bold py-3.5 bg-emerald-500 text-white rounded-2xl text-xs hover:bg-emerald-400 transition-all shadow-md shadow-emerald-500/15"
+                      className="flex-1 font-bold py-3.5 bg-aacp-olive text-white rounded-2xl text-xs hover:bg-aacp-gold transition-all shadow-md shadow-aacp-olive/15"
                     >
                       Verify Now
                     </button>
@@ -979,25 +979,25 @@ export default function AdvertiserCompleteProfile() {
                     <>
                       <div className="relative w-20 h-20 mx-auto">
                         {/* Outer rotating ring */}
-                        <div className="absolute inset-0 rounded-full border-4 border-emerald-500/10 border-t-emerald-500 animate-spin" />
+                        <div className="absolute inset-0 rounded-full border-4 border-aacp-olive/10 border-t-aacp-olive animate-spin" />
                         {/* Inner scanner line effect */}
-                        <div className="absolute inset-2 rounded-full bg-emerald-500/5 flex items-center justify-center text-emerald-500 animate-pulse">
+                        <div className="absolute inset-2 rounded-full bg-aacp-olive/5 flex items-center justify-center text-aacp-olive animate-pulse">
                           <Globe size={24} />
                         </div>
                       </div>
                       <div className="space-y-1.5">
                         <h5 className="font-bold text-gray-900 dark:text-white text-sm">Bio Scanning Protocol</h5>
-                        <p className="text-xs text-emerald-600 dark:text-emerald-400 font-semibold">{scanMessage}</p>
+                        <p className="text-xs text-aacp-olive dark:text-aacp-gold font-semibold">{scanMessage}</p>
                       </div>
                     </>
                   ) : (
                     <>
-                      <div className="w-16 h-16 rounded-full bg-emerald-500/10 text-emerald-500 flex items-center justify-center mx-auto mb-2 animate-bounce">
+                      <div className="w-16 h-16 rounded-full bg-aacp-olive/10 text-aacp-olive flex items-center justify-center mx-auto mb-2 animate-bounce">
                         <Check size={32} />
                       </div>
                       <div>
                         <h5 className="font-bold text-gray-900 dark:text-white capitalize">{modalPlatform} Verified!</h5>
-                        <p className="text-xs text-emerald-600 dark:text-emerald-400 font-semibold mt-1">
+                        <p className="text-xs text-aacp-olive dark:text-aacp-gold font-semibold mt-1">
                           🎉 Stats imported for @{usernameInput.replace(/^@/, '')}
                         </p>
                       </div>

@@ -47,14 +47,14 @@ export default function BuyCoinsPanel({
     <main className="max-w-6xl mx-auto px-4 py-8 md:py-12 pb-36">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10">
         <div>
-          <p className="text-[10px] font-black uppercase tracking-widest text-emerald-600 mb-2">Wallet top-up</p>
+          <p className="text-[10px] font-black uppercase tracking-widest text-aacp-olive mb-2">Wallet top-up</p>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Buy coins</h1>
           <p className="text-gray-500 text-sm max-w-lg">{subtitle}</p>
         </div>
-        <div className="bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-100 dark:border-emerald-500/20 px-6 py-4 rounded-2xl">
-          <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 block mb-1">Current balance</span>
+        <div className="bg-aacp-gold/15 dark:bg-aacp-olive/10 border border-aacp-gold/25 dark:border-aacp-olive/20 px-6 py-4 rounded-2xl">
+          <span className="text-xs font-bold text-aacp-olive dark:text-aacp-gold block mb-1">Current balance</span>
           <div className="flex items-center gap-2">
-            <Wallet className="text-emerald-600 w-5 h-5" />
+            <Wallet className="text-aacp-olive w-5 h-5" />
             <span className="text-xl font-black text-gray-900 dark:text-white">{balance.toLocaleString()} coins</span>
           </div>
         </div>
@@ -74,12 +74,12 @@ export default function BuyCoinsPanel({
                 className={cn(
                   'text-left p-8 rounded-3xl border-2 transition-all flex flex-col relative',
                   selected
-                    ? 'border-emerald-500 shadow-xl shadow-emerald-500/15 bg-white dark:bg-white/5'
+                    ? 'border-aacp-olive shadow-xl shadow-aacp-olive/15 bg-white dark:bg-white/5'
                     : 'border-gray-200 dark:border-white/5 bg-white dark:bg-[#111] hover:border-gray-300'
                 )}
               >
                 {p.popular && (
-                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-emerald-500 text-black text-[10px] font-bold uppercase tracking-widest px-4 py-1 rounded-full">
+                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-aacp-olive text-black text-[10px] font-bold uppercase tracking-widest px-4 py-1 rounded-full">
                     Best value
                   </span>
                 )}
@@ -93,11 +93,11 @@ export default function BuyCoinsPanel({
                   <Coins size={14} className="text-orange-400" />
                   {p.coins.toLocaleString()} coins
                 </p>
-                {p.save && <span className="text-xs font-bold text-emerald-500 mb-4 block">{p.save}</span>}
+                {p.save && <span className="text-xs font-bold text-aacp-olive mb-4 block">{p.save}</span>}
                 <ul className="space-y-3 mb-6 flex-1 mt-4">
                   {p.features.map((feature) => (
                     <li key={feature} className="flex items-start gap-2 text-sm text-gray-600 dark:text-gray-400">
-                      <CheckCircle2 size={15} className="text-emerald-500 shrink-0 mt-0.5" />
+                      <CheckCircle2 size={15} className="text-aacp-olive shrink-0 mt-0.5" />
                       {feature}
                     </li>
                   ))}
@@ -105,7 +105,7 @@ export default function BuyCoinsPanel({
                 <span
                   className={cn(
                     'w-full py-3 rounded-xl text-center text-sm font-bold block',
-                    selected ? 'bg-emerald-500 text-black' : 'bg-gray-50 dark:bg-white/5 text-gray-700'
+                    selected ? 'bg-aacp-olive text-black' : 'bg-gray-50 dark:bg-white/5 text-gray-700'
                   )}
                 >
                   {selected ? 'Selected' : `Choose ${p.title}`}
@@ -125,13 +125,13 @@ export default function BuyCoinsPanel({
             className={cn(
               'p-6 rounded-2xl border-2 text-left flex items-center justify-between transition-all',
               paymentMethod === 'chapa'
-                ? 'border-emerald-500 bg-emerald-50/50 dark:bg-emerald-500/5'
+                ? 'border-aacp-olive bg-aacp-gold/15/50 dark:bg-aacp-olive/5'
                 : 'border-gray-200 dark:border-white/5 bg-white dark:bg-[#111]'
             )}
           >
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-emerald-100 dark:bg-emerald-500/10 rounded-xl flex items-center justify-center">
-                <Zap className="text-emerald-500 w-6 h-6" />
+              <div className="w-12 h-12 bg-aacp-gold/25 dark:bg-aacp-olive/10 rounded-xl flex items-center justify-center">
+                <Zap className="text-aacp-olive w-6 h-6" />
               </div>
               <div>
                 <h3 className="font-bold text-gray-900 dark:text-white">Chapa (ETB)</h3>
@@ -141,7 +141,7 @@ export default function BuyCoinsPanel({
             <div
               className={cn(
                 'w-5 h-5 rounded-full border-2',
-                paymentMethod === 'chapa' ? 'border-emerald-500 bg-emerald-500' : 'border-gray-300'
+                paymentMethod === 'chapa' ? 'border-aacp-olive bg-aacp-olive' : 'border-gray-300'
               )}
             />
           </button>
@@ -152,7 +152,7 @@ export default function BuyCoinsPanel({
             className={cn(
               'p-6 rounded-2xl border-2 text-left flex items-center justify-between transition-all',
               paymentMethod === 'manual'
-                ? 'border-emerald-500 bg-emerald-50/50 dark:bg-emerald-500/5'
+                ? 'border-aacp-olive bg-aacp-gold/15/50 dark:bg-aacp-olive/5'
                 : 'border-gray-200 dark:border-white/5 bg-white dark:bg-[#111]'
             )}
           >
@@ -168,7 +168,7 @@ export default function BuyCoinsPanel({
             <div
               className={cn(
                 'w-5 h-5 rounded-full border-2 shrink-0',
-                paymentMethod === 'manual' ? 'border-emerald-500 bg-emerald-500' : 'border-gray-300'
+                paymentMethod === 'manual' ? 'border-aacp-olive bg-aacp-olive' : 'border-gray-300'
               )}
             />
           </button>
@@ -184,14 +184,14 @@ export default function BuyCoinsPanel({
             <p className="font-bold text-gray-900 dark:text-white">
               {pack.coins.toLocaleString()} coins · {formatBirr(pack.priceEtb)}
               {paymentMethod === 'chapa' && (
-                <span className="text-emerald-600 text-xs font-bold ml-2">via Chapa</span>
+                <span className="text-aacp-olive text-xs font-bold ml-2">via Chapa</span>
               )}
             </p>
           </div>
           <button
             type="button"
             onClick={handleProceed}
-            className="w-full sm:w-auto bg-emerald-500 hover:bg-emerald-400 text-black px-10 py-3.5 rounded-xl font-bold shadow-lg shadow-emerald-500/25 transition-all"
+            className="w-full sm:w-auto bg-aacp-olive hover:bg-aacp-gold text-black px-10 py-3.5 rounded-xl font-bold shadow-lg shadow-aacp-olive/25 transition-all"
           >
             Continue to payment
           </button>

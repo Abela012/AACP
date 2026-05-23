@@ -28,7 +28,7 @@ export default function FormField({
       </label>
       {helper && <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">{helper}</p>}
       {example && (
-        <p className="text-[11px] text-emerald-600/90 dark:text-emerald-400/90 font-medium">Example: {example}</p>
+        <p className="text-[11px] text-aacp-olive/90 dark:text-aacp-gold/90 font-medium">Example: {example}</p>
       )}
       {children}
       {error && <p className="text-xs font-semibold text-red-600 dark:text-red-400">{error}</p>}
@@ -37,4 +37,4 @@ export default function FormField({
 }
 
 export const inputClass =
-  'w-full rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-black/20 px-4 py-3 text-sm text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30';
+  'w-full rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-black/20 px-4 py-3 text-sm text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-aacp-olive/30';

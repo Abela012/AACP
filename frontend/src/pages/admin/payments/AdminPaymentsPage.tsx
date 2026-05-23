@@ -109,7 +109,7 @@ export default function AdminPaymentsPage() {
             className={cn(
               'px-6 py-3 rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-2 transition-all',
               channel === 'manual'
-                ? 'bg-white dark:bg-white/10 text-emerald-600 shadow-sm'
+                ? 'bg-white dark:bg-white/10 text-aacp-olive shadow-sm'
                 : 'text-gray-400 hover:text-gray-600'
             )}
           >
@@ -123,7 +123,7 @@ export default function AdminPaymentsPage() {
             className={cn(
               'px-6 py-3 rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-2 transition-all',
               channel === 'chapa'
-                ? 'bg-white dark:bg-white/10 text-emerald-600 shadow-sm'
+                ? 'bg-white dark:bg-white/10 text-aacp-olive shadow-sm'
                 : 'text-gray-400 hover:text-gray-600'
             )}
           >
@@ -139,7 +139,7 @@ export default function AdminPaymentsPage() {
               placeholder="Search by username, email, or transaction ID..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-white/5 border-none rounded-2xl focus:ring-2 focus:ring-emerald-600 transition-all outline-none text-sm font-medium"
+              className="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-white/5 border-none rounded-2xl focus:ring-2 focus:ring-aacp-olive transition-all outline-none text-sm font-medium"
             />
           </div>
 
@@ -151,7 +151,7 @@ export default function AdminPaymentsPage() {
                 className={cn(
                   'px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all',
                   statusFilter === f
-                    ? 'bg-white dark:bg-white/10 text-emerald-600 shadow-sm'
+                    ? 'bg-white dark:bg-white/10 text-aacp-olive shadow-sm'
                     : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-200'
                 )}
               >
@@ -198,7 +198,7 @@ export default function AdminPaymentsPage() {
                   <tr>
                     <td colSpan={isManual ? 7 : 5} className="px-8 py-20 text-center">
                       <div className="flex flex-col items-center gap-4">
-                        <Loader2 className="w-10 h-10 text-emerald-600 animate-spin" />
+                        <Loader2 className="w-10 h-10 text-aacp-olive animate-spin" />
                         <p className="text-gray-500 font-bold uppercase tracking-widest text-xs">
                           Fetching Request Data...
                         </p>
@@ -220,7 +220,7 @@ export default function AdminPaymentsPage() {
                         </p>
                         <button
                           onClick={() => refetch()}
-                          className="mt-4 px-6 py-2 bg-emerald-600 text-white rounded-xl text-xs font-bold"
+                          className="mt-4 px-6 py-2 bg-aacp-olive text-white rounded-xl text-xs font-bold"
                         >
                           Refresh
                         </button>
@@ -244,7 +244,7 @@ export default function AdminPaymentsPage() {
                           </div>
                           <div>
                             <p className="text-sm font-bold text-gray-900 dark:text-white">{request.user}</p>
-                            <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest mt-0.5">
+                            <p className="text-[10px] font-bold text-aacp-olive uppercase tracking-widest mt-0.5">
                               {request.role?.replace('_', ' ')}
                             </p>
                           </div>
@@ -272,7 +272,7 @@ export default function AdminPaymentsPage() {
                               onClick={() =>
                                 setProofPreview({ url: request.proofUrl, user: request.user })
                               }
-                              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 text-[10px] font-black uppercase tracking-widest hover:bg-emerald-600 hover:text-white transition-all"
+                              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-aacp-gold/15 dark:bg-aacp-olive/10 text-aacp-olive text-[10px] font-black uppercase tracking-widest hover:bg-aacp-olive hover:text-white transition-all"
                             >
                               <Eye size={14} /> View proof
                             </button>
@@ -299,7 +299,7 @@ export default function AdminPaymentsPage() {
                             request.status === 'PENDING'
                               ? 'bg-blue-50 text-blue-600 border-blue-100 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20'
                               : request.status === 'COMPLETED'
-                                ? 'bg-emerald-50 text-green-600 border-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20'
+                                ? 'bg-aacp-gold/15 text-green-600 border-aacp-gold/25 dark:bg-aacp-olive/10 dark:text-aacp-gold dark:border-aacp-olive/20'
                                 : 'bg-red-50 text-red-600 border-red-100 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20'
                           )}
                         >
@@ -313,7 +313,7 @@ export default function AdminPaymentsPage() {
                               <button
                                 onClick={() => handleApprove(request._id, !!request.proofUrl)}
                                 disabled={approve.isPending || !request.proofUrl}
-                                className="p-2.5 bg-emerald-50 dark:bg-emerald-500/10 text-green-600 hover:bg-emerald-600 hover:text-white rounded-xl transition-all disabled:opacity-50"
+                                className="p-2.5 bg-aacp-gold/15 dark:bg-aacp-olive/10 text-green-600 hover:bg-aacp-olive hover:text-white rounded-xl transition-all disabled:opacity-50"
                                 title="Approve Request"
                               >
                                 <CheckCircle2 size={18} />
@@ -357,7 +357,7 @@ export default function AdminPaymentsPage() {
             </p>
           </div>
 
-          <div className="bg-emerald-600 p-8 rounded-[2.5rem] shadow-xl text-white relative overflow-hidden group">
+          <div className="bg-aacp-olive p-8 rounded-[2.5rem] shadow-xl text-white relative overflow-hidden group">
             <div className="relative z-10 flex items-center justify-between h-full">
               <div>
                 <h3 className="font-bold mb-2">Need Help?</h3>
@@ -365,7 +365,7 @@ export default function AdminPaymentsPage() {
                   Check the admin handbook for payment verification guidelines.
                 </p>
               </div>
-              <button className="bg-white text-emerald-600 px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg group-hover:scale-105 transition-transform">
+              <button className="bg-white text-aacp-olive px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg group-hover:scale-105 transition-transform">
                 Handbook
               </button>
             </div>
@@ -402,7 +402,7 @@ export default function AdminPaymentsPage() {
                   href={proofPreview.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-emerald-600 font-bold underline"
+                  className="text-aacp-olive font-bold underline"
                 >
                   Open PDF in new tab
                 </a>
