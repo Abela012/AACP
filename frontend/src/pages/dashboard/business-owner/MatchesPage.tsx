@@ -43,6 +43,21 @@ export default function MatchesPage() {
   const { data: recoData, isLoading } = useRecommendations();
   const recommendations = (recoData as any)?.recommendations || [];
 
+  const formatMatchScore = (value: unknown): number => {
+    const numericValue = typeof value === 'number' ? value : Number(value);
+    return Number.isFinite(numericValue) ? Math.round(numericValue) : 0;
+  };
+
+  const getAvatarInitials = (name: string | undefined): string => {
+    if (!name) return 'A';
+    return name
+      .split(' ')
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((part) => part[0]?.toUpperCase() || '')
+      .join('') || 'A';
+  };
+
   const { data: bookmarkedCreators = [], isLoading: isLoadingBookmarks } = useSavedCreators();
   const toggleBookmark = useToggleSaveCreator();
 
@@ -127,15 +142,12 @@ export default function MatchesPage() {
                     <div className="w-full h-64 rounded-3xl overflow-hidden relative shadow-md group">
                       <img
                         src={selectedCreator.meta?.profilePicture || `https://ui-avatars.com/api/?name=${selectedCreator.name}&background=10b981&color=fff`}
-                        alt={selectedCreator.name}
                         className="w-full h-full object-cover transition-transform group-hover:scale-105 duration-500"
                       />
-                      <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/40 to-transparent flex flex-col justify-end p-6">
-                        <h2 className="text-2xl font-black text-white leading-tight mb-1">{selectedCreator.name}</h2>
-                        <div className="flex items-center gap-1.5 text-aacp-gold text-xs font-bold">
-                          <ShieldCheck size={14} className="fill-current" />
-                          <span>Verified Creator Partner</span>
-                        </div>
+                      <div className="absolute inset-0 bg-linear-to-t from-black/60 via-black/10 to-transparent" />
+                      <div className="absolute bottom-4 left-4 flex items-center gap-1.5 text-aacp-gold text-xs font-bold bg-black/35 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10">
+                        <ShieldCheck size={14} className="fill-current" />
+                        <span>Verified Creator Partner</span>
                       </div>
                     </div>
 
@@ -147,7 +159,7 @@ export default function MatchesPage() {
                       </div>
                       <div className="bg-gray-50 dark:bg-white/3 p-3 rounded-2xl border border-gray-100 dark:border-white/5 shadow-xs">
                         <span className="text-[8px] font-bold text-gray-400 uppercase tracking-widest block mb-0.5">Reach</span>
-                        <span className="text-xs font-black text-blue-600 dark:text-blue-400 block truncate">{(selectedCreator.meta?.followers || selectedCreator.profileData?.followers || 10000).toLocaleString()}</span>
+                        <span className="text-xs font-black text-blue-600 dark:text-blue-400 block truncate">{typeof (selectedCreator.meta?.followers || selectedCreator.profileData?.followers) === 'number' ? (selectedCreator.meta?.followers || selectedCreator.profileData?.followers).toLocaleString() : 'N/A'}</span>
                       </div>
                       <div className="bg-gray-50 dark:bg-white/3 p-3 rounded-2xl border border-gray-100 dark:border-white/5 shadow-xs">
                         <span className="text-[8px] font-bold text-gray-400 uppercase tracking-widest block mb-0.5">Rating</span>
@@ -215,7 +227,7 @@ export default function MatchesPage() {
                       </div>
                       <div className="text-right">
                         <span className="text-[8px] font-bold text-gray-400 uppercase tracking-widest block mb-0.5">Match Strength</span>
-                        <span className="text-xl font-black text-aacp-olive bg-aacp-olive/10 px-3 py-1 rounded-2xl border border-aacp-olive/20 shadow-xs">{selectedCreator.score || '95'}%</span>
+                        <p className="text-[10px] text-emerald-600 font-bold">{formatMatchScore(selectedCreator.score)}% Match</p>
                       </div>
                     </div>
 
@@ -324,15 +336,21 @@ export default function MatchesPage() {
                 className="bg-white dark:bg-[#0d0d0d] rounded-[2.5rem] border border-gray-100 dark:border-white/5 shadow-sm hover:shadow-2xl transition-all overflow-hidden group cursor-pointer"
               >
                 <div className="h-48 relative">
-                  <img
-                    src={c.meta?.profilePicture || c.profilePicture || `https://ui-avatars.com/api/?name=${c.name || c.firstName}&background=10b981&color=fff`}
-                    alt={c.name || c.firstName}
-                    className="w-full h-full object-cover transition-transform group-hover:scale-110 duration-700"
-                  />
+                  {c.meta?.profilePicture || c.profilePicture ? (
+                    <img
+                      src={c.meta?.profilePicture || c.profilePicture}
+                      alt={c.name || c.firstName}
+                      className="w-full h-full object-cover transition-transform group-hover:scale-110 duration-700"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-linear-to-br from-violet-500 via-indigo-500 to-emerald-500 flex items-center justify-center text-white text-4xl font-black tracking-widest">
+                      {getAvatarInitials(c.name || c.firstName)}
+                    </div>
+                  )}
                   <div className="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent opacity-60"></div>
                   <div className="absolute top-4 right-4 bg-aacp-olive text-black text-[10px] font-black px-3 py-1.5 rounded-full uppercase tracking-widest shadow-lg flex items-center gap-1">
                     <Sparkles size={10} />
-                    {c.score || '95'}% Match
+                    {formatMatchScore(c.score)}% Match
                   </div>
                   <button
                     onClick={(e) => handleToggleBookmark(e, c.targetId || c._id)}
@@ -373,7 +391,7 @@ export default function MatchesPage() {
                       </div>
                       <div>
                         <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Reach</p>
-                        <p className="text-sm font-black text-gray-900 dark:text-white">{(c.meta?.followers || c.profileData?.followers)?.toLocaleString() || '10K+'}</p>
+                        <p className="text-sm font-black text-gray-900 dark:text-white">{typeof (c.meta?.followers || c.profileData?.followers) === 'number' ? (c.meta?.followers || c.profileData?.followers).toLocaleString() : 'N/A'}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
@@ -382,7 +400,7 @@ export default function MatchesPage() {
                       </div>
                       <div>
                         <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Engagement</p>
-                        <p className={cn("text-sm font-black", (c.meta?.engagementRate || 0) > 20 ? "text-amber-600" : "text-gray-900 dark:text-white")}>{typeof (c.meta?.engagementRate || c.profileData?.engagementRate) === 'number' ? Math.min((c.meta?.engagementRate || c.profileData?.engagementRate), 100).toFixed(1) : '4.5'}%</p>
+                        <p className={cn("text-sm font-black", (c.meta?.engagementRate || 0) > 20 ? "text-amber-600" : "text-gray-900 dark:text-white")}>{typeof (c.meta?.engagementRate || c.profileData?.engagementRate) === 'number' ? Math.min((c.meta?.engagementRate || c.profileData?.engagementRate), 100).toFixed(1) : 'N/A'}</p>
                       </div>
                     </div>
                   </div>

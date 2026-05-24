@@ -744,15 +744,17 @@ export const predictAdvertiserROI = async (
 
     // 2. Extract REAL metrics from nested profileData (tiktok/instagram)
     const metrics = extractMetrics(advProfile);
-    const followers = metrics.followers || 18500;
-    const engagementRate = metrics.engagementRate || 4.8;
+    // Detect whether we have real synced platform metrics or are falling back to defaults
+    const hasRealMetrics = Boolean(metrics && (metrics.followers > 0 || metrics.avgViews > 0 || metrics.engagementRate > 0));
+    const followers = hasRealMetrics ? metrics.followers : 0;
+    const engagementRate = hasRealMetrics ? metrics.engagementRate : 0;
     const productPrice = ownerProfile.monthlyBudget ? Math.round(ownerProfile.monthlyBudget / 50) : 50;
     
     // Default estimated cost for prediction (can be adjusted based on follower tier)
     const estimatedCost = followers > 100000 ? 2500 : (followers > 10000 ? 1000 : 500);
 
     // 3. Generate AI Match Insight & Metrics with Smart Fallbacks
-    let aiInsight = "Based on your niche, this creator offers strong growth potential.";
+    let aiInsight = "Based on current metrics, this creator shows strong growth potential.";
     let dynamicConvRate = Math.min(0.05, Math.max(0.005, (engagementRate / 100) * 0.4));
     let dynamicReachFactor = followers > 100000 ? 0.25 : 0.35;
 
@@ -787,7 +789,6 @@ export const predictAdvertiserROI = async (
     });
 
     const parsed = geminiResult.data;
-    aiInsight = parsed.insight || aiInsight;
     dynamicConvRate = parsed.conversionRate || dynamicConvRate;
     dynamicReachFactor = parsed.reachFactor || dynamicReachFactor;
 
@@ -797,6 +798,20 @@ export const predictAdvertiserROI = async (
     const revenue = conversions * productPrice;
     const profit = revenue - estimatedCost;
     const roi = (profit / estimatedCost) * 100;
+
+    const fallbackPositiveInsight = `Based on current metrics, this creator shows strong growth potential with a projected profit of ${profit.toFixed(2)} ETB and ROI of ${roi.toFixed(2)}%.`;
+    const fallbackNegativeInsight = `Based on current metrics, this creator is a risky investment because the projected profit is ${profit.toFixed(2)} ETB and the ROI is ${roi.toFixed(2)}%. The campaign needs a lower cost or better conversion assumptions.`;
+    const optimisticCopy = (parsed.insight || aiInsight || '').toLowerCase();
+
+    if (profit <= 0) {
+        aiInsight = optimisticCopy.includes('strong growth potential') || optimisticCopy.includes('profitable') || optimisticCopy.includes('high growth')
+            ? fallbackNegativeInsight
+            : (parsed.insight || fallbackNegativeInsight);
+    } else {
+        aiInsight = optimisticCopy.includes('risky') || optimisticCopy.includes('not profitable')
+            ? fallbackPositiveInsight
+            : (parsed.insight || fallbackPositiveInsight);
+    }
 
     const projections = ['Month 1', 'Month 2', 'Month 3', 'Month 4', 'Month 5', 'Month 6'].map((month, i) => {
         const growth = 1 + (i * 0.12);
@@ -837,6 +852,8 @@ export const predictAdvertiserROI = async (
         profitable: profit > 0,
         profit: Number(profit.toFixed(2)),
         roi: Number(roi.toFixed(2)),
+        // Flag to indicate whether analysis used real synced metrics or fallback/default values
+        usesMockData: !hasRealMetrics,
         audienceInfo: metrics.audienceInfo || { topCountry: 'Global', ageRange: 'Mixed', gender: 'Mixed' }
     };
 };

@@ -147,6 +147,10 @@ export default function ViewProfilePage() {
 
   const isTargetProfileBusiness = profile.role === 'business_owner';
 
+  const benchmarkBarWidth = (engagementRate: number) => `${Math.min(engagementRate * 10, 100)}%`;
+  const tiktokBenchmarkEngagementRate = 2.4;
+  const instagramBenchmarkEngagementRate = 1.8;
+
   // When viewing someone else's profile, derive status from their data
   const targetStatus = profileId
     ? ((profile as any).status === 'active' || (profile as any).status === 'approved' ? 'approved' : (profile as any).status || 'incomplete')
@@ -284,7 +288,7 @@ export default function ViewProfilePage() {
 
   return (
     <Layout>
-      <main className="p-4 sm:p-8 max-w-[1400px] mx-auto w-full pb-32">
+      <main className="p-4 sm:p-8 max-w-350 mx-auto w-full pb-32">
         <motion.div
           variants={containerVariants}
           initial="hidden"
@@ -368,7 +372,7 @@ export default function ViewProfilePage() {
                 </div>
 
                 {/* Primary Panel Actions */}
-                <div className="flex flex-col sm:flex-row lg:flex-col gap-3 min-w-[260px]">
+                <div className="flex flex-col sm:flex-row lg:flex-col gap-3 min-w-65">
                   {!profileId ? (
                     <button
                       onClick={() =>
@@ -480,7 +484,7 @@ export default function ViewProfilePage() {
                           <div className="space-y-4">
                             <div>
                               <div className="flex justify-between text-xs font-bold mb-1.5">
-                                <span className="text-cyan-500 flex items-center gap-1">✦ Male Audience</span>
+                                <span className="text-cyan-500 flex items-center gap-1">âœ¦ Male Audience</span>
                                 <span className="text-gray-900 dark:text-white">64%</span>
                               </div>
                               <div className="h-3 w-full bg-gray-100 dark:bg-white/5 rounded-full overflow-hidden">
@@ -489,7 +493,7 @@ export default function ViewProfilePage() {
                             </div>
                             <div>
                               <div className="flex justify-between text-xs font-bold mb-1.5">
-                                <span className="text-pink-500 flex items-center gap-1">✦ Female Audience</span>
+                                <span className="text-pink-500 flex items-center gap-1">âœ¦ Female Audience</span>
                                 <span className="text-gray-900 dark:text-white">36%</span>
                               </div>
                               <div className="h-3 w-full bg-gray-100 dark:bg-white/5 rounded-full overflow-hidden">
@@ -638,7 +642,7 @@ export default function ViewProfilePage() {
                           <div className="flex justify-between items-center mb-8">
                             <div className="flex items-center gap-3">
                               <div className="w-12 h-12 bg-white text-black rounded-2xl flex items-center justify-center font-black text-xl">
-                                🎵
+                                ðŸŽµ
                               </div>
                               <div>
                                 <h4 className="font-black text-lg">TikTok Reach</h4>
@@ -681,10 +685,10 @@ export default function ViewProfilePage() {
                               <div>
                                 <div className="flex justify-between text-xs font-bold mb-1">
                                   <span className="text-gray-500">Standard Benchmarks (Ethiopian Market)</span>
-                                  <span className="text-gray-400">2.4%</span>
+                                  <span className="text-gray-400">{tiktokBenchmarkEngagementRate.toFixed(1)}%</span>
                                 </div>
                                 <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden">
-                                  <div className="h-full bg-gray-500 rounded-full" style={{ width: '24%' }} />
+                                  <div className="h-full bg-gray-500 rounded-full" style={{ width: benchmarkBarWidth(tiktokBenchmarkEngagementRate) }} />
                                 </div>
                               </div>
                             </div>
@@ -705,7 +709,7 @@ export default function ViewProfilePage() {
                           <div className="flex justify-between items-center mb-8">
                             <div className="flex items-center gap-3">
                               <div className="w-12 h-12 bg-linear-to-tr from-yellow-400 via-pink-500 to-purple-500 text-white rounded-2xl flex items-center justify-center font-black text-xl">
-                                📸
+                                ðŸ“¸
                               </div>
                               <div>
                                 <h4 className="font-black text-lg">Instagram Reach</h4>
@@ -748,10 +752,10 @@ export default function ViewProfilePage() {
                               <div>
                                 <div className="flex justify-between text-xs font-bold mb-1">
                                   <span className="text-gray-500">Standard Benchmarks (Ethiopian Market)</span>
-                                  <span className="text-gray-400">1.8%</span>
+                                  <span className="text-gray-400">{instagramBenchmarkEngagementRate.toFixed(1)}%</span>
                                 </div>
                                 <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden">
-                                  <div className="h-full bg-gray-500 rounded-full" style={{ width: '18%' }} />
+                                  <div className="h-full bg-gray-500 rounded-full" style={{ width: benchmarkBarWidth(instagramBenchmarkEngagementRate) }} />
                                 </div>
                               </div>
                             </div>
@@ -852,7 +856,7 @@ export default function ViewProfilePage() {
                               2x Amplification Stories with Swipe-up Link
                             </li>
                             <li className="flex items-center gap-2">
-                              <span className="w-1.5 h-1.5 rounded-full bg-gray-400" />
+                                  <div className="h-full bg-gray-500 rounded-full" style={{ width: marketBenchmarkBarWidth }} />
                               30 Days Paid Media Usage Rights
                             </li>
                             <li className="flex items-center gap-2">
@@ -903,15 +907,15 @@ export default function ViewProfilePage() {
 
                       <div className="space-y-4 text-sm font-medium text-gray-600 dark:text-gray-300">
                         <div className="p-4 bg-aacp-olive/5 dark:bg-aacp-olive/10 border border-aacp-olive/10 rounded-2xl">
-                          <p className="font-bold text-gray-900 dark:text-white mb-1">🔥 Strengths</p>
+                          <p className="font-bold text-gray-900 dark:text-white mb-1">ðŸ”¥ Strengths</p>
                           <p className="text-xs text-gray-500 dark:text-gray-400">Excellent audience capture rates on TikTok, highly responsive Ethiopian demographic, robust trade reputation.</p>
                         </div>
                         <div className="p-4 bg-amber-500/5 dark:bg-amber-500/10 border border-amber-500/10 rounded-2xl">
-                          <p className="font-bold text-gray-900 dark:text-white mb-1">⚡ Improvement Areas</p>
+                          <p className="font-bold text-gray-900 dark:text-white mb-1">âš¡ Improvement Areas</p>
                           <p className="text-xs text-gray-500 dark:text-gray-400">Relatively low average posting frequency during holiday cycles, missing connected YouTube analytics channel.</p>
                         </div>
                         <div className="p-4 bg-cyan-500/5 dark:bg-cyan-500/10 border border-cyan-500/10 rounded-2xl">
-                          <p className="font-bold text-gray-900 dark:text-white mb-1">🎯 ROAS Strategy Recommendation</p>
+                          <p className="font-bold text-gray-900 dark:text-white mb-1">ðŸŽ¯ ROAS Strategy Recommendation</p>
                           <p className="text-xs text-gray-500 dark:text-gray-400">We strongly recommend leveraging <span className="font-black text-aacp-olive dark:text-aacp-gold">UGC Video Ad Integrations</span> to gain a projected 1.6x yield bump over traditional banners.</p>
                         </div>
                       </div>

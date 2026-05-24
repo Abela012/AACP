@@ -1,12 +1,15 @@
 import { useAuth } from "@clerk/clerk-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useRef, useCallback } from "react";
+import { useEffect, useRef, useCallback, useMemo } from "react";
 import type { AxiosResponse } from "axios";
 import { isAxiosError } from "axios";
 import { useApiClient } from "../api/apiClient";
 import { userApi } from "../api/userApi";
 import { useUser } from "@/src/shared/context/UserContext";
 import { useProfile } from "@/src/shared/context/ProfileContext";
+
+/** sessionStorage key used to mark that sync has already run for a given Clerk user ID this session. */
+const makeSessionSyncKey = (userId: string) => `aacp_synced_${userId}`;
 
 type AppUserRole = 'business_owner' | 'advertiser' | 'admin' | 'super_admin';
 
@@ -39,7 +42,7 @@ const applySyncedUser = (
 };
 
 export const useUserSync = () => {
-    const { isSignedIn } = useAuth();
+    const { isSignedIn, userId: clerkUserId } = useAuth();
     const api = useApiClient();
     const { setOnboardingStatus, setUserRole } = useUser();
     const { refreshProfile } = useProfile();
@@ -47,6 +50,21 @@ export const useUserSync = () => {
 
     // Ensures sync runs once per mount (React Strict Mode double-invokes effects).
     const hasAttemptedSync = useRef(false);
+
+    /**
+     * Skip sync when:
+     *  1. The user already has a cached role in localStorage (session is known), AND
+     *  2. This specific Clerk user already ran sync during this browser session
+     *     (sessionStorage resets on tab close, so new logins always sync).
+     *  3. There is no pending role change queued (i.e., social/OAuth flow).
+     */
+    const canSkipSync = useMemo(() => {
+        const hasCachedRole = !!localStorage.getItem('userRole');
+        const hasPendingRole = !!localStorage.getItem('pendingUserRole');
+        const sessionKey = clerkUserId ? makeSessionSyncKey(clerkUserId) : null;
+        const alreadySyncedThisSession = sessionKey ? !!sessionStorage.getItem(sessionKey) : false;
+        return hasCachedRole && alreadySyncedThisSession && !hasPendingRole;
+    }, [clerkUserId]);
 
     const syncUserMutation = useMutation({
         mutationFn: async () => {
@@ -68,6 +86,11 @@ export const useUserSync = () => {
 
             localStorage.removeItem('pendingUserRole');
             applySyncedUser(syncedUser, setUserRole, setOnboardingStatus);
+
+            // Mark this session as synced so future navigations skip the API call.
+            if (clerkUserId) {
+                sessionStorage.setItem(makeSessionSyncKey(clerkUserId), '1');
+            }
 
             // Force a refresh of the authUser query to update other parts of the UI
             queryClient.invalidateQueries({ queryKey: ["authUser"] });
@@ -93,22 +116,26 @@ export const useUserSync = () => {
 
     const triggerSync = useCallback((force = false) => {
         if (hasTikTokAuth) return; // No sync needed for custom JWT
+        if (canSkipSync && !force) return; // Already synced this session
         if (force || (!hasAttemptedSync.current && !isPending)) {
             if (!force) hasAttemptedSync.current = true;
             mutate();
         }
-    }, [isPending, mutate, hasTikTokAuth]);
+    }, [isPending, mutate, hasTikTokAuth, canSkipSync]);
 
     useEffect(() => {
         if (hasTikTokAuth || !isSignedIn || hasAttemptedSync.current || isPending) return;
+        // Skip the expensive sync API call if this session is already marked as synced.
+        if (canSkipSync) return;
         hasAttemptedSync.current = true;
         mutate();
-    }, [isSignedIn, isPending, mutate, hasTikTokAuth]);
+    }, [isSignedIn, isPending, mutate, hasTikTokAuth, canSkipSync]);
 
     return {
         sync: () => triggerSync(true),
         isLoading: isPending,
-        isSuccess: hasTikTokAuth ? true : isSuccess,
+        // Treat as success if TikTok auth or if we've already synced this session.
+        isSuccess: hasTikTokAuth ? true : (canSkipSync ? true : isSuccess),
         isError,
         error,
     };

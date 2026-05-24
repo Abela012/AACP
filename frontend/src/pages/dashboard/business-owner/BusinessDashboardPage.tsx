@@ -61,7 +61,7 @@ import { useBusinessOwnerApplications } from '@/src/hooks/useApplications';
 import { useConversations } from '@/src/hooks/useChat';
 import { type Opportunity } from '@/src/api/opportunityApi';
 
-// ─── SUB-COMPONENTS ────────────────────────────────────────────────────────
+// â”€â”€â”€ SUB-COMPONENTS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 const Card = ({ children, className, title, extra }: any) => (
   <div className={cn("bg-white dark:bg-[#111] rounded-3xl border border-gray-100 dark:border-white/5 shadow-sm overflow-hidden", className)}>
@@ -86,7 +86,7 @@ const Badge = ({ children, variant = 'neutral' }: any) => {
   return <span className={cn("px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider", variants[variant])}>{children}</span>;
 };
 
-// ─── MAIN COMPONENT ───────────────────────────────────────────────────────
+// â”€â”€â”€ MAIN COMPONENT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export default function BusinessDashboardPage() {
   const navigate = useNavigate();
@@ -111,14 +111,38 @@ export default function BusinessDashboardPage() {
   const queryClient = useQueryClient();
   const [timeFilter, setTimeFilter] = useState('7D');
 
+  const formatMatchScore = (value: unknown): number => {
+    const numericValue = typeof value === 'number' ? value : Number(value);
+    return Number.isFinite(numericValue) ? Math.round(numericValue) : 0;
+  };
+
   const opportunities = oppsData?.opportunities ?? [];
   const collaborations = collabsData ?? [];
   const applications = appsData ?? [];
   const conversations = convsData ?? [];
   const activeOpps = opportunities.filter((o: Opportunity) => o.status === 'open');
   const totalApplicants = opportunities.reduce((acc: number, opp: Opportunity) => acc + (opp.applicants?.length ?? 0), 0);
+  const campaignStats = opportunities.map((opp: any) => {
+    const applicantCount = opp.applicants?.length ?? 0;
+    const maxApplicants = opp.maxApplicants ?? 0;
+    const fillRate = maxApplicants > 0 ? Math.round((applicantCount / maxApplicants) * 100) : 0;
 
-  // ─── DYNAMIC DATA DERIVATION ─────────────────────────────────────────────
+    return {
+      ...opp,
+      applicantCount,
+      fillRate,
+    };
+  });
+  const topCampaign = [...campaignStats].sort((a: any, b: any) => {
+    if (b.fillRate !== a.fillRate) return b.fillRate - a.fillRate;
+    return (b.viewsCount ?? 0) - (a.viewsCount ?? 0);
+  })[0];
+  const lowestCampaign = [...campaignStats].sort((a: any, b: any) => {
+    if (a.fillRate !== b.fillRate) return a.fillRate - b.fillRate;
+    return (a.viewsCount ?? 0) - (b.viewsCount ?? 0);
+  })[0];
+
+  // â”€â”€â”€ DYNAMIC DATA DERIVATION â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   // Generate real chart data from opportunities
   const derivedChartData = opportunities.slice(0, 7).map((opp: any) => {
@@ -205,7 +229,7 @@ export default function BusinessDashboardPage() {
   if (onboardingStatus === 'incomplete') {
     return (
       <BusinessLayout>
-        <main className="p-4 md:p-8 max-w-[1600px] mx-auto w-full">
+        <main className="p-4 md:p-8 max-w-400 mx-auto w-full">
           <BusinessCompleteProfilePage isInsideDashboard={true} />
         </main>
       </BusinessLayout>
@@ -215,7 +239,7 @@ export default function BusinessDashboardPage() {
   if (onboardingStatus === 'pending') {
     return (
       <BusinessLayout>
-        <main className="p-4 md:p-8 max-w-[1600px] mx-auto w-full">
+        <main className="p-4 md:p-8 max-w-400 mx-auto w-full">
           <PendingApprovalState
             onRefresh={() => sync()}
             isRefreshing={isSyncing}
@@ -227,7 +251,7 @@ export default function BusinessDashboardPage() {
 
   return (
     <BusinessLayout>
-      <main className="p-4 md:p-8 max-w-[1600px] mx-auto w-full space-y-8 pb-20">
+      <main className="p-4 md:p-8 max-w-400 mx-auto w-full space-y-8 pb-20">
 
         {/* 1. STATUS / ALERT BANNER */}
         <AnimatePresence>
@@ -420,16 +444,16 @@ export default function BusinessDashboardPage() {
                     <TrendingUp size={16} />
                     <span className="text-[10px] font-black uppercase tracking-widest">Top Campaign</span>
                   </div>
-                  <h4 className="text-sm font-bold text-gray-900 dark:text-white">Winter Collection 2026</h4>
-                  <p className="text-xs text-gray-500">+24.5% ROI</p>
+                  <h4 className="text-sm font-bold text-gray-900 dark:text-white">{topCampaign?.title || 'No campaigns yet'}</h4>
+                  <p className="text-xs text-gray-500">{topCampaign ? `${topCampaign.fillRate}% applicant fill rate` : '0% applicant fill rate'}</p>
                 </div>
                 <div className="p-4 bg-red-50 dark:bg-red-500/5 rounded-2xl border border-red-100 dark:border-red-500/20 opacity-70">
                   <div className="flex items-center gap-2 text-red-600 mb-1">
                     <AlertCircle size={16} />
                     <span className="text-[10px] font-black uppercase tracking-widest">Underperforming</span>
                   </div>
-                  <h4 className="text-sm font-bold text-gray-900 dark:text-white">Summer Sale 2025</h4>
-                  <p className="text-xs text-gray-500">-2.1% Drop</p>
+                  <h4 className="text-sm font-bold text-gray-900 dark:text-white">{lowestCampaign?.title || 'No campaigns yet'}</h4>
+                  <p className="text-xs text-gray-500">{lowestCampaign ? `${lowestCampaign.fillRate}% applicant fill rate` : '0% applicant fill rate'}</p>
                 </div>
               </div>
             </Card>
@@ -527,7 +551,7 @@ export default function BusinessDashboardPage() {
                         <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1">Deadline</p>
                         <p className="text-xs font-bold text-gray-900 dark:text-white">{new Date(collab.deadline || Date.now()).toLocaleDateString()}</p>
                       </div>
-                      <div className="min-w-[100px]">
+                      <div className="min-w-25">
                         <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1">Progress</p>
                         <div className="flex items-center gap-2">
                           <div className="flex-1 h-1.5 bg-gray-200 dark:bg-white/10 rounded-full overflow-hidden">
@@ -614,7 +638,7 @@ export default function BusinessDashboardPage() {
                       <img src={rec.meta?.profilePicture} className="w-10 h-10 rounded-xl object-cover" alt="" />
                       <div>
                         <h4 className="text-xs font-bold text-gray-900 dark:text-white">{rec.name}</h4>
-                        <p className="text-[10px] text-aacp-olive font-bold">{rec.score}% Match</p>
+                        <p className="text-[10px] text-emerald-600 font-bold">{formatMatchScore(rec.score)}% Match</p>
                       </div>
                     </div>
                     <button className="p-2 bg-aacp-olive/10 text-aacp-olive rounded-lg hover:bg-aacp-olive hover:text-white transition-all">
@@ -628,7 +652,7 @@ export default function BusinessDashboardPage() {
 
             {/* 8. RECENT ACTIVITY FEED */}
             <Card title="Recent Activity">
-              <div className="space-y-6 relative before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-[2px] before:bg-gray-50 dark:before:bg-white/5">
+              <div className="space-y-6 relative before:absolute before:left-2.75 before:top-2 before:bottom-2 before:w-0.5 before:bg-gray-50 dark:before:bg-white/5">
                 {isLoadingHistory ? (
                   <div className="flex justify-center py-4"><Loader2 className="animate-spin text-aacp-olive" /></div>
                 ) : realActivity.length === 0 ? (

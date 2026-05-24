@@ -209,11 +209,22 @@ export default function PredictiveAnalysisDashboard({ data }: Props) {
                     <Sparkles className="text-aacp-olive" size={16} />
                     <h4 className="text-[10px] font-black text-gray-900 dark:text-white uppercase tracking-widest">AI Strategic Verdict</h4>
                 </div>
+                {data.usesMockData ? (
+                    <div className="mb-3 p-3 rounded-xl bg-amber-50 border border-amber-100 text-amber-800 text-sm">
+                        <strong>Note:</strong> This analysis used fallback or missing platform metrics. Sync the creator's social accounts to get accurate AI insights.
+                    </div>
+                ) : null}
                 <p className="text-xs text-gray-700 dark:text-gray-300 leading-relaxed font-medium italic">
                     "{summary}"
                 </p>
-                <div className="mt-6 flex items-center gap-2 text-[10px] font-black text-aacp-olive uppercase tracking-widest bg-aacp-olive/10 w-fit px-3 py-1 rounded-full">
-                    <CheckCircle2 size={12} /> Suitable for Brand Awareness
+                <div className={cn(
+                    "mt-6 flex items-center gap-2 text-[10px] font-black uppercase tracking-widest w-fit px-3 py-1 rounded-full",
+                    profitable
+                        ? "text-emerald-600 bg-emerald-500/10"
+                        : "text-amber-600 bg-amber-500/10"
+                )}>
+                    {profitable ? <CheckCircle2 size={12} /> : <AlertCircle size={12} />}
+                    {profitable ? 'Positive ROI Potential' : 'Risky Investment'}
                 </div>
             </div>
         </div>

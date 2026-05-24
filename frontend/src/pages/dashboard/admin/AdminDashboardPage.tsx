@@ -25,6 +25,7 @@ export default function AdminDashboardPage() {
   const { user: clerkUser } = useClerkUser();
   const navigate = useNavigate();
   const { data: stats, isLoading } = useAdminStats();
+  const verificationRate = stats?.totalUsers ? Math.round((stats.verifiedUsers / stats.totalUsers) * 100) : 0;
 
   const permissions = [
     { 
@@ -175,11 +176,11 @@ export default function AdminDashboardPage() {
                 <div className="space-y-6">
                   <div>
                     <div className="flex justify-between text-xs font-bold mb-2 uppercase tracking-widest opacity-80">
-                      <span>Task Completion Rate</span>
-                      <span>98.2%</span>
+                      <span>Verification Rate</span>
+                      <span>{verificationRate}%</span>
                     </div>
                     <div className="h-1.5 w-full bg-white/20 rounded-full overflow-hidden">
-                      <div className="h-full bg-white w-[98%]" />
+                      <div className="h-full bg-white" style={{ width: `${verificationRate}%` }} />
                     </div>
                   </div>
                   <div>

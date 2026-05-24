@@ -36,6 +36,10 @@ export default function CampaignApplicantsPage() {
   const { data: applications, isLoading: appsLoading } = useOpportunityApplications(id || '');
   const { data: oppData, isLoading: oppLoading } = useOpportunity(id || '');
   const { data: analysisData, isLoading: analysisLoading } = useMarketingAnalysis(id || '');
+  const formatAnalysisScore = (value: unknown): string => {
+    const numericValue = typeof value === 'number' ? value : Number(value);
+    return Number.isFinite(numericValue) ? `${Math.round(numericValue)}%` : 'N/A';
+  };
 
   const acceptMutation = useAcceptApplication();
   const rejectMutation = useRejectApplication();
@@ -417,8 +421,8 @@ export default function CampaignApplicantsPage() {
                             <>
                               <div className="text-center p-4 bg-gray-50/50 dark:bg-white/2 rounded-2xl">
                                 <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Match Score</p>
-                                <p className="text-sm font-black text-aacp-olive">
-                                  {applicantAnalysis.aiMatchScore ? `${applicantAnalysis.aiMatchScore}%` : '92%'}
+                                <p className="text-sm font-black text-emerald-500">
+                                  {formatAnalysisScore(applicantAnalysis.aiMatchScore)}
                                 </p>
                               </div>
                               <div className="text-center p-4 bg-gray-50/50 dark:bg-white/2 rounded-2xl">
@@ -438,7 +442,7 @@ export default function CampaignApplicantsPage() {
                           <>
                             <div className="text-center p-4 bg-gray-50/50 dark:bg-white/2 rounded-2xl">
                               <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Match Score</p>
-                              <p className="text-sm font-black text-aacp-olive">{app.aiMatchScore ? `${Math.round(app.aiMatchScore)}%` : '92%'}</p>
+                              <p className="text-sm font-black text-emerald-500">{formatAnalysisScore(app.aiMatchScore)}</p>
                             </div>
                             <div className="text-center p-4 bg-gray-50/50 dark:bg-white/2 rounded-2xl">
                               <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Timeline</p>
