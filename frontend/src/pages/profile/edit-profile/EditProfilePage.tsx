@@ -134,10 +134,12 @@ export default function EditProfilePage() {
       const caT = ca.tiktok?.metrics || {};
       const caI = ca.instagram?.metrics || {};
       const caF = ca.facebook?.metrics || {};
-      const hasConnectedMetrics = caT.avgViews || caI.avgViews || caT.engagementRate || caI.engagementRate || caF.engagementRate;
+      const hasConnectedMetrics = caT.avgViews || caI.avgViews || caT.engagementRate || caI.engagementRate || caF.engagementRate || caT.followers || caI.followers;
       if (hasConnectedMetrics) {
+        const computedFollowers = (caT.followers || 0) + (caI.followers || 0);
         const computedAvgViews = (caT.avgViews || 0) + (caI.avgViews || 0);
         const computedER = Math.max(caT.engagementRate || 0, caI.engagementRate || 0, caF.engagementRate || 0);
+        if (computedFollowers) setFollowers(computedFollowers);
         setAvgViews(computedAvgViews || profile.avgViews || '');
         setEngagementRate(computedER || profile.engagementRate || '');
         setMetricsAutoImported(true);
@@ -1000,12 +1002,18 @@ export default function EditProfilePage() {
                           />
                         </div>
                         <div className="space-y-2">
-                          <label className={labelCls}>Followers</label>
+                          <div className="flex items-center justify-between">
+                            <label className={labelCls}>Followers</label>
+                            {metricsAutoImported && (
+                              <span className="text-[10px] font-bold px-2 py-0.5 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-full border border-emerald-500/20">⚡ Auto-imported</span>
+                            )}
+                          </div>
                           <input
                             type="text"
                             value={followers}
-                            onChange={(e) => setFollowers(e.target.value)}
-                            className={inputCls.replace('pl-10', 'pl-4')}
+                            onChange={(e) => !metricsAutoImported && setFollowers(e.target.value)}
+                            readOnly={metricsAutoImported}
+                            className={cn(inputCls.replace('pl-10', 'pl-4'), metricsAutoImported && 'bg-emerald-50 dark:bg-emerald-900/10 border-emerald-200 dark:border-emerald-500/20 text-emerald-700 dark:text-emerald-300 font-semibold cursor-not-allowed opacity-80')}
                             placeholder={profilePlaceholder(profile.followers, '1.2M')}
                           />
                         </div>
@@ -1019,8 +1027,9 @@ export default function EditProfilePage() {
                           <input
                             type="text"
                             value={avgViews}
-                            onChange={(e) => { setAvgViews(e.target.value); setMetricsAutoImported(false); }}
-                            className={cn(inputCls.replace('pl-10', 'pl-4'), metricsAutoImported && 'bg-aacp-gold/15 dark:bg-emerald-900/10 border-aacp-gold/30 dark:border-aacp-olive/20 text-aacp-olive dark:text-emerald-300 font-semibold')}
+                            onChange={(e) => !metricsAutoImported && setAvgViews(e.target.value)}
+                            readOnly={metricsAutoImported}
+                            className={cn(inputCls.replace('pl-10', 'pl-4'), metricsAutoImported && 'bg-aacp-gold/15 dark:bg-emerald-900/10 border-aacp-gold/30 dark:border-aacp-olive/20 text-aacp-olive dark:text-emerald-300 font-semibold cursor-not-allowed opacity-80')}
                             placeholder={profilePlaceholder(profile.avgViews, '450k')}
                           />
                         </div>
@@ -1034,8 +1043,9 @@ export default function EditProfilePage() {
                           <input
                             type="text"
                             value={engagementRate}
-                            onChange={(e) => { setEngagementRate(e.target.value); setMetricsAutoImported(false); }}
-                            className={cn(inputCls.replace('pl-10', 'pl-4'), metricsAutoImported && 'bg-aacp-olive/5 dark:bg-emerald-900/10 border-aacp-gold/30 dark:border-aacp-olive/20 text-aacp-olive dark:text-emerald-300 font-semibold')}
+                            onChange={(e) => !metricsAutoImported && setEngagementRate(e.target.value)}
+                            readOnly={metricsAutoImported}
+                            className={cn(inputCls.replace('pl-10', 'pl-4'), metricsAutoImported && 'bg-aacp-olive/5 dark:bg-emerald-900/10 border-aacp-gold/30 dark:border-aacp-olive/20 text-aacp-olive dark:text-emerald-300 font-semibold cursor-not-allowed opacity-80')}
                             placeholder={profilePlaceholder(profile.engagementRate, '4.2%')}
                           />
                         </div>
