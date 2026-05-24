@@ -58,8 +58,10 @@ export const useSignup = () => {
             if (signUpAttempt.status === "complete") {
                 await setActive({ session: signUpAttempt.createdSessionId });
 
+                // Capture before the try block so it remains in scope after.
+                const pendingRole = localStorage.getItem('pendingUserRole') || 'advertiser';
+
                 try {
-                    const pendingRole = localStorage.getItem('pendingUserRole') || 'advertiser';
                     const API_URL = import.meta.env.VITE_API_URL || 'https://aacp.onrender.com/api/v1';
 
                     await fetch(`${API_URL}/users/sync`, {
@@ -74,8 +76,12 @@ export const useSignup = () => {
                     console.warn('[useSignup] Initial sync failed, will retry on dashboard:', syncErr);
                 }
 
-                // 3. Navigate to dashboard — user is now in the DB
-                navigate("/dashboard", { replace: true });
+                // 3. Navigate directly to the role dashboard — role is now in localStorage.
+                // This bypasses RoleDashboardRedirectPage for a seamless post-registration UX.
+                let destination = '/dashboard';
+                if (pendingRole === 'business_owner') destination = '/dashboard/business-owner';
+                else if (pendingRole === 'advertiser') destination = '/dashboard/advertiser';
+                navigate(destination, { replace: true });
             } else {
                 setError("Verification incomplete. Please try again.");
             }
