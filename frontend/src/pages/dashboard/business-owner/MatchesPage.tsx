@@ -43,6 +43,11 @@ export default function MatchesPage() {
   const { data: recoData, isLoading } = useRecommendations();
   const recommendations = (recoData as any)?.recommendations || [];
 
+  const formatMatchScore = (value: unknown): number => {
+    const numericValue = typeof value === 'number' ? value : Number(value);
+    return Number.isFinite(numericValue) ? Math.round(numericValue) : 0;
+  };
+
   const { data: bookmarkedCreators = [], isLoading: isLoadingBookmarks } = useSavedCreators();
   const toggleBookmark = useToggleSaveCreator();
 
@@ -147,7 +152,7 @@ export default function MatchesPage() {
                       </div>
                       <div className="bg-gray-50 dark:bg-white/3 p-3 rounded-2xl border border-gray-100 dark:border-white/5 shadow-xs">
                         <span className="text-[8px] font-bold text-gray-400 uppercase tracking-widest block mb-0.5">Reach</span>
-                        <span className="text-xs font-black text-blue-600 dark:text-blue-400 block truncate">{(selectedCreator.meta?.followers || selectedCreator.profileData?.followers || 10000).toLocaleString()}</span>
+                        <span className="text-xs font-black text-blue-600 dark:text-blue-400 block truncate">{typeof (selectedCreator.meta?.followers || selectedCreator.profileData?.followers) === 'number' ? (selectedCreator.meta?.followers || selectedCreator.profileData?.followers).toLocaleString() : 'N/A'}</span>
                       </div>
                       <div className="bg-gray-50 dark:bg-white/3 p-3 rounded-2xl border border-gray-100 dark:border-white/5 shadow-xs">
                         <span className="text-[8px] font-bold text-gray-400 uppercase tracking-widest block mb-0.5">Rating</span>
@@ -215,7 +220,7 @@ export default function MatchesPage() {
                       </div>
                       <div className="text-right">
                         <span className="text-[8px] font-bold text-gray-400 uppercase tracking-widest block mb-0.5">Match Strength</span>
-                        <span className="text-xl font-black text-emerald-500 bg-emerald-500/10 px-3 py-1 rounded-2xl border border-emerald-500/20 shadow-xs">{selectedCreator.score || '95'}%</span>
+                        <span className="text-xl font-black text-emerald-500 bg-emerald-500/10 px-3 py-1 rounded-2xl border border-emerald-500/20 shadow-xs">{formatMatchScore(selectedCreator.score)}%</span>
                       </div>
                     </div>
 
@@ -332,7 +337,7 @@ export default function MatchesPage() {
                   <div className="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent opacity-60"></div>
                   <div className="absolute top-4 right-4 bg-emerald-500 text-black text-[10px] font-black px-3 py-1.5 rounded-full uppercase tracking-widest shadow-lg flex items-center gap-1">
                     <Sparkles size={10} />
-                    {c.score || '95'}% Match
+                    {formatMatchScore(c.score)}% Match
                   </div>
                   <button
                     onClick={(e) => handleToggleBookmark(e, c.targetId || c._id)}
@@ -373,7 +378,7 @@ export default function MatchesPage() {
                       </div>
                       <div>
                         <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Reach</p>
-                        <p className="text-sm font-black text-gray-900 dark:text-white">{(c.meta?.followers || c.profileData?.followers)?.toLocaleString() || '10K+'}</p>
+                        <p className="text-sm font-black text-gray-900 dark:text-white">{typeof (c.meta?.followers || c.profileData?.followers) === 'number' ? (c.meta?.followers || c.profileData?.followers).toLocaleString() : 'N/A'}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
@@ -382,7 +387,7 @@ export default function MatchesPage() {
                       </div>
                       <div>
                         <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Engagement</p>
-                        <p className={cn("text-sm font-black", (c.meta?.engagementRate || 0) > 20 ? "text-amber-600" : "text-gray-900 dark:text-white")}>{typeof (c.meta?.engagementRate || c.profileData?.engagementRate) === 'number' ? Math.min((c.meta?.engagementRate || c.profileData?.engagementRate), 100).toFixed(1) : '4.5'}%</p>
+                        <p className={cn("text-sm font-black", (c.meta?.engagementRate || 0) > 20 ? "text-amber-600" : "text-gray-900 dark:text-white")}>{typeof (c.meta?.engagementRate || c.profileData?.engagementRate) === 'number' ? Math.min((c.meta?.engagementRate || c.profileData?.engagementRate), 100).toFixed(1) : 'N/A'}</p>
                       </div>
                     </div>
                   </div>

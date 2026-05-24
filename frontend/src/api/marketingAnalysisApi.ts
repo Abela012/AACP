@@ -100,6 +100,8 @@ export interface PredictiveAnalysisResult {
         ageRange: string;
         gender: string;
     };
+    // True when backend analysis used fallback/default metrics instead of synced platform data
+    usesMockData?: boolean;
 }
 
 export const marketingAnalysisApi = {

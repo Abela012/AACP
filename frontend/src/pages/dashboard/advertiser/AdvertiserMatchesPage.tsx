@@ -241,6 +241,12 @@ export default function AdvertiserMatchesPage() {
     ? bookmarkedOpportunities
     : visibleOpportunities;
 
+  const recommendationItems = Array.isArray(recoData?.recommendations) ? recoData.recommendations : [];
+  const avgMatchRate = recommendationItems.length > 0
+    ? Math.round(recommendationItems.reduce((sum: number, item: any) => sum + (Number(item.score) || 0), 0) / recommendationItems.length)
+    : 0;
+  const matchPowerLabel = avgMatchRate >= 85 ? 'Very High' : avgMatchRate >= 70 ? 'High' : avgMatchRate >= 45 ? 'Medium' : 'Low';
+
   const hasActiveFilters = selectedPlatform !== 'All Platforms' || 
     selectedBudgetRange !== 'All Budgets' || 
     sortBy !== 'Best Match Score';
@@ -277,14 +283,14 @@ export default function AdvertiserMatchesPage() {
               <div className="bg-white/70 dark:bg-white/[0.01] border border-gray-100 dark:border-white/5 rounded-3xl p-5 backdrop-blur-md">
                 <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider block mb-1">Avg. Match Rate</span>
                 <div className="flex items-baseline gap-1 text-2xl font-black text-emerald-500">
-                  96%
+                  {avgMatchRate}%
                   <span className="text-xs text-gray-400 font-medium">accuracy</span>
                 </div>
               </div>
               <div className="bg-white/70 dark:bg-white/[0.01] border border-gray-100 dark:border-white/5 rounded-3xl p-5 backdrop-blur-md">
                 <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider block mb-1">Match Power</span>
                 <div className="flex items-baseline gap-1 text-2xl font-black text-violet-500">
-                  High
+                  {matchPowerLabel}
                   <span className="text-xs text-gray-400 font-medium">relevance</span>
                 </div>
               </div>

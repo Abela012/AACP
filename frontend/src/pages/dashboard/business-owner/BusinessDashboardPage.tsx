@@ -111,12 +111,36 @@ export default function BusinessDashboardPage() {
   const queryClient = useQueryClient();
   const [timeFilter, setTimeFilter] = useState('7D');
 
+  const formatMatchScore = (value: unknown): number => {
+    const numericValue = typeof value === 'number' ? value : Number(value);
+    return Number.isFinite(numericValue) ? Math.round(numericValue) : 0;
+  };
+
   const opportunities = oppsData?.opportunities ?? [];
   const collaborations = collabsData ?? [];
   const applications = appsData ?? [];
   const conversations = convsData ?? [];
   const activeOpps = opportunities.filter((o: Opportunity) => o.status === 'open');
   const totalApplicants = opportunities.reduce((acc: number, opp: Opportunity) => acc + (opp.applicants?.length ?? 0), 0);
+  const campaignStats = opportunities.map((opp: any) => {
+    const applicantCount = opp.applicants?.length ?? 0;
+    const maxApplicants = opp.maxApplicants ?? 0;
+    const fillRate = maxApplicants > 0 ? Math.round((applicantCount / maxApplicants) * 100) : 0;
+
+    return {
+      ...opp,
+      applicantCount,
+      fillRate,
+    };
+  });
+  const topCampaign = [...campaignStats].sort((a: any, b: any) => {
+    if (b.fillRate !== a.fillRate) return b.fillRate - a.fillRate;
+    return (b.viewsCount ?? 0) - (a.viewsCount ?? 0);
+  })[0];
+  const lowestCampaign = [...campaignStats].sort((a: any, b: any) => {
+    if (a.fillRate !== b.fillRate) return a.fillRate - b.fillRate;
+    return (a.viewsCount ?? 0) - (b.viewsCount ?? 0);
+  })[0];
 
   // ─── DYNAMIC DATA DERIVATION ─────────────────────────────────────────────
 
@@ -420,16 +444,16 @@ export default function BusinessDashboardPage() {
                     <TrendingUp size={16} />
                     <span className="text-[10px] font-black uppercase tracking-widest">Top Campaign</span>
                   </div>
-                  <h4 className="text-sm font-bold text-gray-900 dark:text-white">Winter Collection 2026</h4>
-                  <p className="text-xs text-gray-500">+24.5% ROI</p>
+                  <h4 className="text-sm font-bold text-gray-900 dark:text-white">{topCampaign?.title || 'No campaigns yet'}</h4>
+                  <p className="text-xs text-gray-500">{topCampaign ? `${topCampaign.fillRate}% applicant fill rate` : '0% applicant fill rate'}</p>
                 </div>
                 <div className="p-4 bg-red-50 dark:bg-red-500/5 rounded-2xl border border-red-100 dark:border-red-500/20 opacity-70">
                   <div className="flex items-center gap-2 text-red-600 mb-1">
                     <AlertCircle size={16} />
                     <span className="text-[10px] font-black uppercase tracking-widest">Underperforming</span>
                   </div>
-                  <h4 className="text-sm font-bold text-gray-900 dark:text-white">Summer Sale 2025</h4>
-                  <p className="text-xs text-gray-500">-2.1% Drop</p>
+                  <h4 className="text-sm font-bold text-gray-900 dark:text-white">{lowestCampaign?.title || 'No campaigns yet'}</h4>
+                  <p className="text-xs text-gray-500">{lowestCampaign ? `${lowestCampaign.fillRate}% applicant fill rate` : '0% applicant fill rate'}</p>
                 </div>
               </div>
             </Card>
@@ -466,9 +490,9 @@ export default function BusinessDashboardPage() {
                         </td>
                         <td className="py-5">
                           <div className="flex items-center justify-center gap-2">
-                            <span className="text-xs font-bold text-emerald-500">4.2%</span>
+                            <span className="text-xs font-bold text-emerald-500">0%</span>
                             <div className="w-16 h-1.5 bg-gray-100 dark:bg-white/10 rounded-full overflow-hidden">
-                              <div className="h-full bg-emerald-500" style={{ width: '42%' }}></div>
+                              <div className="h-full bg-emerald-500" style={{ width: '0%' }}></div>
                             </div>
                           </div>
                         </td>
@@ -614,7 +638,7 @@ export default function BusinessDashboardPage() {
                       <img src={rec.meta?.profilePicture} className="w-10 h-10 rounded-xl object-cover" alt="" />
                       <div>
                         <h4 className="text-xs font-bold text-gray-900 dark:text-white">{rec.name}</h4>
-                        <p className="text-[10px] text-emerald-600 font-bold">{rec.score}% Match</p>
+                        <p className="text-[10px] text-emerald-600 font-bold">{formatMatchScore(rec.score)}% Match</p>
                       </div>
                     </div>
                     <button className="p-2 bg-emerald-600/10 text-emerald-600 rounded-lg hover:bg-emerald-600 hover:text-white transition-all">

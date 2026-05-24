@@ -147,6 +147,10 @@ export default function ViewProfilePage() {
 
   const isTargetProfileBusiness = profile.role === 'business_owner';
 
+  const benchmarkBarWidth = (engagementRate: number) => `${Math.min(engagementRate * 10, 100)}%`;
+  const tiktokBenchmarkEngagementRate = 2.4;
+  const instagramBenchmarkEngagementRate = 1.8;
+
   // When viewing someone else's profile, derive status from their data
   const targetStatus = profileId
     ? ((profile as any).status === 'active' || (profile as any).status === 'approved' ? 'approved' : (profile as any).status || 'incomplete')
@@ -284,7 +288,7 @@ export default function ViewProfilePage() {
 
   return (
     <Layout>
-      <main className="p-4 sm:p-8 max-w-[1400px] mx-auto w-full pb-32">
+      <main className="p-4 sm:p-8 max-w-350 mx-auto w-full pb-32">
         <motion.div
           variants={containerVariants}
           initial="hidden"
@@ -368,7 +372,7 @@ export default function ViewProfilePage() {
                 </div>
 
                 {/* Primary Panel Actions */}
-                <div className="flex flex-col sm:flex-row lg:flex-col gap-3 min-w-[260px]">
+                <div className="flex flex-col sm:flex-row lg:flex-col gap-3 min-w-65">
                   {!profileId ? (
                     <button
                       onClick={() =>
@@ -681,10 +685,10 @@ export default function ViewProfilePage() {
                               <div>
                                 <div className="flex justify-between text-xs font-bold mb-1">
                                   <span className="text-gray-500">Standard Benchmarks (Ethiopian Market)</span>
-                                  <span className="text-gray-400">2.4%</span>
+                                  <span className="text-gray-400">{tiktokBenchmarkEngagementRate.toFixed(1)}%</span>
                                 </div>
                                 <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden">
-                                  <div className="h-full bg-gray-500 rounded-full" style={{ width: '24%' }} />
+                                  <div className="h-full bg-gray-500 rounded-full" style={{ width: benchmarkBarWidth(tiktokBenchmarkEngagementRate) }} />
                                 </div>
                               </div>
                             </div>
@@ -748,10 +752,10 @@ export default function ViewProfilePage() {
                               <div>
                                 <div className="flex justify-between text-xs font-bold mb-1">
                                   <span className="text-gray-500">Standard Benchmarks (Ethiopian Market)</span>
-                                  <span className="text-gray-400">1.8%</span>
+                                  <span className="text-gray-400">{instagramBenchmarkEngagementRate.toFixed(1)}%</span>
                                 </div>
                                 <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden">
-                                  <div className="h-full bg-gray-500 rounded-full" style={{ width: '18%' }} />
+                                  <div className="h-full bg-gray-500 rounded-full" style={{ width: benchmarkBarWidth(instagramBenchmarkEngagementRate) }} />
                                 </div>
                               </div>
                             </div>
@@ -849,10 +853,10 @@ export default function ViewProfilePage() {
                             </li>
                             <li className="flex items-center gap-2 text-emerald-500">
                               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                              2x Amplification Stories with Swipe-up Link
+                                  <span className="text-gray-400">{marketBenchmarkEngagementRate.toFixed(1)}%</span>
                             </li>
                             <li className="flex items-center gap-2">
-                              <span className="w-1.5 h-1.5 rounded-full bg-gray-400" />
+                                  <div className="h-full bg-gray-500 rounded-full" style={{ width: marketBenchmarkBarWidth }} />
                               30 Days Paid Media Usage Rights
                             </li>
                             <li className="flex items-center gap-2">
