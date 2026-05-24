@@ -48,7 +48,7 @@ export default function AnalyticsPage() {
   ];
 
   const stats = [
-    { label: 'Total Reach', value: '0', trend: '0%', trendType: 'neutral', icon: Users, color: 'text-emerald-600', bgColor: 'bg-emerald-50' },
+    { label: 'Total Reach', value: '0', trend: '0%', trendType: 'neutral', icon: Users, color: 'text-aacp-olive', bgColor: 'bg-aacp-gold/15' },
     { label: 'Avg. Engagement', value: '0%', trend: '0%', trendType: 'neutral', icon: Zap, iconColor: 'text-amber-500', bgColor: 'bg-amber-50' },
     { label: 'Total Spent', value: '$0', trend: '0%', trendType: 'neutral', icon: DollarSign, color: 'text-green-600', bgColor: 'bg-green-50' },
     { label: 'ROI', value: '0x', trend: '0x', trendType: 'neutral', icon: Target, color: 'text-purple-600', bgColor: 'bg-purple-50' },
@@ -68,7 +68,7 @@ export default function AnalyticsPage() {
               Last 30 Days
               <ChevronDown size={16} />
             </button>
-            <button className="bg-emerald-600 text-white px-6 py-3 rounded-xl font-bold text-sm flex items-center gap-2 hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-100 dark:shadow-none">
+            <button className="bg-aacp-olive text-white px-6 py-3 rounded-xl font-bold text-sm flex items-center gap-2 hover:bg-aacp-olive transition-all shadow-lg shadow-aacp-gold/25 dark:shadow-none">
               Export Data
             </button>
           </div>
@@ -103,11 +103,11 @@ export default function AnalyticsPage() {
               <h3 className="text-lg font-bold text-gray-900 dark:text-white">Reach vs Engagement</h3>
               <div className="flex gap-4">
                 <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 bg-emerald-600 rounded-full" />
+                  <div className="w-3 h-3 bg-aacp-olive rounded-full" />
                   <span className="text-xs font-medium text-gray-500 dark:text-gray-400">Reach</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 bg-emerald-200 dark:bg-emerald-900/50 rounded-full" />
+                  <div className="w-3 h-3 bg-aacp-gold/30 dark:bg-emerald-900/50 rounded-full" />
                   <span className="text-xs font-medium text-gray-500 dark:text-gray-400">Engagement</span>
                 </div>
               </div>

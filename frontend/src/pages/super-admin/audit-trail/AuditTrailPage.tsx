@@ -51,7 +51,7 @@ export default function SuperAdminAuditTrailPage() {
             <button className="px-5 py-3 bg-white dark:bg-white/5 border border-[#EFEFEF] dark:border-white/10 rounded-2xl text-xs font-black uppercase tracking-widest text-[#6F767E] hover:bg-gray-50 transition-all flex items-center gap-2">
               <Filter size={14} /> Filter
             </button>
-            <button className="px-5 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl text-xs font-black uppercase tracking-widest shadow-lg shadow-emerald-100 dark:shadow-none flex items-center gap-2">
+            <button className="px-5 py-3 bg-aacp-olive hover:bg-aacp-olive text-white rounded-2xl text-xs font-black uppercase tracking-widest shadow-lg shadow-aacp-gold/25 dark:shadow-none flex items-center gap-2">
               <Download size={14} /> Export Report
             </button>
           </div>
@@ -64,7 +64,7 @@ export default function SuperAdminAuditTrailPage() {
               value={search}
               onChange={(e) => { setSearch(e.target.value); setPage(1); }}
               placeholder="Search by message or target id..."
-              className="w-full bg-[#F4F4F4] dark:bg-white/5 rounded-2xl pl-11 pr-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-600/20 border-none"
+              className="w-full bg-[#F4F4F4] dark:bg-white/5 rounded-2xl pl-11 pr-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-aacp-olive/20 border-none"
             />
           </div>
           <select
@@ -101,7 +101,7 @@ export default function SuperAdminAuditTrailPage() {
                 {isLoading ? (
                   <tr>
                     <td colSpan={5} className="py-20 text-center">
-                      <Loader2 className="w-8 h-8 text-emerald-600 animate-spin mx-auto mb-4" />
+                      <Loader2 className="w-8 h-8 text-aacp-olive animate-spin mx-auto mb-4" />
                       <p className="text-sm font-bold text-[#6F767E]">Loading logs...</p>
                     </td>
                   </tr>
@@ -114,7 +114,7 @@ export default function SuperAdminAuditTrailPage() {
                       <p className="text-sm font-bold">Failed to load audit logs</p>
                       <button
                         onClick={() => refetch()}
-                        className="mt-4 px-5 py-2.5 bg-emerald-600 text-white rounded-2xl text-xs font-black uppercase tracking-widest"
+                        className="mt-4 px-5 py-2.5 bg-aacp-olive text-white rounded-2xl text-xs font-black uppercase tracking-widest"
                       >
                         Try Again
                       </button>
@@ -151,7 +151,7 @@ export default function SuperAdminAuditTrailPage() {
                         </td>
                         <td className="py-6 px-8">
                           <div className="text-xs font-bold">{actorName}</div>
-                          <div className="text-[10px] font-black uppercase tracking-widest text-emerald-600">
+                          <div className="text-[10px] font-black uppercase tracking-widest text-aacp-olive">
                             {l.actorRole}
                           </div>
                         </td>

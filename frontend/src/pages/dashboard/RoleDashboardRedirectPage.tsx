@@ -107,7 +107,7 @@ export default function RoleDashboardRedirectPage() {
   if (isCurrentlyLoading && !timedOut) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen p-6 bg-gray-50 text-center">
-        <div className="w-12 h-12 border-4 border-[#14a800] border-t-transparent rounded-full animate-spin mb-4 mx-auto"></div>
+        <div className="w-12 h-12 border-4 border-aacp-olive border-t-transparent rounded-full animate-spin mb-4 mx-auto"></div>
         <div className="text-lg font-medium text-gray-700">Verifying access permissions...</div>
         <div className="mt-2 text-sm text-gray-400">
           {isLongLoading
@@ -160,7 +160,7 @@ export default function RoleDashboardRedirectPage() {
           </div>
           <button
             onClick={() => window.location.reload()}
-            className="w-full py-3 bg-[#14a800] text-white rounded-full font-bold shadow-lg hover:bg-[#108a00] transition-all"
+            className="w-full py-3 bg-aacp-olive text-white rounded-full font-bold shadow-lg hover:bg-aacp-olive transition-all"
           >
             Try Again
           </button>
@@ -182,7 +182,7 @@ export default function RoleDashboardRedirectPage() {
           <div className="flex flex-col gap-3">
             <button
               onClick={() => window.location.reload()}
-              className="w-full py-3 bg-[#14a800] text-white rounded-full font-bold shadow-lg hover:bg-[#108a00] transition-all"
+              className="w-full py-3 bg-aacp-olive text-white rounded-full font-bold shadow-lg hover:bg-aacp-olive transition-all"
             >
               Try Again
             </button>
@@ -212,15 +212,15 @@ export default function RoleDashboardRedirectPage() {
     };
 
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen p-6 bg-linear-to-br from-gray-50 via-white to-[#14a800]/5">
+      <div className="flex flex-col items-center justify-center min-h-screen p-6 bg-linear-to-br from-gray-50 via-white to-aacp-olive/5">
         <div className="bg-white p-10 rounded-3xl shadow-2xl max-w-lg w-full border border-gray-100">
           {/* Header */}
           <div className="text-center mb-8">
-            <div className="w-16 h-16 rounded-2xl bg-[#14a800]/10 flex items-center justify-center mx-auto mb-5">
-              <ArrowRight className="w-8 h-8 text-[#14a800]" />
+            <div className="w-16 h-16 rounded-2xl bg-aacp-olive/10 flex items-center justify-center mx-auto mb-5">
+              <ArrowRight className="w-8 h-8 text-aacp-olive" />
             </div>
-            <h2 className="text-2xl font-bold text-[#001e00] mb-2">Choose Your Role</h2>
-            <p className="text-sm text-[#5e6d55] max-w-xs mx-auto">
+            <h2 className="text-2xl font-bold text-aacp-ink mb-2">Choose Your Role</h2>
+            <p className="text-sm text-aacp-smoke max-w-xs mx-auto">
               Select how you'd like to use the platform. This determines your dashboard and available features.
             </p>
           </div>
@@ -238,22 +238,22 @@ export default function RoleDashboardRedirectPage() {
               type="button"
               onClick={() => { setSelectedRole('business_owner'); setRoleError(null); }}
               className={`group relative flex flex-col items-center gap-3 p-6 rounded-2xl border-2 transition-all duration-200 ${selectedRole === 'business_owner'
-                ? 'border-[#14a800] bg-[#14a800]/5 shadow-lg shadow-[#14a800]/10'
-                : 'border-gray-100 bg-white hover:border-[#14a800]/30 hover:shadow-md'
+                ? 'border-aacp-olive bg-aacp-olive/5 shadow-lg shadow-aacp-olive/10'
+                : 'border-gray-100 bg-white hover:border-aacp-olive/30 hover:shadow-md'
                 }`}
             >
               <div className={`w-14 h-14 rounded-xl flex items-center justify-center transition-all ${selectedRole === 'business_owner'
-                ? 'bg-[#14a800] text-white'
-                : 'bg-gray-50 text-[#5e6d55] group-hover:bg-[#14a800]/10 group-hover:text-[#14a800]'
+                ? 'bg-aacp-olive text-white'
+                : 'bg-gray-50 text-aacp-smoke group-hover:bg-aacp-olive/10 group-hover:text-aacp-olive'
                 }`}>
                 <Briefcase size={26} />
               </div>
               <div className="text-center">
-                <span className="text-sm font-bold text-[#001e00] block">Business Owner</span>
-                <span className="text-[10px] text-[#5e6d55] mt-1 block">Post campaigns & find advertisers</span>
+                <span className="text-sm font-bold text-aacp-ink block">Business Owner</span>
+                <span className="text-[10px] text-aacp-smoke mt-1 block">Post campaigns & find advertisers</span>
               </div>
               {selectedRole === 'business_owner' && (
-                <div className="absolute top-3 right-3 w-5 h-5 rounded-full bg-[#14a800] flex items-center justify-center">
+                <div className="absolute top-3 right-3 w-5 h-5 rounded-full bg-aacp-olive flex items-center justify-center">
                   <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                   </svg>
@@ -265,22 +265,22 @@ export default function RoleDashboardRedirectPage() {
               type="button"
               onClick={() => { setSelectedRole('advertiser'); setRoleError(null); }}
               className={`group relative flex flex-col items-center gap-3 p-6 rounded-2xl border-2 transition-all duration-200 ${selectedRole === 'advertiser'
-                ? 'border-[#14a800] bg-[#14a800]/5 shadow-lg shadow-[#14a800]/10'
-                : 'border-gray-100 bg-white hover:border-[#14a800]/30 hover:shadow-md'
+                ? 'border-aacp-olive bg-aacp-olive/5 shadow-lg shadow-aacp-olive/10'
+                : 'border-gray-100 bg-white hover:border-aacp-olive/30 hover:shadow-md'
                 }`}
             >
               <div className={`w-14 h-14 rounded-xl flex items-center justify-center transition-all ${selectedRole === 'advertiser'
-                ? 'bg-[#14a800] text-white'
-                : 'bg-gray-50 text-[#5e6d55] group-hover:bg-[#14a800]/10 group-hover:text-[#14a800]'
+                ? 'bg-aacp-olive text-white'
+                : 'bg-gray-50 text-aacp-smoke group-hover:bg-aacp-olive/10 group-hover:text-aacp-olive'
                 }`}>
                 <Megaphone size={26} />
               </div>
               <div className="text-center">
-                <span className="text-sm font-bold text-[#001e00] block">Advertiser</span>
-                <span className="text-[10px] text-[#5e6d55] mt-1 block">Apply to campaigns & earn</span>
+                <span className="text-sm font-bold text-aacp-ink block">Advertiser</span>
+                <span className="text-[10px] text-aacp-smoke mt-1 block">Apply to campaigns & earn</span>
               </div>
               {selectedRole === 'advertiser' && (
-                <div className="absolute top-3 right-3 w-5 h-5 rounded-full bg-[#14a800] flex items-center justify-center">
+                <div className="absolute top-3 right-3 w-5 h-5 rounded-full bg-aacp-olive flex items-center justify-center">
                   <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                   </svg>
@@ -293,7 +293,7 @@ export default function RoleDashboardRedirectPage() {
           <button
             onClick={handleRoleSubmit}
             disabled={!selectedRole || updateRoleMutation.isPending}
-            className="w-full py-3.5 bg-[#14a800] text-white rounded-full font-bold shadow-lg shadow-[#14a800]/20 hover:bg-[#108a00] active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="w-full py-3.5 bg-aacp-olive text-white rounded-full font-bold shadow-lg shadow-aacp-olive/20 hover:bg-aacp-olive active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             {updateRoleMutation.isPending ? (
               <>
@@ -308,7 +308,7 @@ export default function RoleDashboardRedirectPage() {
             )}
           </button>
 
-          <p className="mt-5 text-center text-[10px] text-[#5e6d55]">
+          <p className="mt-5 text-center text-[10px] text-aacp-smoke">
             Your role can be updated later by contacting support.
           </p>
         </div>

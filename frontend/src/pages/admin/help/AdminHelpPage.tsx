@@ -17,8 +17,8 @@ export default function AdminHelpPage() {
   const categories = [
     { title: 'User Management', desc: 'Approvals, suspensions, and role management.', icon: Shield, color: 'text-blue-500', bg: 'bg-blue-50 dark:bg-blue-500/10' },
     { title: 'Financial Controls', icon: Zap, desc: 'Managing coin requests and platform fees.', color: 'text-amber-500', bg: 'bg-amber-50 dark:bg-amber-500/10' },
-    { title: 'Dispute Resolution', icon: MessageSquare, desc: 'Handling complaints and three-way chats.', color: 'text-emerald-600', bg: 'bg-emerald-50 dark:bg-emerald-500/10' },
-    { title: 'Platform Policy', icon: FileText, desc: 'Community guidelines and legal docs.', color: 'text-emerald-600', bg: 'bg-emerald-50 dark:bg-emerald-500/10' },
+    { title: 'Dispute Resolution', icon: MessageSquare, desc: 'Handling complaints and three-way chats.', color: 'text-aacp-olive', bg: 'bg-aacp-gold/15 dark:bg-aacp-olive/10' },
+    { title: 'Platform Policy', icon: FileText, desc: 'Community guidelines and legal docs.', color: 'text-aacp-olive', bg: 'bg-aacp-gold/15 dark:bg-aacp-olive/10' },
   ];
 
   const faqs = [
@@ -32,7 +32,7 @@ export default function AdminHelpPage() {
     <AdminLayout>
       <div className="max-w-[1000px] mx-auto pb-12">
         {/* Hero Section */}
-        <div className="bg-linear-to-tr from-emerald-600 to-emerald-400 rounded-[3rem] p-12 text-white mb-12 shadow-xl shadow-emerald-100 dark:shadow-none relative overflow-hidden">
+        <div className="bg-linear-to-tr from-aacp-olive to-aacp-gold rounded-[3rem] p-12 text-white mb-12 shadow-xl shadow-aacp-gold/25 dark:shadow-none relative overflow-hidden">
           <div className="relative z-10">
             <h1 className="text-4xl font-black mb-4">Admin Help Center</h1>
             <p className="text-white/80 font-bold max-w-lg mb-8 leading-relaxed">
@@ -62,9 +62,9 @@ export default function AdminHelpPage() {
               <div className={`w-12 h-12 rounded-2xl ${cat.bg} ${cat.color} flex items-center justify-center mb-6`}>
                 <cat.icon size={24} />
               </div>
-              <h3 className="text-lg font-black mb-2 group-hover:text-emerald-600 transition-colors">{cat.title}</h3>
+              <h3 className="text-lg font-black mb-2 group-hover:text-aacp-olive transition-colors">{cat.title}</h3>
               <p className="text-sm font-medium text-[#6F767E] dark:text-gray-400 mb-6 leading-relaxed">{cat.desc}</p>
-              <div className="flex items-center gap-2 text-[10px] font-black text-emerald-600 uppercase tracking-widest">
+              <div className="flex items-center gap-2 text-[10px] font-black text-aacp-olive uppercase tracking-widest">
                 Read Guide <ChevronRight size={14} />
               </div>
             </motion.div>
@@ -74,22 +74,22 @@ export default function AdminHelpPage() {
         <div className="bg-white dark:bg-[#111111] rounded-[3rem] border border-[#EFEFEF] dark:border-white/5 shadow-sm overflow-hidden">
           <div className="p-8 border-b border-[#F4F4F4] dark:border-white/5 flex justify-between items-center">
             <h2 className="text-xl font-black">Frequently Asked Questions</h2>
-            <button className="text-[10px] font-black text-emerald-600 uppercase tracking-widest hover:underline">View all FAQ</button>
+            <button className="text-[10px] font-black text-aacp-olive uppercase tracking-widest hover:underline">View all FAQ</button>
           </div>
           <div className="divide-y divide-[#F4F4F4] dark:divide-white/5">
             {faqs.map((faq, i) => (
               <button key={i} className="w-full p-6 text-left hover:bg-[#F8F8FD] dark:hover:bg-white/5 transition-all flex items-center justify-between group">
-                <span className="text-sm font-bold text-[#1A1D1F] dark:text-white group-hover:text-emerald-600 transition-colors">{faq}</span>
-                <ExternalLink size={14} className="text-[#9A9FA5] group-hover:text-emerald-600 transition-colors" />
+                <span className="text-sm font-bold text-[#1A1D1F] dark:text-white group-hover:text-aacp-olive transition-colors">{faq}</span>
+                <ExternalLink size={14} className="text-[#9A9FA5] group-hover:text-aacp-olive transition-colors" />
               </button>
             ))}
           </div>
         </div>
 
-        <div className="mt-12 text-center p-8 bg-[#F1FFF0] dark:bg-emerald-500/5 rounded-[2.5rem] border border-emerald-100 dark:border-emerald-500/10">
-          <p className="text-sm font-bold text-emerald-600 mb-4">Still need help?</p>
+        <div className="mt-12 text-center p-8 bg-aacp-gold/20 dark:bg-aacp-olive/5 rounded-[2.5rem] border border-aacp-gold/25 dark:border-aacp-olive/10">
+          <p className="text-sm font-bold text-aacp-olive mb-4">Still need help?</p>
           <h3 className="text-xl font-black mb-6">Contact System Support</h3>
-          <button className="px-8 py-4 bg-emerald-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg shadow-emerald-100 dark:shadow-none hover:bg-emerald-700 transition-all">
+          <button className="px-8 py-4 bg-aacp-olive text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg shadow-aacp-gold/25 dark:shadow-none hover:bg-aacp-olive transition-all">
             Open Support Ticket
           </button>
         </div>

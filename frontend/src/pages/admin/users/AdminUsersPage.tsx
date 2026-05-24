@@ -95,7 +95,7 @@ export default function AdminUsersPage() {
   };
 
   const statusStyle = (status: AdminUser['status']) => {
-    if (status === 'active' || status === 'approved') return 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600';
+    if (status === 'active' || status === 'approved') return 'bg-aacp-gold/25 dark:bg-aacp-olive/20 text-aacp-olive';
     if (status === 'banned') return 'bg-red-100 dark:bg-red-500/20 text-red-600';
     return 'bg-amber-100 dark:bg-amber-500/20 text-amber-600';
   };
@@ -109,7 +109,7 @@ export default function AdminUsersPage() {
             <p className="text-sm font-medium text-[#6F767E] dark:text-gray-400">
               Manage all platform users, roles, and account statuses.
               {data?.total !== undefined && (
-                <span className="ml-2 text-emerald-600 font-bold">{data.total.toLocaleString()} users total</span>
+                <span className="ml-2 text-aacp-olive font-bold">{data.total.toLocaleString()} users total</span>
               )}
             </p>
           </div>
@@ -121,7 +121,7 @@ export default function AdminUsersPage() {
                 placeholder="Search name or email..."
                 value={searchQuery}
                 onChange={(e) => handleSearch(e.target.value)}
-                className="bg-white dark:bg-white/5 border border-[#EFEFEF] dark:border-white/10 rounded-2xl pl-11 pr-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-600/20 w-64 transition-all"
+                className="bg-white dark:bg-white/5 border border-[#EFEFEF] dark:border-white/10 rounded-2xl pl-11 pr-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-aacp-olive/20 w-64 transition-all"
               />
             </div>
             <div className="flex bg-[#F4F4F4] dark:bg-white/5 p-1 rounded-2xl">
@@ -131,7 +131,7 @@ export default function AdminUsersPage() {
                   onClick={() => setActiveFilter(role)}
                   className={`px-4 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all ${
                     activeFilter === role
-                      ? 'bg-white dark:bg-white/10 shadow-sm text-emerald-600'
+                      ? 'bg-white dark:bg-white/10 shadow-sm text-aacp-olive'
                       : 'text-[#6F767E] hover:text-[#1A1D1F]'
                   }`}
                 >
@@ -165,7 +165,7 @@ export default function AdminUsersPage() {
                 {isLoading ? (
                   <tr>
                     <td colSpan={5} className="py-20 text-center">
-                      <Loader2 size={32} className="text-emerald-600 animate-spin mx-auto mb-4" />
+                      <Loader2 size={32} className="text-aacp-olive animate-spin mx-auto mb-4" />
                       <p className="text-sm font-bold text-[#6F767E]">Loading users...</p>
                     </td>
                   </tr>
@@ -178,7 +178,7 @@ export default function AdminUsersPage() {
                       <h3 className="text-sm font-bold text-[#1A1D1F] dark:text-white mb-2">Failed to load users</h3>
                       <button
                         onClick={() => refetch()}
-                        className="px-4 py-2 bg-emerald-600 text-white rounded-xl text-xs font-bold"
+                        className="px-4 py-2 bg-aacp-olive text-white rounded-xl text-xs font-bold"
                       >
                         Try Again
                       </button>
@@ -242,7 +242,7 @@ export default function AdminUsersPage() {
                           <div className="flex justify-end gap-2">
                             <Link
                               to={`/admin/users/${user._id}`}
-                              className="p-2 hover:bg-white dark:hover:bg-white/10 rounded-xl transition-all text-[#9A9FA5] hover:text-emerald-600"
+                              className="p-2 hover:bg-white dark:hover:bg-white/10 rounded-xl transition-all text-[#9A9FA5] hover:text-aacp-olive"
                               title="View Profile"
                             >
                               <Eye size={18} />
@@ -250,7 +250,7 @@ export default function AdminUsersPage() {
                             {(!user.isVerified || user.pendingProfileData || user.pendingUpdates || user.status === 'pending') && (
                               <Link
                                 to={`/admin/users/${user._id}?review=1`}
-                                className="p-2 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 rounded-xl transition-all text-emerald-500"
+                                className="p-2 hover:bg-aacp-gold/15 dark:hover:bg-aacp-olive/10 rounded-xl transition-all text-aacp-olive"
                                 title="Review profile for approval"
                               >
                                 <ShieldCheck size={18} />
@@ -260,7 +260,7 @@ export default function AdminUsersPage() {
                               <button
                                 onClick={() => handleApprove(user)}
                                 disabled={updateStatus.isPending}
-                                className="p-2 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 rounded-xl transition-all text-emerald-500"
+                                className="p-2 hover:bg-aacp-gold/15 dark:hover:bg-aacp-olive/10 rounded-xl transition-all text-aacp-olive"
                                 title="Approve User"
                               >
                                 <ShieldCheck size={18} />
@@ -270,7 +270,7 @@ export default function AdminUsersPage() {
                               onClick={() => handleSuspend(user)}
                               disabled={updateStatus.isPending}
                               className={`p-2 hover:bg-white dark:hover:bg-white/10 rounded-xl transition-all disabled:opacity-50 ${
-                                user.status === 'banned' ? 'text-emerald-500' : 'text-[#9A9FA5] hover:text-red-500'
+                                user.status === 'banned' ? 'text-aacp-olive' : 'text-[#9A9FA5] hover:text-red-500'
                               }`}
                               title={user.status === 'banned' ? 'Reinstate User' : 'Suspend User'}
                             >
@@ -338,7 +338,7 @@ export default function AdminUsersPage() {
             exit={{ opacity: 0, scale: 0.9 }}
             className={`fixed bottom-8 left-1/2 -translate-x-1/2 z-50 px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3 border ${
               toast.type === 'success'
-                ? 'bg-emerald-600 text-white border-emerald-400'
+                ? 'bg-aacp-olive text-white border-aacp-gold'
                 : 'bg-red-500 text-white border-red-400'
             }`}
           >

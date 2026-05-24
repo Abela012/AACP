@@ -105,20 +105,20 @@ export default function MarketingAnalysisDashboard({ data, onSelectApplicant }: 
                     className={cn(
                         "p-6 rounded-4xl border shadow-sm flex flex-col justify-between relative overflow-hidden",
                         topApplicant?.profitable
-                            ? "bg-emerald-50/50 border-emerald-100 dark:bg-emerald-500/5 dark:border-emerald-500/20"
+                            ? "bg-aacp-gold/15/50 border-aacp-gold/25 dark:bg-aacp-olive/5 dark:border-aacp-olive/20"
                             : "bg-amber-50/50 border-amber-100 dark:bg-amber-500/5 dark:border-amber-500/20"
                     )}
                 >
                     <div className="flex justify-between items-start mb-4">
                         <div className={cn(
                             "w-12 h-12 rounded-2xl flex items-center justify-center",
-                            topApplicant?.profitable ? "bg-emerald-100 text-emerald-600" : "bg-amber-100 text-amber-600"
+                            topApplicant?.profitable ? "bg-aacp-gold/25 text-aacp-olive" : "bg-amber-100 text-amber-600"
                         )}>
                             <TrendingUp size={24} />
                         </div>
                         <span className={cn(
                             "px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest",
-                            topApplicant?.profitable ? "bg-emerald-500 text-black" : "bg-amber-500 text-white"
+                            topApplicant?.profitable ? "bg-aacp-olive text-black" : "bg-amber-500 text-white"
                         )}>
                             {topApplicant?.profitable ? 'Profitable' : 'Risky'}
                         </span>
@@ -127,7 +127,7 @@ export default function MarketingAnalysisDashboard({ data, onSelectApplicant }: 
                         <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Overall Profitability</p>
                         <h3 className={cn(
                             "text-3xl font-black",
-                            topApplicant?.profitable ? "text-emerald-600" : "text-amber-600"
+                            topApplicant?.profitable ? "text-aacp-olive" : "text-amber-600"
                         )}>
                             {insights?.businessOutcome?.expectedCampaignOutcome || (topApplicant?.profitable ? 'High Potential' : 'Moderate')}
                         </h3>
@@ -208,7 +208,7 @@ export default function MarketingAnalysisDashboard({ data, onSelectApplicant }: 
                 <div className="flex items-center gap-3 mb-4">
                     <button
                         onClick={() => setSelectedPlatform('All')}
-                        className={cn('px-3 py-1 rounded-full text-sm font-bold', selectedPlatform === 'All' ? 'bg-emerald-500 text-black' : 'bg-gray-100 dark:bg-white/5 text-gray-600')}
+                        className={cn('px-3 py-1 rounded-full text-sm font-bold', selectedPlatform === 'All' ? 'bg-aacp-olive text-black' : 'bg-gray-100 dark:bg-white/5 text-gray-600')}
                     >
                         All Platforms
                     </button>
@@ -216,7 +216,7 @@ export default function MarketingAnalysisDashboard({ data, onSelectApplicant }: 
                         <button
                             key={p}
                             onClick={() => setSelectedPlatform(p)}
-                            className={cn('px-3 py-1 rounded-full text-sm font-bold', selectedPlatform === p ? 'bg-emerald-500 text-black' : 'bg-gray-100 dark:bg-white/5 text-gray-600')}
+                            className={cn('px-3 py-1 rounded-full text-sm font-bold', selectedPlatform === p ? 'bg-aacp-olive text-black' : 'bg-gray-100 dark:bg-white/5 text-gray-600')}
                         >
                             {p}
                         </button>
@@ -372,18 +372,18 @@ export default function MarketingAnalysisDashboard({ data, onSelectApplicant }: 
             {/* 3. AI BUSINESS INSIGHT SECTION */}
             <motion.section
                 initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-                className="bg-linear-to-br from-emerald-500 to-emerald-600 rounded-[3rem] p-1 shadow-2xl overflow-hidden"
+                className="bg-linear-to-br from-aacp-olive to-aacp-olive rounded-[3rem] p-1 shadow-2xl overflow-hidden"
             >
                 <div className="bg-white dark:bg-[#0a0a0a] rounded-[2.8rem] p-8 md:p-12">
                     <div className="flex flex-col lg:flex-row gap-12">
                         <div className="lg:w-2/3 space-y-8">
                             <div className="flex items-center gap-4">
-                                <div className="w-14 h-14 bg-emerald-500 text-black rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-500/20">
+                                <div className="w-14 h-14 bg-aacp-olive text-black rounded-2xl flex items-center justify-center shadow-lg shadow-aacp-olive/20">
                                     <Sparkles size={32} />
                                 </div>
                                 <div>
                                     <h3 className="text-2xl font-black text-gray-900 dark:text-white">Strategic Campaign Analysis</h3>
-                                    <p className="text-xs text-emerald-600 font-bold uppercase tracking-widest">AI Intelligence Report</p>
+                                    <p className="text-xs text-aacp-olive font-bold uppercase tracking-widest">AI Intelligence Report</p>
                                 </div>
                             </div>
 
@@ -394,8 +394,8 @@ export default function MarketingAnalysisDashboard({ data, onSelectApplicant }: 
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
-                                <div className="bg-emerald-50/50 dark:bg-emerald-500/5 p-6 rounded-3xl border border-emerald-100 dark:border-emerald-500/10">
-                                    <h4 className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-4 flex items-center gap-2">
+                                <div className="bg-aacp-gold/15/50 dark:bg-aacp-olive/5 p-6 rounded-3xl border border-aacp-gold/25 dark:border-aacp-olive/10">
+                                    <h4 className="text-[10px] font-black text-aacp-olive uppercase tracking-widest mb-4 flex items-center gap-2">
                                         <Target size={14} /> Market Fit Prediction
                                     </h4>
                                     <p className="text-sm font-bold text-gray-900 dark:text-white leading-relaxed">
@@ -418,7 +418,7 @@ export default function MarketingAnalysisDashboard({ data, onSelectApplicant }: 
                                 <h4 className="text-sm font-black text-gray-900 dark:text-white mb-6 uppercase tracking-widest">Key Findings</h4>
                                 <div className="space-y-6">
                                     <div className="flex gap-4">
-                                        <div className="shrink-0 w-10 h-10 bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 rounded-xl flex items-center justify-center">
+                                        <div className="shrink-0 w-10 h-10 bg-aacp-gold/25 dark:bg-aacp-olive/20 text-aacp-olive rounded-xl flex items-center justify-center">
                                             <TrendingUp size={18} />
                                         </div>
                                         <div>
@@ -445,7 +445,7 @@ export default function MarketingAnalysisDashboard({ data, onSelectApplicant }: 
                                         </div>
                                     </div>
                                 </div>
-                                <button className="w-full mt-10 py-4 bg-emerald-500 text-black font-black rounded-2xl text-sm shadow-xl shadow-emerald-500/20 hover:bg-emerald-400 transition-all flex items-center justify-center gap-2">
+                                <button className="w-full mt-10 py-4 bg-aacp-olive text-black font-black rounded-2xl text-sm shadow-xl shadow-aacp-olive/20 hover:bg-aacp-gold transition-all flex items-center justify-center gap-2">
                                     Generate Full PDF Report <ArrowUpRight size={18} />
                                 </button>
                             </div>
@@ -458,7 +458,7 @@ export default function MarketingAnalysisDashboard({ data, onSelectApplicant }: 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {[
                     { title: 'Best Overall Choice', key: 'bestOverallChoice', icon: Star, color: 'text-amber-500', bgColor: 'bg-amber-50' },
-                    { title: 'Safest Investment', key: 'safestInvestment', icon: ShieldCheck, color: 'text-emerald-500', bgColor: 'bg-emerald-50' },
+                    { title: 'Safest Investment', key: 'safestInvestment', icon: ShieldCheck, color: 'text-aacp-olive', bgColor: 'bg-aacp-gold/15' },
                     { title: 'Highest Growth Potential', key: 'highestGrowthPotential', icon: Zap, color: 'text-blue-500', bgColor: 'bg-blue-50' },
                     { title: 'Best ROI Performance', key: 'bestROI', icon: DollarSign, color: 'text-purple-500', bgColor: 'bg-purple-50' },
                 ].map((rec) => {
@@ -469,7 +469,7 @@ export default function MarketingAnalysisDashboard({ data, onSelectApplicant }: 
                         <motion.div
                             key={rec.key}
                             initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }}
-                            className="bg-white dark:bg-white/5 p-6 rounded-4xl border border-gray-100 dark:border-white/5 shadow-sm group hover:border-emerald-500/30 transition-all cursor-pointer"
+                            className="bg-white dark:bg-white/5 p-6 rounded-4xl border border-gray-100 dark:border-white/5 shadow-sm group hover:border-aacp-olive/30 transition-all cursor-pointer"
                             onClick={() => advertiser && onSelectApplicant?.(advertiser.advertiserId)}
                         >
                             <div className="flex items-center gap-3 mb-4">
@@ -487,13 +487,13 @@ export default function MarketingAnalysisDashboard({ data, onSelectApplicant }: 
                                         </div>
                                         <div className="flex-1 overflow-hidden">
                                             <p className="text-sm font-black text-gray-900 dark:text-white truncate">{advertiser.advertiserName}</p>
-                                            <p className="text-[10px] font-bold text-emerald-600">{advertiser.profitPercentage}% ROI</p>
+                                            <p className="text-[10px] font-bold text-aacp-olive">{advertiser.profitPercentage}% ROI</p>
                                         </div>
                                     </div>
                                     <p className="text-[11px] font-medium text-gray-500 line-clamp-2 leading-relaxed">
                                         {recData?.reason || 'Selected based on optimal engagement-to-cost ratio.'}
                                     </p>
-                                    <div className="flex items-center gap-1 text-[10px] font-black text-gray-400 group-hover:text-emerald-500 transition-colors pt-2 border-t border-gray-50 dark:border-white/5">
+                                    <div className="flex items-center gap-1 text-[10px] font-black text-gray-400 group-hover:text-aacp-olive transition-colors pt-2 border-t border-gray-50 dark:border-white/5">
                                         View Analysis <ChevronRight size={12} />
                                     </div>
                                 </div>

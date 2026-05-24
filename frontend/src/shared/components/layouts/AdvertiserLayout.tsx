@@ -105,10 +105,10 @@ export default function AdvertiserLayout({ children }: AdvertiserLayoutProps) {
       )}>
         <div className="p-6 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-emerald-600 rounded-full flex items-center justify-center">
+            <div className="w-8 h-8 bg-aacp-olive rounded-full flex items-center justify-center">
               <Zap className="text-white w-5 h-5 fill-white" />
             </div>
-            <span className="text-xl font-bold tracking-tighter text-emerald-600">AACP</span>
+            <span className="text-xl font-bold tracking-tighter text-aacp-olive">AACP</span>
           </Link>
           <button className="lg:hidden" onClick={() => setIsSidebarOpen(false)}>
             <X size={20} />
@@ -126,7 +126,7 @@ export default function AdvertiserLayout({ children }: AdvertiserLayoutProps) {
                   className={cn(
                     "w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all group",
                     location.pathname === item.path
-                      ? "bg-emerald-500/10 text-emerald-500"
+                      ? "bg-aacp-olive/10 text-aacp-olive"
                       : "text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/5"
                   )}
                 >
@@ -135,7 +135,7 @@ export default function AdvertiserLayout({ children }: AdvertiserLayoutProps) {
                     {item.name}
                   </div>
                   {item.badge && (
-                    <span className="bg-emerald-500 text-black text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+                    <span className="bg-aacp-olive text-black text-[10px] font-bold px-1.5 py-0.5 rounded-full">
                       {item.badge}
                     </span>
                   )}
@@ -154,7 +154,7 @@ export default function AdvertiserLayout({ children }: AdvertiserLayoutProps) {
                   className={cn(
                     "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all",
                     location.pathname === item.path
-                      ? "bg-emerald-500/10 text-emerald-500"
+                      ? "bg-aacp-olive/10 text-aacp-olive"
                       : "text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/5"
                   )}
                 >
@@ -183,7 +183,7 @@ export default function AdvertiserLayout({ children }: AdvertiserLayoutProps) {
         {/* Header */}
         <header className="h-20 border-b border-gray-100 dark:border-white/5 px-4 sm:px-8 flex items-center justify-between sticky top-0 bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-md z-40">
           <div className="flex items-center gap-4">
-            <button className="p-2 -ml-2 text-gray-500 dark:text-gray-400 hover:text-emerald-500 transition-colors" onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
+            <button className="p-2 -ml-2 text-gray-500 dark:text-gray-400 hover:text-aacp-olive transition-colors" onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
               <Menu size={20} />
             </button>
             <nav className="hidden md:flex items-center gap-8">
@@ -194,7 +194,7 @@ export default function AdvertiserLayout({ children }: AdvertiserLayoutProps) {
                   className={cn(
                     "text-sm font-medium transition-colors pb-1",
                     location.pathname === item.path
-                      ? "text-emerald-500 border-b-2 border-emerald-500"
+                      ? "text-aacp-olive border-b-2 border-aacp-olive"
                       : "text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
                   )}
                 >
@@ -213,7 +213,7 @@ export default function AdvertiserLayout({ children }: AdvertiserLayoutProps) {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search insights..."
-                className="bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-xl pl-10 pr-4 py-2 text-sm focus:outline-none focus:border-emerald-500 w-48 lg:w-64 transition-all text-gray-900 dark:text-white"
+                className="bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-xl pl-10 pr-4 py-2 text-sm focus:outline-none focus:border-aacp-olive w-48 lg:w-64 transition-all text-gray-900 dark:text-white"
               />
               <AnimatePresence>
                 {searchQuery && (
@@ -226,11 +226,11 @@ export default function AdvertiserLayout({ children }: AdvertiserLayoutProps) {
                     <div className="p-3">
                       <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-2 mb-2">Results for "{searchQuery}"</p>
                       <button className="w-full text-left px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 rounded-lg flex items-center gap-2">
-                        <Search size={14} className="text-emerald-500" />
+                        <Search size={14} className="text-aacp-olive" />
                         Search campaigns for "{searchQuery}"
                       </button>
                       <button className="w-full text-left px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 rounded-lg flex items-center gap-2">
-                        <Users size={14} className="text-emerald-500" />
+                        <Users size={14} className="text-aacp-olive" />
                         Search creators matching "{searchQuery}"
                       </button>
                     </div>
@@ -246,7 +246,7 @@ export default function AdvertiserLayout({ children }: AdvertiserLayoutProps) {
                   setShowNotifications(!showNotifications);
                   if (!showNotifications) markAllAsRead();
                 }}
-                className="w-10 h-10 bg-gray-50 dark:bg-white/5 rounded-xl flex items-center justify-center text-gray-500 dark:text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-all relative"
+                className="w-10 h-10 bg-gray-50 dark:bg-white/5 rounded-xl flex items-center justify-center text-gray-500 dark:text-gray-400 hover:text-aacp-olive dark:hover:text-aacp-gold transition-all relative"
               >
                 <Bell size={20} />
                 {unreadCount > 0 && (
@@ -268,7 +268,7 @@ export default function AdvertiserLayout({ children }: AdvertiserLayoutProps) {
                     <div className="p-6 border-b border-gray-100 dark:border-white/5 flex justify-between items-center bg-gray-50/50 dark:bg-white/2">
                       <h3 className="font-bold text-gray-900 dark:text-white">Notifications</h3>
                       {unreadCount > 0 && (
-                        <span className="bg-emerald-600/10 text-emerald-600 text-[10px] font-bold px-2 py-1 rounded-lg uppercase tracking-wider">{unreadCount} New</span>
+                        <span className="bg-aacp-olive/10 text-aacp-olive text-[10px] font-bold px-2 py-1 rounded-lg uppercase tracking-wider">{unreadCount} New</span>
                       )}
                     </div>
                     <div className="max-h-80 overflow-y-auto divide-y divide-gray-50 dark:divide-white/5">
@@ -277,7 +277,7 @@ export default function AdvertiserLayout({ children }: AdvertiserLayoutProps) {
                           <div key={notif.id} className="p-5 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors cursor-pointer flex gap-4">
                             <div className={cn(
                               "w-10 h-10 rounded-xl flex items-center justify-center shrink-0",
-                              notif.type === 'application' ? "bg-emerald-600/10 text-emerald-600" : "bg-blue-600/10 text-blue-600"
+                              notif.type === 'application' ? "bg-aacp-olive/10 text-aacp-olive" : "bg-blue-600/10 text-blue-600"
                             )}>
                               {notif.type === 'application' ? <Sparkles size={18} /> : <MessageSquare size={18} />}
                             </div>
@@ -316,8 +316,8 @@ export default function AdvertiserLayout({ children }: AdvertiserLayoutProps) {
           {showLockOverlay && (
             <div className="absolute inset-0 z-60 flex items-center justify-center bg-white/60 dark:bg-black/60 backdrop-blur-md">
               <div className="max-w-md w-full mx-4 bg-white dark:bg-[#1a1a1a] p-8 rounded-[2.5rem] shadow-2xl border border-gray-100 dark:border-white/10 text-center">
-                <div className="w-20 h-20 bg-emerald-500/10 rounded-3xl flex items-center justify-center mx-auto mb-6">
-                  <Lock className="text-emerald-500 w-10 h-10" />
+                <div className="w-20 h-20 bg-aacp-olive/10 rounded-3xl flex items-center justify-center mx-auto mb-6">
+                  <Lock className="text-aacp-olive w-10 h-10" />
                 </div>
                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">Profile Pending Approval</h2>
                 <p className="text-gray-500 dark:text-gray-400 mb-8 leading-relaxed">
@@ -326,12 +326,12 @@ export default function AdvertiserLayout({ children }: AdvertiserLayoutProps) {
                 <div className="flex flex-col gap-3">
                   <Link
                     to="/dashboard/advertiser"
-                    className="w-full py-4 bg-emerald-500 text-black rounded-xl font-bold hover:bg-emerald-400 transition-all shadow-lg shadow-emerald-100 dark:shadow-none"
+                    className="w-full py-4 bg-aacp-olive text-black rounded-xl font-bold hover:bg-aacp-gold transition-all shadow-lg shadow-black/10 dark:shadow-none"
                   >
                     Return to Dashboard
                   </Link>
                   <div className="flex items-center justify-center gap-2 text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">
-                    <ShieldCheck size={14} className="text-emerald-500" />
+                    <ShieldCheck size={14} className="text-aacp-olive" />
                     Secure Verification in Progress
                   </div>
                 </div>

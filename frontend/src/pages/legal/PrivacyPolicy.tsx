@@ -13,15 +13,15 @@ export default function PrivacyPolicy() {
         <div className="legal-page">
             <nav className="legal-page-nav" aria-label="Site">
                 <div className="legal-page-nav-inner">
-                    <Link to="/" className="font-extrabold text-xl text-[#001e00]">
+                    <Link to="/" className="font-extrabold text-xl text-aacp-ink">
                         AACP
                     </Link>
-                    <div className="text-sm font-semibold text-[#5e6d55]">
-                        <Link to="/terms-of-service" className="hover:text-[#14a800]">
+                    <div className="text-sm font-semibold text-aacp-smoke">
+                        <Link to="/terms-of-service" className="hover:text-aacp-olive">
                             Terms
                         </Link>
                         {' · '}
-                        <Link to="/data-deletion" className="hover:text-[#14a800]">
+                        <Link to="/data-deletion" className="hover:text-aacp-olive">
                             Data deletion
                         </Link>
                     </div>
@@ -29,7 +29,7 @@ export default function PrivacyPolicy() {
             </nav>
 
             <main className="legal-page-main">
-                <h1 className="text-3xl font-black tracking-tight text-[#001e00]">Privacy Policy</h1>
+                <h1 className="text-3xl font-black tracking-tight text-aacp-ink">Privacy Policy</h1>
                 <p className="legal-page-meta">Last updated: May 15, 2026</p>
 
                 <article className="legal-page-card">
@@ -37,7 +37,7 @@ export default function PrivacyPolicy() {
                     <p>
                         AACP processes personal data to operate our influencer/advertiser marketplace.
                         Contact:{' '}
-                        <a href="mailto:privacy@aacp.io" className="text-[#14a800] font-semibold">
+                        <a href="mailto:privacy@aacp.io" className="text-aacp-olive font-semibold">
                             privacy@aacp.io
                         </a>
                         .
@@ -79,8 +79,8 @@ export default function PrivacyPolicy() {
                     </p>
                 </article>
 
-                <p className="mt-8 text-center text-sm text-[#5e6d55]">
-                    <a href="/privacy-policy" className="text-[#14a800] font-semibold">
+                <p className="mt-8 text-center text-sm text-aacp-smoke">
+                    <a href="/privacy-policy" className="text-aacp-olive font-semibold">
                         Open full static version
                     </a>{' '}
                     (for crawlers and direct URL verification)

@@ -111,7 +111,7 @@ export default function CampaignApplicantsPage() {
     return (
       <BusinessLayout>
         <div className="h-screen flex flex-col items-center justify-center gap-4">
-          <Loader2 className="w-10 h-10 text-emerald-500 animate-spin" />
+          <Loader2 className="w-10 h-10 text-aacp-olive animate-spin" />
           <p className="font-bold text-gray-500">Loading applicant data...</p>
         </div>
       </BusinessLayout>
@@ -139,11 +139,11 @@ export default function CampaignApplicantsPage() {
 
         {/* TOP SECTION: About the Post */}
         <section className="bg-white dark:bg-[#111] rounded-[2.5rem] border border-gray-100 dark:border-white/5 shadow-xl overflow-hidden">
-          <div className="p-8 md:p-12 border-b border-gray-50 dark:border-white/5 bg-emerald-500/5">
+          <div className="p-8 md:p-12 border-b border-gray-50 dark:border-white/5 bg-aacp-olive/5">
             <div className="flex flex-col md:flex-row justify-between items-start gap-6">
               <div className="space-y-4 max-w-3xl">
                 <div className="flex items-center gap-3">
-                  <span className="px-3 py-1 bg-emerald-500 text-black text-[10px] font-black uppercase tracking-widest rounded-full">
+                  <span className="px-3 py-1 bg-aacp-olive text-black text-[10px] font-black uppercase tracking-widest rounded-full">
                     {opportunity?.status || 'Active'}
                   </span>
                   <span className="text-xs text-gray-400 font-bold">
@@ -161,7 +161,7 @@ export default function CampaignApplicantsPage() {
               <div className="grid grid-cols-2 md:grid-cols-1 gap-4 w-full md:w-auto">
                 <div className="bg-white dark:bg-white/5 p-4 rounded-2xl border border-gray-100 dark:border-white/10">
                   <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Total Budget</p>
-                  <p className="text-xl font-black text-emerald-600">${(typeof opportunity?.budget === 'object' ? opportunity?.budget.amount : (opportunity?.budget || 0)).toLocaleString()}</p>
+                  <p className="text-xl font-black text-aacp-olive">${(typeof opportunity?.budget === 'object' ? opportunity?.budget.amount : (opportunity?.budget || 0)).toLocaleString()}</p>
                 </div>
                 <div className="bg-white dark:bg-white/5 p-4 rounded-2xl border border-gray-100 dark:border-white/10">
                   <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Category</p>
@@ -173,7 +173,7 @@ export default function CampaignApplicantsPage() {
 
           <div className="px-8 md:px-12 py-6 bg-gray-50/50 dark:bg-white/2 flex flex-wrap gap-8">
             <div className="flex items-center gap-2">
-              <TrendingUp size={16} className="text-emerald-500" />
+              <TrendingUp size={16} className="text-aacp-olive" />
               <span className="text-xs font-bold text-gray-500">Platform: <span className="text-gray-900 dark:text-white">{opportunity?.platforms?.join(', ') || 'Multi-platform'}</span></span>
             </div>
             <div className="flex items-center gap-2">
@@ -230,7 +230,7 @@ export default function CampaignApplicantsPage() {
                             className="w-full h-full object-cover"
                           />
                         </div>
-                        <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-emerald-500 rounded-full border-4 border-white dark:border-[#111] flex items-center justify-center">
+                        <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-aacp-olive rounded-full border-4 border-white dark:border-[#111] flex items-center justify-center">
                           <ShieldCheck size={14} className="text-white" />
                         </div>
                       </div>
@@ -243,8 +243,8 @@ export default function CampaignApplicantsPage() {
                           <span className="text-[10px] font-black uppercase tracking-widest bg-gray-100 dark:bg-white/10 text-gray-500 px-2 py-1 rounded">Creator</span>
                         </div>
                         <div className="flex items-center gap-4 text-xs font-bold text-gray-400 mb-6">
-                          <span className="flex items-center gap-1.5"><MapPin size={14} className="text-emerald-500" /> {app.advertiser?.location || 'Remote'}</span>
-                          <span className="flex items-center gap-1.5"><Mail size={14} className="text-emerald-500" /> {app.advertiser?.email}</span>
+                          <span className="flex items-center gap-1.5"><MapPin size={14} className="text-aacp-olive" /> {app.advertiser?.location || 'Remote'}</span>
+                          <span className="flex items-center gap-1.5"><Mail size={14} className="text-aacp-olive" /> {app.advertiser?.email}</span>
                         </div>
                         <div className="bg-gray-50 dark:bg-white/5 p-6 rounded-3xl relative mb-4">
                           <Sparkles size={16} className="absolute -top-2 -left-2 text-amber-500" />
@@ -258,7 +258,7 @@ export default function CampaignApplicantsPage() {
                             if (applicantAnalysis?.aiInsight) {
                               return (
                                 <div className="pt-3 border-t border-gray-200 dark:border-white/10">
-                                  <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-1 flex items-center gap-1">
+                                  <p className="text-[10px] font-black text-aacp-olive uppercase tracking-widest mb-1 flex items-center gap-1">
                                     <Sparkles size={10} /> Gemini Insight
                                   </p>
                                   <p className="text-xs font-bold text-gray-500 dark:text-gray-400">
@@ -324,7 +324,7 @@ export default function CampaignApplicantsPage() {
                                         href={cvUrl}
                                         target="_blank" 
                                         rel="noreferrer"
-                                        className="inline-flex items-center gap-2 text-sm font-bold text-emerald-500 hover:text-emerald-400 transition-colors bg-emerald-50 dark:bg-emerald-500/10 px-4 py-2 rounded-xl"
+                                        className="inline-flex items-center gap-2 text-sm font-bold text-aacp-olive hover:text-aacp-gold transition-colors bg-aacp-gold/15 dark:bg-aacp-olive/10 px-4 py-2 rounded-xl"
                                       >
                                         <FileText size={16} /> {fileName}
                                       </a>
@@ -353,7 +353,7 @@ export default function CampaignApplicantsPage() {
                                     <span key={`skill-${i}`} className="bg-blue-50 dark:bg-blue-500/10 text-blue-600 px-3 py-1 rounded-lg text-xs font-bold border border-blue-100 dark:border-blue-500/20">{skill}</span>
                                   ))}
                                   {app.advertiser?.profileData?.niches?.map((niche: string, i: number) => (
-                                    <span key={`niche-${i}`} className="bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 px-3 py-1 rounded-lg text-xs font-bold border border-emerald-100 dark:border-emerald-500/20">{niche}</span>
+                                    <span key={`niche-${i}`} className="bg-aacp-gold/15 dark:bg-aacp-olive/10 text-aacp-olive px-3 py-1 rounded-lg text-xs font-bold border border-aacp-gold/25 dark:border-aacp-olive/20">{niche}</span>
                                   ))}
                                 </div>
                               </div>
@@ -362,7 +362,7 @@ export default function CampaignApplicantsPage() {
                             {app.advertiser?.profileData?.website && (
                               <div>
                                 <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Portfolio / Resume</p>
-                                <a href={app.advertiser.profileData.website.startsWith('http') ? app.advertiser.profileData.website : `https://${app.advertiser.profileData.website}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-sm font-bold text-emerald-500 hover:text-emerald-400 transition-colors bg-emerald-50 dark:bg-emerald-500/10 px-4 py-2 rounded-xl">
+                                <a href={app.advertiser.profileData.website.startsWith('http') ? app.advertiser.profileData.website : `https://${app.advertiser.profileData.website}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-sm font-bold text-aacp-olive hover:text-aacp-gold transition-colors bg-aacp-gold/15 dark:bg-aacp-olive/10 px-4 py-2 rounded-xl">
                                   <FileText size={16} /> View Professional Portfolio <ExternalLink size={14} />
                                 </a>
                               </div>
@@ -429,7 +429,7 @@ export default function CampaignApplicantsPage() {
                                 <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Est. ROI</p>
                                 <p className={cn(
                                   "text-sm font-black",
-                                  applicantAnalysis.profitable ? "text-emerald-500" : "text-amber-500"
+                                  applicantAnalysis.profitable ? "text-aacp-olive" : "text-amber-500"
                                 )}>
                                   {applicantAnalysis.profitPercentage > 0 ? '+' : ''}{applicantAnalysis.profitPercentage}%
                                 </p>
@@ -466,7 +466,7 @@ export default function CampaignApplicantsPage() {
                       <div className={cn(
                         "inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-black uppercase tracking-widest",
                         app.status === 'pending' ? "bg-amber-100 dark:bg-amber-500/20 text-amber-600" :
-                          app.status === 'accepted' ? "bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600" :
+                          app.status === 'accepted' ? "bg-aacp-gold/25 dark:bg-aacp-olive/20 text-aacp-olive" :
                             "bg-red-100 dark:bg-red-500/20 text-red-600"
                       )}>
                         {app.status === 'pending' ? 'Awaiting Review' : app.status}
@@ -478,7 +478,7 @@ export default function CampaignApplicantsPage() {
                         <>
                           <button
                             onClick={() => handleAccept(app._id)}
-                            className="w-full h-14 bg-emerald-500 hover:bg-emerald-400 text-black font-black rounded-2xl shadow-lg shadow-emerald-500/20 transition-all flex items-center justify-center gap-2"
+                            className="w-full h-14 bg-aacp-olive hover:bg-aacp-gold text-black font-black rounded-2xl shadow-lg shadow-aacp-olive/20 transition-all flex items-center justify-center gap-2"
                           >
                             <CheckCircle2 size={18} /> Accept Proposal
                           </button>
@@ -542,7 +542,7 @@ export default function CampaignApplicantsPage() {
             className={cn(
               "fixed bottom-8 left-1/2 -translate-x-1/2 z-[10000] px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3 border transition-all",
               toast.type === 'success' 
-                ? "bg-emerald-500 text-black border-emerald-400" 
+                ? "bg-aacp-olive text-black border-aacp-gold" 
                 : "bg-red-500 text-white border-red-400"
             )}
           >

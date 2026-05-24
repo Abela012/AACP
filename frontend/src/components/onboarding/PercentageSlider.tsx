@@ -19,7 +19,7 @@ export default function PercentageSlider({
     <div className="space-y-2">
       <div className="flex justify-between items-center">
         <span className="text-sm font-bold text-gray-900 dark:text-white">{label}</span>
-        <span className="text-sm font-black text-emerald-600">{value}%</span>
+        <span className="text-sm font-black text-aacp-olive">{value}%</span>
       </div>
       {helper && <p className="text-xs text-gray-500">{helper}</p>}
       <input
@@ -28,7 +28,7 @@ export default function PercentageSlider({
         max={max}
         value={value}
         onChange={(e) => onChange(Number(e.target.value))}
-        className="w-full accent-emerald-500"
+        className="w-full accent-aacp-olive"
       />
     </div>
   );

@@ -53,9 +53,9 @@ export default function AdminAnalyticsPage() {
       change: recentUsers > 0 ? `+${recentUsers} this month` : 'No new users',
       up: recentUsers > 0,
       icon: Users,
-      bg: 'bg-emerald-50 dark:bg-emerald-500/10',
-      iconColor: 'text-emerald-600',
-      border: 'border-emerald-100 dark:border-emerald-500/20',
+      bg: 'bg-aacp-gold/15 dark:bg-aacp-olive/10',
+      iconColor: 'text-aacp-olive',
+      border: 'border-aacp-gold/25 dark:border-aacp-olive/20',
     },
     {
       label: 'Verified Users',
@@ -73,9 +73,9 @@ export default function AdminAnalyticsPage() {
       change: recentUsers > 0 ? 'Recent growth' : 'No new signups',
       up: recentUsers > 0,
       icon: TrendingUp,
-      bg: 'bg-emerald-50 dark:bg-emerald-500/10',
-      iconColor: 'text-emerald-600',
-      border: 'border-emerald-100 dark:border-emerald-500/20',
+      bg: 'bg-aacp-gold/15 dark:bg-aacp-olive/10',
+      iconColor: 'text-aacp-olive',
+      border: 'border-aacp-gold/25 dark:border-aacp-olive/20',
     },
     {
       label: 'Suspended',
@@ -101,7 +101,7 @@ export default function AdminAnalyticsPage() {
       <AdminLayout>
         <div className="flex items-center justify-center h-96">
           <div className="text-center">
-            <Loader2 size={48} className="text-emerald-600 animate-spin mx-auto mb-4" />
+            <Loader2 size={48} className="text-aacp-olive animate-spin mx-auto mb-4" />
             <p className="text-sm font-bold text-[#6F767E]">Loading analytics...</p>
           </div>
         </div>
@@ -127,7 +127,7 @@ export default function AdminAnalyticsPage() {
                   key={range}
                   onClick={() => { setTimeRange(range); showToast(`Range set to ${range}`); }}
                   className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
-                    timeRange === range ? 'bg-white dark:bg-white/10 shadow-sm text-emerald-600' : 'text-[#6F767E] hover:text-[#1A1D1F]'
+                    timeRange === range ? 'bg-white dark:bg-white/10 shadow-sm text-aacp-olive' : 'text-[#6F767E] hover:text-[#1A1D1F]'
                   }`}
                 >
                   {range}
@@ -137,7 +137,7 @@ export default function AdminAnalyticsPage() {
             <div className="relative">
               <button
                 onClick={() => setShowExportMenu(!showExportMenu)}
-                className="px-5 py-2.5 bg-emerald-600 text-white rounded-2xl text-xs font-bold hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-100 dark:shadow-none flex items-center gap-2"
+                className="px-5 py-2.5 bg-aacp-olive text-white rounded-2xl text-xs font-bold hover:bg-aacp-olive transition-all shadow-lg shadow-aacp-gold/25 dark:shadow-none flex items-center gap-2"
               >
                 <Download size={14} /> Export Report
               </button>
@@ -198,7 +198,7 @@ export default function AdminAnalyticsPage() {
                 <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${stat.bg} ${stat.iconColor} border ${stat.border}`}>
                   <stat.icon size={20} />
                 </div>
-                <div className={`flex items-center gap-1 text-xs font-bold ${stat.up ? 'text-emerald-500' : 'text-amber-500'}`}>
+                <div className={`flex items-center gap-1 text-xs font-bold ${stat.up ? 'text-aacp-olive' : 'text-amber-500'}`}>
                   {stat.up ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}
                   <span className="max-w-[80px] text-right leading-tight">{stat.change}</span>
                 </div>
@@ -272,7 +272,7 @@ export default function AdminAnalyticsPage() {
                 {registrationStats.map((signup, idx) => (
                   <div key={idx} className="flex items-center justify-between p-4 bg-[#F8F8FD] dark:bg-white/5 rounded-2xl">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-emerald-100 dark:bg-emerald-500/20 rounded-xl flex items-center justify-center text-emerald-600">
+                      <div className="w-10 h-10 bg-aacp-gold/25 dark:bg-aacp-olive/20 rounded-xl flex items-center justify-center text-aacp-olive">
                         <signup.icon size={18} />
                       </div>
                       <span className="text-xs font-bold">{signup.period}</span>
@@ -285,7 +285,7 @@ export default function AdminAnalyticsPage() {
           </div>
 
           {/* Platform Health */}
-          <div className="lg:col-span-4 bg-emerald-600 p-8 rounded-[3rem] text-white shadow-xl relative overflow-hidden">
+          <div className="lg:col-span-4 bg-aacp-olive p-8 rounded-[3rem] text-white shadow-xl relative overflow-hidden">
             <div className="relative z-10">
               <h3 className="font-bold mb-2">Platform Health</h3>
               <p className="text-[10px] font-black uppercase tracking-widest opacity-70 mb-8">Live Status</p>
@@ -337,7 +337,7 @@ export default function AdminAnalyticsPage() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, scale: 0.9 }}
             className={`fixed bottom-8 left-1/2 -translate-x-1/2 z-50 px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3 border ${
-              toast.type === 'success' ? 'bg-emerald-600 text-white border-emerald-400' : 'bg-red-500 text-white border-red-400'
+              toast.type === 'success' ? 'bg-aacp-olive text-white border-aacp-gold' : 'bg-red-500 text-white border-red-400'
             }`}
           >
             {toast.type === 'success' ? <CheckCircle2 size={18} /> : <AlertCircle size={18} />}

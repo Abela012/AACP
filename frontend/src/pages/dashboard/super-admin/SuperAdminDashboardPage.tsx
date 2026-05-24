@@ -12,7 +12,7 @@ export default function SuperAdminDashboardPage() {
       desc: 'Orchestrate governance and access controls.',
       icon: Users,
       path: '/super-admin/admin-management',
-      color: 'text-[#14a800]',
+      color: 'text-aacp-olive',
       bg: 'bg-green-50 dark:bg-green-500/10',
       border: 'border-green-100 dark:border-green-500/20',
     },
@@ -30,9 +30,9 @@ export default function SuperAdminDashboardPage() {
       desc: 'Manage system-level settings and integrations.',
       icon: Settings,
       path: '/super-admin/platform',
-      color: 'text-emerald-600',
-      bg: 'bg-emerald-50 dark:bg-emerald-500/10',
-      border: 'border-emerald-100 dark:border-emerald-500/20',
+      color: 'text-aacp-olive',
+      bg: 'bg-aacp-gold/15 dark:bg-aacp-olive/10',
+      border: 'border-aacp-gold/25 dark:border-aacp-olive/20',
     },
     {
       title: 'Security Audit',
@@ -74,7 +74,7 @@ export default function SuperAdminDashboardPage() {
                 <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${c.bg} ${c.color} border ${c.border}`}>
                   <c.icon size={20} />
                 </div>
-                <div className="text-[#9A9FA5] group-hover:text-[#14a800] transition-colors">
+                <div className="text-[#9A9FA5] group-hover:text-aacp-olive transition-colors">
                   <ArrowRight size={18} />
                 </div>
               </div>

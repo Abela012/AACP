@@ -89,9 +89,9 @@ export default function ChapaCheckoutPanel({ packDetails, returnUrl, buyCoinsPat
           <div className="bg-white dark:bg-[#111] rounded-[2rem] p-6 md:p-10 shadow-sm border border-gray-100 dark:border-white/5">
             <h2 className="text-xl font-bold mb-6 text-gray-900 dark:text-white">Pay with Chapa</h2>
 
-            <div className="bg-emerald-50/60 dark:bg-emerald-500/10 border border-emerald-100 dark:border-emerald-500/20 rounded-2xl p-5 mb-6">
+            <div className="bg-aacp-gold/15/60 dark:bg-aacp-olive/10 border border-aacp-gold/25 dark:border-aacp-olive/20 rounded-2xl p-5 mb-6">
               <div className="flex items-center gap-3">
-                <ShieldCheck size={18} className="text-emerald-600 dark:text-emerald-400 shrink-0" />
+                <ShieldCheck size={18} className="text-aacp-olive dark:text-aacp-gold shrink-0" />
                 <p className="text-sm font-medium text-gray-900 dark:text-gray-200">
                   You will pay <strong>{formatBirr(packDetails.price)}</strong> and receive{' '}
                   <strong>{packDetails.coins.toLocaleString()} coins</strong> in your wallet.
@@ -103,7 +103,7 @@ export default function ChapaCheckoutPanel({ packDetails, returnUrl, buyCoinsPat
               type="button"
               onClick={handlePayWithChapa}
               disabled={isProcessing}
-              className="w-full bg-emerald-500 hover:bg-emerald-400 text-black py-4 rounded-2xl font-bold flex items-center justify-center gap-2 transition-all shadow-lg shadow-emerald-500/25 disabled:opacity-70 disabled:cursor-not-allowed"
+              className="w-full bg-aacp-olive hover:bg-aacp-gold text-black py-4 rounded-2xl font-bold flex items-center justify-center gap-2 transition-all shadow-lg shadow-aacp-olive/25 disabled:opacity-70 disabled:cursor-not-allowed"
             >
               {isProcessing ? (
                 <>
@@ -124,12 +124,12 @@ export default function ChapaCheckoutPanel({ packDetails, returnUrl, buyCoinsPat
           <div className="bg-white dark:bg-[#111] rounded-[2rem] p-6 md:p-8 shadow-sm border border-gray-100 dark:border-white/5 lg:sticky lg:top-28">
             <h2 className="text-lg font-bold mb-6 text-gray-900 dark:text-white">Order summary</h2>
 
-            <div className="rounded-2xl bg-linear-to-br from-emerald-500/10 to-transparent border border-emerald-100 dark:border-emerald-500/20 p-5 mb-6">
-              <p className="text-[10px] font-black uppercase tracking-widest text-emerald-600 dark:text-emerald-400 mb-2">
+            <div className="rounded-2xl bg-linear-to-br from-aacp-olive/10 to-transparent border border-aacp-gold/25 dark:border-aacp-olive/20 p-5 mb-6">
+              <p className="text-[10px] font-black uppercase tracking-widest text-aacp-olive dark:text-aacp-gold mb-2">
                 You receive
               </p>
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-xl bg-emerald-500 flex items-center justify-center">
+                <div className="w-12 h-12 rounded-xl bg-aacp-olive flex items-center justify-center">
                   <Coins className="text-black w-6 h-6" />
                 </div>
                 <div>
@@ -154,21 +154,21 @@ export default function ChapaCheckoutPanel({ packDetails, returnUrl, buyCoinsPat
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-500">Currency</span>
-                <span className="font-bold text-emerald-600">ETB (Birr)</span>
+                <span className="font-bold text-aacp-olive">ETB (Birr)</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-500">Processing fee</span>
-                <span className="font-bold text-emerald-600">Free</span>
+                <span className="font-bold text-aacp-olive">Free</span>
               </div>
             </div>
 
             <div className="flex justify-between items-center mb-6">
               <span className="font-bold text-gray-900 dark:text-white">Total due</span>
-              <span className="text-2xl font-black text-emerald-600">{formatBirr(packDetails.price)}</span>
+              <span className="text-2xl font-black text-aacp-olive">{formatBirr(packDetails.price)}</span>
             </div>
 
             <div className="bg-gray-50 dark:bg-white/5 rounded-xl p-4 flex gap-3 items-start">
-              <Info className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+              <Info className="w-4 h-4 text-aacp-olive shrink-0 mt-0.5" />
               <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
                 After Chapa confirms payment, <strong>{packDetails.coins.toLocaleString()} coins</strong> are added
                 to your balance — not the ETB amount you paid.

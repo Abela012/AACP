@@ -90,7 +90,7 @@ export default function SuperAdminPlatformPage() {
             <button
               onClick={handleSave}
               disabled={updateConfig.isPending}
-              className="px-5 py-2.5 bg-emerald-600 text-white rounded-2xl text-xs font-bold hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-100 dark:shadow-none flex items-center gap-2 disabled:opacity-60"
+              className="px-5 py-2.5 bg-aacp-olive text-white rounded-2xl text-xs font-bold hover:bg-aacp-olive transition-all shadow-lg shadow-aacp-gold/25 dark:shadow-none flex items-center gap-2 disabled:opacity-60"
             >
               {updateConfig.isPending ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
               Save All Configurations
@@ -100,7 +100,7 @@ export default function SuperAdminPlatformPage() {
 
         {isLoading ? (
           <div className="flex items-center justify-center h-80">
-            <Loader2 className="w-10 h-10 text-emerald-600 animate-spin" />
+            <Loader2 className="w-10 h-10 text-aacp-olive animate-spin" />
           </div>
         ) : isError ? (
           <div className="bg-white dark:bg-[#111111] p-10 rounded-[2.5rem] border border-[#EFEFEF] dark:border-white/5 shadow-sm text-center">
@@ -108,7 +108,7 @@ export default function SuperAdminPlatformPage() {
           </div>
         ) : (
           <>
-            <div className="bg-[#F1FFF0] dark:bg-emerald-600/10 p-8 rounded-[2.5rem] border border-emerald-100 dark:border-emerald-500/20 flex items-center justify-between gap-6">
+            <div className="bg-aacp-gold/20 dark:bg-aacp-olive/10 p-8 rounded-[2.5rem] border border-aacp-gold/25 dark:border-aacp-olive/20 flex items-center justify-between gap-6">
               <div>
                 <h2 className="text-2xl font-black mb-2">Maintenance Mode</h2>
                 <p className="text-sm font-medium text-[#6F767E] dark:text-gray-300 max-w-2xl">
@@ -118,7 +118,7 @@ export default function SuperAdminPlatformPage() {
               <button
                 onClick={() => setForm(prev => ({ ...prev, maintenanceMode: !prev.maintenanceMode }))}
                 className={`w-28 h-14 rounded-2xl px-3 flex items-center justify-between transition-all ${
-                  form.maintenanceMode ? 'bg-emerald-600 text-white' : 'bg-white text-[#6F767E]'
+                  form.maintenanceMode ? 'bg-aacp-olive text-white' : 'bg-white text-[#6F767E]'
                 }`}
               >
                 <span className="text-xs font-black uppercase tracking-widest">
@@ -131,7 +131,7 @@ export default function SuperAdminPlatformPage() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
               <div className="lg:col-span-7 bg-white dark:bg-[#111111] p-8 rounded-[2.5rem] border border-[#EFEFEF] dark:border-white/5 shadow-sm">
                 <div className="flex items-center gap-3 mb-8">
-                  <Coins className="text-emerald-600" size={20} />
+                  <Coins className="text-aacp-olive" size={20} />
                   <h3 className="text-xl font-black">Platform Economics</h3>
                 </div>
                 <div className="space-y-6">
@@ -181,11 +181,11 @@ export default function SuperAdminPlatformPage() {
                       <label className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest mb-3 block">Cloudinary API Environment Variable</label>
                       <div className="w-full bg-[#F4F4F4] dark:bg-white/5 rounded-2xl px-5 py-4 text-xs font-mono break-all">{data?.cloudinaryEnvironmentVariable}</div>
                     </div>
-                    <div className="bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-100 dark:border-emerald-500/20 rounded-2xl p-5 flex items-start gap-3">
-                      <ShieldCheck className="text-emerald-600 shrink-0" size={18} />
+                    <div className="bg-aacp-gold/15 dark:bg-aacp-olive/10 border border-aacp-gold/25 dark:border-aacp-olive/20 rounded-2xl p-5 flex items-start gap-3">
+                      <ShieldCheck className="text-aacp-olive shrink-0" size={18} />
                       <div>
-                        <p className="text-sm font-bold text-emerald-700 dark:text-emerald-400">API Health Check</p>
-                        <p className="text-xs font-medium text-emerald-600 dark:text-emerald-300">All integrations are responding within normal latency parameters.</p>
+                        <p className="text-sm font-bold text-aacp-olive dark:text-aacp-gold">API Health Check</p>
+                        <p className="text-xs font-medium text-aacp-olive dark:text-emerald-300">All integrations are responding within normal latency parameters.</p>
                       </div>
                     </div>
                   </div>
@@ -195,7 +195,7 @@ export default function SuperAdminPlatformPage() {
 
             <div className="bg-white dark:bg-[#111111] p-8 rounded-[2.5rem] border border-[#EFEFEF] dark:border-white/5 shadow-sm">
               <div className="flex items-center gap-3 mb-8">
-                <Landmark className="text-emerald-600" size={20} />
+                <Landmark className="text-aacp-olive" size={20} />
                 <h3 className="text-xl font-black">Manual payment details</h3>
               </div>
               <p className="text-sm text-[#6F767E] dark:text-gray-400 font-medium mb-6">
@@ -250,10 +250,10 @@ export default function SuperAdminPlatformPage() {
             <div className="bg-white dark:bg-[#111111] p-8 rounded-[2.5rem] border border-[#EFEFEF] dark:border-white/5 shadow-sm">
               <div className="flex items-center justify-between mb-8">
                 <div className="flex items-center gap-3">
-                  <Mail className="text-emerald-600" size={20} />
+                  <Mail className="text-aacp-olive" size={20} />
                   <h3 className="text-xl font-black">Email Templates</h3>
                 </div>
-                <button className="text-xs font-black text-emerald-600 uppercase tracking-widest">Create New Template</button>
+                <button className="text-xs font-black text-aacp-olive uppercase tracking-widest">Create New Template</button>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {emailCards.map((item, idx) => (
@@ -264,7 +264,7 @@ export default function SuperAdminPlatformPage() {
                     transition={{ delay: idx * 0.05 }}
                     className="bg-[#FAFAFD] dark:bg-white/5 p-6 rounded-4xl border border-[#F0F0F5] dark:border-white/10"
                   >
-                    <div className="w-10 h-10 bg-emerald-100 dark:bg-emerald-500/20 rounded-xl flex items-center justify-center text-emerald-600 mb-5">
+                    <div className="w-10 h-10 bg-aacp-gold/25 dark:bg-aacp-olive/20 rounded-xl flex items-center justify-center text-aacp-olive mb-5">
                       <Settings2 size={18} />
                     </div>
                     <h4 className="font-black mb-2">{item.title}</h4>
@@ -286,7 +286,7 @@ export default function SuperAdminPlatformPage() {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
               className={`fixed bottom-8 left-1/2 -translate-x-1/2 z-50 px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3 border ${
-                toast.type === 'success' ? 'bg-emerald-600 text-white border-emerald-400' : 'bg-red-500 text-white border-red-400'
+                toast.type === 'success' ? 'bg-aacp-olive text-white border-aacp-gold' : 'bg-red-500 text-white border-red-400'
               }`}
             >
               <span className="text-xs font-black uppercase tracking-widest">{toast.message}</span>

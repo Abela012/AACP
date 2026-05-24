@@ -106,7 +106,7 @@ export default function AdminNotificationsPage() {
               onClick={() => setFilter(item.id)}
               className={`px-4 py-2 rounded-xl text-xs font-black transition-all ${
                 filter === item.id
-                  ? 'bg-[#14a800] text-white'
+                  ? 'bg-aacp-olive text-white'
                   : 'bg-white dark:bg-white/5 border border-[#EFEFEF] dark:border-white/10 text-[#6F767E]'
               }`}
             >
@@ -118,7 +118,7 @@ export default function AdminNotificationsPage() {
         <div className="bg-white dark:bg-[#111111] p-8 rounded-[3rem] border border-[#EFEFEF] dark:border-white/5 shadow-sm">
           {isLoading ? (
             <div className="py-20 text-center">
-              <Bell className="w-10 h-10 text-[#14a800] mx-auto mb-4 animate-pulse" />
+              <Bell className="w-10 h-10 text-aacp-olive mx-auto mb-4 animate-pulse" />
               <p className="text-sm font-bold text-[#6F767E]">Loading notifications...</p>
             </div>
           ) : isError ? (
@@ -128,7 +128,7 @@ export default function AdminNotificationsPage() {
               <button
                 type="button"
                 onClick={() => refetch()}
-                className="mt-4 text-xs font-bold text-[#14a800] hover:underline"
+                className="mt-4 text-xs font-bold text-aacp-olive hover:underline"
               >
                 Try again
               </button>
@@ -152,7 +152,7 @@ export default function AdminNotificationsPage() {
                       className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${
                         notif.priority === 'high'
                           ? 'bg-red-50 dark:bg-red-500/10 text-red-500'
-                          : 'bg-green-50 dark:bg-green-500/10 text-[#14a800]'
+                          : 'bg-green-50 dark:bg-green-500/10 text-aacp-olive'
                       } ${!notif.read ? 'ring-2 ring-green-500/20' : ''}`}
                     >
                       <Icon size={20} />

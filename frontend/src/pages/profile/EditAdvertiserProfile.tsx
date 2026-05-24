@@ -391,7 +391,7 @@ const EditAdvertiserProfile: React.FC = () => {
                       label="Engagement Rate"
                       value={`${currentProfile.engagementRate}%`}
                       icon={<TrendingUp size={20} />}
-                      color="from-green-500 to-emerald-600"
+                      color="from-green-500 to-aacp-olive"
                       trend="+2.3%"
                     />
                     <AnalyticsCard

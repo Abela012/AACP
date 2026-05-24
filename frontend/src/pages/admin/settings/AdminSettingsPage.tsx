@@ -47,7 +47,7 @@ function Toggle({
       aria-pressed={enabled}
       onClick={onChange}
       className={`w-14 h-7 rounded-full relative transition-all duration-200 shrink-0 ${
-        enabled ? (danger ? 'bg-red-500' : 'bg-[#14a800]') : 'bg-gray-200 dark:bg-white/10'
+        enabled ? (danger ? 'bg-red-500' : 'bg-aacp-olive') : 'bg-gray-200 dark:bg-white/10'
       }`}
     >
       <span
@@ -124,7 +124,7 @@ export default function AdminSettingsPage() {
       <div className="max-w-[1200px] mx-auto pb-24">
         <div className="flex flex-col lg:flex-row justify-between items-start gap-6 mb-8">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#14a800]/10 text-[#14a800] text-[10px] font-black uppercase tracking-widest mb-3">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-aacp-olive/10 text-aacp-olive text-[10px] font-black uppercase tracking-widest mb-3">
               <Settings size={12} /> Admin
             </div>
             <h1 className="text-3xl font-black text-[#1A1D1F] dark:text-white mb-2">Settings</h1>
@@ -146,7 +146,7 @@ export default function AdminSettingsPage() {
               type="button"
               onClick={() => saveMutation.mutate()}
               disabled={saveMutation.isPending || isLoading}
-              className="px-5 py-2.5 bg-emerald-600 text-white rounded-2xl text-xs font-bold hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-100 dark:shadow-none disabled:opacity-50"
+              className="px-5 py-2.5 bg-aacp-olive text-white rounded-2xl text-xs font-bold hover:bg-aacp-olive transition-all shadow-lg shadow-aacp-gold/25 dark:shadow-none disabled:opacity-50"
             >
               {saveMutation.isPending ? 'Saving…' : 'Save changes'}
             </button>
@@ -174,7 +174,7 @@ export default function AdminSettingsPage() {
                   : 'text-[#6F767E] hover:text-[#1A1D1F] dark:hover:text-white'
               }`}
             >
-              <Icon size={14} className={activeTab === id ? 'text-[#14a800]' : ''} />
+              <Icon size={14} className={activeTab === id ? 'text-aacp-olive' : ''} />
               {label}
             </button>
           ))}
@@ -234,7 +234,7 @@ export default function AdminSettingsPage() {
 
                     <div className="flex items-center justify-between gap-6 p-5 rounded-2xl bg-[#F8F8FD] dark:bg-white/5 border border-transparent hover:border-[#EFEFEF] dark:hover:border-white/10 transition-all">
                       <div className="flex gap-4 flex-1 min-w-0">
-                        <div className="w-11 h-11 rounded-2xl bg-[#14a800]/10 text-[#14a800] flex items-center justify-center shrink-0">
+                        <div className="w-11 h-11 rounded-2xl bg-aacp-olive/10 text-aacp-olive flex items-center justify-center shrink-0">
                           <UserPlus size={20} />
                         </div>
                         <div>
@@ -274,7 +274,7 @@ export default function AdminSettingsPage() {
                           setNewUserStartingCoins(Number(e.target.value));
                           markDirty();
                         }}
-                        className="w-full max-w-xs rounded-2xl border border-[#EFEFEF] dark:border-white/10 bg-white dark:bg-black/30 px-4 py-3 text-sm font-bold text-[#1A1D1F] dark:text-white focus:outline-none focus:ring-2 focus:ring-[#14a800]/30"
+                        className="w-full max-w-xs rounded-2xl border border-[#EFEFEF] dark:border-white/10 bg-white dark:bg-black/30 px-4 py-3 text-sm font-bold text-[#1A1D1F] dark:text-white focus:outline-none focus:ring-2 focus:ring-aacp-olive/30"
                       />
                     </div>
                   </div>
@@ -301,17 +301,17 @@ export default function AdminSettingsPage() {
                           <div
                             className={`w-12 h-12 rounded-2xl flex items-center justify-center border ${
                               ok
-                                ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 border-emerald-100 dark:border-emerald-500/20'
+                                ? 'bg-aacp-gold/15 dark:bg-aacp-olive/10 text-aacp-olive border-aacp-gold/25 dark:border-aacp-olive/20'
                                 : 'bg-amber-50 dark:bg-amber-500/10 text-amber-600 border-amber-100 dark:border-amber-500/20'
                             }`}
                           >
                             {service.id === 'database' ? <Database size={20} /> : <Server size={20} />}
                           </div>
                           <div className="flex items-center gap-1.5">
-                            <div className={`w-2 h-2 rounded-full ${ok ? 'bg-emerald-500' : 'bg-amber-500 animate-pulse'}`} />
+                            <div className={`w-2 h-2 rounded-full ${ok ? 'bg-aacp-olive' : 'bg-amber-500 animate-pulse'}`} />
                             <span
                               className={`text-[10px] font-black uppercase tracking-widest ${
-                                ok ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400'
+                                ok ? 'text-aacp-olive dark:text-aacp-gold' : 'text-amber-600 dark:text-amber-400'
                               }`}
                             >
                               {ok ? 'Operational' : 'Degraded'}
@@ -331,7 +331,7 @@ export default function AdminSettingsPage() {
               <section className="bg-white dark:bg-[#111111] p-8 rounded-[2rem] border border-[#EFEFEF] dark:border-white/5 shadow-sm">
                 <div className="flex justify-between items-center mb-8">
                   <div className="flex items-center gap-2">
-                    <Zap className="text-[#14a800]" size={20} />
+                    <Zap className="text-aacp-olive" size={20} />
                     <h3 className="font-extrabold text-lg text-[#1A1D1F] dark:text-white">Recent audit activity</h3>
                   </div>
                   <span className="text-[10px] font-bold text-[#9A9FA5] uppercase tracking-widest">Last 30 entries</span>
@@ -354,7 +354,7 @@ export default function AdminSettingsPage() {
                           <div
                             className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 mt-0.5 ${
                               t === 'success'
-                                ? 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-500'
+                                ? 'bg-aacp-gold/25 dark:bg-aacp-olive/20 text-aacp-olive'
                                 : t === 'warning'
                                   ? 'bg-amber-100 dark:bg-amber-500/20 text-amber-500'
                                   : 'bg-blue-100 dark:bg-blue-500/20 text-blue-500'
@@ -415,7 +415,7 @@ export default function AdminSettingsPage() {
                 type="button"
                 onClick={() => saveMutation.mutate()}
                 disabled={saveMutation.isPending}
-                className="px-4 py-2 bg-emerald-600 text-white rounded-xl text-xs font-bold hover:bg-emerald-700 disabled:opacity-50"
+                className="px-4 py-2 bg-aacp-olive text-white rounded-xl text-xs font-bold hover:bg-aacp-olive disabled:opacity-50"
               >
                 {saveMutation.isPending ? 'Saving…' : 'Save changes'}
               </button>

@@ -135,7 +135,7 @@ export default function ViewProfilePage() {
   if (profileId && isFetchingProfile) {
     return (
       <div className="h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-aacp-olive"></div>
       </div>
     );
   }
@@ -158,7 +158,7 @@ export default function ViewProfilePage() {
 
   const isPending = targetStatus === 'pending' || (profile as any).pendingProfileData;
   const statusLabel = targetStatus === 'approved' || targetStatus === 'active' ? 'Approved Profile' : targetStatus === 'pending' ? 'Pending Review' : 'Incomplete Profile';
-  const statusColor = targetStatus === 'approved' || targetStatus === 'active' ? 'bg-emerald-500' : targetStatus === 'pending' ? 'bg-amber-500' : 'bg-gray-500';
+  const statusColor = targetStatus === 'approved' || targetStatus === 'active' ? 'bg-aacp-olive' : targetStatus === 'pending' ? 'bg-amber-500' : 'bg-gray-500';
 
   // Build profile display data from context
   const profileData = {
@@ -281,7 +281,7 @@ export default function ViewProfilePage() {
   };
 
   const DataTag = ({ label }: { label: string }) => (
-    <span className="px-3 py-1 bg-emerald-500/5 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 rounded-full text-[10px] font-bold uppercase tracking-wider">
+    <span className="px-3 py-1 bg-aacp-olive/5 dark:bg-aacp-olive/10 text-aacp-olive dark:text-aacp-gold border border-aacp-olive/20 rounded-full text-[10px] font-bold uppercase tracking-wider">
       {label}
     </span>
   );
@@ -342,11 +342,11 @@ export default function ViewProfilePage() {
                         {profileData.name}
                       </h1>
                       {(targetStatus === 'approved' || targetStatus === 'active') && (
-                        <CheckCircle2 className="text-emerald-500 fill-emerald-500/10 w-6 h-6 md:w-7 md:h-7" />
+                        <CheckCircle2 className="text-aacp-olive fill-aacp-olive/10 w-6 h-6 md:w-7 md:h-7" />
                       )}
                     </div>
                     <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm font-semibold">
-                      <p className="text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5 uppercase tracking-wider text-xs">
+                      <p className="text-aacp-olive dark:text-aacp-gold flex items-center gap-1.5 uppercase tracking-wider text-xs">
                         {isTargetProfileBusiness ? <Building2 size={16} /> : <Briefcase size={16} />}
                         {profileData.type}
                       </p>
@@ -386,7 +386,7 @@ export default function ViewProfilePage() {
                   ) : (
                     <button
                       onClick={() => navigate(`/messages?user=${profileId}`)}
-                      className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black uppercase tracking-widest text-xs py-4 rounded-2xl transition-all shadow-lg shadow-emerald-500/20 active:scale-[0.98] flex items-center justify-center gap-2"
+                      className="w-full bg-aacp-olive hover:bg-aacp-olive text-white font-black uppercase tracking-widest text-xs py-4 rounded-2xl transition-all shadow-lg shadow-aacp-olive/20 active:scale-[0.98] flex items-center justify-center gap-2"
                     >
                       <MessageSquare size={15} />
                       Send Private Proposal
@@ -399,7 +399,7 @@ export default function ViewProfilePage() {
                       rel="noreferrer"
                       className="flex items-center justify-center gap-2.5 text-xs font-black uppercase tracking-wider text-gray-700 dark:text-gray-300 py-3.5 rounded-2xl bg-gray-50 dark:bg-white/5 border border-gray-150 dark:border-white/5 hover:bg-gray-100 dark:hover:bg-white/10 transition-all"
                     >
-                      <Globe size={15} className="text-emerald-500" />
+                      <Globe size={15} className="text-aacp-olive" />
                       View Website
                       <ExternalLink size={12} className="opacity-50" />
                     </a>
@@ -424,7 +424,7 @@ export default function ViewProfilePage() {
                     className={cn(
                       "px-5 py-3 rounded-2xl text-xs font-black uppercase tracking-wider flex items-center gap-2 transition-all duration-300 relative",
                       isActive
-                        ? "text-white bg-emerald-600 shadow-md shadow-emerald-500/20"
+                        ? "text-white bg-aacp-olive shadow-md shadow-aacp-olive/20"
                         : "text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/5"
                     )}
                   >
@@ -433,7 +433,7 @@ export default function ViewProfilePage() {
                     {isActive && (
                       <motion.span
                         layoutId="activeProfileTab"
-                        className="absolute inset-0 bg-emerald-600 rounded-2xl -z-10"
+                        className="absolute inset-0 bg-aacp-olive rounded-2xl -z-10"
                         transition={{ type: "spring", stiffness: 380, damping: 30 }}
                       />
                     )}
@@ -460,9 +460,9 @@ export default function ViewProfilePage() {
                   {/* Left Main (8 cols) */}
                   <div className="lg:col-span-8 space-y-8">
                     <div className="bg-white dark:bg-[#0c0c0c] p-8 sm:p-10 rounded-[2.5rem] border border-gray-100 dark:border-white/5 shadow-2xl relative overflow-hidden">
-                      <div className="absolute top-0 right-0 w-36 h-36 bg-emerald-500/5 rounded-full blur-2xl" />
+                      <div className="absolute top-0 right-0 w-36 h-36 bg-aacp-olive/5 rounded-full blur-2xl" />
                       <h3 className="text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
-                        <Award size={14} className="text-emerald-500" />
+                        <Award size={14} className="text-aacp-olive" />
                         {isTargetProfileBusiness ? 'Brand Story & Vision' : 'Creator Background'}
                       </h3>
                       <p className="text-gray-600 dark:text-gray-300 leading-relaxed font-medium text-base sm:text-lg">
@@ -484,7 +484,7 @@ export default function ViewProfilePage() {
                           <div className="space-y-4">
                             <div>
                               <div className="flex justify-between text-xs font-bold mb-1.5">
-                                <span className="text-cyan-500 flex items-center gap-1">✦ Male Audience</span>
+                                <span className="text-cyan-500 flex items-center gap-1">âœ¦ Male Audience</span>
                                 <span className="text-gray-900 dark:text-white">64%</span>
                               </div>
                               <div className="h-3 w-full bg-gray-100 dark:bg-white/5 rounded-full overflow-hidden">
@@ -493,7 +493,7 @@ export default function ViewProfilePage() {
                             </div>
                             <div>
                               <div className="flex justify-between text-xs font-bold mb-1.5">
-                                <span className="text-pink-500 flex items-center gap-1">✦ Female Audience</span>
+                                <span className="text-pink-500 flex items-center gap-1">âœ¦ Female Audience</span>
                                 <span className="text-gray-900 dark:text-white">36%</span>
                               </div>
                               <div className="h-3 w-full bg-gray-100 dark:bg-white/5 rounded-full overflow-hidden">
@@ -534,7 +534,7 @@ export default function ViewProfilePage() {
                             <div>
                               <span className="text-xs font-bold text-gray-500 dark:text-gray-400 block mb-2">Geographic Footprint</span>
                               <div className="flex flex-wrap gap-1.5">
-                                <span className="px-3 py-1 bg-emerald-500/5 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 dark:border-emerald-500/10 rounded-lg text-[10px] font-extrabold uppercase tracking-wide flex items-center gap-1">
+                                <span className="px-3 py-1 bg-aacp-olive/5 dark:bg-aacp-olive/10 text-aacp-olive dark:text-aacp-gold border border-aacp-olive/20 dark:border-aacp-olive/10 rounded-lg text-[10px] font-extrabold uppercase tracking-wide flex items-center gap-1">
                                   <MapPin size={10} />
                                   Addis Ababa, ET
                                 </span>
@@ -592,8 +592,8 @@ export default function ViewProfilePage() {
                       </h3>
 
                       <div className="space-y-3">
-                        <a href={`mailto:${profileData.email}`} className="flex items-center gap-3.5 p-4 rounded-2xl bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/5 group hover:border-emerald-500/30 transition-all">
-                          <div className="w-10 h-10 rounded-xl bg-white dark:bg-black flex items-center justify-center text-gray-400 group-hover:text-emerald-500 transition-colors shadow-sm">
+                        <a href={`mailto:${profileData.email}`} className="flex items-center gap-3.5 p-4 rounded-2xl bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/5 group hover:border-aacp-olive/30 transition-all">
+                          <div className="w-10 h-10 rounded-xl bg-white dark:bg-black flex items-center justify-center text-gray-400 group-hover:text-aacp-olive transition-colors shadow-sm">
                             <Mail size={16} />
                           </div>
                           <div className="min-w-0 flex-1">
@@ -602,8 +602,8 @@ export default function ViewProfilePage() {
                           </div>
                         </a>
 
-                        <a href={`tel:${profileData.phone}`} className="flex items-center gap-3.5 p-4 rounded-2xl bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/5 group hover:border-emerald-500/30 transition-all">
-                          <div className="w-10 h-10 rounded-xl bg-white dark:bg-black flex items-center justify-center text-gray-400 group-hover:text-emerald-500 transition-colors shadow-sm">
+                        <a href={`tel:${profileData.phone}`} className="flex items-center gap-3.5 p-4 rounded-2xl bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/5 group hover:border-aacp-olive/30 transition-all">
+                          <div className="w-10 h-10 rounded-xl bg-white dark:bg-black flex items-center justify-center text-gray-400 group-hover:text-aacp-olive transition-colors shadow-sm">
                             <Phone size={16} />
                           </div>
                           <div>
@@ -622,14 +622,14 @@ export default function ViewProfilePage() {
                 <div className="lg:col-span-12 space-y-8">
                   {isTargetProfileBusiness ? (
                     <div className="bg-white dark:bg-[#0c0c0c] p-8 sm:p-12 rounded-[2.5rem] border border-gray-100 dark:border-white/5 shadow-2xl text-center space-y-6">
-                      <div className="w-16 h-16 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto text-emerald-500">
+                      <div className="w-16 h-16 bg-aacp-olive/10 rounded-full flex items-center justify-center mx-auto text-aacp-olive">
                         <Building2 size={32} />
                       </div>
                       <h4 className="text-2xl font-black text-gray-900 dark:text-white">Corporate Brand Analytics</h4>
                       <p className="text-gray-500 dark:text-gray-400 max-w-xl mx-auto font-medium">
                         Detailed marketing campaign analytics, ROAS tracking, and past collaborations metrics are currently restricted to authorized active campaign promoters only.
                       </p>
-                      <button onClick={() => navigate('/matches')} className="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-black uppercase tracking-widest transition-all">
+                      <button onClick={() => navigate('/matches')} className="px-6 py-3 bg-aacp-olive hover:bg-aacp-olive text-white rounded-xl text-xs font-black uppercase tracking-widest transition-all">
                         Apply to promote this brand
                       </button>
                     </div>
@@ -642,15 +642,15 @@ export default function ViewProfilePage() {
                           <div className="flex justify-between items-center mb-8">
                             <div className="flex items-center gap-3">
                               <div className="w-12 h-12 bg-white text-black rounded-2xl flex items-center justify-center font-black text-xl">
-                                🎵
+                                ðŸŽµ
                               </div>
                               <div>
                                 <h4 className="font-black text-lg">TikTok Reach</h4>
                                 <p className="text-xs text-gray-400 font-bold">@{profile.tiktokHandle.replace('@', '')}</p>
                               </div>
                             </div>
-                            <span className="px-3.5 py-1.5 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5">
-                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                            <span className="px-3.5 py-1.5 bg-aacp-olive/20 text-aacp-gold border border-aacp-olive/30 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5">
+                              <span className="w-1.5 h-1.5 rounded-full bg-aacp-gold animate-pulse" />
                               Synced Live
                             </span>
                           </div>
@@ -666,7 +666,7 @@ export default function ViewProfilePage() {
                             </div>
                             <div>
                               <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 flex items-center justify-center gap-1"><Flame size={12} /> Engagement</p>
-                              <p className="text-3xl font-black text-emerald-400">{socialStats.tiktok.engagementRate}</p>
+                              <p className="text-3xl font-black text-aacp-gold">{socialStats.tiktok.engagementRate}</p>
                             </div>
                           </div>
 
@@ -676,10 +676,10 @@ export default function ViewProfilePage() {
                               <div>
                                 <div className="flex justify-between text-xs font-bold mb-1">
                                   <span className="text-gray-400">@{profile.tiktokHandle.replace('@', '')}</span>
-                                  <span className="text-emerald-400">{socialStats.tiktok.engagementRate}</span>
+                                  <span className="text-aacp-gold">{socialStats.tiktok.engagementRate}</span>
                                 </div>
                                 <div className="h-2 w-full bg-white/10 rounded-full overflow-hidden">
-                                  <div className="h-full bg-emerald-400 rounded-full" style={{ width: parseFloat(socialStats.tiktok.engagementRate) > 0 ? `${Math.min(parseFloat(socialStats.tiktok.engagementRate) * 10, 100)}%` : '40%' }} />
+                                  <div className="h-full bg-aacp-gold rounded-full" style={{ width: parseFloat(socialStats.tiktok.engagementRate) > 0 ? `${Math.min(parseFloat(socialStats.tiktok.engagementRate) * 10, 100)}%` : '40%' }} />
                                 </div>
                               </div>
                               <div>
@@ -709,7 +709,7 @@ export default function ViewProfilePage() {
                           <div className="flex justify-between items-center mb-8">
                             <div className="flex items-center gap-3">
                               <div className="w-12 h-12 bg-linear-to-tr from-yellow-400 via-pink-500 to-purple-500 text-white rounded-2xl flex items-center justify-center font-black text-xl">
-                                📸
+                                ðŸ“¸
                               </div>
                               <div>
                                 <h4 className="font-black text-lg">Instagram Reach</h4>
@@ -790,7 +790,7 @@ export default function ViewProfilePage() {
                         </div>
                         <div className="p-6 rounded-2xl bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/5">
                           <span className="text-[10px] font-black uppercase tracking-wider text-gray-400 block mb-2">Minimum Engagement Req.</span>
-                          <span className="text-2xl font-black text-emerald-500 block">{profileData.businessDetails.minEng}</span>
+                          <span className="text-2xl font-black text-aacp-olive block">{profileData.businessDetails.minEng}</span>
                         </div>
                         <div className="p-6 rounded-2xl bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/5">
                           <span className="text-[10px] font-black uppercase tracking-wider text-gray-400 block mb-2">Average Order Value</span>
@@ -835,7 +835,7 @@ export default function ViewProfilePage() {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         {/* Base Rate Card */}
                         <div className="p-8 rounded-3xl bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/5 space-y-4 relative overflow-hidden">
-                          <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/5 rounded-full blur-xl" />
+                          <div className="absolute top-0 right-0 w-24 h-24 bg-aacp-olive/5 rounded-full blur-xl" />
                           <span className="text-[10px] font-black uppercase tracking-wider text-gray-400 block"><DollarSign size={14} className="inline mr-1" /> Base Rate (ETB)</span>
                           <span className="text-4xl font-black text-gray-900 dark:text-white block">
                             {profile.baseRate ? `${profile.baseRate.toLocaleString()} ETB` : 'Negotiable'}
@@ -847,13 +847,13 @@ export default function ViewProfilePage() {
                         <div className="p-8 rounded-3xl bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/5 space-y-4">
                           <span className="text-[10px] font-black uppercase tracking-wider text-gray-400 block"><Award size={14} className="inline mr-1" /> Standard Deal Deliverables</span>
                           <ul className="space-y-2.5 text-xs font-bold text-gray-700 dark:text-gray-300">
-                            <li className="flex items-center gap-2 text-emerald-500">
-                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                            <li className="flex items-center gap-2 text-aacp-olive">
+                              <span className="w-1.5 h-1.5 rounded-full bg-aacp-olive" />
                               1x Custom Video Integration (TikTok / Reel)
                             </li>
-                            <li className="flex items-center gap-2 text-emerald-500">
-                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                                  <span className="text-gray-400">{marketBenchmarkEngagementRate.toFixed(1)}%</span>
+                            <li className="flex items-center gap-2 text-aacp-olive">
+                              <span className="w-1.5 h-1.5 rounded-full bg-aacp-olive" />
+                              2x Amplification Stories with Swipe-up Link
                             </li>
                             <li className="flex items-center gap-2">
                                   <div className="h-full bg-gray-500 rounded-full" style={{ width: marketBenchmarkBarWidth }} />
@@ -877,17 +877,17 @@ export default function ViewProfilePage() {
                   <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                     {/* Radial Affinity Gauge (5 cols) */}
                     <div className="lg:col-span-5 bg-[#070707] text-white p-8 sm:p-10 rounded-[2.5rem] border border-white/5 shadow-2xl flex flex-col justify-between relative overflow-hidden">
-                      <div className="absolute inset-0 bg-linear-to-br from-emerald-500/10 via-transparent to-transparent opacity-60" />
+                      <div className="absolute inset-0 bg-linear-to-br from-aacp-olive/10 via-transparent to-transparent opacity-60" />
 
                       <div className="space-y-2 relative z-10">
-                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-400">Velocity Intelligence</span>
+                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-aacp-gold">Velocity Intelligence</span>
                         <h4 className="text-xl font-black leading-tight">AI Matching Score</h4>
                       </div>
 
                       {/* Giant Gauge Visual */}
                       <div className="py-10 flex flex-col items-center justify-center relative z-10">
-                        <div className="w-40 h-40 rounded-full border-10 border-emerald-500/20 flex items-center justify-center relative">
-                          <div className="absolute inset-0 rounded-full border-10 border-emerald-500 border-t-transparent border-l-transparent animate-spin duration-3000" />
+                        <div className="w-40 h-40 rounded-full border-10 border-aacp-olive/20 flex items-center justify-center relative">
+                          <div className="absolute inset-0 rounded-full border-10 border-aacp-olive border-t-transparent border-l-transparent animate-spin duration-3000" />
                           <span className="text-4xl font-black text-white">96%</span>
                         </div>
                         <p className="text-xs text-gray-400 font-bold mt-4">Extraordinary Affinity Match</p>
@@ -906,17 +906,17 @@ export default function ViewProfilePage() {
                       </h3>
 
                       <div className="space-y-4 text-sm font-medium text-gray-600 dark:text-gray-300">
-                        <div className="p-4 bg-emerald-500/5 dark:bg-emerald-500/10 border border-emerald-500/10 rounded-2xl">
-                          <p className="font-bold text-gray-900 dark:text-white mb-1">🔥 Strengths</p>
+                        <div className="p-4 bg-aacp-olive/5 dark:bg-aacp-olive/10 border border-aacp-olive/10 rounded-2xl">
+                          <p className="font-bold text-gray-900 dark:text-white mb-1">ðŸ”¥ Strengths</p>
                           <p className="text-xs text-gray-500 dark:text-gray-400">Excellent audience capture rates on TikTok, highly responsive Ethiopian demographic, robust trade reputation.</p>
                         </div>
                         <div className="p-4 bg-amber-500/5 dark:bg-amber-500/10 border border-amber-500/10 rounded-2xl">
-                          <p className="font-bold text-gray-900 dark:text-white mb-1">⚡ Improvement Areas</p>
+                          <p className="font-bold text-gray-900 dark:text-white mb-1">âš¡ Improvement Areas</p>
                           <p className="text-xs text-gray-500 dark:text-gray-400">Relatively low average posting frequency during holiday cycles, missing connected YouTube analytics channel.</p>
                         </div>
                         <div className="p-4 bg-cyan-500/5 dark:bg-cyan-500/10 border border-cyan-500/10 rounded-2xl">
-                          <p className="font-bold text-gray-900 dark:text-white mb-1">🎯 ROAS Strategy Recommendation</p>
-                          <p className="text-xs text-gray-500 dark:text-gray-400">We strongly recommend leveraging <span className="font-black text-emerald-600 dark:text-emerald-400">UGC Video Ad Integrations</span> to gain a projected 1.6x yield bump over traditional banners.</p>
+                          <p className="font-bold text-gray-900 dark:text-white mb-1">ðŸŽ¯ ROAS Strategy Recommendation</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">We strongly recommend leveraging <span className="font-black text-aacp-olive dark:text-aacp-gold">UGC Video Ad Integrations</span> to gain a projected 1.6x yield bump over traditional banners.</p>
                         </div>
                       </div>
                     </div>

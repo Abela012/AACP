@@ -111,7 +111,7 @@ export const DeliverablesManager: React.FC<DeliverablesManagerProps> = ({ delive
 
   const getStatusStyle = (s: string) => {
     switch (s) {
-      case 'approved': return 'bg-emerald-500/10 text-emerald-600 border-emerald-200';
+      case 'approved': return 'bg-aacp-olive/10 text-aacp-olive border-aacp-gold/30';
       case 'revision_requested': return 'bg-amber-500/10 text-amber-600 border-amber-200';
       case 'rejected': return 'bg-red-500/10 text-red-600 border-red-200';
       default: return 'bg-blue-500/10 text-blue-600 border-blue-200';
@@ -201,7 +201,7 @@ export const DeliverablesManager: React.FC<DeliverablesManagerProps> = ({ delive
                         <Clock size={10} /> Submitted {new Date(item.submittedAt).toLocaleDateString()}
                       </p>
                     </div>
-                    <span className="text-[10px] font-black text-emerald-600 bg-emerald-50 dark:bg-emerald-500/10 px-2 py-1 rounded-lg border border-emerald-100 dark:border-emerald-500/10 uppercase tracking-tighter">
+                    <span className="text-[10px] font-black text-aacp-olive bg-aacp-gold/15 dark:bg-aacp-olive/10 px-2 py-1 rounded-lg border border-aacp-gold/25 dark:border-aacp-olive/10 uppercase tracking-tighter">
                       LATEST
                     </span>
                  </div>
@@ -233,7 +233,7 @@ export const DeliverablesManager: React.FC<DeliverablesManagerProps> = ({ delive
                     {userRole === 'business_owner' && item.status === 'pending' && (
                       <button 
                         onClick={() => setIsReviewing(item._id || item.id)}
-                        className="flex-1 py-2.5 bg-emerald-600 text-white text-xs font-bold rounded-xl hover:bg-emerald-500 transition-all shadow-lg shadow-emerald-500/20"
+                        className="flex-1 py-2.5 bg-aacp-olive text-white text-xs font-bold rounded-xl hover:bg-aacp-olive transition-all shadow-lg shadow-aacp-olive/20"
                       >
                         Review
                       </button>
@@ -276,10 +276,10 @@ export const DeliverablesManager: React.FC<DeliverablesManagerProps> = ({ delive
                 />
                 <label 
                   htmlFor="deliverable-upload"
-                  className="block border-2 border-dashed border-gray-200 dark:border-white/10 rounded-2xl p-10 text-center hover:border-emerald-500 transition-all cursor-pointer group"
+                  className="block border-2 border-dashed border-gray-200 dark:border-white/10 rounded-2xl p-10 text-center hover:border-aacp-olive transition-all cursor-pointer group"
                 >
-                   <div className="w-12 h-12 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
-                      {uploadData.file ? <Check className="text-emerald-500" size={24} /> : <Upload className="text-emerald-500" size={24} />}
+                   <div className="w-12 h-12 bg-aacp-olive/10 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                      {uploadData.file ? <Check className="text-aacp-olive" size={24} /> : <Upload className="text-aacp-olive" size={24} />}
                    </div>
                    <p className="text-sm font-bold text-gray-900 dark:text-white">
                      {uploadData.file ? uploadData.file.name : 'Click or drag file to upload'}
@@ -297,7 +297,7 @@ export const DeliverablesManager: React.FC<DeliverablesManagerProps> = ({ delive
                       <motion.div 
                         initial={{ width: 0 }}
                         animate={{ width: `${uploadProgress}%` }}
-                        className="h-full bg-emerald-500"
+                        className="h-full bg-aacp-olive"
                       />
                     </div>
                   </div>
@@ -309,7 +309,7 @@ export const DeliverablesManager: React.FC<DeliverablesManagerProps> = ({ delive
                     <input 
                       type="text" 
                       placeholder="e.g. TikTok Draft v1"
-                      className="w-full bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-500"
+                      className="w-full bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-aacp-olive"
                       value={uploadData.title}
                       onChange={(e) => setUploadData({...uploadData, title: e.target.value})}
                     />
@@ -320,7 +320,7 @@ export const DeliverablesManager: React.FC<DeliverablesManagerProps> = ({ delive
                     <textarea 
                       rows={2}
                       placeholder="What is this submission about?"
-                      className="w-full bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-500"
+                      className="w-full bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-aacp-olive"
                       value={uploadData.description}
                       onChange={(e) => setUploadData({...uploadData, description: e.target.value})}
                     />
@@ -331,7 +331,7 @@ export const DeliverablesManager: React.FC<DeliverablesManagerProps> = ({ delive
                     <textarea 
                       rows={2}
                       placeholder="Private notes for the business owner..."
-                      className="w-full bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-500"
+                      className="w-full bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-aacp-olive"
                       value={uploadData.notes}
                       onChange={(e) => setUploadData({...uploadData, notes: e.target.value})}
                     />
@@ -386,7 +386,7 @@ export const DeliverablesManager: React.FC<DeliverablesManagerProps> = ({ delive
                   <textarea 
                     rows={4}
                     placeholder="e.g. Please change the music to something more upbeat..."
-                    className="w-full bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-500"
+                    className="w-full bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-aacp-olive"
                     value={feedback}
                     onChange={(e) => setFeedback(e.target.value)}
                   />
@@ -399,7 +399,7 @@ export const DeliverablesManager: React.FC<DeliverablesManagerProps> = ({ delive
                       setIsReviewing(null);
                       setFeedback('');
                     }}
-                    className="w-full py-3 bg-emerald-600 text-white font-bold rounded-xl hover:bg-emerald-500 shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2"
+                    className="w-full py-3 bg-aacp-olive text-white font-bold rounded-xl hover:bg-aacp-olive shadow-lg shadow-aacp-olive/20 flex items-center justify-center gap-2"
                   >
                     <Check size={18} /> Approve Deliverable
                   </button>
@@ -459,7 +459,7 @@ export const DeliverablesManager: React.FC<DeliverablesManagerProps> = ({ delive
               {/* Header */}
               <div className="p-6 sm:p-8 flex items-center justify-between border-b border-white/5 bg-black/20">
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-emerald-500/10 rounded-2xl flex items-center justify-center border border-emerald-500/20">
+                  <div className="w-12 h-12 bg-aacp-olive/10 rounded-2xl flex items-center justify-center border border-aacp-olive/20">
                      {getFileIcon(isPreviewing.fileType || 'file')}
                   </div>
                   <div>
@@ -603,7 +603,7 @@ export const DeliverablesManager: React.FC<DeliverablesManagerProps> = ({ delive
                             setIsReviewing(isPreviewing._id || isPreviewing.id);
                             setIsPreviewing(null);
                           }}
-                          className="w-full py-4 bg-emerald-600 text-white font-black rounded-2xl hover:bg-emerald-500 transition-all shadow-xl shadow-emerald-500/20 flex items-center justify-center gap-2"
+                          className="w-full py-4 bg-aacp-olive text-white font-black rounded-2xl hover:bg-aacp-olive transition-all shadow-xl shadow-aacp-olive/20 flex items-center justify-center gap-2"
                         >
                           Review & Action
                         </button>

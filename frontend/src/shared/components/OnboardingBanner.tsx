@@ -25,7 +25,7 @@ const statusMap: Record<
   approved: {
     title: "Profile approved",
     description: "Your account is fully verified and ready to use.",
-    className: "border-emerald-200 bg-emerald-50 text-emerald-900",
+    className: "border-aacp-gold/30 bg-aacp-gold/15 text-emerald-900",
   },
 };
 

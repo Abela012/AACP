@@ -1,235 +1,208 @@
-import { useState, type FormEvent } from "react";
-import { Link } from "react-router-dom";
-import { Eye, EyeOff, Briefcase, Megaphone, ShieldCheck } from "lucide-react";
-import { useSignup } from "../../../hooks/useSignup";
-import FacebookIcon from "../../../assets/Facebook.png";
-import GoogleIcon from "../../../assets/google.webp";
-import TiktokIcon from "../../../assets/tiktok.jpeg";
+import { useState, type FormEvent } from 'react';
+import { Link } from 'react-router-dom';
+import { Eye, EyeOff, Briefcase, Megaphone, ShieldCheck } from 'lucide-react';
+import { useSignup } from '../../../hooks/useSignup';
 
 export default function RegisterForm() {
-    const {
-        code,
-        setCode,
-        emailAddress,
-        setEmailAddress,
-        password,
-        setPassword,
-        firstName,
-        setFirstName,
-        lastName,
-        setLastName,
-        pendingVerification,
-        setPendingVerification,
-        loading,
-        error,
-        role,
-        setRole,
-        onSignUpPress,
-        onVerifyPress,
-    } = useSignup();
+  const {
+    code,
+    setCode,
+    emailAddress,
+    setEmailAddress,
+    password,
+    setPassword,
+    firstName,
+    setFirstName,
+    lastName,
+    setLastName,
+    pendingVerification,
+    setPendingVerification,
+    loading,
+    error,
+    role,
+    setRole,
+    onSignUpPress,
+    onVerifyPress,
+  } = useSignup();
 
-    const [showPassword, setShowPassword] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
-    const handleSubmit = async (e: FormEvent) => {
-        e.preventDefault();
-        await onSignUpPress();
-    };
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    await onSignUpPress();
+  };
 
-    const handleVerifyCompletion = async (e: FormEvent) => {
-        e.preventDefault();
-        await onVerifyPress();
-    };
+  const handleVerifyCompletion = async (e: FormEvent) => {
+    e.preventDefault();
+    await onVerifyPress();
+  };
 
-    return (
-        <div className="flex flex-col">
-            <div className="mb-10 text-left">
-                <h2 className="text-4xl font-bold text-[#001e00] mb-3">
-                    {pendingVerification ? "Verify your email" : "Create your account"}
-                </h2>
-                <p className="text-base text-[#5e6d55]">
-                    {pendingVerification
-                        ? `We've sent a 6-digit code to ${emailAddress}`
-                        : "Join the verified marketplace for creative intelligence."}
-                </p>
+  return (
+    <div className="flex flex-col">
+      <div className="mb-10 text-left">
+        <h2 className="aacp-font-display mb-3 text-4xl text-aacp-ink dark:text-aacp-cream">
+          {pendingVerification ? 'Verify your email' : 'Create your account'}
+        </h2>
+        <p className="text-base text-aacp-smoke dark:text-aacp-gold/55">
+          {pendingVerification
+            ? `We've sent a 6-digit code to ${emailAddress}`
+            : 'Join the verified marketplace for creative intelligence.'}
+        </p>
+      </div>
+
+      {error && (
+        <div className="mb-8 border border-red-200/80 bg-red-50/80 p-3 text-center text-sm font-medium text-red-700">
+          {error}
+        </div>
+      )}
+
+      {!pendingVerification ? (
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="space-y-3">
+            <label className="aacp-label">I want to join as</label>
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                type="button"
+                onClick={() => setRole('business_owner')}
+                className={`aacp-role-tile ${role === 'business_owner' ? 'aacp-role-tile--active' : 'text-aacp-smoke'}`}
+              >
+                <Briefcase size={22} strokeWidth={1.25} />
+                <span className="font-mono text-[0.55rem] uppercase tracking-[0.15em]">Business</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setRole('advertiser')}
+                className={`aacp-role-tile ${role === 'advertiser' ? 'aacp-role-tile--active' : 'text-aacp-smoke'}`}
+              >
+                <Megaphone size={22} strokeWidth={1.25} />
+                <span className="font-mono text-[0.55rem] uppercase tracking-[0.15em]">Advertiser</span>
+              </button>
+            </div>
+          </div>
+
+          <div className="space-y-6">
+            <div className="flex gap-6">
+              <div className="w-1/2">
+                <label className="aacp-label">First name</label>
+                <input
+                  type="text"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  placeholder="John"
+                  className="aacp-input"
+                  required
+                />
+              </div>
+              <div className="w-1/2">
+                <label className="aacp-label">Last name</label>
+                <input
+                  type="text"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  placeholder="Doe"
+                  className="aacp-input"
+                  required
+                />
+              </div>
             </div>
 
-            {error && (
-                <div className="mb-8 p-3 bg-red-50 border border-red-100 text-red-600 text-sm rounded-xl text-center font-medium">
-                    {error}
-                </div>
-            )}
+            <div>
+              <label className="aacp-label">Email address</label>
+              <input
+                type="email"
+                value={emailAddress}
+                onChange={(e) => setEmailAddress(e.target.value)}
+                placeholder="name@company.com"
+                className="aacp-input"
+                required
+              />
+            </div>
 
-            {!pendingVerification ? (
-                <form onSubmit={handleSubmit} className="space-y-6">
-                    {/* Role Selection */}
-                    <div className="space-y-3">
-                        <label className="text-sm font-bold text-[#001e00] block">
-                            I want to join as a
-                        </label>
-                        <div className="grid grid-cols-2 gap-3">
-                            <button
-                                type="button"
-                                onClick={() => setRole('business_owner')}
-                                className={`flex flex-col items-center gap-2 p-5 rounded-xl border-2 transition-all ${role === 'business_owner'
-                                    ? 'border-[#14a800] bg-[#14a800]/5 text-[#14a800]'
-                                    : 'border-gray-100 bg-white text-[#5e6d55] hover:border-[#14a800]/30 hover:text-[#001e00]'
-                                    }`}
-                            >
-                                <Briefcase size={22} />
-                                <span className="text-[10px] font-black uppercase tracking-tight">Business</span>
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => setRole('advertiser')}
-                                className={`flex flex-col items-center gap-2 p-5 rounded-xl border-2 transition-all ${role === 'advertiser'
-                                    ? 'border-[#14a800] bg-[#14a800]/5 text-[#14a800]'
-                                    : 'border-gray-100 bg-white text-[#5e6d55] hover:border-[#14a800]/30 hover:text-[#001e00]'
-                                    }`}
-                            >
-                                <Megaphone size={22} />
-                                <span className="text-[10px] font-black uppercase tracking-tight">Advertiser</span>
-                            </button>
-                        </div>
-                    </div>
+            <div>
+              <label className="aacp-label">Password</label>
+              <div className="relative">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="aacp-input pr-10"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-0 top-1/2 -translate-y-1/2 text-aacp-mist transition-colors hover:text-aacp-olive"
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
+            </div>
+          </div>
 
-                    <div className="space-y-6">
-                        <div className="flex gap-4">
-                            <div className="w-1/2">
-                                <label className="mb-1.5 block text-sm font-bold text-[#001e00]">
-                                    First Name
-                                </label>
-                                <input
-                                    type="text"
-                                    value={firstName}
-                                    onChange={(e) => setFirstName(e.target.value)}
-                                    placeholder="John"
-                                    className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-[#001e00] placeholder-gray-400 transition-all focus:border-[#14a800] focus:ring-1 focus:ring-[#14a800] outline-none"
-                                    required
-                                />
-                            </div>
-                            <div className="w-1/2">
-                                <label className="mb-1.5 block text-sm font-bold text-[#001e00]">
-                                    Last Name
-                                </label>
-                                <input
-                                    type="text"
-                                    value={lastName}
-                                    onChange={(e) => setLastName(e.target.value)}
-                                    placeholder="Doe"
-                                    className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-[#001e00] placeholder-gray-400 transition-all focus:border-[#14a800] focus:ring-1 focus:ring-[#14a800] outline-none"
-                                    required
-                                />
-                            </div>
-                        </div>
+          <div className="group flex cursor-pointer items-start gap-2 pt-2">
+            <input type="checkbox" id="terms" className="mt-1 h-4 w-4 accent-aacp-olive" required />
+            <label
+              htmlFor="terms"
+              className="text-xs font-medium leading-relaxed text-aacp-smoke transition-colors group-hover:text-aacp-ink"
+            >
+              I agree to the{' '}
+              <Link to="/terms-of-service" className="font-semibold text-aacp-olive hover:underline">
+                Terms of Service
+              </Link>{' '}
+              and{' '}
+              <Link to="/privacy-policy" className="font-semibold text-aacp-olive hover:underline">
+                Privacy Policy
+              </Link>
+            </label>
+          </div>
 
-                        <div>
-                            <label className="mb-1.5 block text-sm font-bold text-[#001e00]">
-                                Email Address
-                            </label>
-                            <input
-                                type="email"
-                                value={emailAddress}
-                                onChange={(e) => setEmailAddress(e.target.value)}
-                                placeholder="name@company.com"
-                                className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-[#001e00] placeholder-gray-400 transition-all focus:border-[#14a800] focus:ring-1 focus:ring-[#14a800] outline-none"
-                                required
-                            />
-                        </div>
+          <div id="clerk-captcha" />
 
-                        <div>
-                            <label className="mb-1.5 block text-sm font-bold text-[#001e00]">
-                                Password
-                            </label>
-                            <div className="relative">
-                                <input
-                                    type={showPassword ? "text" : "password"}
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    placeholder="••••••••"
-                                    className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-[#001e00] placeholder-gray-400 transition-all focus:border-[#14a800] focus:ring-1 focus:ring-[#14a800] outline-none"
-                                    required
-                                />
-                                <button
-                                    type="button"
-                                    onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#14a800] transition-colors"
-                                >
-                                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+          <button type="submit" disabled={loading} className="aacp-btn-primary w-full">
+            {loading ? 'Creating account...' : 'Create account'}
+          </button>
+        </form>
+      ) : (
+        <form onSubmit={handleVerifyCompletion} className="space-y-8">
+          <div className="border border-aacp-olive/25 bg-aacp-gold/20 p-6 text-center">
+            <ShieldCheck className="mx-auto mb-4 h-12 w-12 text-aacp-olive" strokeWidth={1.25} />
+            <label className="aacp-label mb-4 block">Verification code</label>
+            <input
+              type="text"
+              placeholder="123456"
+              maxLength={6}
+              className="aacp-input text-center text-3xl font-semibold tracking-[0.5em]"
+              value={code}
+              onChange={(e) => setCode(e.target.value)}
+              required
+            />
+          </div>
+          <button
+            type="submit"
+            disabled={loading || code.length !== 6}
+            className="aacp-btn-primary w-full"
+          >
+            {loading ? 'Verifying...' : 'Verify & complete'}
+          </button>
+          <button
+            type="button"
+            onClick={() => setPendingVerification(false)}
+            className="w-full text-sm font-semibold text-aacp-smoke transition-colors hover:text-aacp-olive"
+          >
+            Back to sign up
+          </button>
+        </form>
+      )}
 
-                    <div className="flex items-start gap-2 cursor-pointer group pt-2">
-                        <input
-                            type="checkbox"
-                            id="terms"
-                            className="mt-1 h-4 w-4 rounded border-gray-300 bg-white text-[#14a800] focus:ring-[#14a800] accent-[#14a800]"
-                            required
-                        />
-                        <label htmlFor="terms" className="text-xs font-medium text-[#5e6d55] group-hover:text-[#001e00] transition-colors leading-relaxed">
-                            I agree to the <Link to="/terms-of-service" className="text-[#14a800] font-bold hover:underline">Terms of Service</Link> and <Link to="/privacy-policy" className="text-[#14a800] font-bold hover:underline">Privacy Policy</Link>
-                        </label>
-                    </div>
-
-                    {/* Clerk Captcha Placeholder */}
-                    <div id="clerk-captcha" />
-
-                    <button
-                        type="submit"
-                        disabled={loading}
-                        className="w-full rounded-full bg-[#14a800] py-3.5 text-base font-bold text-white shadow-sm shadow-[#14a800]/20 transition-all hover:bg-[#108a00] active:scale-[0.98] disabled:opacity-50"
-                    >
-                        {loading ? "Creating Account..." : "Create Account"}
-                    </button>
-                </form>
-            ) : (
-                <form onSubmit={handleVerifyCompletion} className="space-y-8">
-                    <div className="p-6 rounded-2xl bg-[#14a800]/5 border border-[#14a800]/10 text-center">
-                        <ShieldCheck className="w-12 h-12 text-[#14a800] mx-auto mb-4" />
-                        <label className="mb-4 block text-sm font-bold text-[#001e00]">
-                            Verification Code
-                        </label>
-                        <input
-                            type="text"
-                            placeholder="123456"
-                            maxLength={6}
-                            className="w-full rounded-xl border border-gray-200 bg-white px-4 py-4 text-center text-3xl font-bold tracking-[0.5em] text-[#001e00] transition-all focus:border-[#14a800] focus:ring-1 focus:ring-[#14a800] outline-none shadow-sm"
-                            value={code}
-                            onChange={(e) => setCode(e.target.value)}
-                            required
-                        />
-                    </div>
-                    <button
-                        type="submit"
-                        disabled={loading || code.length !== 6}
-                        className="w-full rounded-full bg-[#14a800] py-4 text-base font-bold text-white shadow-sm shadow-[#14a800]/20 transition-all hover:bg-[#108a00] active:scale-[0.98] disabled:opacity-50"
-                    >
-                        {loading ? "Verifying..." : "Verify & Complete"}
-                    </button>
-                    <button
-                        type="button"
-                        onClick={() => setPendingVerification(false)}
-                        className="w-full text-sm font-bold text-[#5e6d55] hover:text-[#14a800] transition-colors"
-                    >
-                        Back to Sign Up
-                    </button>
-                </form>
-            )}
-
-            {!pendingVerification && (
-                <>
-                    <p className="mt-10 text-center text-sm font-medium text-[#5e6d55]">
-                        Already have an account?{" "}
-                        <Link
-                            to="/auth/login"
-                            className="font-bold text-[#14a800] hover:underline"
-                        >
-                            Log in
-                        </Link>
-                    </p>
-                </>
-            )}
-        </div>
-    );
+      {!pendingVerification && (
+        <p className="mt-10 text-center text-sm font-medium text-aacp-smoke">
+          Already have an account?{' '}
+          <Link to="/auth/login" className="font-semibold text-aacp-olive hover:underline">
+            Log in
+          </Link>
+        </p>
+      )}
+    </div>
+  );
 }

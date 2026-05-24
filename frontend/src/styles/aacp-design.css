@@ -1,0 +1,262 @@
+/* AACP — editorial design system (public + in-app surfaces) */
+
+/*
+ * Legacy theme: Dashboards and in-app UI previously relied on aacp-olive / #14a800.
+ * Migration uses aacp-olive, aacp-gold, and aacp-cream tokens for visual consistency
+ * with the landing page. Page-level polish may still vary until each route is reviewed.
+ */
+
+@theme {
+  --color-aacp-olive: #978f66;
+  --color-aacp-gold: #e4d6a9;
+  --color-aacp-cream: #f3e4c9;
+  --color-aacp-parchment: #ebe0c4;
+  --color-aacp-ink: #1a1610;
+  --color-aacp-charcoal: #2a2520;
+  --color-aacp-smoke: #5c5548;
+  --color-aacp-mist: #8a8274;
+  --font-display: "Cormorant Garamond", "Palatino Linotype", Georgia, serif;
+  --font-body: "Syne", "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+}
+
+.aacp-grain::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9998;
+  opacity: 0.045;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  mix-blend-mode: multiply;
+}
+
+.aacp-font-display {
+  font-family: var(--font-display);
+}
+
+.aacp-font-body {
+  font-family: var(--font-body);
+}
+
+.aacp-font-mono {
+  font-family: var(--font-mono);
+}
+
+.aacp-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.9rem 1.75rem;
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-aacp-cream);
+  background: linear-gradient(165deg, #6f6844 0%, var(--color-aacp-olive) 48%, #7a7352 100%);
+  border: 1px solid rgba(26, 22, 16, 0.18);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.22) inset,
+    0 12px 32px -8px rgba(26, 22, 16, 0.35);
+  transition:
+    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    filter 0.35s ease;
+}
+
+.aacp-btn-primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  filter: brightness(1.06);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.28) inset,
+    0 18px 40px -10px rgba(26, 22, 16, 0.42);
+}
+
+.aacp-btn-primary:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.aacp-btn-primary:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.aacp-btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.85rem 1.5rem;
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-aacp-ink);
+  background: rgba(243, 228, 201, 0.35);
+  border: 1px solid rgba(151, 143, 102, 0.45);
+  backdrop-filter: blur(8px);
+  transition:
+    background 0.3s ease,
+    border-color 0.3s ease,
+    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.aacp-btn-ghost:hover {
+  background: rgba(243, 228, 201, 0.65);
+  border-color: var(--color-aacp-olive);
+  transform: translateY(-1px);
+}
+
+.aacp-input {
+  width: 100%;
+  border-radius: 0;
+  border: none;
+  border-bottom: 1px solid rgba(151, 143, 102, 0.45);
+  background: transparent;
+  padding: 0.75rem 0;
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  color: var(--color-aacp-ink);
+  outline: none;
+  transition:
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.aacp-input::placeholder {
+  color: var(--color-aacp-mist);
+  font-weight: 400;
+}
+
+.aacp-input:focus {
+  border-bottom-color: var(--color-aacp-olive);
+  box-shadow: 0 4px 0 -3px rgba(151, 143, 102, 0.35);
+}
+
+.aacp-label {
+  display: block;
+  margin-bottom: 0.35rem;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--color-aacp-smoke);
+}
+
+.aacp-surface-card {
+  background: linear-gradient(
+    145deg,
+    rgba(243, 228, 201, 0.92) 0%,
+    rgba(228, 214, 169, 0.55) 100%
+  );
+  border: 1px solid rgba(151, 143, 102, 0.28);
+  box-shadow:
+    0 24px 48px -20px rgba(26, 22, 16, 0.2),
+    0 1px 0 rgba(255, 255, 255, 0.5) inset;
+}
+
+.aacp-role-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1.15rem;
+  border: 1px solid rgba(151, 143, 102, 0.3);
+  background: rgba(243, 228, 201, 0.25);
+  transition:
+    border-color 0.3s ease,
+    background 0.3s ease,
+    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.aacp-role-tile:hover {
+  border-color: rgba(151, 143, 102, 0.55);
+  background: rgba(243, 228, 201, 0.5);
+}
+
+.aacp-role-tile--active {
+  border-color: var(--color-aacp-olive);
+  background: rgba(151, 143, 102, 0.14);
+  color: var(--color-aacp-olive);
+  transform: translateY(-2px);
+}
+
+.aacp-divider {
+  position: relative;
+  margin: 2.25rem 0;
+}
+
+.aacp-divider::before {
+  content: "";
+  position: absolute;
+  inset: 50% 0 auto;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(151, 143, 102, 0.45) 20%,
+    rgba(151, 143, 102, 0.45) 80%,
+    transparent
+  );
+}
+
+.aacp-divider span {
+  position: relative;
+  display: inline-block;
+  padding: 0 1rem;
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--color-aacp-mist);
+  background: inherit;
+}
+
+.landing-vignette {
+  background: radial-gradient(
+    ellipse 120% 80% at 70% 20%,
+    rgba(228, 214, 169, 0.55) 0%,
+    transparent 55%
+  );
+}
+
+.landing-hero-glow {
+  background: radial-gradient(
+    circle at 30% 40%,
+    rgba(228, 214, 169, 0.7) 0%,
+    transparent 50%
+  );
+}
+
+@keyframes landing-marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.landing-marquee-track {
+  animation: landing-marquee 55s linear infinite;
+}
+
+.landing-marquee-track:hover {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-marquee-track {
+    animation: none;
+  }
+
+  .aacp-btn-primary:hover:not(:disabled),
+  .aacp-btn-ghost:hover,
+  .aacp-role-tile--active {
+    transform: none;
+  }
+}

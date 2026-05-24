@@ -50,7 +50,7 @@ const platformConfig = {
 const StatusBadge: React.FC<{ status: AnalyticsRecord['status'] }> = ({ status }) => {
   const map = {
     pending: { label: 'Scraping…', icon: <Loader2 size={11} className="animate-spin" />, cls: 'bg-amber-500/10 text-amber-600' },
-    completed: { label: 'Live', icon: <CheckCircle2 size={11} />, cls: 'bg-emerald-500/10 text-emerald-600' },
+    completed: { label: 'Live', icon: <CheckCircle2 size={11} />, cls: 'bg-aacp-olive/10 text-aacp-olive' },
     failed: { label: 'Failed', icon: <XCircle size={11} />, cls: 'bg-red-500/10 text-red-500' },
   };
   const { label, icon, cls } = map[status];
@@ -67,7 +67,7 @@ const MetricCard: React.FC<MetricCardProps> = ({ label, value, icon, colorClass,
   <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-white/5 p-6 rounded-[2rem] shadow-sm">
     <div className="flex justify-between items-start mb-4">
       <div className={cn('p-3 rounded-2xl', colorClass)}>{icon}</div>
-      {trend && <span className="text-[10px] font-black text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-full">{trend}</span>}
+      {trend && <span className="text-[10px] font-black text-aacp-olive bg-aacp-olive/10 px-2 py-0.5 rounded-full">{trend}</span>}
     </div>
     <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">{label}</p>
     {loading
@@ -104,7 +104,7 @@ const PostRow: React.FC<PostRowProps> = ({ record, onRefresh, refreshingId }) =>
               href={record.postUrl}
               target="_blank"
               rel="noreferrer"
-              className="text-xs text-emerald-600 hover:underline flex items-center gap-1"
+              className="text-xs text-aacp-olive hover:underline flex items-center gap-1"
             >
               {record.postUrl.length > 48 ? record.postUrl.slice(0, 48) + '…' : record.postUrl}
               <ExternalLink size={10} />
@@ -138,7 +138,7 @@ const PostRow: React.FC<PostRowProps> = ({ record, onRefresh, refreshingId }) =>
             onClick={() => onRefresh(record._id)}
             disabled={isRefreshing || record.status === 'pending'}
             title="Refresh metrics"
-            className="w-9 h-9 rounded-full bg-gray-100 dark:bg-white/5 flex items-center justify-center text-gray-400 hover:text-emerald-500 transition-all disabled:opacity-40"
+            className="w-9 h-9 rounded-full bg-gray-100 dark:bg-white/5 flex items-center justify-center text-gray-400 hover:text-aacp-olive transition-all disabled:opacity-40"
           >
             <RefreshCw size={14} className={isRefreshing ? 'animate-spin' : ''} />
           </button>
@@ -151,7 +151,7 @@ const PostRow: React.FC<PostRowProps> = ({ record, onRefresh, refreshingId }) =>
           <Clock size={10} />
           Updated {new Date(record.refreshedAt).toLocaleString()}
           {record.metrics.engagementRate !== undefined && (
-            <> · <span className="text-emerald-500 font-bold">{record.metrics.engagementRate}% eng.</span></>
+            <> · <span className="text-aacp-olive font-bold">{record.metrics.engagementRate}% eng.</span></>
           )}
           {record.metrics.duration && (
             <> · {Math.floor(record.metrics.duration / 60)}m {record.metrics.duration % 60}s</>
@@ -206,7 +206,7 @@ const SubmitModal: React.FC<SubmitModalProps> = ({ onClose, onSubmit, isSubmitti
                   className={cn(
                     'py-3 rounded-xl text-xs font-bold border transition-all flex items-center justify-center gap-1.5',
                     form.platform === p
-                      ? 'bg-emerald-600 border-emerald-600 text-white shadow-lg shadow-emerald-500/20'
+                      ? 'bg-aacp-olive border-aacp-olive text-white shadow-lg shadow-aacp-olive/20'
                       : 'bg-gray-50 dark:bg-white/5 border-gray-100 dark:border-white/10 text-gray-500 hover:border-gray-200'
                   )}
                 >
@@ -225,7 +225,7 @@ const SubmitModal: React.FC<SubmitModalProps> = ({ onClose, onSubmit, isSubmitti
               placeholder="https://www.tiktok.com/@user/video/..."
               value={form.postUrl}
               onChange={e => setForm(f => ({ ...f, postUrl: e.target.value }))}
-              className="w-full bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-500 transition-colors"
+              className="w-full bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-aacp-olive transition-colors"
             />
           </div>
 
@@ -237,7 +237,7 @@ const SubmitModal: React.FC<SubmitModalProps> = ({ onClose, onSubmit, isSubmitti
               placeholder="Any context about this post…"
               value={form.notes}
               onChange={e => setForm(f => ({ ...f, notes: e.target.value }))}
-              className="w-full bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-500 transition-colors resize-none"
+              className="w-full bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-aacp-olive transition-colors resize-none"
             />
           </div>
 
@@ -253,7 +253,7 @@ const SubmitModal: React.FC<SubmitModalProps> = ({ onClose, onSubmit, isSubmitti
             <button
               onClick={handleSubmit}
               disabled={!form.postUrl.trim() || isSubmitting}
-              className="flex-1 py-3 bg-emerald-600 text-white font-bold rounded-xl hover:bg-emerald-500 shadow-lg shadow-emerald-500/20 disabled:opacity-50 transition-all flex items-center justify-center gap-2"
+              className="flex-1 py-3 bg-aacp-olive text-white font-bold rounded-xl hover:bg-aacp-olive shadow-lg shadow-aacp-olive/20 disabled:opacity-50 transition-all flex items-center justify-center gap-2"
             >
               {isSubmitting ? <><Loader2 size={16} className="animate-spin" /> Submitting…</> : 'Track Post'}
             </button>
@@ -336,7 +336,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
           </p>
           <button
             onClick={() => setShowModal(true)}
-            className="px-8 py-3 bg-emerald-600 text-white rounded-xl font-bold hover:bg-emerald-500 transition-all shadow-xl shadow-emerald-500/20"
+            className="px-8 py-3 bg-aacp-olive text-white rounded-xl font-bold hover:bg-aacp-olive transition-all shadow-xl shadow-aacp-olive/20"
           >
             Connect First Post
           </button>
@@ -346,7 +346,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
           {/* Metric cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <MetricCard label="Total Views"    value={totalViews.toLocaleString()}    icon={<Eye size={20} className="text-blue-500" />}     colorClass="bg-blue-500/10" />
-            <MetricCard label="Total Likes"    value={totalLikes.toLocaleString()}    icon={<ThumbsUp size={20} className="text-emerald-500" />} colorClass="bg-emerald-500/10" />
+            <MetricCard label="Total Likes"    value={totalLikes.toLocaleString()}    icon={<ThumbsUp size={20} className="text-aacp-olive" />} colorClass="bg-aacp-olive/10" />
             <MetricCard label="Engagement"     value={`${totalEngagement}%`}          icon={<TrendingUp size={20} className="text-amber-500" />}  colorClass="bg-amber-500/10" />
             <MetricCard label="Cost Per View"  value={cpv === '—' ? '—' : `${cpv} ETB`} icon={<DollarSign size={20} className="text-purple-500" />} colorClass="bg-purple-500/10" />
           </div>
@@ -368,7 +368,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
             </div>
 
             {/* ROI sidebar */}
-            <div className="bg-emerald-600 rounded-[2.5rem] p-8 text-white shadow-xl shadow-emerald-500/20">
+            <div className="bg-aacp-olive rounded-[2.5rem] p-8 text-white shadow-xl shadow-aacp-olive/20">
               <h3 className="text-lg font-black mb-6 flex items-center gap-2">
                 <Target size={20} /> ROI Overview
               </h3>

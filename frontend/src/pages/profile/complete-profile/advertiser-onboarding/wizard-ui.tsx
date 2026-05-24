@@ -36,7 +36,7 @@ export function WizardField({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="w-full bg-white dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30 outline-none"
+        className="w-full bg-white dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm focus:border-aacp-olive focus:ring-1 focus:ring-aacp-olive/30 outline-none"
       />
       {hint && <p className="text-[10px] text-gray-400">{hint}</p>}
     </motion.div>
@@ -60,7 +60,7 @@ export function WizardSelect({
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full bg-white dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm focus:border-emerald-500 outline-none"
+        className="w-full bg-white dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm focus:border-aacp-olive outline-none"
       >
         {options.map((o) => (
           <option key={o} value={o}>
@@ -104,7 +104,7 @@ export function WizardTagGroup({
             className={cn(
               'px-3 py-1.5 rounded-full text-xs font-bold border transition-all',
               selected.includes(tag)
-                ? 'bg-emerald-500 text-white border-emerald-500'
+                ? 'bg-aacp-olive text-white border-aacp-olive'
                 : 'bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 text-gray-600 dark:text-gray-400'
             )}
           >

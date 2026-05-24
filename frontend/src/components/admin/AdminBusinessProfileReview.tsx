@@ -16,7 +16,7 @@ const Row = ({ label, value }: { label: string; value: React.ReactNode }) => (
 
 const Section = ({ title, children }: { title: string; children: React.ReactNode }) => (
   <div className="p-5 rounded-2xl bg-[#F8F8FD] dark:bg-white/5 border border-[#EFEFEF] dark:border-white/10">
-    <p className="text-[10px] font-black uppercase tracking-widest text-emerald-600 mb-3">{title}</p>
+    <p className="text-[10px] font-black uppercase tracking-widest text-aacp-olive mb-3">{title}</p>
     <div>{children}</div>
   </div>
 );
@@ -56,7 +56,7 @@ export default function AdminBusinessProfileReview({
 
       {completion?.percent != null && (
         <div className="flex flex-wrap gap-4">
-          <span className="px-4 py-2 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 rounded-xl text-xs font-bold">
+          <span className="px-4 py-2 bg-aacp-gold/15 dark:bg-aacp-olive/10 text-aacp-olive rounded-xl text-xs font-bold">
             Profile completion: {completion.percent}%
           </span>
           {completion.aiReadiness && (
