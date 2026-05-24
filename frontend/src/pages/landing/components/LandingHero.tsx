@@ -3,17 +3,36 @@ import { Link, useNavigate } from 'react-router-dom';
 import { SignedIn, SignedOut } from '@clerk/clerk-react';
 import { ArrowUpRight, Check } from 'lucide-react';
 import { HERO_FEATURES, PLATFORM_TAGLINE } from '../landingContent';
+import { useUser } from '../../../shared/context/UserContext';
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
+/** Returns the direct dashboard path for a role, avoiding the /dashboard redirect chain. */
+function roleDashboardPath(role: string | null | undefined): string {
+  switch (role) {
+    case 'business_owner': return '/dashboard/business-owner';
+    case 'advertiser':     return '/dashboard/advertiser';
+    case 'admin':          return '/dashboard/admin';
+    case 'super_admin':    return '/dashboard/super-admin';
+    default:               return '/dashboard';
+  }
+}
+
 export default function LandingHero() {
   const navigate = useNavigate();
+  const { userRole } = useUser();
+
+  const handleDashboardClick = () => {
+    // Prefer in-memory context, fall back to localStorage cache.
+    const role = userRole || localStorage.getItem('userRole');
+    navigate(roleDashboardPath(role), { replace: false });
+  };
 
   return (
-    <section className="relative min-h-[100svh] overflow-hidden pt-28 sm:pt-32">
+    <section id="hero" className="relative min-h-svh overflow-hidden pt-28 sm:pt-32">
       <div className="landing-vignette pointer-events-none absolute inset-0" />
       <div className="landing-hero-glow pointer-events-none absolute -left-20 top-16 h-[75vh] w-[75vw] opacity-90" />
-      <div className="pointer-events-none absolute bottom-0 right-0 h-px w-2/3 bg-gradient-to-l from-aacp-olive/40 to-transparent" />
+      <div className="pointer-events-none absolute bottom-0 right-0 h-px w-2/3 bg-linear-to-l from-aacp-olive/40 to-transparent" />
 
       <p
         className="pointer-events-none absolute right-0 top-[22%] hidden origin-center rotate-90 font-mono text-[0.5rem] uppercase tracking-[0.5em] text-aacp-olive/45 xl:block"
@@ -63,7 +82,7 @@ export default function LandingHero() {
               </Link>
             </SignedOut>
             <SignedIn>
-              <button type="button" onClick={() => navigate('/dashboard')} className="aacp-btn-primary">
+              <button type="button" onClick={handleDashboardClick} className="aacp-btn-primary">
                 Go to dashboard
                 <ArrowUpRight className="h-4 w-4" strokeWidth={1.5} />
               </button>
@@ -77,7 +96,7 @@ export default function LandingHero() {
           transition={{ duration: 1.1, delay: 0.12, ease }}
           className="relative z-10 flex flex-col justify-end"
         >
-          <div className="relative border border-aacp-olive/35 bg-gradient-to-br from-aacp-gold/70 via-aacp-cream to-aacp-parchment p-6 shadow-[28px_40px_72px_-28px_rgba(26,22,16,0.38)] sm:p-8">
+          <div className="relative border border-aacp-olive/35 bg-linear-to-br from-aacp-gold/70 via-aacp-cream to-aacp-parchment p-6 shadow-[28px_40px_72px_-28px_rgba(26,22,16,0.38)] sm:p-8">
             <div className="absolute inset-4 border border-aacp-olive/15 pointer-events-none" />
 
             <p className="relative font-mono text-[0.6rem] uppercase tracking-[0.28em] text-aacp-smoke">

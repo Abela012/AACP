@@ -20,7 +20,18 @@ export default function RoleGuard({ children, allowedRoles }: RoleGuardProps) {
     const api = useApiClient();
 
     const hasTikTokAuth = !!localStorage.getItem('tiktok_jwt');
-    const needsRoleFetch = (isLoaded && isSignedIn && !userRole) || (hasTikTokAuth && !userRole);
+    const storedRole = localStorage.getItem('userRole') as AppRole | null;
+
+    /**
+     * Only hit the API when BOTH context AND localStorage have no role.
+     * If storedRole is present we trust it — the sync already wrote it there.
+     * staleTime ensures the cached result is reused across guard instances
+     * rendered in the same navigation (e.g., nested AuthGuard + RoleGuard).
+     */
+    const needsRoleFetch =
+        !userRole &&
+        !storedRole &&
+        ((isLoaded && isSignedIn) || hasTikTokAuth);
 
     const { data: meData, isLoading: isMeLoading } = useQuery({
         queryKey: ['authUser'],
@@ -29,14 +40,14 @@ export default function RoleGuard({ children, allowedRoles }: RoleGuardProps) {
             return response.data;
         },
         enabled: needsRoleFetch,
-        staleTime: 60_000,
+        staleTime: 5 * 60_000, // 5 min — avoid hammering the API on repeated navigations
         retry: 2,
     });
 
     const fetchedRole = meData?.user?.role as AppRole | undefined;
-    const storedRole = localStorage.getItem('userRole') as AppRole | null;
     const resolvedRole: AppRole | null = userRole ?? fetchedRole ?? storedRole ?? null;
 
+    // Persist freshly fetched role so subsequent navigations use the fast path.
     useEffect(() => {
         if (fetchedRole && fetchedRole !== userRole) {
             setUserRole(fetchedRole);
@@ -44,6 +55,7 @@ export default function RoleGuard({ children, allowedRoles }: RoleGuardProps) {
         }
     }, [fetchedRole, userRole, setUserRole]);
 
+    // Show a bare spinner only while a necessary API fetch is in flight.
     if (!isLoaded || (needsRoleFetch && isMeLoading)) {
         return (
             <div className="flex flex-col items-center justify-center min-h-screen p-6 bg-gray-50">

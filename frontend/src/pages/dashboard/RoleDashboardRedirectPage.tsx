@@ -14,18 +14,54 @@ type CurrentUserResponse = {
 
 type UserRole = 'business_owner' | 'advertiser' | 'admin' | 'super_admin' | null;
 
+/**
+ * Normalises any raw role string to a consistent snake_case UserRole value.
+ * Returns null if the value is empty, "null", or unrecognised.
+ */
+function normalizeRole(raw: string | null | undefined): UserRole {
+  if (!raw || raw === 'null') return null;
+  return raw.toLowerCase().replace(/[-\s]/g, '_') as UserRole;
+}
+
+/** Reads the best available cached role without any API calls. */
+function resolveCachedRole(contextRole: UserRole): UserRole {
+  if (contextRole) return contextRole;
+  const stored = localStorage.getItem('userRole');
+  const pending = localStorage.getItem('pendingUserRole');
+  return normalizeRole(stored || pending);
+}
+
 export default function RoleDashboardRedirectPage() {
   const api = useApiClient();
   const queryClient = useQueryClient();
   const [timedOut, setTimedOut] = useState(false);
-  const { setUserRole } = useUser();
+  const { setUserRole, userRole: contextRole } = useUser();
   const [selectedRole, setSelectedRole] = useState<'business_owner' | 'advertiser' | null>(null);
   const [roleError, setRoleError] = useState<string | null>(null);
   const [isLongLoading, setIsLongLoading] = useState(false);
 
-  // Ensure social-login role is synced before we resolve redirect.
-  const { isSuccess: isSyncSuccess, isLoading: isSyncLoading, isError: isSyncError, error: syncError } = useUserSync();
+  // ─────────────────────────────────────────────────────────────────
+  // FAST PATH: resolve from in-memory context or localStorage.
+  // This avoids any API round-trips for already-authenticated users.
+  // ─────────────────────────────────────────────────────────────────
+  const fastRole = useMemo(() => resolveCachedRole(contextRole), [contextRole]);
+  const hasKnownRole = !!fastRole;
 
+  // ─────────────────────────────────────────────────────────────────
+  // SLOW PATH hooks — always called (hook ordering), but gated via
+  // `enabled` flags so they are no-ops when fastRole is present.
+  // ─────────────────────────────────────────────────────────────────
+
+  // useUserSync is optimised to skip the network call when the session
+  // is already marked as synced in sessionStorage.
+  const {
+    isSuccess: isSyncSuccess,
+    isLoading: isSyncLoading,
+    isError: isSyncError,
+    error: syncError,
+  } = useUserSync();
+
+  // Only hit the DB when we genuinely don't know the user's role.
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["authUser"],
     queryFn: async () => {
@@ -34,13 +70,13 @@ export default function RoleDashboardRedirectPage() {
     },
     retry: 3,
     retryDelay: 1000,
-    enabled: isSyncSuccess, // Wait for sync to finish before querying
+    // Disabled entirely when we already know the role OR sync hasn't finished.
+    enabled: !hasKnownRole && isSyncSuccess,
   });
 
-  // Mutation to update user role in the database when user picks one from this page
+  // Mutation to assign a role when the user has none (e.g., SSO edge case).
   const updateRoleMutation = useMutation({
     mutationFn: async (role: 'business_owner' | 'advertiser') => {
-      // Re-sync user with the selected role
       return await userApi.syncUser(api, role);
     },
     onSuccess: (response: any) => {
@@ -59,27 +95,26 @@ export default function RoleDashboardRedirectPage() {
     },
   });
 
+  // Timeouts only matter during the slow path (when no cached role exists).
   useEffect(() => {
-    const timer = window.setTimeout(() => setTimedOut(true), 60000); // 60s for Render cold start
+    if (hasKnownRole) return;
+    const timer = window.setTimeout(() => setTimedOut(true), 60000);
     const longLoadTimer = window.setTimeout(() => setIsLongLoading(true), 10000);
     return () => {
       window.clearTimeout(timer);
       window.clearTimeout(longLoadTimer);
     };
-  }, []);
+  }, [hasKnownRole]);
 
-  const fallbackRole = useMemo(() => {
-    const pendingRole = localStorage.getItem("pendingUserRole");
-    const userRole = localStorage.getItem("userRole");
-    return pendingRole || userRole || "";
-  }, []);
-
+  // Resolve role from API data (slow path only).
   const rawRole =
     (data as any)?.user?.role ??
     (data as any)?.data?.user?.role ??
     (data as any)?.role ??
     (data as any)?.data?.role ??
-    fallbackRole;
+    null;
+
+  const normalizedRole = normalizeRole(rawRole);
 
   const status =
     (data as any)?.user?.status ??
@@ -87,12 +122,7 @@ export default function RoleDashboardRedirectPage() {
     (data as any)?.status ??
     (data as any)?.data?.status;
 
-  const normalizedRole = (rawRole && String(rawRole) !== 'null')
-    ? String(rawRole)
-      .toLowerCase()
-      .replace(/[-\s]/g, "_") as UserRole
-    : null;
-
+  // Persist any newly fetched role to context + localStorage.
   useLayoutEffect(() => {
     if (!normalizedRole) return;
     const stored = localStorage.getItem('userRole');
@@ -102,52 +132,38 @@ export default function RoleDashboardRedirectPage() {
     }
   }, [normalizedRole, setUserRole]);
 
+  // ─────────────────────────────────────────────────────────────────
+  // FAST PATH REDIRECT — instant, no loading state shown.
+  // ─────────────────────────────────────────────────────────────────
+  if (fastRole === 'business_owner') return <Navigate to="/dashboard/business-owner" replace />;
+  if (fastRole === 'super_admin')    return <Navigate to="/dashboard/super-admin" replace />;
+  if (fastRole === 'admin')          return <Navigate to="/dashboard/admin" replace />;
+  if (fastRole === 'advertiser')     return <Navigate to="/dashboard/advertiser" replace />;
+
+  // ─────────────────────────────────────────────────────────────────
+  // SLOW PATH — role was not cached; show a minimal loading state
+  // while sync + API fetch complete.
+  // ─────────────────────────────────────────────────────────────────
   const isCurrentlyLoading = (isLoading || isSyncLoading || !isSyncSuccess) && !isSyncError && !isError;
 
   if (isCurrentlyLoading && !timedOut) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen p-6 bg-gray-50 text-center">
         <div className="w-12 h-12 border-4 border-aacp-olive border-t-transparent rounded-full animate-spin mb-4 mx-auto"></div>
-        <div className="text-lg font-medium text-gray-700">Verifying access permissions...</div>
+        <div className="text-lg font-medium text-gray-700">Setting up your dashboard…</div>
         <div className="mt-2 text-sm text-gray-400">
           {isLongLoading
-            ? "The server is taking a bit longer to wake up. Please wait..."
-            : "Connecting to secure database"}
+            ? "The server is taking a bit longer to wake up. Please wait…"
+            : "Just a moment"}
         </div>
       </div>
     );
   }
 
-  const isProfileComplete =
-    (data as any)?.user?.profileData?.bio ||
-    (data as any)?.data?.user?.profileData?.bio ||
-    (data as any)?.profileData?.bio;
-
-
-  const isApproved = status === 'active' || status === 'approved';
-
-  // Let the dashboards handle the status internally so they keep the sidebar/layout
-  if (normalizedRole === "business_owner") {
-    return <Navigate to="/dashboard/business-owner" replace />;
-  }
-
-  if (normalizedRole === "super_admin") {
-    return <Navigate to="/dashboard/super-admin" replace />;
-  }
-
-  if (normalizedRole === "admin") {
-    return <Navigate to="/dashboard/admin" replace />;
-  }
-
-  if (normalizedRole === "advertiser") {
-    return <Navigate to="/dashboard/advertiser" replace />;
-  }
-
   if (isError || isSyncError) {
-    const errorMessage = (isError as any)?.message ||
-      (isError as any)?.response?.data?.message ||
-      (syncError as any)?.message ||
-      (syncError as any)?.response?.data?.message ||
+    const errorMessage =
+      (syncError as any)?.response?.data?.message ??
+      (syncError as any)?.message ??
       "Unknown error during synchronization";
 
     return (
@@ -198,8 +214,15 @@ export default function RoleDashboardRedirectPage() {
     );
   }
 
-  // Show role selection UI when the user has no role assigned
-  // This handles edge cases like SSO users who bypassed role selection
+  // Slow-path redirect once API data resolves.
+  if (normalizedRole === "business_owner") return <Navigate to="/dashboard/business-owner" replace />;
+  if (normalizedRole === "super_admin")    return <Navigate to="/dashboard/super-admin" replace />;
+  if (normalizedRole === "admin")          return <Navigate to="/dashboard/admin" replace />;
+  if (normalizedRole === "advertiser")     return <Navigate to="/dashboard/advertiser" replace />;
+
+  // ─────────────────────────────────────────────────────────────────
+  // NO ROLE — role selection UI (SSO users who bypassed initial setup)
+  // ─────────────────────────────────────────────────────────────────
   if (!isLoading && !normalizedRole) {
     const handleRoleSubmit = () => {
       if (!selectedRole) {
@@ -298,7 +321,7 @@ export default function RoleDashboardRedirectPage() {
             {updateRoleMutation.isPending ? (
               <>
                 <Loader2 className="w-4 h-4 animate-spin" />
-                Saving...
+                Saving…
               </>
             ) : (
               <>

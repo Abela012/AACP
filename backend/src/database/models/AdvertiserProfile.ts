@@ -177,13 +177,6 @@ const socialProfileSchema = new Schema(
             default: {},
         },
 
-        savedOpportunities: [
-            {
-                type: Schema.Types.ObjectId,
-                ref: "Opportunity",
-            },
-        ],
-
         collaborationHistory: {
             type: Schema.Types.Mixed,
             default: {},
@@ -360,6 +353,13 @@ const advertiserProfileSchema = new Schema(
             type: [socialProfileSchema],
             default: [],
         },
+
+        savedOpportunities: [
+            {
+                type: Schema.Types.ObjectId,
+                ref: "Opportunity",
+            },
+        ],
 
         pendingUpdates: {
             type: Schema.Types.Mixed,
