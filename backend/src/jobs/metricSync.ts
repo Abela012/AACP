@@ -37,6 +37,11 @@ export const syncAllUserMetrics = async () => {
                 const { items } = await client.dataset(run.defaultDatasetId).listItems();
                 if (items && items.length > 0) {
                     const userData: any = items[0];
+                    // Skip if the scraper returned an error (e.g. profile not found / behind login wall)
+                    if (userData.error) {
+                        logger.warn(`[SyncJob] Skipping @${username} — scraper returned error: ${userData.error}`);
+                        continue;
+                    }
                     const followers = userData?.authorMeta?.fans || userData?.followers || 0;
                     const following = userData?.authorMeta?.following || 0;
                     const totalLikes = userData?.authorMeta?.heart || userData?.likes || 0;

@@ -35,6 +35,14 @@ export interface IUser extends Document {
     createdAt: Date;
 
     updatedAt: Date;
+
+    socialProfiles?: any[];
+
+    connectedAccounts?: any;
+
+    averageRating?: number;
+
+    totalReviews?: number;
 }
 
 const userSchema = new Schema(
@@ -118,6 +126,26 @@ const userSchema = new Schema(
 
         lastLogin: {
             type: Date,
+        },
+
+        socialProfiles: {
+            type: [Schema.Types.Mixed],
+            default: [],
+        },
+
+        connectedAccounts: {
+            type: Schema.Types.Mixed,
+            default: {},
+        },
+
+        averageRating: {
+            type: Number,
+            default: 0,
+        },
+
+        totalReviews: {
+            type: Number,
+            default: 0,
         },
     },
     { timestamps: true }

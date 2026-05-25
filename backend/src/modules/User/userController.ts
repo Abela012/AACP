@@ -30,7 +30,7 @@ export async function enrichUserWithProfile(user: any) {
       };
       if (advertiserProfile.socialProfiles) {
         for (const sp of advertiserProfile.socialProfiles) {
-          const plat = sp.platform.toLowerCase();
+          const plat = sp.platform?.toLowerCase();
           if (plat === 'tiktok' || plat === 'instagram' || plat === 'facebook') {
             connectedAccounts[plat as 'tiktok' | 'instagram' | 'facebook'] = {
               connected: true,
@@ -38,7 +38,8 @@ export async function enrichUserWithProfile(user: any) {
               username: sp.username,
               displayName: sp.username,
               followers: sp.followers,
-              engagementRate: sp.engagementRate
+              engagementRate: sp.engagementRate,
+              metrics: sp.analytics || { followers: sp.followers, engagementRate: sp.engagementRate }
             } as any;
           }
         }
@@ -1181,6 +1182,11 @@ export const syncTikTokMetrics = async (req: Request, res: Response): Promise<vo
     }
 
     const userData = items[0] as any;
+    if (userData.error) {
+      res.status(400).json({ success: false, message: `TikTok profile error: ${userData.error}` });
+      return;
+    }
+
     const followers = userData?.authorMeta?.fans || userData?.followers || 0;
     const following = userData?.authorMeta?.following || 0;
     const totalLikes = userData?.authorMeta?.heart || userData?.likes || 0;
