@@ -1,140 +1,170 @@
-import type { AxiosInstance } from 'axios';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import type { AxiosInstance } from "axios";
 
 export interface AdminUser {
-    _id: string;
-    clerkId: string;
-    email: string;
-    firstName: string;
-    lastName: string;
-    username: string;
-    profilePicture?: string;
-    role: 'business_owner' | 'advertiser' | 'admin' | 'super_admin';
-    status: 'pending' | 'active' | 'approved' | 'banned' | 'suspended';
-    isVerified: boolean;
-    profileData?: any;
-    pendingProfileData?: any;
-    pendingUpdates?: any;
-    createdAt: string;
-    updatedAt: string;
+  _id: string;
+  clerkId: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  username: string;
+  profilePicture?: string;
+  role: "business_owner" | "advertiser" | "admin" | "super_admin";
+  status: "pending" | "active" | "approved" | "banned" | "suspended";
+  isVerified: boolean;
+  profileData?: any;
+  pendingProfileData?: any;
+  pendingUpdates?: any;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface AdminUsersResponse {
-    users: AdminUser[];
-    total: number;
-    page: number;
-    pages: number;
+  users: AdminUser[];
+  total: number;
+  page: number;
+  pages: number;
 }
 
 export interface AdminStatsResponse {
-    totalUsers: number;
-    byRole: { _id: string; count: number }[];
-    recentUsers: number;
-    verifiedUsers: number;
-    suspendedUsers: number;
-    pendingApplications?: number;
-    activeOpportunities?: number;
-    pendingCoinRequests?: number;
+  totalUsers: number;
+  byRole: { _id: string; count: number }[];
+  recentUsers: number;
+  verifiedUsers: number;
+  suspendedUsers: number;
+  pendingApplications?: number;
+  activeOpportunities?: number;
+  pendingCoinRequests?: number;
 }
 
 export type AdminNotification = {
-    id: string;
-    title: string;
-    category: 'system' | 'user_activity' | 'payments';
-    priority: 'high' | 'normal';
-    read: boolean;
-    createdAt: string;
-    action: string;
-    targetType?: string;
-    actorName: string;
+  id: string;
+  title: string;
+  category: "system" | "user_activity" | "payments";
+  priority: "high" | "normal";
+  read: boolean;
+  createdAt: string;
+  action: string;
+  targetType?: string;
+  actorName: string;
 };
 
 export const adminApi = {
-    /** GET /admin/users — Paginated list with optional search */
-    getUsers: (api: AxiosInstance, params?: { page?: number; limit?: number; search?: string }) =>
-        api.get<{ success: boolean; message: string; data: AdminUsersResponse }>('/admin/users', { params }),
+  /** GET /admin/users — Paginated list with optional search */
+  getUsers: (
+    api: AxiosInstance,
+    params?: { page?: number; limit?: number; search?: string },
+  ) =>
+    api.get<{ success: boolean; message: string; data: AdminUsersResponse }>(
+      "/admin/users",
+      { params },
+    ),
 
-    /** GET /admin/stats — Dashboard overview metrics */
-    getStats: (api: AxiosInstance) =>
-        api.get<AdminStatsResponse>('/admin/stats'),
+  /** GET /admin/stats — Dashboard overview metrics */
+  getStats: (api: AxiosInstance) => api.get<AdminStatsResponse>("/admin/stats"),
 
-    /** PUT /admin/users/:userId/role — Update a user's role */
-    updateUserRole: (api: AxiosInstance, userId: string, role: AdminUser['role']) =>
-        api.put<AdminUser>(`/admin/users/${userId}/role`, { role }),
+  /** PUT /admin/users/:userId/role — Update a user's role */
+  updateUserRole: (
+    api: AxiosInstance,
+    userId: string,
+    role: AdminUser["role"],
+  ) => api.put<AdminUser>(`/admin/users/${userId}/role`, { role }),
 
-    /** PUT /admin/users/:userId/status — Ban, suspend, or re-activate a user */
-    updateUserStatus: (api: AxiosInstance, userId: string, status: AdminUser['status']) =>
-        api.put<AdminUser>(`/admin/users/${userId}/status`, { status }),
+  /** PUT /admin/users/:userId/status — Ban, suspend, or re-activate a user */
+  updateUserStatus: (
+    api: AxiosInstance,
+    userId: string,
+    status: AdminUser["status"],
+  ) => api.put<AdminUser>(`/admin/users/${userId}/status`, { status }),
 
-    /** GET /admin/wallet/requests — List pending coin purchases */
-    getWalletRequests: (
-        api: AxiosInstance,
-        params?: { status?: string; search?: string; channel?: 'manual' | 'chapa' }
-    ) =>
-        api.get<{ requests: any[]; total: number }>('/admin/wallet/requests', { params }),
+  /** GET /admin/wallet/requests — List pending coin purchases */
+  getWalletRequests: (
+    api: AxiosInstance,
+    params?: { status?: string; search?: string; channel?: "manual" | "chapa" },
+  ) =>
+    api.get<{ requests: any[]; total: number }>("/admin/wallet/requests", {
+      params,
+    }),
 
-    /** POST /admin/wallet/requests/:requestId/approve — Approve a coin purchase */
-    approveWalletRequest: (api: AxiosInstance, requestId: string) =>
-        api.post(`/admin/wallet/requests/${requestId}/approve`),
+  /** POST /admin/wallet/requests/:requestId/approve — Approve a coin purchase */
+  approveWalletRequest: (api: AxiosInstance, requestId: string) =>
+    api.post(`/admin/wallet/requests/${requestId}/approve`),
 
-    /** POST /admin/wallet/requests/:requestId/reject — Reject a coin purchase */
-    rejectWalletRequest: (api: AxiosInstance, requestId: string, reason?: string) =>
-        api.post(`/admin/wallet/requests/${requestId}/reject`, { reason }),
+  /** POST /admin/wallet/requests/:requestId/reject — Reject a coin purchase */
+  rejectWalletRequest: (
+    api: AxiosInstance,
+    requestId: string,
+    reason?: string,
+  ) => api.post(`/admin/wallet/requests/${requestId}/reject`, { reason }),
 
-    /** GET /admin/disputes — List platform disputes */
-    getDisputes: (api: AxiosInstance, params?: { status?: string; search?: string }) =>
-        api.get<any[]>('/admin/disputes', { params }),
+  /** GET /admin/disputes — List platform disputes */
+  getDisputes: (
+    api: AxiosInstance,
+    params?: { status?: string; search?: string },
+  ) => api.get<any[]>("/admin/disputes", { params }),
 
-    /** PUT /admin/disputes/:disputeId/resolve — Resolve a dispute */
-    resolveDispute: (api: AxiosInstance, disputeId: string, reason: string) =>
-        api.put(`/admin/disputes/${disputeId}/resolve`, { reason }),
+  /** PUT /admin/disputes/:disputeId/resolve — Resolve a dispute */
+  resolveDispute: (api: AxiosInstance, disputeId: string, reason: string) =>
+    api.put(`/admin/disputes/${disputeId}/resolve`, { reason }),
 
-    /** PUT /admin/disputes/:disputeId/escalate — Escalate a dispute */
-    escalateDispute: (api: AxiosInstance, disputeId: string) =>
-        api.put(`/admin/disputes/${disputeId}/escalate`),
+  /** PUT /admin/disputes/:disputeId/escalate — Escalate a dispute */
+  escalateDispute: (api: AxiosInstance, disputeId: string) =>
+    api.put(`/admin/disputes/${disputeId}/escalate`),
 
-    /** GET /admin/settings — Platform settings, service status, recent audit entries */
-    getSettings: (api: AxiosInstance) =>
-        api.get<{
-            success: boolean;
-            message: string;
-            data: {
-                settings: {
-                    maintenanceMode: boolean;
-                    allowPublicSignup: boolean;
-                    newUserStartingCoins: number;
-                };
-                services: { id: string; name: string; status: 'operational' | 'degraded'; detail: string }[];
-                recentAudit: { id: string; action: string; message: string; createdAt: string; actorName: string }[];
-            };
-        }>('/admin/settings'),
+  /** GET /admin/settings — Platform settings, service status, recent audit entries */
+  getSettings: (api: AxiosInstance) =>
+    api.get<{
+      success: boolean;
+      message: string;
+      data: {
+        settings: {
+          maintenanceMode: boolean;
+          allowPublicSignup: boolean;
+          newUserStartingCoins: number;
+        };
+        services: {
+          id: string;
+          name: string;
+          status: "operational" | "degraded";
+          detail: string;
+        }[];
+        recentAudit: {
+          id: string;
+          action: string;
+          message: string;
+          createdAt: string;
+          actorName: string;
+        }[];
+      };
+    }>("/admin/settings"),
 
-    /** PATCH /admin/settings — Update platform settings */
-    patchSettings: (
-        api: AxiosInstance,
-        body: {
-            maintenanceMode?: boolean;
-            allowPublicSignup?: boolean;
-            newUserStartingCoins?: number;
-        }
-    ) =>
-        api.patch<{
-            success: boolean;
-            message: string;
-            data: {
-                settings: {
-                    maintenanceMode: boolean;
-                    allowPublicSignup: boolean;
-                    newUserStartingCoins: number;
-                };
-            };
-        }>('/admin/settings', body),
+  /** PATCH /admin/settings — Update platform settings */
+  patchSettings: (
+    api: AxiosInstance,
+    body: {
+      maintenanceMode?: boolean;
+      allowPublicSignup?: boolean;
+      newUserStartingCoins?: number;
+    },
+  ) =>
+    api.patch<{
+      success: boolean;
+      message: string;
+      data: {
+        settings: {
+          maintenanceMode: boolean;
+          allowPublicSignup: boolean;
+          newUserStartingCoins: number;
+        };
+      };
+    }>("/admin/settings", body),
 
-    getNotifications: (api: AxiosInstance) =>
-        api.get<{
-            success: boolean;
-            message: string;
-            data: {
-                notifications: AdminNotification[];
-            };
-        }>('/admin/notifications'),
+  getNotifications: (api: AxiosInstance) =>
+    api.get<{
+      success: boolean;
+      message: string;
+      data: {
+        notifications: AdminNotification[];
+      };
+    }>("/admin/notifications"),
 };

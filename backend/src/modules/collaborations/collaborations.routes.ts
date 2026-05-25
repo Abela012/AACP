@@ -1,26 +1,34 @@
-import express from 'express';
-import * as collaborationsController from './collaborations.controller';
-import * as analyticsController from '../analytics/analytics.controller';
-import { protect } from '../../middlewares/auth.middleware';
-import { startCollaborationValidator } from '../../validators/collaborationValidator';
-import validate from '../../middlewares/validate.middleware';
-import multer from 'multer';
+import express from "express";
+import * as collaborationsController from "./collaborations.controller";
+import * as analyticsController from "../analytics/analytics.controller";
+import { protect } from "../../middlewares/auth.middleware";
+import { startCollaborationValidator } from "../../validators/collaborationValidator";
+import validate from "../../middlewares/validate.middleware";
+import multer from "multer";
 
-const upload = multer({ 
-    storage: multer.memoryStorage(),
-    limits: { fileSize: 200 * 1024 * 1024 }, // 200MB max for videos
-    fileFilter: (_req, file, cb) => {
-        const allowed = [
-            'video/mp4', 'video/quicktime', 'video/webm', 'video/ogg', 'video/x-msvideo',
-            'image/jpeg', 'image/png', 'image/gif', 'image/webp',
-            'application/pdf', 'application/zip'
-        ];
-        if (allowed.includes(file.mimetype)) {
-            cb(null, true);
-        } else {
-            cb(new Error(`File type ${file.mimetype} is not supported`));
-        }
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 200 * 1024 * 1024 }, // 200MB max for videos
+  fileFilter: (_req, file, cb) => {
+    const allowed = [
+      "video/mp4",
+      "video/quicktime",
+      "video/webm",
+      "video/ogg",
+      "video/x-msvideo",
+      "image/jpeg",
+      "image/png",
+      "image/gif",
+      "image/webp",
+      "application/pdf",
+      "application/zip",
+    ];
+    if (allowed.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error(`File type ${file.mimetype} is not supported`));
     }
+  },
 });
 
 /**
@@ -69,7 +77,12 @@ router.use(protect);
  *       400:
  *         description: Invalid application or already has a collaboration
  */
-router.post('/start', startCollaborationValidator, validate, collaborationsController.startCollaboration);
+router.post(
+  "/start",
+  startCollaborationValidator,
+  validate,
+  collaborationsController.startCollaboration,
+);
 
 /**
  * @swagger
@@ -93,7 +106,7 @@ router.post('/start', startCollaborationValidator, validate, collaborationsContr
  *       403:
  *         description: Not authorized to complete
  */
-router.put('/:id/complete', collaborationsController.completeCollaboration);
+router.put("/:id/complete", collaborationsController.completeCollaboration);
 
 /**
  * @swagger
@@ -128,7 +141,7 @@ router.put('/:id/complete', collaborationsController.completeCollaboration);
  *       500:
  *         description: Server error
  */
-router.get('/user/:userId', collaborationsController.getCollaborationsByUser);
+router.get("/user/:userId", collaborationsController.getCollaborationsByUser);
 
 /**
  * @swagger
@@ -161,19 +174,32 @@ router.get('/user/:userId', collaborationsController.getCollaborationsByUser);
  *       500:
  *         description: Server error
  */
-router.get('/:id', collaborationsController.getCollaborationById);
+router.get("/:id", collaborationsController.getCollaborationById);
 
 // Task Management
-router.post('/:id/tasks', collaborationsController.addTask);
-router.put('/:id/tasks/:taskId', collaborationsController.updateTask);
+router.post("/:id/tasks", collaborationsController.addTask);
+router.put("/:id/tasks/:taskId", collaborationsController.updateTask);
 
 // Deliverables Management
-router.post('/:id/deliverables', upload.single('file'), collaborationsController.submitDeliverable);
-router.put('/:id/deliverables/:submissionId/review', collaborationsController.reviewDeliverable);
+router.post(
+  "/:id/deliverables",
+  upload.single("file"),
+  collaborationsController.submitDeliverable,
+);
+router.put(
+  "/:id/deliverables/:submissionId/review",
+  collaborationsController.reviewDeliverable,
+);
+
+// Reporting
+router.post("/:id/report", collaborationsController.reportPartner);
 
 // ── Analytics (social media post tracking) ──────────────────────────────
-router.get('/:id/analytics', analyticsController.getAnalytics);
-router.post('/:id/analytics', analyticsController.submitAnalytics);
-router.post('/:id/analytics/:analyticsId/refresh', analyticsController.refreshAnalytics);
+router.get("/:id/analytics", analyticsController.getAnalytics);
+router.post("/:id/analytics", analyticsController.submitAnalytics);
+router.post(
+  "/:id/analytics/:analyticsId/refresh",
+  analyticsController.refreshAnalytics,
+);
 
 export default router;
