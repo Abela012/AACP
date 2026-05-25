@@ -2,7 +2,8 @@ import { Request, Response } from "express";
 import * as applicationService from "./applications.service";
 import * as walletService from "../wallet/wallet.service";
 import { success, error } from "../../utils/response";
-
+import Opportunity from "../../database/models/Opportunity";
+import * as chatService from "../chat/chat.service";
 import * as collaborationService from "../collaborations/collaborations.service";
 
 /**
@@ -91,6 +92,85 @@ export const applyToOpportunity = async (req: Request, res: Response) => {
       referenceType: "application",
       referenceId: (application._id as any).toString(),
     });
+
+    // 4. Notify business owner via chat and real-time socket events
+    try {
+      const opportunity = await Opportunity.findById(data.opportunity).populate(
+        "businessOwner",
+      );
+      if (opportunity?.businessOwner) {
+        const businessOwner = opportunity.businessOwner as any;
+        const businessOwnerClerkId = businessOwner.clerkId;
+        const advertiserClerkId = user.clerkId;
+
+        if (businessOwnerClerkId && advertiserClerkId) {
+          const messageText =
+            `👋 New Application for "${opportunity.title}"!\n\n` +
+            `👤 From: ${advertiserName}\n` +
+            `💰 Proposed Rate: ${data.proposedRate.amount} ${data.proposedRate.currency}\n` +
+            `📅 Timeline: ${data.proposedTimeline}\n\n` +
+            `📝 Cover Letter Preview: ${data.coverLetter?.slice(0, 150)}${
+              data.coverLetter && data.coverLetter.length > 150 ? "..." : ""
+            }`;
+
+          let dbMessage;
+          let conversationId = "";
+          try {
+            const conversation = await chatService.getOrCreateConversation([
+              advertiserId.toString(),
+              (businessOwner._id as any).toString(),
+            ]);
+            conversationId = (conversation._id as any).toString();
+            dbMessage = await chatService.saveMessage({
+              conversationId,
+              senderId: advertiserId.toString(),
+              text: messageText,
+            });
+          } catch (dbErr) {
+            console.error("Failed to persist automated message:", dbErr);
+          }
+
+          const io = (req.app as any).io;
+          if (io && conversationId) {
+            const message = {
+              _id: dbMessage
+                ? dbMessage._id.toString()
+                : `auto_${Date.now()}_${Math.random().toString(36).slice(2)}`,
+              roomId: conversationId,
+              text: messageText,
+              sender: {
+                _id: advertiserId.toString(),
+                firstName: user.firstName,
+                lastName: user.lastName,
+                profilePicture: user.profilePicture,
+              },
+              createdAt: dbMessage
+                ? dbMessage.createdAt.toISOString()
+                : new Date().toISOString(),
+            };
+
+            io.to(conversationId).emit("message:receive", message);
+
+            io.to(`user:${(businessOwner._id as any).toString()}`).emit(
+              "notification:new",
+              {
+                type: "application",
+                title: "New Application Received",
+                message: `${advertiserName} applied for "${opportunity.title}"`,
+                data: {
+                  opportunityId: opportunity._id,
+                  advertiserId,
+                  conversationId,
+                },
+                createdAt: new Date().toISOString(),
+              },
+            );
+          }
+        }
+      }
+    } catch (msgErr) {
+      console.error("Failed to send automated application message:", msgErr);
+    }
 
     return success(res, "Application submitted successfully", application, 201);
   } catch (err: any) {

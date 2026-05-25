@@ -31,12 +31,17 @@ export default function FormField({
         <p className="text-[11px] text-primary-blue/90 dark:text-neutral-border/90 font-medium">Example: {example}</p>
       )}
       {React.isValidElement(children)
-        ? React.cloneElement(children, {
-          className: cn(
-            (children as any).props.className,
-            error && 'border-red-500 focus:ring-red-500/30 dark:border-red-500'
-          ),
-        } as any)
+        ? React.cloneElement(
+            children as React.ReactElement<{ className?: string }>,
+            {
+              className: cn(
+                (children as React.ReactElement<{ className?: string }>).props
+                  .className,
+                error &&
+                  'border-red-500 focus:ring-red-500/30 dark:border-red-500',
+              ),
+            },
+          )
         : children}
       {error && <p className="text-xs font-semibold text-red-600 dark:text-red-400">{error}</p>}
     </div>

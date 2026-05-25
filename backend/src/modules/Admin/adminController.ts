@@ -196,7 +196,7 @@ export const getUserById = async (req: Request, res: Response) => {
       .sort({ createdAt: -1 })
       .limit(10)
       .lean();
-    const logs = await AuditLog.find({ targetUserId: userId })
+    const logs = await AuditLog.find({ targetUser: userId })
       .sort({ createdAt: -1 })
       .limit(5)
       .lean();
@@ -215,12 +215,12 @@ export const getUserById = async (req: Request, res: Response) => {
             "_id",
           ),
         },
-        status: "approved",
+        status: "accepted",
       });
     } else {
       activeAds = await Application.countDocuments({
-        applicant: userId,
-        status: "approved",
+        advertiser: userId,
+        status: "accepted",
       });
       collaborators = activeAds; // for creators, collaborations equals approved applications
     }

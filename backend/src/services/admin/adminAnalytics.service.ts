@@ -175,7 +175,7 @@ export const calculateTrustScore = async (
     });
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
     const recentActivity = await AuditLog.countDocuments({
-      "targetUser.userId": userId,
+      targetUser: userId,
       createdAt: { $gte: thirtyDaysAgo },
     });
 

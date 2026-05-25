@@ -20,6 +20,14 @@ const expectNumber = (value: string, field: string, errors: Record<string, strin
   }
 };
 
+const expectPhone = (value: string, field: string, errors: Record<string, string>) => {
+  const trimmed = value?.toString().trim();
+  if (!trimmed) return;
+  if (!/^[\d\s+\-().]+$/.test(trimmed)) {
+    errors[field] = 'Enter a valid phone number (digits, spaces, +, -, or parentheses only)';
+  }
+};
+
 export const validateStep = (step: number, form: BusinessOnboardingForm): StepValidationResult => {
   const errors: Record<string, string> = {};
 
@@ -32,7 +40,7 @@ export const validateStep = (step: number, form: BusinessOnboardingForm): StepVa
       expectString(form.lastName, 'lastName', errors);
 
       req(form.phone, 'phone', errors);
-      expectNumber(form.phone, 'phone', errors);
+      expectPhone(form.phone, 'phone', errors);
 
       req(form.businessName, 'businessName', errors);
       expectString(form.businessName, 'businessName', errors);
