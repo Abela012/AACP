@@ -47,47 +47,63 @@ export default function BusinessLayout({ children }: BusinessLayoutProps) {
   const navigate = useNavigate();
   const { onboardingStatus, logout: localLogout } = useUser();
   const { profile } = useProfile();
-  const isApproved = onboardingStatus === 'approved';
-  const isProfileIncomplete = onboardingStatus === 'incomplete';
+  const isApproved = onboardingStatus === "approved";
+  const isProfileIncomplete = onboardingStatus === "incomplete";
 
   const { notifications, unreadCount, markAllAsRead } = useNotifications();
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [showNotifications, setShowNotifications] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
   const notifRef = useRef<HTMLDivElement>(null);
 
   // Real backend search
-  const { results: searchResults, isLoading: isSearching, hasResults } = useGlobalSearch(searchQuery);
+  const {
+    results: searchResults,
+    isLoading: isSearching,
+    hasResults,
+  } = useGlobalSearch(searchQuery);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
-        setSearchQuery('');
+      if (
+        searchRef.current &&
+        !searchRef.current.contains(event.target as Node)
+      ) {
+        setSearchQuery("");
       }
-      if (notifRef.current && !notifRef.current.contains(event.target as Node)) {
+      if (
+        notifRef.current &&
+        !notifRef.current.contains(event.target as Node)
+      ) {
         setShowNotifications(false);
       }
     }
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   // Pages that are ALWAYS accessible
-  const isPublicPage = location.pathname === '/dashboard/business-owner' || location.pathname === '/profile/complete/business';
+  const isPublicPage =
+    location.pathname === "/dashboard/business-owner" ||
+    location.pathname === "/profile/complete/business";
   const showLockOverlay = !isApproved && !isPublicPage;
 
   const navigation = [
-    { name: 'Dashboard', icon: LayoutDashboard, path: '/dashboard/business-owner' },
-    { name: 'Campaigns', icon: Megaphone, path: '/campaigns' },
-    { name: 'Discover', icon: Sparkles, path: '/matches' },
-    { name: 'Partnerships', icon: Briefcase, path: '/collaborations' },
-    { name: 'Analytics', icon: BarChart3, path: '/analytics' },
-    { name: 'Messages', icon: MessageSquare, path: '/messages' },
+    {
+      name: "Dashboard",
+      icon: LayoutDashboard,
+      path: "/dashboard/business-owner",
+    },
+    { name: "Campaigns", icon: Megaphone, path: "/campaigns" },
+    { name: "Discover", icon: Sparkles, path: "/matches" },
+    { name: "Partnerships", icon: Briefcase, path: "/collaborations" },
+    { name: "Analytics", icon: BarChart3, path: "/analytics" },
+    { name: "Messages", icon: MessageSquare, path: "/messages" },
   ];
 
   const systemNavigation = [
-    { name: 'Wallet', icon: CreditCard, path: '/wallet' },
-    { name: 'Settings', icon: Settings, path: '/profile/edit/business' },
+    { name: "Wallet", icon: CreditCard, path: "/wallet" },
+    { name: "Settings", icon: Settings, path: "/profile/edit/business" },
   ];
 
   const [showReportModal, setShowReportModal] = useState(false);
@@ -191,22 +207,16 @@ export default function BusinessLayout({ children }: BusinessLayoutProps) {
             <button className="p-2 -ml-2 text-gray-500 dark:text-gray-400 hover:text-primary-blue transition-colors" onClick={toggleSidebar}>
               <Menu size={20} />
             </button>
-            <nav className="hidden md:flex items-center gap-8">
-              {navigation.map((item) => (
-                <Link 
-                  key={item.name}
-                  to={item.path}
-                  className={cn(
-                    "text-sm font-medium transition-colors pb-1",
-                    location.pathname === item.path 
-                      ? "text-primary-blue border-b-2 border-primary-blue" 
-                      : "text-gray-500 dark:text-gray-400 hover:text-primary-blue dark:hover:text-neutral-border"
-                  )}
-                >
-                  {item.name}
-                </Link>
-              ))}
-            </nav>
+            {!isSidebarOpen && (
+              <Link to="/" className="flex items-center gap-2">
+                <div className="w-7 h-7 bg-primary-blue rounded-full flex items-center justify-center">
+                  <Zap className="text-white w-4 h-4 fill-white" />
+                </div>
+                <span className="text-lg font-bold tracking-tighter text-primary-blue">
+                  AACP
+                </span>
+              </Link>
+            )}
           </div>
 
           <div className="flex items-center gap-2 sm:gap-4 relative">
@@ -216,8 +226,8 @@ export default function BusinessLayout({ children }: BusinessLayoutProps) {
               ) : (
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 w-4 h-4" />
               )}
-              <input 
-                type="text" 
+              <input
+                type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search campaigns, creators..."
@@ -238,61 +248,100 @@ export default function BusinessLayout({ children }: BusinessLayoutProps) {
                       </div>
                     ) : !hasResults ? (
                       <div className="p-6 text-center">
-                        <Search className="mx-auto text-gray-300 dark:text-gray-600 mb-2" size={24} />
-                        <p className="text-xs font-bold text-gray-400">No results for "{searchQuery}"</p>
-                        <p className="text-[10px] text-gray-400 mt-1">Try a different keyword</p>
+                        <Search
+                          className="mx-auto text-gray-300 dark:text-gray-600 mb-2"
+                          size={24}
+                        />
+                        <p className="text-xs font-bold text-gray-400">
+                          No results for "{searchQuery}"
+                        </p>
+                        <p className="text-[10px] text-gray-400 mt-1">
+                          Try a different keyword
+                        </p>
                       </div>
                     ) : (
                       <div className="py-2">
                         {/* Campaigns section */}
                         {searchResults.campaigns.length > 0 && (
                           <div>
-                            <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest px-4 py-2">Campaigns</p>
+                            <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest px-4 py-2">
+                              Campaigns
+                            </p>
                             {searchResults.campaigns.map((c) => (
                               <button
                                 key={c._id}
-                                onClick={() => { navigate('/campaigns'); setSearchQuery(''); }}
+                                onClick={() => {
+                                  navigate("/campaigns");
+                                  setSearchQuery("");
+                                }}
                                 className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors text-left"
                               >
                                 <div className="w-8 h-8 bg-primary-blue/10 rounded-lg flex items-center justify-center shrink-0">
-                                  <Megaphone size={14} className="text-primary-blue" />
+                                  <Megaphone
+                                    size={14}
+                                    className="text-primary-blue"
+                                  />
                                 </div>
                                 <div className="min-w-0">
-                                  <p className="text-sm font-bold text-gray-900 dark:text-white truncate">{c.title}</p>
-                                  <p className="text-[10px] text-gray-400 font-medium">{c.category} • {c.status}</p>
+                                  <p className="text-sm font-bold text-gray-900 dark:text-white truncate">
+                                    {c.title}
+                                  </p>
+                                  <p className="text-[10px] text-gray-400 font-medium">
+                                    {c.category} • {c.status}
+                                  </p>
                                 </div>
-                                <span className={cn(
-                                  "ml-auto text-[9px] font-black px-2 py-0.5 rounded-full uppercase shrink-0",
-                                  c.status === 'open' ? 'bg-primary-blue/10 text-primary-blue' : 'bg-gray-100 dark:bg-white/10 text-gray-400'
-                                )}>{c.status}</span>
+                                <span
+                                  className={cn(
+                                    "ml-auto text-[9px] font-black px-2 py-0.5 rounded-full uppercase shrink-0",
+                                    c.status === "open"
+                                      ? "bg-primary-blue/10 text-primary-blue"
+                                      : "bg-gray-100 dark:bg-white/10 text-gray-400",
+                                  )}
+                                >
+                                  {c.status}
+                                </span>
                               </button>
                             ))}
                           </div>
                         )}
 
                         {/* Divider */}
-                        {searchResults.campaigns.length > 0 && searchResults.creators.length > 0 && (
-                          <div className="my-1 border-t border-gray-50 dark:border-white/5" />
-                        )}
+                        {searchResults.campaigns.length > 0 &&
+                          searchResults.creators.length > 0 && (
+                            <div className="my-1 border-t border-gray-50 dark:border-white/5" />
+                          )}
 
                         {/* Creators section */}
                         {searchResults.creators.length > 0 && (
                           <div>
-                            <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest px-4 py-2">Creators</p>
+                            <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest px-4 py-2">
+                              Creators
+                            </p>
                             {searchResults.creators.map((u) => (
                               <button
                                 key={u._id}
-                                onClick={() => { navigate('/matches'); setSearchQuery(''); }}
+                                onClick={() => {
+                                  navigate("/matches");
+                                  setSearchQuery("");
+                                }}
                                 className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors text-left"
                               >
                                 <img
-                                  src={u.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(u.name)}&background=10b981&color=fff`}
+                                  src={
+                                    u.avatar ||
+                                    `https://ui-avatars.com/api/?name=${encodeURIComponent(u.name)}&background=10b981&color=fff`
+                                  }
                                   alt={u.name}
                                   className="w-8 h-8 rounded-lg object-cover shrink-0"
                                 />
                                 <div className="min-w-0">
-                                  <p className="text-sm font-bold text-gray-900 dark:text-white truncate">{u.name}</p>
-                                  <p className="text-[10px] text-gray-400 font-medium">{u.niche || 'Creator'}{u.location ? ` • ${u.location}` : ''}</p>
+                                  <p className="text-sm font-bold text-gray-900 dark:text-white truncate">
+                                    {u.name}
+                                  </p>
+                                  <p className="text-[10px] text-gray-400 font-medium">
+                                    {u.niche || "Creator"}
+                                    {u.location ? ` • ${u.location}` : ""}
+                                  </p>
                                 </div>
                                 {u.rating > 0 && (
                                   <span className="ml-auto flex items-center gap-0.5 text-[10px] font-bold text-amber-500 shrink-0">
@@ -308,7 +357,10 @@ export default function BusinessLayout({ children }: BusinessLayoutProps) {
                         {/* Footer action */}
                         <div className="px-4 py-3 border-t border-gray-50 dark:border-white/5 mt-1">
                           <button
-                            onClick={() => { navigate(`/matches`); setSearchQuery(''); }}
+                            onClick={() => {
+                              navigate(`/matches`);
+                              setSearchQuery("");
+                            }}
                             className="w-full text-center text-xs font-bold text-primary-blue hover:underline"
                           >
                             View all results in Discover →
@@ -320,9 +372,9 @@ export default function BusinessLayout({ children }: BusinessLayoutProps) {
                 )}
               </AnimatePresence>
             </div>
-            
+
             <div className="relative" ref={notifRef}>
-              <button 
+              <button
                 onClick={() => {
                   setShowNotifications(!showNotifications);
                   if (!showNotifications) markAllAsRead();
@@ -337,7 +389,7 @@ export default function BusinessLayout({ children }: BusinessLayoutProps) {
                   </>
                 )}
               </button>
-              
+
               <AnimatePresence>
                 {showNotifications && (
                   <motion.div
@@ -346,33 +398,62 @@ export default function BusinessLayout({ children }: BusinessLayoutProps) {
                     exit={{ opacity: 0, scale: 0.95, y: 10 }}
                     className="absolute top-14 right-0 w-80 bg-white dark:bg-[#1a1a1a] rounded-4xl shadow-2xl border border-gray-100 dark:border-white/10 overflow-hidden z-50 text-left"
                   >
-                    <div className="p-6 border-b border-gray-100 dark:border-white/5 flex justify-between items-center bg-gray-50/50 dark:bg-white/[0.02]">
-                      <h3 className="font-bold text-gray-900 dark:text-white">Notifications</h3>
+                    <div className="p-6 border-b border-gray-100 dark:border-white/5 flex justify-between items-center bg-gray-50/50 dark:bg-white/2">
+                      <h3 className="font-bold text-gray-900 dark:text-white">
+                        Notifications
+                      </h3>
                       {unreadCount > 0 && (
-                        <span className="bg-primary-blue/10 text-primary-blue text-[10px] font-bold px-2 py-1 rounded-lg uppercase tracking-wider">{unreadCount} New</span>
+                        <span className="bg-primary-blue/10 text-primary-blue text-[10px] font-bold px-2 py-1 rounded-lg uppercase tracking-wider">
+                          {unreadCount} New
+                        </span>
                       )}
                     </div>
                     <div className="max-h-80 overflow-y-auto divide-y divide-gray-50 dark:divide-white/5">
                       {notifications.length > 0 ? (
                         notifications.map((notif) => (
-                          <div key={notif.id} className="p-5 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors cursor-pointer flex gap-4">
-                            <div className={cn(
-                              "w-10 h-10 rounded-xl flex items-center justify-center shrink-0",
-                              notif.type === 'application' ? "bg-primary-blue/10 text-primary-blue" : "bg-blue-600/10 text-blue-600"
-                            )}>
-                              {notif.type === 'application' ? <Sparkles size={18} /> : <MessageSquare size={18} />}
+                          <div
+                            key={notif.id}
+                            className="p-5 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors cursor-pointer flex gap-4"
+                          >
+                            <div
+                              className={cn(
+                                "w-10 h-10 rounded-xl flex items-center justify-center shrink-0",
+                                notif.type === "application"
+                                  ? "bg-primary-blue/10 text-primary-blue"
+                                  : "bg-blue-600/10 text-blue-600",
+                              )}
+                            >
+                              {notif.type === "application" ? (
+                                <Sparkles size={18} />
+                              ) : (
+                                <MessageSquare size={18} />
+                              )}
                             </div>
                             <div>
-                              <p className="text-sm font-bold text-gray-900 dark:text-white mb-1">{notif.title}</p>
-                              <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed mb-2">{notif.message}</p>
-                              <span className="text-[10px] font-bold text-gray-400 uppercase">{new Date(notif.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                              <p className="text-sm font-bold text-gray-900 dark:text-white mb-1">
+                                {notif.title}
+                              </p>
+                              <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed mb-2">
+                                {notif.message}
+                              </p>
+                              <span className="text-[10px] font-bold text-gray-400 uppercase">
+                                {new Date(notif.createdAt).toLocaleTimeString(
+                                  [],
+                                  { hour: "2-digit", minute: "2-digit" },
+                                )}
+                              </span>
                             </div>
                           </div>
                         ))
                       ) : (
                         <div className="p-10 text-center">
-                          <Bell className="mx-auto text-gray-300 dark:text-gray-700 mb-3" size={32} />
-                          <p className="text-xs font-bold text-gray-400">All caught up!</p>
+                          <Bell
+                            className="mx-auto text-gray-300 dark:text-gray-700 mb-3"
+                            size={32}
+                          />
+                          <p className="text-xs font-bold text-gray-400">
+                            All caught up!
+                          </p>
                         </div>
                       )}
                     </div>
@@ -380,14 +461,20 @@ export default function BusinessLayout({ children }: BusinessLayoutProps) {
                 )}
               </AnimatePresence>
             </div>
-            
+
             <ThemeToggle />
-            <Link to="/profile/view/business" className="w-10 h-10 rounded-xl overflow-hidden border border-gray-100 dark:border-white/10">
-              <img 
-                src={profile.avatarUrl || `https://ui-avatars.com/api/?name=${profile.firstName}+${profile.lastName}&background=10b981&color=fff`} 
-                alt="Profile" 
-                className="w-full h-full object-cover" 
-                referrerPolicy="no-referrer" 
+            <Link
+              to="/profile/view/business"
+              className="w-10 h-10 rounded-xl overflow-hidden border border-gray-100 dark:border-white/10"
+            >
+              <img
+                src={
+                  profile.avatarUrl ||
+                  `https://ui-avatars.com/api/?name=${profile.firstName}+${profile.lastName}&background=10b981&color=fff`
+                }
+                alt="Profile"
+                className="w-full h-full object-cover"
+                referrerPolicy="no-referrer"
               />
             </Link>
           </div>
@@ -395,25 +482,33 @@ export default function BusinessLayout({ children }: BusinessLayoutProps) {
 
         <main className="flex-1 relative">
           {showLockOverlay && (
-            <div className="absolute inset-0 z-[60] flex items-center justify-center bg-white/60 dark:bg-black/60 backdrop-blur-md">
+            <div className="absolute inset-0 z-60 flex items-center justify-center bg-white/60 dark:bg-black/60 backdrop-blur-md">
               <div className="max-w-md w-full mx-4 bg-white dark:bg-[#1a1a1a] p-8 rounded-[2.5rem] shadow-2xl border border-gray-100 dark:border-white/10 text-center">
                 <div className="w-20 h-20 bg-primary-blue/10 rounded-3xl flex items-center justify-center mx-auto mb-6">
                   <Lock className="text-primary-blue w-10 h-10" />
                 </div>
                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">
-                  {isProfileIncomplete ? 'Complete Your Profile' : 'Profile Pending Approval'}
+                  {isProfileIncomplete
+                    ? "Complete Your Profile"
+                    : "Profile Pending Approval"}
                 </h2>
                 <p className="text-gray-500 dark:text-gray-400 mb-8 leading-relaxed">
                   {isProfileIncomplete
-                    ? 'Please complete your business profile and submit it for admin approval to unlock all features.'
-                    : 'Your business profile is currently being reviewed. This page will be unlocked once your account is approved.'}
+                    ? "Please complete your business profile and submit it for admin approval to unlock all features."
+                    : "Your business profile is currently being reviewed. This page will be unlocked once your account is approved."}
                 </p>
                 <div className="flex flex-col gap-3">
-                  <Link 
-                    to={isProfileIncomplete ? '/profile/complete/business' : '/dashboard/business-owner'}
+                  <Link
+                    to={
+                      isProfileIncomplete
+                        ? "/profile/complete/business"
+                        : "/dashboard/business-owner"
+                    }
                     className="w-full py-4 bg-primary-blue text-white rounded-xl font-bold hover:bg-primary-blue transition-all shadow-lg shadow-black/10 dark:shadow-none"
                   >
-                    {isProfileIncomplete ? 'Complete Profile' : 'Return to Dashboard'}
+                    {isProfileIncomplete
+                      ? "Complete Profile"
+                      : "Return to Dashboard"}
                   </Link>
                   <div className="flex items-center justify-center gap-2 text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">
                     <ShieldCheck size={14} className="text-primary-blue" />
