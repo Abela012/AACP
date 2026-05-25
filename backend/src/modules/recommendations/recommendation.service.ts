@@ -537,3 +537,12 @@ export const getRecommendationsForUser = async (userId: string): Promise<Recomme
 
     return result;
 };
+
+/** Exported for unit tests — scoring primitives only */
+export const recommendationScoring = {
+    calculateMatchScore,
+    listOverlapRatio,
+    scoreEngagement,
+    scoreFollowers,
+    spreadAdvertiserMatchScores,
+};
