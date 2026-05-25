@@ -654,69 +654,6 @@ export const getRecommendationsForUser = async (userId: string): Promise<Recomme
     return result;
 };
 
-/** Legacy scoring helpers (unit-tested; main flow uses calculateCompatibility) */
-export const listOverlapRatio = jaccardOverlap;
-
-export const scoreEngagement = (engagementRate: number, minEngagement: number): number => {
-    const rate = Number(engagementRate) || 0;
-    const min = Number(minEngagement) || 0;
-    if (rate <= 0) return 0;
-    if (min <= 0) return clamp(rate * 10, 0, 100);
-    if (rate < min) return (rate / min) * 35;
-    return 35 + Math.min((rate - min) * 8, 65);
-};
-
-export const scoreFollowers = (followers: number): number => {
-    const count = Number(followers) || 0;
-    if (count <= 0) return 0;
-    return clamp(Math.log10(count + 1) * 12, 0, 100);
-};
-
-export const calculateMatchScore = (
-    userProfile: Record<string, unknown>,
-    userLocation: string,
-    target: Record<string, unknown>,
-    targetLocation: string
-): number => {
-    const niches = unique(toList(userProfile.preferredNiches));
-    const platforms = unique(toList(userProfile.preferredPlatform));
-    const minEngagement = Number(userProfile.minEngagement) || 0;
-    const budget = Number(userProfile.budget) || 0;
-
-    const targetNiches = unique(toList(target.niches));
-    const targetPlatforms = unique(toList(target.platforms));
-    const engagementRate = Number(target.engagementRate) || 0;
-    const followers = Number(target.followers) || 0;
-    const pricePerPost = Number(target.pricePerPost) || 0;
-    const rating = Number(target.averageRating) || 0;
-
-    let score = 0;
-    score += listOverlapRatio(niches, targetNiches) * 30;
-    score += listOverlapRatio(platforms, targetPlatforms) * 25;
-    score += scoreEngagement(engagementRate, minEngagement) * 0.2;
-    score += scoreFollowers(followers) * 0.15;
-    score += locationCompatibility(userLocation, targetLocation) * 10;
-
-    if (budget > 0 && pricePerPost > 0) {
-        const ratio = pricePerPost / budget;
-        score += ratio <= 1 ? (1 - ratio) * 10 : Math.max(0, 10 - (ratio - 1) * 5);
-    }
-
-    if (rating > 0) {
-        score += Math.min(rating * 4, 20);
-    }
-
-    return clamp(Math.round(score), 0, 100);
-};
-
-export const spreadAdvertiserMatchScores = <T extends { score: number }>(items: T[]): T[] => {
-    const sorted = [...items].sort((left, right) => right.score - left.score);
-    return sorted.map((item, index) => ({
-        ...item,
-        score: clamp(item.score - index * 0.05, 0, 100),
-    }));
-};
-
 /** Exported for unit tests — scoring primitives only */
 export const recommendationScoring = {
     calculateMatchScore,
