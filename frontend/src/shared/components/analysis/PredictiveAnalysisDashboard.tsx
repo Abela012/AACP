@@ -60,19 +60,19 @@ export default function PredictiveAnalysisDashboard({ data }: Props) {
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                 <div className={cn(
                     "p-4 rounded-2xl border shadow-xs flex flex-col justify-between",
-                    profitable ? "bg-aacp-gold/15/50 border-aacp-gold/25 dark:bg-aacp-olive/5 dark:border-aacp-olive/20" : "bg-amber-50/50 border-amber-100 dark:bg-amber-500/5 dark:border-amber-500/20"
+                    profitable ? "bg-neutral-border/15/50 border-neutral-border/25 dark:bg-primary-blue/5 dark:border-primary-blue/20" : "bg-amber-50/50 border-amber-100 dark:bg-amber-500/5 dark:border-amber-500/20"
                 )}>
                     <div className="flex justify-between items-start mb-2">
-                        <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center", profitable ? "bg-aacp-gold/25 text-aacp-olive" : "bg-amber-100 text-amber-600")}>
+                        <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center", profitable ? "bg-neutral-border/25 text-primary-blue" : "bg-amber-100 text-amber-600")}>
                             <TrendingUp size={16} />
                         </div>
-                        <span className={cn("text-[8px] font-black uppercase tracking-tighter", profitable ? "text-aacp-olive" : "text-amber-600")}>
+                        <span className={cn("text-[8px] font-black uppercase tracking-tighter", profitable ? "text-primary-blue" : "text-amber-600")}>
                             {profitable ? 'Profitable' : 'Risky'}
                         </span>
                     </div>
                     <div>
                         <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-0.5">ROI Score</p>
-                        <h3 className={cn("text-lg font-black", profitable ? "text-aacp-olive" : "text-amber-600")}>
+                        <h3 className={cn("text-lg font-black", profitable ? "text-primary-blue" : "text-amber-600")}>
                             {(roi || 0) > 0 ? '+' : ''}{(roi || 0)}%
                         </h3>
                     </div>
@@ -92,7 +92,7 @@ export default function PredictiveAnalysisDashboard({ data }: Props) {
 
                 <div className="p-4 rounded-2xl bg-white dark:bg-white/5 border border-gray-100 dark:border-white/5 shadow-xs flex flex-col justify-between">
                     <div className="flex justify-between items-start mb-2">
-                        <div className="w-8 h-8 bg-purple-100 dark:bg-purple-500/10 rounded-lg flex items-center justify-center text-purple-600">
+                        <div className="w-8 h-8 bg-primary-blue-light dark:bg-primary-blue-light0/10 rounded-lg flex items-center justify-center text-primary-blue">
                             <Target size={16} />
                         </div>
                     </div>
@@ -198,15 +198,15 @@ export default function PredictiveAnalysisDashboard({ data }: Props) {
                     </div>
                     <div>
                         <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Engagement</p>
-                        <p className="text-xs font-black text-aacp-olive">{(metrics?.engagementRate || 0)}%</p>
+                        <p className="text-xs font-black text-primary-blue">{(metrics?.engagementRate || 0)}%</p>
                     </div>
                 </div>
             </div>
 
             {/* 4. AI INSIGHT SECTION */}
-            <div className="bg-aacp-olive/5 p-6 rounded-3xl border border-aacp-olive/10">
+            <div className="bg-primary-blue/5 p-6 rounded-3xl border border-primary-blue/10">
                 <div className="flex items-center gap-2 mb-4">
-                    <Sparkles className="text-aacp-olive" size={16} />
+                    <Sparkles className="text-primary-blue" size={16} />
                     <h4 className="text-[10px] font-black text-gray-900 dark:text-white uppercase tracking-widest">AI Strategic Verdict</h4>
                 </div>
                 {data.usesMockData ? (

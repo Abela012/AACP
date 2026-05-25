@@ -69,7 +69,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
               <div className="flex justify-between items-start mb-8">
                 <div>
                   <h2 className="text-2xl font-black text-gray-900 dark:text-white leading-tight">
-                    {title} {targetName && <span className="text-aacp-olive">for {targetName}</span>}
+                    {title} {targetName && <span className="text-primary-blue">for {targetName}</span>}
                   </h2>
                   <p className="text-gray-500 dark:text-gray-400 text-sm font-medium mt-1">{subtitle}</p>
                 </div>
@@ -107,14 +107,14 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
                 {/* Comment Section */}
                 <div className="space-y-3">
                   <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 dark:text-gray-500 flex items-center gap-2">
-                    <MessageSquare size={12} className="text-aacp-olive" />
+                    <MessageSquare size={12} className="text-primary-blue" />
                     Comment (Optional)
                   </label>
                   <textarea
                     value={comment}
                     onChange={(e) => setComment(e.target.value)}
                     placeholder="Share your experience working together..."
-                    className="w-full h-32 p-4 rounded-3xl bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 outline-none focus:border-aacp-olive transition-all resize-none text-sm font-medium text-gray-900 dark:text-white"
+                    className="w-full h-32 p-4 rounded-3xl bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 outline-none focus:border-primary-blue transition-all resize-none text-sm font-medium text-gray-900 dark:text-white"
                   />
                 </div>
 
@@ -128,7 +128,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
                   className={cn(
                     "w-full h-14 rounded-2xl font-black text-sm flex items-center justify-center gap-2 transition-all shadow-xl",
                     rating > 0 
-                      ? "bg-aacp-olive text-white hover:bg-aacp-olive shadow-aacp-olive/20" 
+                      ? "bg-primary-blue text-white hover:bg-primary-blue shadow-primary-blue/20" 
                       : "bg-gray-100 dark:bg-white/5 text-gray-400 dark:text-gray-500 cursor-not-allowed shadow-none"
                   )}
                 >

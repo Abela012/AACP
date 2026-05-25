@@ -103,8 +103,8 @@ export default function AdvertiserManualCheckoutPage() {
       <AdvertiserLayout>
         <main className="max-w-[1200px] mx-auto px-4 sm:px-6 py-20 flex flex-col items-center justify-center min-h-[70vh]">
           <div className="bg-white dark:bg-[#111] rounded-[2.5rem] p-10 max-w-md w-full text-center border border-gray-100 dark:border-white/5 shadow-2xl">
-            <div className="w-20 h-20 rounded-full bg-aacp-olive/10 flex items-center justify-center mx-auto mb-6">
-              <Check className="text-aacp-olive w-10 h-10" />
+            <div className="w-20 h-20 rounded-full bg-primary-blue/10 flex items-center justify-center mx-auto mb-6">
+              <Check className="text-primary-blue w-10 h-10" />
             </div>
             <h2 className="text-2xl font-black text-gray-900 dark:text-white mb-2">Request Sent!</h2>
             <p className="text-gray-500 dark:text-gray-400 mb-8 leading-relaxed text-sm">
@@ -112,7 +112,7 @@ export default function AdvertiserManualCheckoutPage() {
             </p>
             <button 
               onClick={() => navigate('/advertiser/wallet')}
-              className="w-full bg-aacp-olive hover:bg-aacp-gold text-black font-bold py-4 rounded-xl shadow-lg shadow-aacp-olive/20 active:scale-[0.98] transition-all"
+              className="w-full bg-primary-blue hover:bg-neutral-border text-black font-bold py-4 rounded-xl shadow-lg shadow-primary-blue/20 active:scale-[0.98] transition-all"
             >
               Back to Wallet
             </button>
@@ -141,8 +141,8 @@ export default function AdvertiserManualCheckoutPage() {
             </div>
           </div>
           
-          <div className="bg-aacp-gold/15 dark:bg-aacp-olive/10 border border-aacp-gold/25 dark:border-aacp-olive/20 px-4 py-2 rounded-lg flex items-center gap-2 text-xs font-bold text-aacp-olive dark:text-aacp-gold uppercase tracking-widest hidden sm:flex">
-            <div className="w-5 h-5 bg-aacp-olive rounded-md flex items-center justify-center">
+          <div className="bg-neutral-border/15 dark:bg-primary-blue/10 border border-neutral-border/25 dark:border-primary-blue/20 px-4 py-2 rounded-lg flex items-center gap-2 text-xs font-bold text-primary-blue dark:text-neutral-border uppercase tracking-widest hidden sm:flex">
+            <div className="w-5 h-5 bg-primary-blue rounded-md flex items-center justify-center">
               <ShieldIcon className="text-black w-3 h-3" />
             </div>
             Secure Payment Gateway
@@ -157,7 +157,7 @@ export default function AdvertiserManualCheckoutPage() {
             {/* Step 1: Transfer Instructions */}
             <div className="bg-white dark:bg-[#111] rounded-[2.5rem] p-6 md:p-10 shadow-sm border border-gray-100 dark:border-white/5">
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-6 h-6 rounded-full bg-aacp-olive flex items-center justify-center shrink-0">
+                <div className="w-6 h-6 rounded-full bg-primary-blue flex items-center justify-center shrink-0">
                   <Info className="text-black w-3.5 h-3.5" />
                 </div>
                 <h2 className="text-xl font-bold text-gray-900 dark:text-white">Manual Payment Instructions</h2>
@@ -173,7 +173,7 @@ export default function AdvertiserManualCheckoutPage() {
             {/* Step 2: Upload Proof */}
             <div className="bg-white dark:bg-[#111] rounded-[2.5rem] p-6 md:p-10 shadow-sm border border-gray-100 dark:border-white/5">
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-6 h-6 rounded-full bg-aacp-olive flex items-center justify-center shrink-0">
+                <div className="w-6 h-6 rounded-full bg-primary-blue flex items-center justify-center shrink-0">
                   <UploadCloud className="text-black w-3.5 h-3.5" />
                 </div>
                 <h2 className="text-xl font-bold text-gray-900 dark:text-white">Upload Proof of Payment</h2>
@@ -196,8 +196,8 @@ export default function AdvertiserManualCheckoutPage() {
                   className={cn(
                     "border-2 border-dashed rounded-2xl p-10 flex flex-col items-center justify-center transition-all cursor-pointer mb-6",
                     isDragging 
-                      ? "border-aacp-olive bg-aacp-gold/15/50 dark:bg-aacp-olive/10" 
-                      : "border-gray-200 dark:border-white/10 hover:border-aacp-olive hover:bg-aacp-gold/15/50 dark:hover:bg-aacp-olive/5"
+                      ? "border-primary-blue bg-neutral-border/15/50 dark:bg-primary-blue/10" 
+                      : "border-gray-200 dark:border-white/10 hover:border-primary-blue hover:bg-neutral-border/15/50 dark:hover:bg-primary-blue/5"
                   )}
                 >
                   <div className="w-12 h-12 bg-gray-100 dark:bg-[#222] rounded-full flex items-center justify-center mb-4">
@@ -207,36 +207,36 @@ export default function AdvertiserManualCheckoutPage() {
                   <p className="text-[10px] text-gray-400 dark:text-gray-500 uppercase font-medium tracking-wide">SVG, PNG, JPG or PDF (max. 5MB)</p>
                 </div>
               ) : (
-                <div className="border-2 border-aacp-olive bg-aacp-gold/15/50 dark:bg-aacp-olive/10 rounded-2xl p-8 flex items-center justify-between mb-6 animate-in fade-in zoom-in duration-300">
+                <div className="border-2 border-primary-blue bg-neutral-border/15/50 dark:bg-primary-blue/10 rounded-2xl p-8 flex items-center justify-between mb-6 animate-in fade-in zoom-in duration-300">
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-aacp-olive rounded-xl flex items-center justify-center text-black">
+                    <div className="w-12 h-12 bg-primary-blue rounded-xl flex items-center justify-center text-black">
                       <FileReceiptIcon size={24} />
                     </div>
                     <div>
                       <p className="text-sm font-bold text-gray-900 dark:text-white line-clamp-1">{selectedFile.name}</p>
-                      <p className="text-xs text-aacp-olive dark:text-aacp-gold font-medium">{(selectedFile.size / 1024 / 1024).toFixed(2)} MB • Ready to submit</p>
+                      <p className="text-xs text-primary-blue dark:text-neutral-border font-medium">{(selectedFile.size / 1024 / 1024).toFixed(2)} MB • Ready to submit</p>
                     </div>
                   </div>
                   <button 
                     onClick={removeFile}
-                    className="p-2 hover:bg-aacp-olive/10 rounded-full text-aacp-olive dark:text-aacp-gold transition-colors"
+                    className="p-2 hover:bg-primary-blue/10 rounded-full text-primary-blue dark:text-neutral-border transition-colors"
                   >
                     <X size={20} />
                   </button>
                 </div>
               )}
 
-              <div className="flex gap-3 bg-aacp-gold/15/50 dark:bg-aacp-olive/10 border border-aacp-gold/25 dark:border-aacp-olive/10 p-4 rounded-xl mb-6">
-                <Clock className="text-aacp-olive w-5 h-5 shrink-0" />
+              <div className="flex gap-3 bg-neutral-border/15/50 dark:bg-primary-blue/10 border border-neutral-border/25 dark:border-primary-blue/10 p-4 rounded-xl mb-6">
+                <Clock className="text-primary-blue w-5 h-5 shrink-0" />
                 <p className="text-xs text-gray-600 dark:text-gray-300 leading-relaxed">
-                  <span className="font-bold text-gray-900 dark:text-white">Note:</span> Manual payments are processed within <span className="font-bold text-aacp-olive">24-48 hours</span>. You will receive a notification once your coins are credited to your account.
+                  <span className="font-bold text-gray-900 dark:text-white">Note:</span> Manual payments are processed within <span className="font-bold text-primary-blue">24-48 hours</span>. You will receive a notification once your coins are credited to your account.
                 </p>
               </div>
 
               <button 
                 onClick={handleSubmit}
                 disabled={isSubmitting || !selectedFile}
-                className="w-full bg-aacp-olive hover:bg-aacp-gold text-black py-4 rounded-xl font-bold flex items-center justify-center transition-all shadow-lg shadow-aacp-olive/30 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full bg-primary-blue hover:bg-neutral-border text-black py-4 rounded-xl font-bold flex items-center justify-center transition-all shadow-lg shadow-primary-blue/30 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isSubmitting ? (
                   <div className="w-5 h-5 border-2 border-black/30 border-t-black rounded-full animate-spin" />
@@ -271,14 +271,14 @@ export default function AdvertiserManualCheckoutPage() {
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-gray-500 dark:text-gray-400">Processing Fee</span>
-                  <span className="font-bold text-aacp-olive">Free</span>
+                  <span className="font-bold text-primary-blue">Free</span>
                 </div>
               </div>
 
               <div className="mb-8">
                 <span className="text-[10px] text-gray-400 dark:text-gray-500 font-bold block mb-1">Total Payable</span>
                 <div className="flex items-center justify-between">
-                  <span className="text-3xl font-black text-aacp-olive">{formatBirr(packDetails.price)}</span>
+                  <span className="text-3xl font-black text-primary-blue">{formatBirr(packDetails.price)}</span>
                   <span className="text-[8px] uppercase font-bold text-gray-400 dark:text-gray-500 tracking-widest mt-2">INCLUDED TAXES</span>
                 </div>
               </div>

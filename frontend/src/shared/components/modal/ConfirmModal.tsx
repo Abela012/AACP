@@ -49,7 +49,7 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
                 <div className={cn(
                   "w-12 h-12 rounded-2xl flex items-center justify-center",
                   type === 'danger' ? "bg-red-500/10 text-red-500" :
-                  type === 'success' ? "bg-aacp-olive/10 text-aacp-olive" :
+                  type === 'success' ? "bg-primary-blue/10 text-primary-blue" :
                   type === 'warning' ? "bg-amber-500/10 text-amber-500" :
                   "bg-blue-500/10 text-blue-500"
                 )}>
@@ -81,7 +81,7 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
                   className={cn(
                     "w-full h-14 rounded-2xl font-black text-sm transition-all shadow-xl",
                     type === 'danger' ? "bg-red-500 text-white hover:bg-red-400 shadow-red-500/20" :
-                    type === 'success' ? "bg-aacp-olive text-black hover:bg-aacp-gold shadow-aacp-olive/20" :
+                    type === 'success' ? "bg-primary-blue text-black hover:bg-neutral-border shadow-primary-blue/20" :
                     type === 'warning' ? "bg-amber-500 text-black hover:bg-amber-400 shadow-amber-500/20" :
                     "bg-gray-900 dark:bg-white text-white dark:text-black hover:opacity-90 transition-opacity shadow-gray-900/20"
                   )}

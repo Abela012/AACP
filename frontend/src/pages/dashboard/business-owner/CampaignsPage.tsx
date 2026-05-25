@@ -59,7 +59,7 @@ export default function CampaignsPage() {
           </div>
           <Link 
             to="/campaign/new"
-            className="bg-aacp-olive text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-aacp-olive transition-all shadow-lg shadow-aacp-gold/25 dark:shadow-none"
+            className="bg-primary-blue text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-primary-blue transition-all shadow-lg shadow-neutral-border/25 dark:shadow-none"
           >
             <Plus size={18} />
             New Campaign
@@ -75,7 +75,7 @@ export default function CampaignsPage() {
               placeholder="Search campaigns..." 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 rounded-xl border border-gray-100 dark:border-white/10 bg-white dark:bg-white/5 focus:border-aacp-olive dark:focus:border-aacp-olive outline-none text-sm dark:text-white"
+              className="w-full pl-10 pr-4 py-2 rounded-xl border border-gray-100 dark:border-white/10 bg-white dark:bg-white/5 focus:border-primary-blue dark:focus:border-primary-blue outline-none text-sm dark:text-white"
             />
           </div>
           <div className="flex gap-3">
@@ -115,7 +115,7 @@ export default function CampaignsPage() {
                 {isLoading ? (
                   <tr>
                     <td colSpan={7} className="px-8 py-20 text-center">
-                      <Loader2 size={32} className="animate-spin text-aacp-olive mx-auto" />
+                      <Loader2 size={32} className="animate-spin text-primary-blue mx-auto" />
                     </td>
                   </tr>
                 ) : filteredCampaigns.length > 0 ? (
@@ -126,7 +126,7 @@ export default function CampaignsPage() {
                       className="hover:bg-gray-50/50 dark:hover:bg-white/5 transition-colors group cursor-pointer"
                     >
                       <td className="px-8 py-6">
-                        <p className="text-sm font-bold text-gray-900 dark:text-white group-hover:text-aacp-olive dark:group-hover:text-aacp-gold transition-colors">{c.title}</p>
+                        <p className="text-sm font-bold text-gray-900 dark:text-white group-hover:text-primary-blue dark:group-hover:text-neutral-border transition-colors">{c.title}</p>
                       </td>
                       <td className="px-8 py-6">
                         <span className={cn(

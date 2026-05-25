@@ -57,26 +57,26 @@ export default function LandingNav() {
 
   const headerClass = `fixed inset-x-0 top-0 z-50 aacp-font-body transition-all duration-500 ease-out ${scrolled
       ? isDarkHeader
-        ? 'py-3.5 bg-aacp-charcoal/90 border-b border-aacp-gold/15 backdrop-blur-xl shadow-lg shadow-black/25'
-        : 'py-3.5 bg-aacp-cream/90 border-b border-aacp-olive/15 backdrop-blur-xl shadow-md shadow-aacp-olive/5'
+        ? 'py-3.5 bg-neutral-dark/90 border-b border-neutral-border/15 backdrop-blur-xl shadow-lg shadow-black/25'
+        : 'py-3.5 bg-neutral-light/90 border-b border-primary-blue/15 backdrop-blur-xl shadow-md shadow-primary-blue/5'
       : 'py-5 bg-transparent border-b border-transparent'
     }`;
 
-  const logoTextClass = `aacp-font-display text-3xl font-semibold tracking-tight transition-colors duration-500 ${scrolled && isDarkHeader ? 'text-aacp-cream' : 'text-aacp-ink'
+  const logoTextClass = `aacp-font-display text-3xl font-semibold tracking-tight transition-colors duration-500 ${scrolled && isDarkHeader ? 'text-neutral-light' : 'text-neutral-dark'
     } sm:text-4xl`;
 
-  const logoBorderClass = `group flex items-baseline gap-3 border-b pb-1 transition-colors duration-500 ${scrolled && isDarkHeader ? 'border-aacp-gold/25 hover:border-aacp-gold' : 'border-aacp-olive/25 hover:border-aacp-ink'
+  const logoBorderClass = `group flex items-baseline gap-3 border-b pb-1 transition-colors duration-500 ${scrolled && isDarkHeader ? 'border-neutral-border/25 hover:border-neutral-border' : 'border-primary-blue/25 hover:border-neutral-dark'
     }`;
 
   const getNavLinkClass = (href: string) => {
     const isActive = href === `#${activeSection}`;
     return `relative py-1.5 font-mono text-[0.65rem] uppercase tracking-[0.22em] transition-colors duration-500 ${scrolled && isDarkHeader
-        ? isActive ? 'text-aacp-gold' : 'text-aacp-gold/55 hover:text-aacp-cream'
-        : isActive ? 'text-aacp-olive' : 'text-aacp-smoke hover:text-aacp-ink'
+        ? isActive ? 'text-neutral-border' : 'text-neutral-border/55 hover:text-neutral-light'
+        : isActive ? 'text-primary-blue' : 'text-neutral-medium hover:text-neutral-dark'
       }`;
   };
 
-  const signInClass = `font-mono text-[0.65rem] uppercase tracking-[0.2em] transition-colors duration-500 ${scrolled && isDarkHeader ? 'text-aacp-gold/60 hover:text-aacp-cream' : 'text-aacp-smoke hover:text-aacp-ink'
+  const signInClass = `font-mono text-[0.65rem] uppercase tracking-[0.2em] transition-colors duration-500 ${scrolled && isDarkHeader ? 'text-neutral-border/60 hover:text-neutral-light' : 'text-neutral-medium hover:text-neutral-dark'
     }`;
 
   return (
@@ -103,7 +103,7 @@ export default function LandingNav() {
               {`#${activeSection}` === item.href && (
                 <motion.div
                   layoutId="activeTabIndicator"
-                  className={`absolute bottom-0 left-0 right-0 h-[2px] rounded-full ${scrolled && isDarkHeader ? 'bg-aacp-gold' : 'bg-aacp-olive'
+                  className={`absolute bottom-0 left-0 right-0 h-[2px] rounded-full ${scrolled && isDarkHeader ? 'bg-neutral-border' : 'bg-primary-blue'
                     }`}
                   transition={{ type: 'spring', stiffness: 380, damping: 30 }}
                 />
@@ -133,11 +133,11 @@ export default function LandingNav() {
               <img
                 src={user.imageUrl}
                 alt=""
-                className={`h-9 w-9 border object-cover transition-colors duration-500 ${scrolled && isDarkHeader ? 'border-aacp-gold/40' : 'border-aacp-olive/40'
+                className={`h-9 w-9 border object-cover transition-colors duration-500 ${scrolled && isDarkHeader ? 'border-neutral-border/40' : 'border-primary-blue/40'
                   }`}
               />
             ) : (
-              <span className={`flex h-9 w-9 items-center justify-center border bg-aacp-gold/40 aacp-font-display text-lg transition-all duration-500 ${scrolled && isDarkHeader ? 'border-aacp-gold/40 text-aacp-cream' : 'border-aacp-olive/40 text-aacp-ink'
+              <span className={`flex h-9 w-9 items-center justify-center border bg-neutral-border/40 aacp-font-display text-lg transition-all duration-500 ${scrolled && isDarkHeader ? 'border-neutral-border/40 text-neutral-light' : 'border-primary-blue/40 text-neutral-dark'
                 }`}>
                 {user?.firstName?.[0]}
               </span>
@@ -155,13 +155,13 @@ export default function LandingNav() {
         >
           <span
             className={`block h-px w-7 transition-all duration-500 ${open ? 'translate-y-[7.5px] rotate-45' : ''
-              } ${scrolled && isDarkHeader ? 'bg-aacp-cream' : 'bg-aacp-ink'}`}
+              } ${scrolled && isDarkHeader ? 'bg-neutral-light' : 'bg-neutral-dark'}`}
           />
           <span className={`block h-px w-5 transition-opacity duration-300 ${open ? 'opacity-0' : 'opacity-100'
-            } ${scrolled && isDarkHeader ? 'bg-aacp-gold/70' : 'bg-aacp-olive'}`} />
+            } ${scrolled && isDarkHeader ? 'bg-neutral-border/70' : 'bg-primary-blue'}`} />
           <span
             className={`block h-px w-7 transition-all duration-500 ${open ? '-translate-y-[7.5px] -rotate-45' : ''
-              } ${scrolled && isDarkHeader ? 'bg-aacp-cream' : 'bg-aacp-ink'}`}
+              } ${scrolled && isDarkHeader ? 'bg-neutral-light' : 'bg-neutral-dark'}`}
           />
         </button>
       </div>
@@ -175,8 +175,8 @@ export default function LandingNav() {
             exit={{ opacity: 0, y: -12 }}
             transition={{ duration: 0.3, ease: 'easeInOut' }}
             className={`border-t px-6 py-8 backdrop-blur-md lg:hidden transition-colors duration-500 ${isDarkHeader
-                ? 'border-aacp-gold/15 bg-aacp-charcoal/95'
-                : 'border-aacp-olive/25 bg-aacp-cream/95'
+                ? 'border-neutral-border/15 bg-neutral-dark/95'
+                : 'border-primary-blue/25 bg-neutral-light/95'
               }`}
           >
             <ul className="space-y-5">
@@ -185,20 +185,20 @@ export default function LandingNav() {
                   <a
                     href={item.href}
                     onClick={() => setOpen(false)}
-                    className={`aacp-font-display text-3xl transition-colors duration-300 ${isDarkHeader ? 'text-aacp-cream hover:text-aacp-gold' : 'text-aacp-ink hover:text-aacp-olive'
+                    className={`aacp-font-display text-3xl transition-colors duration-300 ${isDarkHeader ? 'text-neutral-light hover:text-neutral-border' : 'text-neutral-dark hover:text-primary-blue'
                       }`}
                   >
                     {item.label}
                   </a>
                 </li>
               ))}
-              <li className="pt-4 border-t border-aacp-olive/15 mt-6">
+              <li className="pt-4 border-t border-primary-blue/15 mt-6">
                 <SignedOut>
                   <div className="flex flex-col gap-3">
                     <Link
                       to="/auth/login"
                       onClick={() => setOpen(false)}
-                      className={`aacp-btn-ghost w-full justify-center transition-colors duration-300 ${isDarkHeader ? 'border-aacp-gold/40 text-aacp-cream bg-white/5' : ''
+                      className={`aacp-btn-ghost w-full justify-center transition-colors duration-300 ${isDarkHeader ? 'border-neutral-border/40 text-neutral-light bg-white/5' : ''
                         }`}
                     >
                       Sign in

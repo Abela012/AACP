@@ -145,7 +145,7 @@ export default function MatchesPage() {
                         className="w-full h-full object-cover transition-transform group-hover:scale-105 duration-500"
                       />
                       <div className="absolute inset-0 bg-linear-to-t from-black/60 via-black/10 to-transparent" />
-                      <div className="absolute bottom-4 left-4 flex items-center gap-1.5 text-aacp-gold text-xs font-bold bg-black/35 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10">
+                      <div className="absolute bottom-4 left-4 flex items-center gap-1.5 text-neutral-border text-xs font-bold bg-black/35 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10">
                         <ShieldCheck size={14} className="fill-current" />
                         <span>Verified Creator Partner</span>
                       </div>
@@ -155,7 +155,7 @@ export default function MatchesPage() {
                     <div className="grid grid-cols-2 gap-3">
                       <div className="bg-gray-50 dark:bg-white/3 p-3 rounded-2xl border border-gray-100 dark:border-white/5 shadow-xs">
                         <span className="text-[8px] font-bold text-gray-400 uppercase tracking-widest block mb-0.5">Niche</span>
-                        <span className="text-xs font-black text-aacp-olive dark:text-aacp-gold truncate block">{selectedCreator.category || 'Lifestyle'}</span>
+                        <span className="text-xs font-black text-primary-blue dark:text-neutral-border truncate block">{selectedCreator.category || 'Lifestyle'}</span>
                       </div>
                       <div className="bg-gray-50 dark:bg-white/3 p-3 rounded-2xl border border-gray-100 dark:border-white/5 shadow-xs">
                         <span className="text-[8px] font-bold text-gray-400 uppercase tracking-widest block mb-0.5">Reach</span>
@@ -196,14 +196,14 @@ export default function MatchesPage() {
                     <div className="flex flex-col gap-3 pt-4 border-t border-gray-100 dark:border-white/5">
                       <button
                         onClick={() => navigate('/messages', { state: { creator: selectedCreator } })}
-                        className="w-full py-4 bg-aacp-olive hover:bg-aacp-gold text-black rounded-2xl font-black text-sm transition-all shadow-lg shadow-aacp-olive/20 flex items-center justify-center gap-2"
+                        className="w-full py-4 bg-primary-blue hover:bg-neutral-border text-black rounded-2xl font-black text-sm transition-all shadow-lg shadow-primary-blue/20 flex items-center justify-center gap-2"
                       >
                         Invite to Campaign
                         <ArrowRight size={16} />
                       </button>
                       <button
                         onClick={() => navigate(`/admin/users/${selectedCreator.targetId}`)}
-                        className="w-full py-3.5 border border-gray-100 dark:border-white/10 rounded-2xl flex items-center justify-center gap-2 text-xs font-bold text-gray-500 dark:text-gray-400 hover:text-aacp-olive hover:bg-aacp-gold/15 dark:hover:bg-aacp-olive/10 transition-all shadow-xs"
+                        className="w-full py-3.5 border border-gray-100 dark:border-white/10 rounded-2xl flex items-center justify-center gap-2 text-xs font-bold text-gray-500 dark:text-gray-400 hover:text-primary-blue hover:bg-neutral-border/15 dark:hover:bg-primary-blue/10 transition-all shadow-xs"
                       >
                         <ExternalLink size={14} /> View Full Profile
                       </button>
@@ -215,14 +215,14 @@ export default function MatchesPage() {
                     {/* Header */}
                     <div className="flex items-center justify-between border-b border-gray-100 dark:border-white/5 pb-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-aacp-olive/10 text-aacp-olive rounded-xl flex items-center justify-center shadow-inner">
+                        <div className="w-10 h-10 bg-primary-blue/10 text-primary-blue rounded-xl flex items-center justify-center shadow-inner">
                           <Sparkles size={20} className="animate-pulse" />
                         </div>
                         <div>
                           <h4 className="text-base font-black text-gray-900 dark:text-white uppercase tracking-widest flex items-center gap-1.5">
                             Gemini AI Market Analysis
                           </h4>
-                          <p className="text-[10px] text-aacp-olive font-bold">Real-time Strategy & Profit Projections</p>
+                          <p className="text-[10px] text-primary-blue font-bold">Real-time Strategy & Profit Projections</p>
                         </div>
                       </div>
                       <div className="text-right">
@@ -234,7 +234,7 @@ export default function MatchesPage() {
                     {/* Loaded dashboard container */}
                     {isLoadingPrediction ? (
                       <div className="py-32 flex flex-col items-center justify-center gap-4 bg-gray-50/50 dark:bg-white/2 rounded-4xl border border-gray-100 dark:border-white/5">
-                        <Loader2 size={40} className="animate-spin text-aacp-olive" />
+                        <Loader2 size={40} className="animate-spin text-primary-blue" />
                         <div className="text-center">
                           <p className="text-xs font-black text-gray-900 dark:text-white uppercase tracking-widest animate-pulse">Running Calculations...</p>
                           <p className="text-[10px] text-gray-400 font-bold mt-1 px-4 max-w-sm mx-auto leading-relaxed">
@@ -288,7 +288,7 @@ export default function MatchesPage() {
             ))}
           </div>
 
-          <button className="flex items-center gap-2 px-4 py-1.5 rounded-full border border-aacp-olive text-aacp-olive dark:text-aacp-olive text-sm font-medium hover:bg-aacp-olive/10 transition-colors">
+          <button className="flex items-center gap-2 px-4 py-1.5 rounded-full border border-primary-blue text-primary-blue dark:text-primary-blue text-sm font-medium hover:bg-primary-blue/10 transition-colors">
             <Filter size={16} />
             Filters
           </button>
@@ -302,7 +302,7 @@ export default function MatchesPage() {
               placeholder="Search by name, location or skills..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 rounded-2xl border border-gray-100 dark:border-white/10 bg-white/50 dark:bg-white/5 backdrop-blur-sm focus:border-aacp-olive outline-none text-sm transition-all"
+              className="w-full pl-10 pr-4 py-3 rounded-2xl border border-gray-100 dark:border-white/10 bg-white/50 dark:bg-white/5 backdrop-blur-sm focus:border-primary-blue outline-none text-sm transition-all"
             />
           </div>
           <div className="flex gap-3">
@@ -324,7 +324,7 @@ export default function MatchesPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {isLoading ? (
             <div className="col-span-full py-24 text-center">
-              <Loader2 size={48} className="animate-spin text-aacp-olive mx-auto mb-4" />
+              <Loader2 size={48} className="animate-spin text-primary-blue mx-auto mb-4" />
               <p className="text-gray-500 font-black uppercase tracking-widest text-xs">Finding best matches...</p>
             </div>
           ) : displayCreators.length > 0 ? (
@@ -348,7 +348,7 @@ export default function MatchesPage() {
                     </div>
                   )}
                   <div className="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent opacity-60"></div>
-                  <div className="absolute top-4 right-4 bg-aacp-olive text-black text-[10px] font-black px-3 py-1.5 rounded-full uppercase tracking-widest shadow-lg flex items-center gap-1">
+                  <div className="absolute top-4 right-4 bg-primary-blue text-black text-[10px] font-black px-3 py-1.5 rounded-full uppercase tracking-widest shadow-lg flex items-center gap-1">
                     <Sparkles size={10} />
                     {formatMatchScore(c.score)}% Match
                   </div>
@@ -370,7 +370,7 @@ export default function MatchesPage() {
                       <h3 className="text-xl font-black text-gray-900 dark:text-white mb-1 line-clamp-1">{c.name || `${c.firstName} ${c.lastName}`}</h3>
                       <div className="flex gap-1 overflow-hidden">
                         {(c.meta?.niches || c.profileData?.niches || [c.category]).slice(0, 2).map((n: string, idx: number) => (
-                          <span key={`${n || 'niche'}-${idx}`} className="text-[9px] text-aacp-olive dark:text-aacp-olive font-black uppercase tracking-widest bg-aacp-gold/15 dark:bg-aacp-olive/10 px-1.5 py-0.5 rounded-md whitespace-nowrap">
+                          <span key={`${n || 'niche'}-${idx}`} className="text-[9px] text-primary-blue dark:text-primary-blue font-black uppercase tracking-widest bg-neutral-border/15 dark:bg-primary-blue/10 px-1.5 py-0.5 rounded-md whitespace-nowrap">
                             {n}
                           </span>
                         ))}
@@ -386,7 +386,7 @@ export default function MatchesPage() {
 
                   <div className="grid grid-cols-2 gap-4 mb-8">
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 bg-aacp-gold/15 dark:bg-aacp-olive/10 rounded-lg flex items-center justify-center text-aacp-olive dark:text-aacp-olive">
+                      <div className="w-8 h-8 bg-neutral-border/15 dark:bg-primary-blue/10 rounded-lg flex items-center justify-center text-primary-blue dark:text-primary-blue">
                         <Users size={16} />
                       </div>
                       <div>
@@ -408,7 +408,7 @@ export default function MatchesPage() {
                   <div className="flex gap-3">
                     <button
                       onClick={(e) => { e.stopPropagation(); navigate('/messages', { state: { creator: c } }); }}
-                      className="flex-1 py-4 bg-aacp-olive text-black rounded-2xl font-black text-sm hover:bg-aacp-gold transition-all shadow-lg shadow-aacp-olive/20 flex items-center justify-center gap-2"
+                      className="flex-1 py-4 bg-primary-blue text-black rounded-2xl font-black text-sm hover:bg-neutral-border transition-all shadow-lg shadow-primary-blue/20 flex items-center justify-center gap-2"
                     >
                       Invite Now
                       <ArrowRight size={18} />

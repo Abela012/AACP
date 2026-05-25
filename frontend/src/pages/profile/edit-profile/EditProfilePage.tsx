@@ -503,7 +503,7 @@ export default function EditProfilePage() {
   };
 
   const inputCls =
-    'w-full bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl pl-10 pr-4 py-3 text-sm focus:outline-none focus:border-aacp-olive focus:ring-1 focus:ring-aacp-olive transition-all text-gray-900 dark:text-white';
+    'w-full bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl pl-10 pr-4 py-3 text-sm focus:outline-none focus:border-primary-blue focus:ring-1 focus:ring-primary-blue transition-all text-gray-900 dark:text-white';
   const labelCls = 'text-xs font-bold text-gray-500 uppercase tracking-wider';
   const profilePlaceholder = (value: string | number | undefined, fallback: string) =>
     value !== undefined && value !== null && String(value).trim() !== '' ? String(value) : fallback;
@@ -544,7 +544,7 @@ export default function EditProfilePage() {
     return (
       <Layout>
         <div className="min-h-[60vh] flex items-center justify-center">
-          <div className="w-10 h-10 border-4 border-aacp-olive/30 border-t-aacp-olive rounded-full animate-spin" />
+          <div className="w-10 h-10 border-4 border-primary-blue/30 border-t-primary-blue rounded-full animate-spin" />
         </div>
       </Layout>
     );
@@ -570,7 +570,7 @@ export default function EditProfilePage() {
               'w-full sm:w-auto px-6 py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-all shadow-lg',
               showSuccess
                 ? 'bg-cyan-500 text-white shadow-cyan-500/20'
-                : 'bg-aacp-olive text-black hover:bg-aacp-gold shadow-aacp-olive/20',
+                : 'bg-primary-blue text-black hover:bg-neutral-border shadow-primary-blue/20',
               isSaving && 'opacity-70 cursor-not-allowed'
             )}
           >
@@ -594,7 +594,7 @@ export default function EditProfilePage() {
                 className={cn(
                   'w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-semibold transition-all',
                   activeTab === tab.id
-                    ? 'bg-aacp-olive text-black shadow-lg shadow-aacp-olive/20'
+                    ? 'bg-primary-blue text-black shadow-lg shadow-primary-blue/20'
                     : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white'
                 )}
               >
@@ -765,7 +765,7 @@ export default function EditProfilePage() {
                         value={bio}
                         onChange={(e) => setBio(e.target.value)}
                         placeholder={isBusiness ? "Describe your brand in a few sentences..." : "Tell us about your content creation style, niches, and personality..."}
-                        className="w-full bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl p-4 text-sm focus:outline-none focus:border-aacp-olive focus:ring-1 focus:ring-aacp-olive transition-all text-gray-900 dark:text-white resize-none"
+                        className="w-full bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl p-4 text-sm focus:outline-none focus:border-primary-blue focus:ring-1 focus:ring-primary-blue transition-all text-gray-900 dark:text-white resize-none"
                       />
                     </div>
                   </div>
@@ -800,7 +800,7 @@ export default function EditProfilePage() {
                           <select
                             value={industry}
                             onChange={(e) => setIndustry(e.target.value)}
-                            className="w-full bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-aacp-olive transition-all text-gray-900 dark:text-white appearance-none"
+                            className="w-full bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary-blue transition-all text-gray-900 dark:text-white appearance-none"
                           >
                             {industriesList.map(ind => <option key={ind} value={ind}>{ind}</option>)}
                           </select>
@@ -839,7 +839,7 @@ export default function EditProfilePage() {
                           <select
                             value={companySize}
                             onChange={(e) => setCompanySize(e.target.value)}
-                            className="w-full bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-aacp-olive transition-all text-gray-900 dark:text-white appearance-none"
+                            className="w-full bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary-blue transition-all text-gray-900 dark:text-white appearance-none"
                           >
                             {companySizes.map(cs => <option key={cs} value={cs}>{cs}</option>)}
                           </select>
@@ -856,7 +856,7 @@ export default function EditProfilePage() {
                             value={servicesOffered}
                             onChange={(e) => setServicesOffered(e.target.value)}
                             placeholder="What do you offer? (e.g. Restaurant services, catering, etc.)"
-                            className="w-full bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl p-4 text-sm focus:outline-none focus:border-aacp-olive transition-all text-gray-900 dark:text-white resize-none"
+                            className="w-full bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl p-4 text-sm focus:outline-none focus:border-primary-blue transition-all text-gray-900 dark:text-white resize-none"
                           />
                         </div>
 
@@ -907,7 +907,7 @@ export default function EditProfilePage() {
                               <select
                                 value={brandVoice}
                                 onChange={(e) => setBrandVoice(e.target.value)}
-                                className="w-full bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-aacp-olive transition-all text-gray-900 dark:text-white appearance-none"
+                                className="w-full bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary-blue transition-all text-gray-900 dark:text-white appearance-none"
                               >
                                 {brandVoiceOptions.map(bv => <option key={bv} value={bv}>{bv}</option>)}
                               </select>
@@ -927,8 +927,8 @@ export default function EditProfilePage() {
                                   className={cn(
                                     "px-4 py-2 rounded-xl text-xs font-bold transition-all border",
                                     promotionGoals.includes(goal)
-                                      ? "bg-aacp-olive text-black border-aacp-olive"
-                                      : "bg-gray-100 dark:bg-white/5 text-gray-500 border-gray-200 dark:border-white/10 hover:border-aacp-olive/50"
+                                      ? "bg-primary-blue text-black border-primary-blue"
+                                      : "bg-gray-100 dark:bg-white/5 text-gray-500 border-gray-200 dark:border-white/10 hover:border-primary-blue/50"
                                   )}
                                 >
                                   {goal}
@@ -1021,7 +1021,7 @@ export default function EditProfilePage() {
                           <div className="flex items-center justify-between">
                             <label className={labelCls}>Avg Views</label>
                             {metricsAutoImported && (
-                              <span className="text-[10px] font-bold px-2 py-0.5 bg-aacp-olive/10 text-aacp-olive dark:text-aacp-gold rounded-full border border-aacp-olive/20">⚡ Auto-imported</span>
+                              <span className="text-[10px] font-bold px-2 py-0.5 bg-primary-blue/10 text-primary-blue dark:text-neutral-border rounded-full border border-primary-blue/20">⚡ Auto-imported</span>
                             )}
                           </div>
                           <input
@@ -1029,7 +1029,7 @@ export default function EditProfilePage() {
                             value={avgViews}
                             onChange={(e) => !metricsAutoImported && setAvgViews(e.target.value)}
                             readOnly={metricsAutoImported}
-                            className={cn(inputCls.replace('pl-10', 'pl-4'), metricsAutoImported && 'bg-aacp-gold/15 dark:bg-emerald-900/10 border-aacp-gold/30 dark:border-aacp-olive/20 text-aacp-olive dark:text-emerald-300 font-semibold cursor-not-allowed opacity-80')}
+                            className={cn(inputCls.replace('pl-10', 'pl-4'), metricsAutoImported && 'bg-neutral-border/15 dark:bg-emerald-900/10 border-neutral-border/30 dark:border-primary-blue/20 text-primary-blue dark:text-emerald-300 font-semibold cursor-not-allowed opacity-80')}
                             placeholder={profilePlaceholder(profile.avgViews, '450k')}
                           />
                         </div>
@@ -1037,7 +1037,7 @@ export default function EditProfilePage() {
                           <div className="flex items-center justify-between">
                             <label className={labelCls}>Engagement Rate (%)</label>
                             {metricsAutoImported && (
-                              <span className="text-[10px] font-bold px-2 py-0.5 bg-aacp-olive/10 text-aacp-olive dark:text-aacp-gold rounded-full border border-aacp-olive/20">⚡ Auto-imported</span>
+                              <span className="text-[10px] font-bold px-2 py-0.5 bg-primary-blue/10 text-primary-blue dark:text-neutral-border rounded-full border border-primary-blue/20">⚡ Auto-imported</span>
                             )}
                           </div>
                           <input
@@ -1045,7 +1045,7 @@ export default function EditProfilePage() {
                             value={engagementRate}
                             onChange={(e) => !metricsAutoImported && setEngagementRate(e.target.value)}
                             readOnly={metricsAutoImported}
-                            className={cn(inputCls.replace('pl-10', 'pl-4'), metricsAutoImported && 'bg-aacp-olive/5 dark:bg-emerald-900/10 border-aacp-gold/30 dark:border-aacp-olive/20 text-aacp-olive dark:text-emerald-300 font-semibold cursor-not-allowed opacity-80')}
+                            className={cn(inputCls.replace('pl-10', 'pl-4'), metricsAutoImported && 'bg-primary-blue/5 dark:bg-emerald-900/10 border-neutral-border/30 dark:border-primary-blue/20 text-primary-blue dark:text-emerald-300 font-semibold cursor-not-allowed opacity-80')}
                             placeholder={profilePlaceholder(profile.engagementRate, '4.2%')}
                           />
                         </div>
@@ -1092,8 +1092,8 @@ export default function EditProfilePage() {
 
                         {/* ── Content & Niche Advertiser Settings (Synced from Complete Profile) ── */}
                         <div className="sm:col-span-2 pt-6 mt-6 border-t border-gray-100 dark:border-white/5 space-y-6">
-                          <h3 className="text-sm font-black text-aacp-olive dark:text-aacp-gold uppercase tracking-widest flex items-center gap-2">
-                            <span className="p-1 bg-aacp-olive/10 rounded-lg">🎯</span> Content & Niche Selection
+                          <h3 className="text-sm font-black text-primary-blue dark:text-neutral-border uppercase tracking-widest flex items-center gap-2">
+                            <span className="p-1 bg-primary-blue/10 rounded-lg">🎯</span> Content & Niche Selection
                           </h3>
 
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -1103,7 +1103,7 @@ export default function EditProfilePage() {
                               <select
                                 value={niche}
                                 onChange={(e) => setNiche(e.target.value)}
-                                className="w-full bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-aacp-olive transition-all text-gray-900 dark:text-white appearance-none cursor-pointer"
+                                className="w-full bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary-blue transition-all text-gray-900 dark:text-white appearance-none cursor-pointer"
                               >
                                 <option value="" disabled>Select Primary Niche</option>
                                 <option value="beauty">Beauty & Cosmetics</option>
@@ -1129,7 +1129,7 @@ export default function EditProfilePage() {
                               <select
                                 value={experienceLevel}
                                 onChange={(e) => setExperienceLevel(e.target.value)}
-                                className="w-full bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-aacp-olive transition-all text-gray-900 dark:text-white appearance-none cursor-pointer"
+                                className="w-full bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary-blue transition-all text-gray-900 dark:text-white appearance-none cursor-pointer"
                               >
                                 <option value="" disabled>Select Experience Level</option>
                                 <option value="beginner">Beginner (Under 1 Year / Passionate)</option>
@@ -1168,8 +1168,8 @@ export default function EditProfilePage() {
                                       );
                                     }}
                                     className={`px-4 py-2.5 rounded-xl border text-xs font-semibold text-left transition-all ${selected
-                                      ? "bg-aacp-olive/10 text-aacp-olive border-aacp-olive dark:text-aacp-gold"
-                                      : "bg-gray-50 dark:bg-black/50 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-white/10 hover:border-aacp-olive/50"
+                                      ? "bg-primary-blue/10 text-primary-blue border-primary-blue dark:text-neutral-border"
+                                      : "bg-gray-50 dark:bg-black/50 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-white/10 hover:border-primary-blue/50"
                                       }`}
                                   >
                                     {c.label}
@@ -1182,8 +1182,8 @@ export default function EditProfilePage() {
 
                         {/* ── Demographics section ── */}
                         <div className="sm:col-span-2 pt-6 border-t border-gray-100 dark:border-white/5 space-y-6">
-                          <h3 className="text-sm font-black text-aacp-olive dark:text-aacp-gold uppercase tracking-widest flex items-center gap-2">
-                            <span className="p-1 bg-aacp-olive/10 rounded-lg">📊</span> Target Audience Demographics
+                          <h3 className="text-sm font-black text-primary-blue dark:text-neutral-border uppercase tracking-widest flex items-center gap-2">
+                            <span className="p-1 bg-primary-blue/10 rounded-lg">📊</span> Target Audience Demographics
                           </h3>
 
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -1193,7 +1193,7 @@ export default function EditProfilePage() {
                               <select
                                 value={ageRange}
                                 onChange={(e) => setAgeRange(e.target.value)}
-                                className="w-full bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-aacp-olive transition-all text-gray-900 dark:text-white appearance-none cursor-pointer"
+                                className="w-full bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary-blue transition-all text-gray-900 dark:text-white appearance-none cursor-pointer"
                               >
                                 <option value="">Select Age Group</option>
                                 <option value="13-17">Gen Z Teens (13-17)</option>
@@ -1210,7 +1210,7 @@ export default function EditProfilePage() {
                               <select
                                 value={gender}
                                 onChange={(e) => setGender(e.target.value)}
-                                className="w-full bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-aacp-olive transition-all text-gray-900 dark:text-white appearance-none cursor-pointer"
+                                className="w-full bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary-blue transition-all text-gray-900 dark:text-white appearance-none cursor-pointer"
                               >
                                 <option value="">Select Gender Balance</option>
                                 <option value="all">Balanced / All Genders</option>
@@ -1240,7 +1240,7 @@ export default function EditProfilePage() {
                                     }
                                   }
                                 }}
-                                className="flex-1 bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-aacp-olive transition-all text-gray-900 dark:text-white"
+                                className="flex-1 bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary-blue transition-all text-gray-900 dark:text-white"
                               />
                               <button
                                 type="button"
@@ -1261,7 +1261,7 @@ export default function EditProfilePage() {
                                 {interests.map(tag => (
                                   <span
                                     key={tag}
-                                    className="inline-flex items-center gap-1.5 px-3 py-1 bg-aacp-olive/10 text-aacp-olive dark:text-aacp-gold text-xs font-semibold rounded-full border border-aacp-olive/10"
+                                    className="inline-flex items-center gap-1.5 px-3 py-1 bg-primary-blue/10 text-primary-blue dark:text-neutral-border text-xs font-semibold rounded-full border border-primary-blue/10"
                                   >
                                     #{tag}
                                     <button
@@ -1316,7 +1316,7 @@ export default function EditProfilePage() {
                       </div>
                     )}
                     {passwordSuccess && (
-                      <div className="p-3 bg-aacp-gold/15 dark:bg-aacp-olive/10 border border-aacp-gold/30 dark:border-aacp-olive/20 rounded-xl text-aacp-olive dark:text-aacp-gold text-sm flex items-center gap-2">
+                      <div className="p-3 bg-neutral-border/15 dark:bg-primary-blue/10 border border-neutral-border/30 dark:border-primary-blue/20 rounded-xl text-primary-blue dark:text-neutral-border text-sm flex items-center gap-2">
                         <CheckCircle2 size={16} />
                         {passwordSuccess}
                       </div>
@@ -1376,7 +1376,7 @@ export default function EditProfilePage() {
                       <button
                         onClick={handleChangePassword}
                         disabled={isChangingPassword}
-                        className="w-full mt-2 bg-aacp-olive text-black text-sm font-bold py-3 rounded-xl hover:bg-aacp-gold transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-aacp-olive/20"
+                        className="w-full mt-2 bg-primary-blue text-black text-sm font-bold py-3 rounded-xl hover:bg-neutral-border transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-primary-blue/20"
                       >
                         {isChangingPassword ? 'Updating...' : 'Update Password'}
                       </button>
@@ -1426,7 +1426,7 @@ export default function EditProfilePage() {
                             checked={item.value}
                             onChange={(e) => item.onChange(e.target.checked)}
                           />
-                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-aacp-olive"></div>
+                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary-blue"></div>
                         </label>
                       </div>
                     ))}
@@ -1456,7 +1456,7 @@ export default function EditProfilePage() {
                         {isFacebookConnected ? (
                           <button
                             disabled
-                            className="px-4 py-2 bg-aacp-gold/15 text-aacp-olive dark:bg-aacp-olive/10 dark:text-aacp-gold text-xs font-bold rounded-xl cursor-default"
+                            className="px-4 py-2 bg-neutral-border/15 text-primary-blue dark:bg-primary-blue/10 dark:text-neutral-border text-xs font-bold rounded-xl cursor-default"
                           >
                             Connected
                           </button>
@@ -1489,7 +1489,7 @@ export default function EditProfilePage() {
                         {isTiktokConnected ? (
                           <button
                             disabled
-                            className="px-4 py-2 bg-aacp-gold/15 text-aacp-olive dark:bg-aacp-olive/10 dark:text-aacp-gold text-xs font-bold rounded-xl cursor-default"
+                            className="px-4 py-2 bg-neutral-border/15 text-primary-blue dark:bg-primary-blue/10 dark:text-neutral-border text-xs font-bold rounded-xl cursor-default"
                           >
                             Connected
                           </button>
@@ -1522,7 +1522,7 @@ export default function EditProfilePage() {
                         {isInstagramConnected ? (
                           <button
                             disabled
-                            className="px-4 py-2 bg-aacp-gold/15 text-aacp-olive dark:bg-aacp-olive/10 dark:text-aacp-gold text-xs font-bold rounded-xl cursor-default"
+                            className="px-4 py-2 bg-neutral-border/15 text-primary-blue dark:bg-primary-blue/10 dark:text-neutral-border text-xs font-bold rounded-xl cursor-default"
                           >
                             Connected
                           </button>
@@ -1572,11 +1572,11 @@ export default function EditProfilePage() {
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
               className="relative w-full max-w-[440px] bg-white dark:bg-[#111] border border-gray-100 dark:border-white/10 rounded-[2.5rem] p-8 shadow-2xl text-center overflow-hidden"
             >
-              <div className="absolute -top-24 -right-24 w-48 h-48 bg-aacp-olive/10 rounded-full blur-3xl" />
+              <div className="absolute -top-24 -right-24 w-48 h-48 bg-primary-blue/10 rounded-full blur-3xl" />
 
               <div className="relative">
-                <div className="w-20 h-20 bg-aacp-olive/10 rounded-3xl flex items-center justify-center mx-auto mb-6 rotate-3 border border-aacp-olive/20">
-                  <Info className="text-aacp-olive" size={32} />
+                <div className="w-20 h-20 bg-primary-blue/10 rounded-3xl flex items-center justify-center mx-auto mb-6 rotate-3 border border-primary-blue/20">
+                  <Info className="text-primary-blue" size={32} />
                 </div>
 
                 <h2 className="text-2xl font-black text-gray-900 dark:text-white mb-4 tracking-tight">
@@ -1585,13 +1585,13 @@ export default function EditProfilePage() {
                 <p className="text-gray-500 dark:text-gray-400 text-sm leading-relaxed mb-8">
                   Your detailed business information has been submitted for admin review.
                   <br /><br />
-                  <span className="text-aacp-olive font-bold">What happens next?</span><br />
+                  <span className="text-primary-blue font-bold">What happens next?</span><br />
                   Our team will verify the details, and once approved, your public profile will be updated automatically.
                 </p>
 
                 <button
                   onClick={() => setShowSubmitModal(false)}
-                  className="w-full py-4 bg-aacp-olive hover:bg-aacp-gold text-black font-black rounded-2xl transition-all shadow-xl shadow-aacp-olive/20 active:scale-95"
+                  className="w-full py-4 bg-primary-blue hover:bg-neutral-border text-black font-black rounded-2xl transition-all shadow-xl shadow-primary-blue/20 active:scale-95"
                 >
                   Great, Thanks!
                 </button>

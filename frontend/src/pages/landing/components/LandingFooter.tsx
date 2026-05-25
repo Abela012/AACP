@@ -2,14 +2,14 @@ import { Link } from 'react-router-dom';
 
 export default function LandingFooter() {
   return (
-    <footer className="border-t border-aacp-olive/25 bg-aacp-charcoal text-aacp-cream">
+    <footer className="border-t border-primary-blue/25 bg-neutral-dark text-neutral-light">
       <div className="mx-auto max-w-[1400px] px-5 py-16 sm:px-8 lg:px-12">
         <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-4">
           <div>
-            <Link to="/" className="aacp-font-display text-4xl text-aacp-gold">
+            <Link to="/" className="aacp-font-display text-4xl text-neutral-border">
               AACP
             </Link>
-            <p className="mt-4 max-w-xs text-sm leading-relaxed text-aacp-gold/50">
+            <p className="mt-4 max-w-xs text-sm leading-relaxed text-neutral-border/50">
               AI Advertisement Collaboration Platform — connecting Business Owners and Advertisers
               with recommendations, collaborations, and verified trust.
             </p>
@@ -40,7 +40,7 @@ export default function LandingFooter() {
             },
           ].map((col) => (
             <div key={col.title}>
-              <h3 className="font-mono text-[0.6rem] uppercase tracking-[0.28em] text-aacp-gold/45">
+              <h3 className="font-mono text-[0.6rem] uppercase tracking-[0.28em] text-neutral-border/45">
                 {col.title}
               </h3>
               <ul className="mt-5 space-y-3">
@@ -49,14 +49,14 @@ export default function LandingFooter() {
                     {'to' in link ? (
                       <Link
                         to={link.to}
-                        className="text-sm text-aacp-gold/65 transition-colors hover:text-aacp-cream"
+                        className="text-sm text-neutral-border/65 transition-colors hover:text-neutral-light"
                       >
                         {link.label}
                       </Link>
                     ) : (
                       <a
                         href={link.href}
-                        className="text-sm text-aacp-gold/65 transition-colors hover:text-aacp-cream"
+                        className="text-sm text-neutral-border/65 transition-colors hover:text-neutral-light"
                       >
                         {link.label}
                       </a>
@@ -68,7 +68,7 @@ export default function LandingFooter() {
           ))}
         </div>
 
-        <div className="mt-14 flex flex-col gap-4 border-t border-aacp-gold/10 pt-8 font-mono text-[0.6rem] uppercase tracking-[0.2em] text-aacp-gold/40 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-14 flex flex-col gap-4 border-t border-neutral-border/10 pt-8 font-mono text-[0.6rem] uppercase tracking-[0.2em] text-neutral-border/40 sm:flex-row sm:items-center sm:justify-between">
           <span>© {new Date().getFullYear()} AACP</span>
           <span>Node · Express · MongoDB · Gemini · Chapa</span>
         </div>

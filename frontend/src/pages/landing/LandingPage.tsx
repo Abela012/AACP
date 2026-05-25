@@ -8,7 +8,7 @@ import LandingFooter from './components/LandingFooter';
 
 export default function LandingPage() {
   return (
-    <div className="aacp-grain aacp-font-body min-h-screen bg-aacp-cream text-aacp-ink">
+    <div className="aacp-grain aacp-font-body min-h-screen bg-neutral-light text-neutral-dark">
       <LandingNav />
       <main>
         <LandingHero />

@@ -13,11 +13,11 @@ export default function TermsOfService() {
         <div className="legal-page">
             <nav className="legal-page-nav" aria-label="Site">
                 <div className="legal-page-nav-inner">
-                    <Link to="/" className="font-extrabold text-xl text-aacp-ink">
+                    <Link to="/" className="font-extrabold text-xl text-neutral-dark">
                         AACP
                     </Link>
-                    <div className="text-sm font-semibold text-aacp-smoke">
-                        <Link to="/privacy-policy" className="hover:text-aacp-olive">
+                    <div className="text-sm font-semibold text-neutral-medium">
+                        <Link to="/privacy-policy" className="hover:text-primary-blue">
                             Privacy
                         </Link>
                     </div>
@@ -25,7 +25,7 @@ export default function TermsOfService() {
             </nav>
 
             <main className="legal-page-main">
-                <h1 className="text-3xl font-black tracking-tight text-aacp-ink">Terms of Service</h1>
+                <h1 className="text-3xl font-black tracking-tight text-neutral-dark">Terms of Service</h1>
                 <p className="legal-page-meta">Last updated: May 15, 2026</p>
 
                 <article className="legal-page-card">
@@ -65,14 +65,14 @@ export default function TermsOfService() {
 
                     <h2>7. Contact</h2>
                     <p>
-                        <a href="mailto:legal@aacp.io" className="text-aacp-olive font-semibold">
+                        <a href="mailto:legal@aacp.io" className="text-primary-blue font-semibold">
                             legal@aacp.io
                         </a>
                     </p>
                 </article>
 
-                <p className="mt-8 text-center text-sm text-aacp-smoke">
-                    <a href="/terms-of-service" className="text-aacp-olive font-semibold">
+                <p className="mt-8 text-center text-sm text-neutral-medium">
+                    <a href="/terms-of-service" className="text-primary-blue font-semibold">
                         Open full static version
                     </a>{' '}
                     (for crawlers and direct URL verification)

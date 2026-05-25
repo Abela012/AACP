@@ -59,10 +59,10 @@ export default function AdvertiserAnalyticsPage() {
   ];
 
   const stats = [
-    { label: 'Total Reach', value: '0', trend: '0%', trendType: 'neutral', icon: Eye, color: 'text-aacp-olive', bgColor: 'bg-aacp-gold/15' },
+    { label: 'Total Reach', value: '0', trend: '0%', trendType: 'neutral', icon: Eye, color: 'text-primary-blue', bgColor: 'bg-neutral-border/15' },
     { label: 'Avg. Engagement', value: '0%', trend: '0%', trendType: 'neutral', icon: Zap, iconColor: 'text-amber-500', bgColor: 'bg-amber-50' },
-    { label: 'Total Earnings', value: '$0', trend: '0%', trendType: 'neutral', icon: DollarSign, color: 'text-aacp-olive', bgColor: 'bg-aacp-gold/15' },
-    { label: 'Active Campaigns', value: '0', trend: '0', trendType: 'neutral', icon: Video, color: 'text-purple-600', bgColor: 'bg-purple-50' },
+    { label: 'Total Earnings', value: '$0', trend: '0%', trendType: 'neutral', icon: DollarSign, color: 'text-primary-blue', bgColor: 'bg-neutral-border/15' },
+    { label: 'Active Campaigns', value: '0', trend: '0', trendType: 'neutral', icon: Video, color: 'text-primary-blue', bgColor: 'bg-primary-blue-light' },
   ];
 
   return (
@@ -76,7 +76,7 @@ export default function AdvertiserAnalyticsPage() {
           <div className="flex gap-3 relative">
             <button 
               onClick={() => setShowRangeDropdown(!showRangeDropdown)}
-              className="bg-white dark:bg-white/5 border border-gray-100 dark:border-white/10 px-6 py-3 rounded-xl font-bold text-sm text-gray-600 dark:text-gray-400 flex items-center gap-2 hover:bg-gray-50 dark:hover:bg-white/10 transition-all border-b-2 border-b-transparent active:border-b-aacp-olive"
+              className="bg-white dark:bg-white/5 border border-gray-100 dark:border-white/10 px-6 py-3 rounded-xl font-bold text-sm text-gray-600 dark:text-gray-400 flex items-center gap-2 hover:bg-gray-50 dark:hover:bg-white/10 transition-all border-b-2 border-b-transparent active:border-b-primary-blue"
             >
               <Calendar size={18} />
               {timeRange}
@@ -112,7 +112,7 @@ export default function AdvertiserAnalyticsPage() {
                 </div>
                 <div className={cn(
                   "flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-lg",
-                  stat.trendType === 'up' ? "bg-aacp-gold/15 dark:bg-aacp-olive/10 text-aacp-olive dark:text-aacp-olive" : "bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400"
+                  stat.trendType === 'up' ? "bg-neutral-border/15 dark:bg-primary-blue/10 text-primary-blue dark:text-primary-blue" : "bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400"
                 )}>
                   {stat.trendType === 'up' ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
                   {stat.trend}
@@ -131,11 +131,11 @@ export default function AdvertiserAnalyticsPage() {
               <h3 className="text-lg font-bold text-gray-900 dark:text-white">Reach vs Engagement</h3>
               <div className="flex gap-4">
                 <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 bg-aacp-olive rounded-full" />
+                  <div className="w-3 h-3 bg-primary-blue rounded-full" />
                   <span className="text-xs font-medium text-gray-500 dark:text-gray-400">Reach</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 bg-aacp-gold/30 dark:bg-aacp-olive/30 rounded-full" />
+                  <div className="w-3 h-3 bg-neutral-border/30 dark:bg-primary-blue/30 rounded-full" />
                   <span className="text-xs font-medium text-gray-500 dark:text-gray-400">Engagement</span>
                 </div>
               </div>

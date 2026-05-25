@@ -118,12 +118,12 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       )}>
         <div className="p-8 pb-4">
           <Link to="/dashboard/admin" className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-aacp-olive rounded-full flex items-center justify-center shadow-lg shadow-aacp-gold/30 dark:shadow-none">
+            <div className="w-10 h-10 bg-primary-blue rounded-full flex items-center justify-center shadow-lg shadow-neutral-border/30 dark:shadow-none">
               <Zap className="text-white w-6 h-6 fill-white" />
             </div>
             <div>
               <h1 className="text-sm font-black uppercase tracking-tight text-[#1A1D1F] dark:text-white leading-none">Admin Panel</h1>
-              <span className="text-[10px] font-bold text-aacp-olive uppercase tracking-widest leading-none">Enterprise Tier</span>
+              <span className="text-[10px] font-bold text-primary-blue uppercase tracking-widest leading-none">Enterprise Tier</span>
             </div>
           </Link>
         </div>
@@ -139,16 +139,16 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                   className={cn(
                     "flex items-center gap-4 px-4 py-3.5 rounded-2xl text-sm font-semibold transition-all relative group",
                     isActive
-                      ? "text-aacp-olive bg-aacp-gold/20 dark:bg-aacp-olive/10"
+                      ? "text-primary-blue bg-neutral-border/20 dark:bg-primary-blue/10"
                       : "text-[#6F767E] hover:text-[#1A1D1F] dark:hover:text-white"
                   )}
                 >
-                  <item.icon size={20} className={cn("transition-colors", isActive ? "text-aacp-olive" : "text-[#9A9FA5]")} />
+                  <item.icon size={20} className={cn("transition-colors", isActive ? "text-primary-blue" : "text-[#9A9FA5]")} />
                   {item.name}
                   {isActive && (
                     <motion.div
                       layoutId="active-indicator"
-                      className="absolute left-0 w-1 h-6 bg-aacp-olive rounded-r-full"
+                      className="absolute left-0 w-1 h-6 bg-primary-blue rounded-r-full"
                     />
                   )}
                 </Link>
@@ -159,7 +159,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           <div className="pt-6 border-t border-[#EFEFEF] dark:border-white/5">
             <button
               onClick={() => setShowReportModal(true)}
-              className="w-full h-12 bg-aacp-olive hover:bg-aacp-olive text-white rounded-2xl text-sm font-bold shadow-lg shadow-aacp-gold/25 dark:shadow-none transition-all flex items-center justify-center gap-2"
+              className="w-full h-12 bg-primary-blue hover:bg-primary-blue text-white rounded-2xl text-sm font-bold shadow-lg shadow-neutral-border/25 dark:shadow-none transition-all flex items-center justify-center gap-2"
             >
               <PlusCircle size={18} />
               New Report
@@ -191,7 +191,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       <div className={cn("flex-1 flex flex-col min-w-0 transition-all duration-300", isSidebarOpen ? "lg:ml-64" : "lg:ml-0")}>
         <header className="h-20 bg-white/80 dark:bg-[#0A0A0A]/80 backdrop-blur-lg px-8 flex items-center justify-between sticky top-0 z-40 border-b border-[#EFEFEF] dark:border-white/5">
           <div className="flex items-center gap-6">
-            <button className="p-2 -ml-2 text-gray-500 dark:text-gray-400 hover:text-aacp-olive transition-colors" onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
+            <button className="p-2 -ml-2 text-gray-500 dark:text-gray-400 hover:text-primary-blue transition-colors" onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
               <Menu size={24} />
             </button>
             <div className="hidden md:flex flex-col">
@@ -205,7 +205,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search profiles, transactions, or logs..."
-                className="bg-[#F4F4F4] dark:bg-white/5 rounded-2xl pl-11 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-aacp-olive/20 w-[400px] transition-all border-none"
+                className="bg-[#F4F4F4] dark:bg-white/5 rounded-2xl pl-11 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-blue/20 w-[400px] transition-all border-none"
               />
             </div>
           </div>
@@ -242,7 +242,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                     <div className="p-6 border-b border-[#EFEFEF] dark:border-white/5 flex justify-between items-center bg-gray-50/50 dark:bg-white/[0.02]">
                       <h3 className="font-bold text-[#1A1D1F] dark:text-white">Notifications</h3>
                       {unreadCount > 0 && (
-                        <span className="bg-aacp-olive/10 text-aacp-olive text-[10px] font-bold px-2 py-1 rounded-lg uppercase tracking-wider">{unreadCount} New</span>
+                        <span className="bg-primary-blue/10 text-primary-blue text-[10px] font-bold px-2 py-1 rounded-lg uppercase tracking-wider">{unreadCount} New</span>
                       )}
                     </div>
                     <div className="max-h-80 overflow-y-auto divide-y divide-[#EFEFEF] dark:divide-white/5">
@@ -251,7 +251,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                           <div key={notif.id} className="p-5 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors cursor-pointer flex gap-4">
                             <div className={cn(
                               "w-10 h-10 rounded-xl flex items-center justify-center shrink-0",
-                              notif.type === 'application' ? "bg-aacp-olive/10 text-aacp-olive" : "bg-blue-600/10 text-blue-600"
+                              notif.type === 'application' ? "bg-primary-blue/10 text-primary-blue" : "bg-blue-600/10 text-blue-600"
                             )}>
                               {notif.type === 'application' ? <Sparkles size={18} /> : <MessageSquare size={18} />}
                             </div>
@@ -280,9 +280,9 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             <Link to="/admin/profile" className="flex items-center gap-3 ml-4 pl-4 border-l border-[#EFEFEF] dark:border-white/5 hover:opacity-80 transition-opacity">
               <div className="text-right hidden sm:block">
                 <p className="text-xs font-bold text-[#1A1D1F] dark:text-white leading-none mb-1">{profile.firstName ? `${profile.firstName} ${profile.lastName}`.trim() : clerkUser?.fullName || 'Administrator'}</p>
-                <p className="text-[10px] font-bold text-aacp-olive uppercase tracking-widest leading-none">Profile</p>
+                <p className="text-[10px] font-bold text-primary-blue uppercase tracking-widest leading-none">Profile</p>
               </div>
-              <div className="w-10 h-10 rounded-full bg-linear-to-tr from-aacp-olive to-aacp-olive overflow-hidden shadow-lg border-2 border-white dark:border-[#0A0A0A]">
+              <div className="w-10 h-10 rounded-full bg-linear-to-tr from-primary-blue to-primary-blue overflow-hidden shadow-lg border-2 border-white dark:border-[#0A0A0A]">
                 {(profile.avatarUrl || clerkUser?.imageUrl) ? (
                   <img src={profile.avatarUrl || clerkUser?.imageUrl} alt="User" className="w-full h-full object-cover" />
                 ) : (
@@ -320,7 +320,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               <div className="p-8 sm:p-10">
                 <div className="flex justify-between items-center mb-10">
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-aacp-gold/15 dark:bg-aacp-olive/10 rounded-2xl flex items-center justify-center text-aacp-olive">
+                    <div className="w-12 h-12 bg-neutral-border/15 dark:bg-primary-blue/10 rounded-2xl flex items-center justify-center text-primary-blue">
                       <BarChart3 size={24} />
                     </div>
                     <div>
@@ -353,14 +353,14 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                           className={cn(
                             "flex flex-col items-center gap-3 p-6 rounded-4xl border transition-all group relative",
                             selectedReportType === type.id
-                              ? "bg-white dark:bg-white/10 border-aacp-olive shadow-xl shadow-aacp-gold/25 dark:shadow-none"
-                              : "bg-gray-50 dark:bg-white/5 border-transparent hover:border-aacp-olive/30 hover:bg-white dark:hover:bg-white/10"
+                              ? "bg-white dark:bg-white/10 border-primary-blue shadow-xl shadow-neutral-border/25 dark:shadow-none"
+                              : "bg-gray-50 dark:bg-white/5 border-transparent hover:border-primary-blue/30 hover:bg-white dark:hover:bg-white/10"
                           )}
                         >
-                          <type.icon size={20} className={cn("transition-colors", selectedReportType === type.id ? "text-aacp-olive" : "text-[#9A9FA5] group-hover:text-aacp-olive")} />
+                          <type.icon size={20} className={cn("transition-colors", selectedReportType === type.id ? "text-primary-blue" : "text-[#9A9FA5] group-hover:text-primary-blue")} />
                           <span className={cn("text-xs font-bold transition-colors", selectedReportType === type.id ? "text-[#1A1D1F] dark:text-white" : "text-[#6F767E]")}>{type.label}</span>
                           {selectedReportType === type.id && (
-                            <motion.div layoutId="selected-check" className="absolute top-4 right-4 text-aacp-olive">
+                            <motion.div layoutId="selected-check" className="absolute top-4 right-4 text-primary-blue">
                               <CheckCircle2 size={16} />
                             </motion.div>
                           )}
@@ -373,7 +373,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                   <div className="grid grid-cols-2 gap-6">
                     <div>
                       <label className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest mb-4 block">Output Format</label>
-                      <select className="w-full bg-gray-50 dark:bg-white/5 border border-[#EFEFEF] dark:border-white/10 rounded-2xl px-5 py-4 text-xs font-bold focus:ring-2 focus:ring-aacp-olive/20 appearance-none outline-none">
+                      <select className="w-full bg-gray-50 dark:bg-white/5 border border-[#EFEFEF] dark:border-white/10 rounded-2xl px-5 py-4 text-xs font-bold focus:ring-2 focus:ring-primary-blue/20 appearance-none outline-none">
                         <option>Portable Document (PDF)</option>
                         <option>CSV Spreadsheet</option>
                         <option>Excel Workbook</option>
@@ -381,7 +381,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                     </div>
                     <div>
                       <label className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest mb-4 block">Date Range</label>
-                      <select className="w-full bg-gray-50 dark:bg-white/5 border border-[#EFEFEF] dark:border-white/10 rounded-2xl px-5 py-4 text-xs font-bold focus:ring-2 focus:ring-aacp-olive/20 appearance-none outline-none">
+                      <select className="w-full bg-gray-50 dark:bg-white/5 border border-[#EFEFEF] dark:border-white/10 rounded-2xl px-5 py-4 text-xs font-bold focus:ring-2 focus:ring-primary-blue/20 appearance-none outline-none">
                         <option>Last 7 Days</option>
                         <option>Last 30 Days</option>
                         <option>Current Quarter</option>
@@ -397,7 +397,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                       "w-full py-5 rounded-4xl font-black text-xs uppercase tracking-[0.2em] transition-all mt-4 flex items-center justify-center gap-3",
                       isGenerating
                         ? "bg-gray-100 dark:bg-white/5 text-[#9A9FA5] cursor-not-allowed"
-                        : "bg-aacp-olive hover:bg-aacp-olive text-white shadow-xl shadow-aacp-gold/25 dark:shadow-none"
+                        : "bg-primary-blue hover:bg-primary-blue text-white shadow-xl shadow-neutral-border/25 dark:shadow-none"
                     )}
                   >
                     {isGenerating ? (
@@ -431,7 +431,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             className={cn(
               "fixed bottom-8 right-8 z-100 px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3 border",
               toast.type === 'success'
-                ? 'bg-aacp-olive text-white border-aacp-gold'
+                ? 'bg-primary-blue text-white border-neutral-border'
                 : 'bg-red-500 text-white border-red-400'
             )}
           >

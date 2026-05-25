@@ -101,10 +101,10 @@ export default function BusinessLayout({ children }: BusinessLayoutProps) {
       )}>
         <div className="p-6 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-aacp-olive rounded-full flex items-center justify-center">
+            <div className="w-8 h-8 bg-primary-blue rounded-full flex items-center justify-center">
               <Zap className="text-white w-5 h-5 fill-white" />
             </div>
-            <span className="text-xl font-bold tracking-tighter text-aacp-olive">AACP</span>
+            <span className="text-xl font-bold tracking-tighter text-primary-blue">AACP</span>
           </Link>
           <button className="lg:hidden" onClick={() => setIsSidebarOpen(false)}>
             <X size={20} />
@@ -122,8 +122,8 @@ export default function BusinessLayout({ children }: BusinessLayoutProps) {
                   className={cn(
                     "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all group",
                     location.pathname === item.path 
-                      ? "bg-aacp-olive/10 text-aacp-olive" 
-                      : "text-gray-500 dark:text-gray-400 hover:text-aacp-olive dark:hover:text-aacp-gold hover:bg-gray-50 dark:hover:bg-white/5"
+                      ? "bg-primary-blue/10 text-primary-blue" 
+                      : "text-gray-500 dark:text-gray-400 hover:text-primary-blue dark:hover:text-neutral-border hover:bg-gray-50 dark:hover:bg-white/5"
                   )}
                 >
                   <item.icon size={18} />
@@ -143,8 +143,8 @@ export default function BusinessLayout({ children }: BusinessLayoutProps) {
                   className={cn(
                     "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all",
                     location.pathname === item.path
-                      ? "bg-aacp-olive/10 text-aacp-olive"
-                      : "text-gray-500 dark:text-gray-400 hover:text-aacp-olive dark:hover:text-aacp-gold hover:bg-gray-50 dark:hover:bg-white/5"
+                      ? "bg-primary-blue/10 text-primary-blue"
+                      : "text-gray-500 dark:text-gray-400 hover:text-primary-blue dark:hover:text-neutral-border hover:bg-gray-50 dark:hover:bg-white/5"
                   )}
                 >
                   <item.icon size={18} />
@@ -171,7 +171,7 @@ export default function BusinessLayout({ children }: BusinessLayoutProps) {
         {/* Header */}
         <header className="h-20 border-b border-gray-100 dark:border-white/5 px-4 sm:px-8 flex items-center justify-between sticky top-0 bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-md z-40">
           <div className="flex items-center gap-4">
-            <button className="p-2 -ml-2 text-gray-500 dark:text-gray-400 hover:text-aacp-olive transition-colors" onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
+            <button className="p-2 -ml-2 text-gray-500 dark:text-gray-400 hover:text-primary-blue transition-colors" onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
               <Menu size={20} />
             </button>
             <nav className="hidden md:flex items-center gap-8">
@@ -182,8 +182,8 @@ export default function BusinessLayout({ children }: BusinessLayoutProps) {
                   className={cn(
                     "text-sm font-medium transition-colors pb-1",
                     location.pathname === item.path 
-                      ? "text-aacp-olive border-b-2 border-aacp-olive" 
-                      : "text-gray-500 dark:text-gray-400 hover:text-aacp-olive dark:hover:text-aacp-gold"
+                      ? "text-primary-blue border-b-2 border-primary-blue" 
+                      : "text-gray-500 dark:text-gray-400 hover:text-primary-blue dark:hover:text-neutral-border"
                   )}
                 >
                   {item.name}
@@ -195,7 +195,7 @@ export default function BusinessLayout({ children }: BusinessLayoutProps) {
           <div className="flex items-center gap-2 sm:gap-4 relative">
             <div className="relative hidden sm:block" ref={searchRef}>
               {isSearching ? (
-                <Loader2 className="absolute left-3 top-1/2 -translate-y-1/2 text-aacp-olive w-4 h-4 animate-spin" />
+                <Loader2 className="absolute left-3 top-1/2 -translate-y-1/2 text-primary-blue w-4 h-4 animate-spin" />
               ) : (
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 w-4 h-4" />
               )}
@@ -204,7 +204,7 @@ export default function BusinessLayout({ children }: BusinessLayoutProps) {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search campaigns, creators..."
-                className="bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-xl pl-10 pr-4 py-2 text-sm focus:outline-none focus:border-aacp-olive w-48 lg:w-72 transition-all text-gray-900 dark:text-white"
+                className="bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-xl pl-10 pr-4 py-2 text-sm focus:outline-none focus:border-primary-blue w-48 lg:w-72 transition-all text-gray-900 dark:text-white"
               />
               <AnimatePresence>
                 {searchQuery.length >= 2 && (
@@ -237,8 +237,8 @@ export default function BusinessLayout({ children }: BusinessLayoutProps) {
                                 onClick={() => { navigate('/campaigns'); setSearchQuery(''); }}
                                 className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors text-left"
                               >
-                                <div className="w-8 h-8 bg-aacp-olive/10 rounded-lg flex items-center justify-center shrink-0">
-                                  <Megaphone size={14} className="text-aacp-olive" />
+                                <div className="w-8 h-8 bg-primary-blue/10 rounded-lg flex items-center justify-center shrink-0">
+                                  <Megaphone size={14} className="text-primary-blue" />
                                 </div>
                                 <div className="min-w-0">
                                   <p className="text-sm font-bold text-gray-900 dark:text-white truncate">{c.title}</p>
@@ -246,7 +246,7 @@ export default function BusinessLayout({ children }: BusinessLayoutProps) {
                                 </div>
                                 <span className={cn(
                                   "ml-auto text-[9px] font-black px-2 py-0.5 rounded-full uppercase shrink-0",
-                                  c.status === 'open' ? 'bg-aacp-olive/10 text-aacp-olive' : 'bg-gray-100 dark:bg-white/10 text-gray-400'
+                                  c.status === 'open' ? 'bg-primary-blue/10 text-primary-blue' : 'bg-gray-100 dark:bg-white/10 text-gray-400'
                                 )}>{c.status}</span>
                               </button>
                             ))}
@@ -292,7 +292,7 @@ export default function BusinessLayout({ children }: BusinessLayoutProps) {
                         <div className="px-4 py-3 border-t border-gray-50 dark:border-white/5 mt-1">
                           <button
                             onClick={() => { navigate(`/matches`); setSearchQuery(''); }}
-                            className="w-full text-center text-xs font-bold text-aacp-olive hover:underline"
+                            className="w-full text-center text-xs font-bold text-primary-blue hover:underline"
                           >
                             View all results in Discover →
                           </button>
@@ -310,7 +310,7 @@ export default function BusinessLayout({ children }: BusinessLayoutProps) {
                   setShowNotifications(!showNotifications);
                   if (!showNotifications) markAllAsRead();
                 }}
-                className="w-10 h-10 bg-gray-50 dark:bg-white/5 rounded-xl flex items-center justify-center text-gray-500 dark:text-gray-400 hover:text-aacp-olive dark:hover:text-aacp-gold transition-all relative"
+                className="w-10 h-10 bg-gray-50 dark:bg-white/5 rounded-xl flex items-center justify-center text-gray-500 dark:text-gray-400 hover:text-primary-blue dark:hover:text-neutral-border transition-all relative"
               >
                 <Bell size={20} />
                 {unreadCount > 0 && (
@@ -332,7 +332,7 @@ export default function BusinessLayout({ children }: BusinessLayoutProps) {
                     <div className="p-6 border-b border-gray-100 dark:border-white/5 flex justify-between items-center bg-gray-50/50 dark:bg-white/[0.02]">
                       <h3 className="font-bold text-gray-900 dark:text-white">Notifications</h3>
                       {unreadCount > 0 && (
-                        <span className="bg-aacp-olive/10 text-aacp-olive text-[10px] font-bold px-2 py-1 rounded-lg uppercase tracking-wider">{unreadCount} New</span>
+                        <span className="bg-primary-blue/10 text-primary-blue text-[10px] font-bold px-2 py-1 rounded-lg uppercase tracking-wider">{unreadCount} New</span>
                       )}
                     </div>
                     <div className="max-h-80 overflow-y-auto divide-y divide-gray-50 dark:divide-white/5">
@@ -341,7 +341,7 @@ export default function BusinessLayout({ children }: BusinessLayoutProps) {
                           <div key={notif.id} className="p-5 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors cursor-pointer flex gap-4">
                             <div className={cn(
                               "w-10 h-10 rounded-xl flex items-center justify-center shrink-0",
-                              notif.type === 'application' ? "bg-aacp-olive/10 text-aacp-olive" : "bg-blue-600/10 text-blue-600"
+                              notif.type === 'application' ? "bg-primary-blue/10 text-primary-blue" : "bg-blue-600/10 text-blue-600"
                             )}>
                               {notif.type === 'application' ? <Sparkles size={18} /> : <MessageSquare size={18} />}
                             </div>
@@ -380,8 +380,8 @@ export default function BusinessLayout({ children }: BusinessLayoutProps) {
           {showLockOverlay && (
             <div className="absolute inset-0 z-[60] flex items-center justify-center bg-white/60 dark:bg-black/60 backdrop-blur-md">
               <div className="max-w-md w-full mx-4 bg-white dark:bg-[#1a1a1a] p-8 rounded-[2.5rem] shadow-2xl border border-gray-100 dark:border-white/10 text-center">
-                <div className="w-20 h-20 bg-aacp-olive/10 rounded-3xl flex items-center justify-center mx-auto mb-6">
-                  <Lock className="text-aacp-olive w-10 h-10" />
+                <div className="w-20 h-20 bg-primary-blue/10 rounded-3xl flex items-center justify-center mx-auto mb-6">
+                  <Lock className="text-primary-blue w-10 h-10" />
                 </div>
                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">
                   {isProfileIncomplete ? 'Complete Your Profile' : 'Profile Pending Approval'}
@@ -394,12 +394,12 @@ export default function BusinessLayout({ children }: BusinessLayoutProps) {
                 <div className="flex flex-col gap-3">
                   <Link 
                     to={isProfileIncomplete ? '/profile/complete/business' : '/dashboard/business-owner'}
-                    className="w-full py-4 bg-aacp-olive text-white rounded-xl font-bold hover:bg-aacp-olive transition-all shadow-lg shadow-black/10 dark:shadow-none"
+                    className="w-full py-4 bg-primary-blue text-white rounded-xl font-bold hover:bg-primary-blue transition-all shadow-lg shadow-black/10 dark:shadow-none"
                   >
                     {isProfileIncomplete ? 'Complete Profile' : 'Return to Dashboard'}
                   </Link>
                   <div className="flex items-center justify-center gap-2 text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">
-                    <ShieldCheck size={14} className="text-aacp-olive" />
+                    <ShieldCheck size={14} className="text-primary-blue" />
                     Secure Verification in Progress
                   </div>
                 </div>

@@ -241,9 +241,9 @@ export default function AdvertiserApplyMatchPage() {
             >
               -50 Coins
             </motion.div>
-            <div className="w-24 h-24 bg-aacp-olive/10 rounded-full flex items-center justify-center mx-auto mb-8 relative">
-              <div className="absolute inset-0 bg-aacp-olive/20 rounded-full animate-ping opacity-75"></div>
-              <CheckCircle2 size={48} className="text-aacp-olive relative z-10" />
+            <div className="w-24 h-24 bg-primary-blue/10 rounded-full flex items-center justify-center mx-auto mb-8 relative">
+              <div className="absolute inset-0 bg-primary-blue/20 rounded-full animate-ping opacity-75"></div>
+              <CheckCircle2 size={48} className="text-primary-blue relative z-10" />
             </div>
             <h2 className="text-3xl font-black text-gray-900 dark:text-white mb-4">Application Submitted!</h2>
             <p className="text-gray-500 dark:text-gray-400 mb-10 leading-relaxed text-sm md:text-base">
@@ -253,7 +253,7 @@ export default function AdvertiserApplyMatchPage() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button
                 onClick={() => navigate('/advertiser/matches')}
-                className="px-8 py-4 bg-aacp-olive text-black font-bold rounded-2xl hover:bg-aacp-gold transition-all shadow-lg shadow-aacp-olive/20"
+                className="px-8 py-4 bg-primary-blue text-black font-bold rounded-2xl hover:bg-neutral-border transition-all shadow-lg shadow-primary-blue/20"
               >
                 View Other Jobs
               </button>
@@ -319,17 +319,17 @@ export default function AdvertiserApplyMatchPage() {
         <div className="bg-white dark:bg-[#111] p-6 md:p-8 rounded-[2.5rem] border border-gray-100 dark:border-white/5 shadow-sm mb-8">
           <div className="flex justify-between items-start mb-6">
             <div>
-              <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-sm font-bold text-gray-400 hover:text-aacp-olive transition-colors mb-4">
+              <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-sm font-bold text-gray-400 hover:text-primary-blue transition-colors mb-4">
                 <ArrowLeft size={16} /> Back to listings
               </button>
               <h1 className="text-2xl md:text-3xl font-black text-gray-900 dark:text-white mb-2">{activeJobData.title}</h1>
               <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500 font-medium">
                 <span className="flex items-center gap-1.5"><Building2 size={16} /> {activeJobData.owner?.firstName || activeJobData?.businessOwner?.firstName || 'Global Brand'}</span>
                 <span className="flex items-center gap-1.5"><MapPin size={16} /> {activeJobData.location || activeJobData.requirements?.location || 'Remote'}</span>
-                <span className="flex items-center gap-1.5 text-aacp-olive dark:text-aacp-olive"><span className="text-[10px] font-black uppercase tracking-wider bg-aacp-olive/10 dark:bg-aacp-olive/20 px-1.5 py-0.5 rounded-md">ETB</span> {(typeof activeJobData.budget === 'object' ? activeJobData.budget.amount : (activeJobData.budget || 0)).toLocaleString()}</span>
+                <span className="flex items-center gap-1.5 text-primary-blue dark:text-primary-blue"><span className="text-[10px] font-black uppercase tracking-wider bg-primary-blue/10 dark:bg-primary-blue/20 px-1.5 py-0.5 rounded-md">ETB</span> {(typeof activeJobData.budget === 'object' ? activeJobData.budget.amount : (activeJobData.budget || 0)).toLocaleString()}</span>
               </div>
             </div>
-            <button className="w-12 h-12 bg-gray-50 dark:bg-white/5 rounded-2xl flex items-center justify-center text-gray-400 hover:text-aacp-olive transition-colors">
+            <button className="w-12 h-12 bg-gray-50 dark:bg-white/5 rounded-2xl flex items-center justify-center text-gray-400 hover:text-primary-blue transition-colors">
               <BookmarkPlus size={20} />
             </button>
           </div>
@@ -343,7 +343,7 @@ export default function AdvertiserApplyMatchPage() {
           {[1, 2, 3].map(step => (
             <div key={step} className="flex-1 h-1.5 rounded-full bg-gray-100 dark:bg-white/5 overflow-hidden">
               <div
-                className={cn("h-full transition-all duration-500", step <= currentStep ? "bg-aacp-olive" : "bg-transparent")}
+                className={cn("h-full transition-all duration-500", step <= currentStep ? "bg-primary-blue" : "bg-transparent")}
                 style={{ width: step === currentStep ? "50%" : step < currentStep ? "100%" : "0%" }}
               />
             </div>
@@ -358,37 +358,37 @@ export default function AdvertiserApplyMatchPage() {
                 {/* Step 2: Personal Information */}
                 <section className="bg-white dark:bg-[#111] p-6 md:p-8 rounded-[2.5rem] border border-gray-100 dark:border-white/5 shadow-sm">
                   <div className="flex items-center gap-2 mb-6">
-                    <div className="w-8 h-8 rounded-xl bg-aacp-olive/10 text-aacp-olive flex items-center justify-center"><Briefcase size={16} /></div>
+                    <div className="w-8 h-8 rounded-xl bg-primary-blue/10 text-primary-blue flex items-center justify-center"><Briefcase size={16} /></div>
                     <h2 className="text-xl font-bold text-gray-900 dark:text-white">Personal Information</h2>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
                       <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">First Name *</label>
-                      <input required type="text" name="firstName" value={formData.firstName} onChange={handleInputChange} className="w-full bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-aacp-olive focus:ring-1 focus:ring-aacp-olive text-gray-900 dark:text-white" />
+                      <input required type="text" name="firstName" value={formData.firstName} onChange={handleInputChange} className="w-full bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary-blue focus:ring-1 focus:ring-primary-blue text-gray-900 dark:text-white" />
                     </div>
                     <div className="space-y-2">
                       <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">Last Name *</label>
-                      <input required type="text" name="lastName" value={formData.lastName} onChange={handleInputChange} className="w-full bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-aacp-olive focus:ring-1 focus:ring-aacp-olive text-gray-900 dark:text-white" />
+                      <input required type="text" name="lastName" value={formData.lastName} onChange={handleInputChange} className="w-full bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary-blue focus:ring-1 focus:ring-primary-blue text-gray-900 dark:text-white" />
                     </div>
                     <div className="space-y-2">
                       <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">Email Address *</label>
-                      <input required type="email" name="email" value={formData.email} onChange={handleInputChange} className="w-full bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-aacp-olive focus:ring-1 focus:ring-aacp-olive text-gray-900 dark:text-white" />
+                      <input required type="email" name="email" value={formData.email} onChange={handleInputChange} className="w-full bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary-blue focus:ring-1 focus:ring-primary-blue text-gray-900 dark:text-white" />
                     </div>
                     <div className="space-y-2">
                       <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">Phone Number *</label>
-                      <input required type="tel" name="phone" value={formData.phone} onChange={handleInputChange} className="w-full bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-aacp-olive focus:ring-1 focus:ring-aacp-olive text-gray-900 dark:text-white" />
+                      <input required type="tel" name="phone" value={formData.phone} onChange={handleInputChange} className="w-full bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary-blue focus:ring-1 focus:ring-primary-blue text-gray-900 dark:text-white" />
                     </div>
                     <div className="space-y-2">
                       <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">Location (City, Country)</label>
                       <div className="flex gap-2">
-                        <input type="text" name="city" value={formData.city} onChange={handleInputChange} placeholder="City" className="w-1/2 bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-aacp-olive text-gray-900 dark:text-white" />
-                        <input type="text" name="country" value={formData.country} onChange={handleInputChange} placeholder="Country" className="w-1/2 bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-aacp-olive text-gray-900 dark:text-white" />
+                        <input type="text" name="city" value={formData.city} onChange={handleInputChange} placeholder="City" className="w-1/2 bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary-blue text-gray-900 dark:text-white" />
+                        <input type="text" name="country" value={formData.country} onChange={handleInputChange} placeholder="Country" className="w-1/2 bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary-blue text-gray-900 dark:text-white" />
                       </div>
                     </div>
                     <div className="space-y-2">
                       <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">Social Media Profile</label>
-                      <input type="url" name="linkedin" value={formData.linkedin} onChange={handleInputChange} className="w-full bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-aacp-olive text-gray-900 dark:text-white" />
+                      <input type="url" name="linkedin" value={formData.linkedin} onChange={handleInputChange} className="w-full bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary-blue text-gray-900 dark:text-white" />
                     </div>
                   </div>
                 </section>
@@ -396,7 +396,7 @@ export default function AdvertiserApplyMatchPage() {
                 {/* Step 3: Resume / CV */}
                 <section className="bg-white dark:bg-[#111] p-6 md:p-8 rounded-[2.5rem] border border-gray-100 dark:border-white/5 shadow-sm">
                   <div className="flex items-center gap-2 mb-6">
-                    <div className="w-8 h-8 rounded-xl bg-purple-500/10 text-purple-500 flex items-center justify-center"><FileText size={16} /></div>
+                    <div className="w-8 h-8 rounded-xl bg-primary-blue-light0/10 text-primary-blue flex items-center justify-center"><FileText size={16} /></div>
                     <h2 className="text-xl font-bold text-gray-900 dark:text-white">Resume / CV *</h2>
                   </div>
 
@@ -411,19 +411,19 @@ export default function AdvertiserApplyMatchPage() {
                   {!resume ? (
                     <div
                       onClick={() => resumeInputRef.current?.click()}
-                      className="border-2 border-dashed border-aacp-olive/30 rounded-3xl p-8 text-center bg-aacp-olive/5 hover:bg-aacp-olive/10 transition-colors cursor-pointer group"
+                      className="border-2 border-dashed border-primary-blue/30 rounded-3xl p-8 text-center bg-primary-blue/5 hover:bg-primary-blue/10 transition-colors cursor-pointer group"
                     >
-                      <UploadCloud size={40} className="mx-auto text-aacp-olive mb-4 group-hover:-translate-y-1 transition-transform" />
+                      <UploadCloud size={40} className="mx-auto text-primary-blue mb-4 group-hover:-translate-y-1 transition-transform" />
                       <p className="text-sm font-bold text-gray-900 dark:text-white mb-1">Click to upload or drag & drop</p>
                       <p className="text-xs text-gray-500">PDF, DOC, DOCX up to 10MB</p>
                     </div>
                   ) : (
                     <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-black/50 rounded-2xl border border-gray-200 dark:border-white/10">
                       <div className="flex items-center gap-3">
-                        <FileText className="text-aacp-olive" size={20} />
+                        <FileText className="text-primary-blue" size={20} />
                         <div>
                           <p className="text-sm font-bold text-gray-900 dark:text-white">{resume.name}</p>
-                          <p className="text-xs text-aacp-olive">{resume.size} • Uploaded successfully</p>
+                          <p className="text-xs text-primary-blue">{resume.size} • Uploaded successfully</p>
                         </div>
                       </div>
                       <button
@@ -453,11 +453,11 @@ export default function AdvertiserApplyMatchPage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                     <div className="space-y-2">
                       <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">Creative Role (e.g. Travel Vlogger)</label>
-                      <input type="text" name="creativeRole" value={formData.creativeRole} onChange={handleInputChange} placeholder="Tech Reviewer, Fitness Influencer, etc." className="w-full bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:border-aacp-olive outline-none text-gray-900 dark:text-white" />
+                      <input type="text" name="creativeRole" value={formData.creativeRole} onChange={handleInputChange} placeholder="Tech Reviewer, Fitness Influencer, etc." className="w-full bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:border-primary-blue outline-none text-gray-900 dark:text-white" />
                     </div>
                     <div className="space-y-2">
                       <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">Years of Experience</label>
-                      <select name="experienceYears" value={formData.experienceYears} onChange={handleInputChange} className="w-full bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:border-aacp-olive outline-none text-gray-900 dark:text-white">
+                      <select name="experienceYears" value={formData.experienceYears} onChange={handleInputChange} className="w-full bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:border-primary-blue outline-none text-gray-900 dark:text-white">
                         <option value="1-3">1-3 years</option>
                         <option value="3-5">3-5 years</option>
                         <option value="5+">5+ years</option>
@@ -474,7 +474,7 @@ export default function AdvertiserApplyMatchPage() {
                         value={skillsInput}
                         onChange={(e) => setSkillsInput(e.target.value)}
                         onKeyDown={handleAddSkill}
-                        className="w-full bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:border-aacp-olive outline-none text-gray-900 dark:text-white"
+                        className="w-full bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:border-primary-blue outline-none text-gray-900 dark:text-white"
                       />
                       <div className="flex flex-wrap gap-2 pt-2">
                         {formData.skills.map(skill => (
@@ -490,7 +490,7 @@ export default function AdvertiserApplyMatchPage() {
                       <div className="flex gap-4">
                         {['Beginner', 'Intermediate', 'Expert'].map(level => (
                           <label key={level} className="flex items-center gap-2 cursor-pointer">
-                            <input type="radio" name="proficiency" value={level} checked={formData.proficiency === level} onChange={handleInputChange} className="accent-aacp-olive w-4 h-4" />
+                            <input type="radio" name="proficiency" value={level} checked={formData.proficiency === level} onChange={handleInputChange} className="accent-primary-blue w-4 h-4" />
                             <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{level}</span>
                           </label>
                         ))}
@@ -510,7 +510,7 @@ export default function AdvertiserApplyMatchPage() {
                         value={formData.coverLetter}
                         onChange={handleInputChange}
                         placeholder="Briefly explain why you're a good fit..."
-                        className="w-full bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl p-4 text-sm focus:border-aacp-olive outline-none resize-none text-gray-900 dark:text-white"
+                        className="w-full bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl p-4 text-sm focus:border-primary-blue outline-none resize-none text-gray-900 dark:text-white"
                       />
                     </div>
                   </div>
@@ -567,7 +567,7 @@ export default function AdvertiserApplyMatchPage() {
                         <p className="text-sm text-gray-600 dark:text-gray-400">{formData.email} • {formData.phone}</p>
                         <p className="text-sm text-gray-600 dark:text-gray-400">{formData.city}, {formData.country}</p>
                       </div>
-                      <button type="button" onClick={() => setCurrentStep(1)} className="text-xs font-bold text-aacp-olive hover:text-aacp-gold">Edit</button>
+                      <button type="button" onClick={() => setCurrentStep(1)} className="text-xs font-bold text-primary-blue hover:text-neutral-border">Edit</button>
                     </div>
 
                     <div className="p-4 bg-gray-50 dark:bg-white/5 rounded-2xl flex justify-between items-start border border-gray-100 dark:border-white/5">
@@ -577,7 +577,7 @@ export default function AdvertiserApplyMatchPage() {
                         <p className="text-sm text-gray-600 dark:text-gray-400">{formData.experienceYears} years experience</p>
                         <p className="text-sm text-gray-600 dark:text-gray-400 mt-2"><span className="font-medium text-gray-900 dark:text-white">Skills:</span> {formData.skills.join(', ')}</p>
                       </div>
-                      <button type="button" onClick={() => setCurrentStep(2)} className="text-xs font-bold text-aacp-olive hover:text-aacp-gold">Edit</button>
+                      <button type="button" onClick={() => setCurrentStep(2)} className="text-xs font-bold text-primary-blue hover:text-neutral-border">Edit</button>
                     </div>
                   </div>
                 </section>
@@ -588,7 +588,7 @@ export default function AdvertiserApplyMatchPage() {
                     <label className="flex items-start gap-3 cursor-pointer group">
                       <div className="relative flex items-start pt-1">
                         <input required type="checkbox" name="agreedToTerms" checked={formData.agreedToTerms} onChange={handleInputChange} className="peer sr-only" />
-                        <div className="w-5 h-5 border-2 border-gray-300 dark:border-gray-600 rounded-md peer-checked:bg-aacp-olive peer-checked:border-aacp-olive transition-colors flex items-center justify-center">
+                        <div className="w-5 h-5 border-2 border-gray-300 dark:border-gray-600 rounded-md peer-checked:bg-primary-blue peer-checked:border-primary-blue transition-colors flex items-center justify-center">
                           <CheckCircle2 size={14} className="text-white opacity-0 peer-checked:opacity-100" />
                         </div>
                       </div>
@@ -601,7 +601,7 @@ export default function AdvertiserApplyMatchPage() {
                     <label className="flex items-start gap-3 cursor-pointer group">
                       <div className="relative flex items-start pt-1">
                         <input type="checkbox" name="allowContact" checked={formData.allowContact} onChange={handleInputChange} className="peer sr-only" />
-                        <div className="w-5 h-5 border-2 border-gray-300 dark:border-gray-600 rounded-md peer-checked:bg-aacp-olive peer-checked:border-aacp-olive transition-colors flex items-center justify-center">
+                        <div className="w-5 h-5 border-2 border-gray-300 dark:border-gray-600 rounded-md peer-checked:bg-primary-blue peer-checked:border-primary-blue transition-colors flex items-center justify-center">
                           <CheckCircle2 size={14} className="text-white opacity-0 peer-checked:opacity-100" />
                         </div>
                       </div>
@@ -643,7 +643,7 @@ export default function AdvertiserApplyMatchPage() {
                   "px-8 py-3 rounded-xl font-bold flex items-center gap-2 shadow-lg transition-all",
                   (applyMutation.isPending || isUploading || (currentStep === 3 && !formData.agreedToTerms))
                     ? "bg-gray-200 dark:bg-white/10 text-gray-400 cursor-not-allowed shadow-none"
-                    : "bg-aacp-olive text-black hover:bg-aacp-gold shadow-aacp-olive/20"
+                    : "bg-primary-blue text-black hover:bg-neutral-border shadow-primary-blue/20"
                 )}
               >
                 {applyMutation.isPending || isUploading ? (

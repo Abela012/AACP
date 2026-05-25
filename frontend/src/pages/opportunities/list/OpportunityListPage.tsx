@@ -86,7 +86,7 @@ export default function OpportunityListPage() {
             ))}
           </div>
 
-          <button className="flex items-center gap-2 px-4 py-1.5 rounded-full border border-aacp-olive text-aacp-olive text-sm font-medium hover:bg-aacp-olive/10 transition-colors">
+          <button className="flex items-center gap-2 px-4 py-1.5 rounded-full border border-primary-blue text-primary-blue text-sm font-medium hover:bg-primary-blue/10 transition-colors">
             <Filter size={16} />
             Filters
           </button>
@@ -101,7 +101,7 @@ export default function OpportunityListPage() {
         {/* List */}
         {isLoading ? (
           <div className="flex flex-col items-center py-32">
-            <Loader2 size={40} className="text-aacp-olive animate-spin mb-4" />
+            <Loader2 size={40} className="text-primary-blue animate-spin mb-4" />
             <p className="text-sm font-bold text-gray-500">Loading opportunities...</p>
           </div>
         ) : isError ? (
@@ -136,13 +136,13 @@ export default function OpportunityListPage() {
                     key={opp._id}
                     initial={{ opacity: 0, y: 15 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="p-8 mb-10 rounded-3xl bg-gradient-to-br from-aacp-olive/10 via-[#1A1D1F]/5 to-transparent dark:from-aacp-olive/10 dark:via-[#111111]/50 dark:to-transparent border border-aacp-olive/20 dark:border-aacp-olive/30 relative overflow-hidden group shadow-2xl"
+                    className="p-8 mb-10 rounded-3xl bg-gradient-to-br from-primary-blue/10 via-[#1A1D1F]/5 to-transparent dark:from-primary-blue/10 dark:via-[#111111]/50 dark:to-transparent border border-primary-blue/20 dark:border-primary-blue/30 relative overflow-hidden group shadow-2xl"
                   >
                     {/* Glowing ambient background blur */}
-                    <div className="absolute top-0 right-0 w-64 h-64 bg-aacp-olive/10 dark:bg-aacp-olive/5 rounded-full filter blur-[80px] -mr-20 -mt-20 pointer-events-none" />
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-primary-blue/10 dark:bg-primary-blue/5 rounded-full filter blur-[80px] -mr-20 -mt-20 pointer-events-none" />
 
                     <div className="flex items-center gap-3 text-xs font-bold text-gray-500 dark:text-gray-400 mb-4">
-                      <span className="px-3 py-1 rounded-full bg-aacp-olive text-white font-extrabold uppercase tracking-widest text-[9px] shadow-lg shadow-aacp-olive/20 animate-pulse">
+                      <span className="px-3 py-1 rounded-full bg-primary-blue text-white font-extrabold uppercase tracking-widest text-[9px] shadow-lg shadow-primary-blue/20 animate-pulse">
                         🆕 Latest Campaign
                       </span>
                       <span className="px-3 py-1 rounded-full bg-gray-200/50 dark:bg-white/5 text-gray-600 dark:text-gray-300 font-bold uppercase tracking-wider text-[9px]">
@@ -156,11 +156,11 @@ export default function OpportunityListPage() {
                     <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4 mb-4">
                       <div className="flex-1">
                         <Link to={`/opportunities/${opp._id}`}>
-                          <h2 className="text-2xl md:text-3xl font-black text-[#1A1D1F] dark:text-white group-hover:text-aacp-olive dark:group-hover:text-aacp-gold transition-colors tracking-tight leading-tight">
+                          <h2 className="text-2xl md:text-3xl font-black text-[#1A1D1F] dark:text-white group-hover:text-primary-blue dark:group-hover:text-neutral-border transition-colors tracking-tight leading-tight">
                             {opp.title}
                           </h2>
                         </Link>
-                        <div className="text-sm font-bold text-aacp-olive dark:text-aacp-gold mt-2.5 flex flex-wrap items-center gap-2">
+                        <div className="text-sm font-bold text-primary-blue dark:text-neutral-border mt-2.5 flex flex-wrap items-center gap-2">
                           <span>{opp.paymentType || 'Fixed-price'}</span>
                           <span className="w-1.5 h-1.5 rounded-full bg-gray-300 dark:bg-gray-700" />
                           <span>{opp.experienceLevel || 'Expert'}</span>
@@ -176,7 +176,7 @@ export default function OpportunityListPage() {
                         <button
                           onClick={() => handleApply(opp)}
                           disabled={applyingTo === opp._id}
-                          className="px-6 py-3 rounded-full bg-aacp-olive hover:bg-aacp-gold text-white text-sm font-black uppercase tracking-widest transition-all shadow-lg shadow-aacp-olive/20 disabled:opacity-50 flex items-center gap-2"
+                          className="px-6 py-3 rounded-full bg-primary-blue hover:bg-neutral-border text-white text-sm font-black uppercase tracking-widest transition-all shadow-lg shadow-primary-blue/20 disabled:opacity-50 flex items-center gap-2"
                         >
                           {applyingTo === opp._id ? (
                             <>
@@ -243,7 +243,7 @@ export default function OpportunityListPage() {
 
                   <div className="flex justify-between items-start mb-2">
                     <Link to={`/opportunities/${opp._id}`}>
-                      <h3 className="text-xl font-semibold text-[#1A1D1F] dark:text-white hover:text-aacp-olive dark:hover:text-aacp-olive cursor-pointer transition-colors line-clamp-2">
+                      <h3 className="text-xl font-semibold text-[#1A1D1F] dark:text-white hover:text-primary-blue dark:hover:text-primary-blue cursor-pointer transition-colors line-clamp-2">
                         {opp.title}
                       </h3>
                     </Link>
@@ -265,7 +265,7 @@ export default function OpportunityListPage() {
                     <span className="line-clamp-3 md:line-clamp-4">
                       {opp.description}
                     </span>
-                    <Link to={`/opportunities/${opp._id}`} className="text-aacp-olive hover:underline font-medium inline-block mt-1">
+                    <Link to={`/opportunities/${opp._id}`} className="text-primary-blue hover:underline font-medium inline-block mt-1">
                       more
                     </Link>
                   </div>
@@ -336,7 +336,7 @@ export default function OpportunityListPage() {
             initial={{ opacity: 0, y: 50, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, scale: 0.9 }}
-            className={`fixed bottom-8 left-1/2 -translate-x-1/2 z-50 px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3 border ${toast.type === 'success' ? 'bg-aacp-olive text-white border-green-400' : 'bg-red-500 text-white border-red-400'
+            className={`fixed bottom-8 left-1/2 -translate-x-1/2 z-50 px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3 border ${toast.type === 'success' ? 'bg-primary-blue text-white border-green-400' : 'bg-red-500 text-white border-red-400'
               }`}
           >
             {toast.type === 'success' ? <CheckCircle2 size={18} /> : <AlertCircle size={18} />}

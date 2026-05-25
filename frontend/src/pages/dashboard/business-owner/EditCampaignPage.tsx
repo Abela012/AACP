@@ -129,7 +129,7 @@ export default function EditCampaignPage() {
     return (
       <BusinessLayout>
         <div className="flex items-center justify-center min-h-[60vh]">
-          <Loader2 className="w-8 h-8 text-aacp-olive animate-spin" />
+          <Loader2 className="w-8 h-8 text-primary-blue animate-spin" />
         </div>
       </BusinessLayout>
     );
@@ -147,8 +147,8 @@ export default function EditCampaignPage() {
         </button>
 
         <div className="mb-10">
-          <div className="w-16 h-16 bg-aacp-olive/10 rounded-2xl flex items-center justify-center mb-4">
-            <Megaphone className="w-8 h-8 text-aacp-olive" />
+          <div className="w-16 h-16 bg-primary-blue/10 rounded-2xl flex items-center justify-center mb-4">
+            <Megaphone className="w-8 h-8 text-primary-blue" />
           </div>
           <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">Edit Campaign</h1>
           <p className="text-gray-500 dark:text-gray-400">Update your campaign details and requirements.</p>
@@ -163,7 +163,7 @@ export default function EditCampaignPage() {
         <form onSubmit={handleSubmit} className="space-y-8 pb-20">
           <section className="bg-white dark:bg-[#111] border border-gray-100 dark:border-white/10 rounded-[2.5rem] p-8 shadow-sm">
             <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
-              <FileText size={20} className="text-aacp-olive" />
+              <FileText size={20} className="text-primary-blue" />
               Basic Details
             </h2>
             
@@ -174,7 +174,7 @@ export default function EditCampaignPage() {
                   type="text"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  className="w-full bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm text-gray-900 dark:text-white focus:outline-none focus:border-aacp-olive transition-all"
+                  className="w-full bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm text-gray-900 dark:text-white focus:outline-none focus:border-primary-blue transition-all"
                   required
                 />
               </div>
@@ -185,7 +185,7 @@ export default function EditCampaignPage() {
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   rows={5}
-                  className="w-full bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm text-gray-900 dark:text-white focus:outline-none focus:border-aacp-olive transition-all resize-none"
+                  className="w-full bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm text-gray-900 dark:text-white focus:outline-none focus:border-primary-blue transition-all resize-none"
                   required
                 />
               </div>
@@ -196,7 +196,7 @@ export default function EditCampaignPage() {
                   <select
                     value={category}
                     onChange={(e) => setCategory(e.target.value)}
-                    className="w-full bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm text-gray-900 dark:text-white focus:outline-none focus:border-aacp-olive transition-all mb-4"
+                    className="w-full bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm text-gray-900 dark:text-white focus:outline-none focus:border-primary-blue transition-all mb-4"
                   >
                     {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
                   </select>
@@ -211,7 +211,7 @@ export default function EditCampaignPage() {
                         value={customCategory}
                         onChange={(e) => setCustomCategory(e.target.value)}
                         placeholder="Type your category..."
-                        className="w-full bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-aacp-olive transition-all"
+                        className="w-full bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-primary-blue transition-all"
                         required
                       />
                     </motion.div>
@@ -225,7 +225,7 @@ export default function EditCampaignPage() {
                       type="number"
                       value={budgetAmount}
                       onChange={(e) => setBudgetAmount(e.target.value)}
-                      className="w-full bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl pl-12 pr-4 py-3 text-sm text-gray-900 dark:text-white focus:outline-none focus:border-aacp-olive transition-all"
+                      className="w-full bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl pl-12 pr-4 py-3 text-sm text-gray-900 dark:text-white focus:outline-none focus:border-primary-blue transition-all"
                       required
                     />
                   </div>
@@ -238,7 +238,7 @@ export default function EditCampaignPage() {
                       type="date"
                       value={deadline}
                       onChange={(e) => setDeadline(e.target.value)}
-                      className="w-full bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl pl-10 pr-4 py-3 text-sm text-gray-900 dark:text-white focus:outline-none focus:border-aacp-olive transition-all"
+                      className="w-full bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl pl-10 pr-4 py-3 text-sm text-gray-900 dark:text-white focus:outline-none focus:border-primary-blue transition-all"
                       required
                     />
                   </div>
@@ -249,7 +249,7 @@ export default function EditCampaignPage() {
 
           <section className="bg-white dark:bg-[#111] border border-gray-100 dark:border-white/10 rounded-[2.5rem] p-8 shadow-sm">
             <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
-              <Target size={20} className="text-aacp-olive" />
+              <Target size={20} className="text-primary-blue" />
               Requirements & Reach
             </h2>
             
@@ -265,8 +265,8 @@ export default function EditCampaignPage() {
                       className={cn(
                         "px-4 py-2 rounded-xl text-sm font-bold transition-all border",
                         selectedPlatforms.includes(platform)
-                          ? "bg-aacp-olive text-black border-aacp-olive"
-                          : "bg-gray-50 dark:bg-white/5 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-white/10 hover:border-aacp-olive/50"
+                          ? "bg-primary-blue text-black border-primary-blue"
+                          : "bg-gray-50 dark:bg-white/5 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-white/10 hover:border-primary-blue/50"
                       )}
                     >
                       {platform}
@@ -283,7 +283,7 @@ export default function EditCampaignPage() {
                     type="number"
                     value={minFollowers}
                     onChange={(e) => setMinFollowers(e.target.value)}
-                    className="w-full bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl pl-10 pr-4 py-3 text-sm text-gray-900 dark:text-white focus:outline-none focus:border-aacp-olive transition-all"
+                    className="w-full bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl pl-10 pr-4 py-3 text-sm text-gray-900 dark:text-white focus:outline-none focus:border-primary-blue transition-all"
                   />
                 </div>
               </div>
@@ -296,7 +296,7 @@ export default function EditCampaignPage() {
                     value={newDeliverable}
                     onChange={(e) => setNewDeliverable(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addDeliverable())}
-                    className="flex-1 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm text-gray-900 dark:text-white focus:outline-none focus:border-aacp-olive transition-all"
+                    className="flex-1 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm text-gray-900 dark:text-white focus:outline-none focus:border-primary-blue transition-all"
                   />
                   <button
                     type="button"
@@ -310,7 +310,7 @@ export default function EditCampaignPage() {
                   <div className="flex flex-wrap gap-2">
                     {deliverables.map(d => (
                       <span key={d} className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 dark:bg-white/10 rounded-lg text-sm text-gray-700 dark:text-gray-300">
-                        <CheckCircle2 size={14} className="text-aacp-olive" />
+                        <CheckCircle2 size={14} className="text-primary-blue" />
                         {d}
                         <button type="button" onClick={() => removeDeliverable(d)} className="ml-1 text-gray-400 hover:text-red-500">
                           <X size={14} />
@@ -336,7 +336,7 @@ export default function EditCampaignPage() {
               disabled={isPending}
               className={cn(
                 "px-10 py-4 rounded-2xl font-bold text-white transition-all shadow-xl",
-                isPending ? "bg-aacp-gold" : "bg-aacp-olive hover:bg-aacp-gold shadow-aacp-olive/20"
+                isPending ? "bg-neutral-border" : "bg-primary-blue hover:bg-neutral-border shadow-primary-blue/20"
               )}
             >
               {isPending ? 'Saving...' : 'Save Changes'}

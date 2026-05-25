@@ -64,7 +64,7 @@ function SectionCard({
       className="bg-white dark:bg-[#111] rounded-3xl border border-gray-100 dark:border-white/6 p-6 md:p-8 shadow-[0_1px_3px_rgba(0,0,0,0.04)]"
     >
       <div className="flex items-center gap-3 mb-6">
-        <span className="text-aacp-olive dark:text-aacp-gold">{icon}</span>
+        <span className="text-primary-blue dark:text-neutral-border">{icon}</span>
         <h3 className="text-lg font-bold text-gray-900 dark:text-white tracking-tight">
           {title}
         </h3>
@@ -90,8 +90,8 @@ function TagPill({
       className={cn(
         'px-4 py-2 rounded-full text-sm font-semibold border transition-all duration-200',
         selected
-          ? 'bg-aacp-olive text-white border-aacp-olive shadow-sm shadow-aacp-olive/20'
-          : 'bg-white dark:bg-white/5 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-white/10 hover:border-emerald-300 hover:text-aacp-olive dark:hover:text-aacp-gold'
+          ? 'bg-primary-blue text-white border-primary-blue shadow-sm shadow-primary-blue/20'
+          : 'bg-white dark:bg-white/5 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-white/10 hover:border-emerald-300 hover:text-primary-blue dark:hover:text-neutral-border'
       )}
     >
       {label}
@@ -107,7 +107,7 @@ function RemovableTag({
   onRemove: () => void;
 }) {
   return (
-    <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-sm font-semibold bg-aacp-olive text-white shadow-sm shadow-aacp-olive/20">
+    <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-sm font-semibold bg-primary-blue text-white shadow-sm shadow-primary-blue/20">
       {label}
       <button
         type="button"
@@ -144,7 +144,7 @@ function InputField({
       </label>
       <div className="relative">
         {prefix && (
-          <span className="absolute left-0 top-0 bottom-0 flex items-center px-3 text-xs font-bold text-aacp-olive bg-aacp-gold/15 dark:bg-aacp-olive/10 dark:text-aacp-gold rounded-l-xl border-r border-gray-200 dark:border-white/10">
+          <span className="absolute left-0 top-0 bottom-0 flex items-center px-3 text-xs font-bold text-primary-blue bg-neutral-border/15 dark:bg-primary-blue/10 dark:text-neutral-border rounded-l-xl border-r border-gray-200 dark:border-white/10">
             {prefix}
           </span>
         )}
@@ -160,7 +160,7 @@ function InputField({
           placeholder={placeholder}
           className={cn(
             'w-full bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl py-3 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500',
-            'focus:outline-none focus:border-aacp-olive focus:ring-1 focus:ring-aacp-olive/30 transition-all duration-200',
+            'focus:outline-none focus:border-primary-blue focus:ring-1 focus:ring-primary-blue/30 transition-all duration-200',
             prefix ? 'pl-16 pr-4' : icon ? 'pl-10 pr-4' : 'pl-4 pr-4'
           )}
         />
@@ -189,7 +189,7 @@ function SelectField({
         <select
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="w-full bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm text-gray-900 dark:text-white appearance-none focus:outline-none focus:border-aacp-olive focus:ring-1 focus:ring-aacp-olive/30 transition-all duration-200 cursor-pointer"
+          className="w-full bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm text-gray-900 dark:text-white appearance-none focus:outline-none focus:border-primary-blue focus:ring-1 focus:ring-primary-blue/30 transition-all duration-200 cursor-pointer"
         >
           {options.map((opt) => (
             <option key={opt} value={opt}>
@@ -266,7 +266,7 @@ function PhoneInputField({
           <select
             value={selectedCode}
             onChange={(e) => handleCodeChange(e.target.value)}
-            className="w-full bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl pl-3 pr-8 py-3 text-sm text-gray-900 dark:text-white appearance-none focus:outline-none focus:border-aacp-olive focus:ring-1 focus:ring-aacp-olive/30 transition-all duration-200 cursor-pointer"
+            className="w-full bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl pl-3 pr-8 py-3 text-sm text-gray-900 dark:text-white appearance-none focus:outline-none focus:border-primary-blue focus:ring-1 focus:ring-primary-blue/30 transition-all duration-200 cursor-pointer"
           >
             {countryCodes.map((c) => (
               <option key={`${c.country}-${c.code}`} value={c.code}>
@@ -284,7 +284,7 @@ function PhoneInputField({
           value={number}
           onChange={(e) => handleNumberChange(e.target.value)}
           placeholder="912 345 678"
-          className="flex-1 bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:border-aacp-olive focus:ring-1 focus:ring-aacp-olive/30 transition-all duration-200"
+          className="flex-1 bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:border-primary-blue focus:ring-1 focus:ring-primary-blue/30 transition-all duration-200"
         />
       </div>
     </div>
@@ -659,8 +659,8 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
           transition={{ type: 'spring', stiffness: 200, damping: 20 }}
           className="bg-white dark:bg-[#111] rounded-3xl border border-gray-100 dark:border-white/6 p-10 max-w-md w-full text-center shadow-xl"
         >
-          <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-aacp-gold/15 dark:bg-aacp-olive/10 flex items-center justify-center">
-            <CheckCircle2 size={40} className="text-aacp-olive" />
+          <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-neutral-border/15 dark:bg-primary-blue/10 flex items-center justify-center">
+            <CheckCircle2 size={40} className="text-primary-blue" />
           </div>
           <h2 className="text-2xl font-black text-gray-900 dark:text-white mb-3">
             Profile Submitted!
@@ -674,7 +674,7 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
               setOnboardingStatus('pending');
               window.location.href = '/dashboard';
             }}
-            className="w-full bg-aacp-olive text-white font-bold py-3.5 rounded-2xl hover:bg-aacp-gold transition-all shadow-lg shadow-aacp-olive/20"
+            className="w-full bg-primary-blue text-white font-bold py-3.5 rounded-2xl hover:bg-neutral-border transition-all shadow-lg shadow-primary-blue/20"
           >
             Continue
           </button>
@@ -693,7 +693,7 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
               <p className="text-sm font-bold text-gray-500 dark:text-gray-400 tracking-wider mb-2">
                 AACP
               </p>
-              <h1 className="text-3xl md:text-4xl font-black text-aacp-olive dark:text-aacp-gold tracking-tight mb-3">
+              <h1 className="text-3xl md:text-4xl font-black text-primary-blue dark:text-neutral-border tracking-tight mb-3">
                 Business Profile
               </h1>
               <p className="text-gray-500 dark:text-gray-400 text-sm max-w-md mx-auto leading-relaxed">
@@ -703,7 +703,7 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
             </>
           ) : (
             <>
-              <p className="text-xs font-bold text-aacp-olive dark:text-aacp-gold tracking-[0.15em] uppercase mb-3">
+              <p className="text-xs font-bold text-primary-blue dark:text-neutral-border tracking-[0.15em] uppercase mb-3">
                 Creator onboarding • 5 steps
               </p>
               <h1 className="text-3xl md:text-4xl font-black text-gray-900 dark:text-white tracking-tight mb-3">
@@ -712,7 +712,7 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
               <p className="text-gray-500 dark:text-gray-400 text-sm max-w-lg mx-auto leading-relaxed mb-5">
                 Rich analytics power AI matching, ROI forecasts, and campaign recommendations with premium brands.
               </p>
-              <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-aacp-gold/15 dark:bg-aacp-olive/10 border border-aacp-gold/30 dark:border-aacp-olive/20 text-aacp-olive dark:text-aacp-gold text-xs font-bold">
+              <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-neutral-border/15 dark:bg-primary-blue/10 border border-neutral-border/30 dark:border-primary-blue/20 text-primary-blue dark:text-neutral-border text-xs font-bold">
                 <Shield size={14} /> Secure Application
               </span>
             </>
@@ -736,7 +736,7 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
               </p>
               <div className="flex flex-col items-center mb-8">
                 <div className="relative group">
-                  <div className="w-24 h-24 rounded-full border-4 border-aacp-olive/20 overflow-hidden bg-gray-100 dark:bg-white/5 shadow-xl">
+                  <div className="w-24 h-24 rounded-full border-4 border-primary-blue/20 overflow-hidden bg-gray-100 dark:bg-white/5 shadow-xl">
                     <img
                       src={profilePicture || `https://ui-avatars.com/api/?name=${firstName}+${lastName}&background=10b981&color=fff`}
                       alt="Profile"
@@ -837,7 +837,7 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
                     value={servicesOffered}
                     onChange={(e) => setServicesOffered(e.target.value)}
                     placeholder="Example: Restaurant services, bakery products, catering, coffee shop, etc."
-                    className="w-full bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl p-4 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:border-aacp-olive focus:ring-1 focus:ring-aacp-olive/30 resize-none transition-all"
+                    className="w-full bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl p-4 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:border-primary-blue focus:ring-1 focus:ring-primary-blue/30 resize-none transition-all"
                   />
                 </div>
                 <div className="space-y-2">
@@ -852,7 +852,7 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
                       onChange={(e) => setBrandDescription(e.target.value)}
                       placeholder="“We provide fresh, affordable, and high-quality meals in a clean and welcoming environment.”"
                       maxLength={300}
-                      className="w-full bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl p-4 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:border-aacp-olive focus:ring-1 focus:ring-aacp-olive/30 resize-none transition-all"
+                      className="w-full bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl p-4 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:border-primary-blue focus:ring-1 focus:ring-primary-blue/30 resize-none transition-all"
                     />
                     <span className={cn(
                       "absolute bottom-3 right-3 text-[10px] font-bold",
@@ -875,8 +875,8 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
                 className={cn(
                   "relative border-2 border-dashed rounded-2xl p-10 flex flex-col items-center justify-center transition-all group",
                   tradeLicenseUrl
-                    ? "border-aacp-olive bg-aacp-gold/15/30 dark:bg-aacp-olive/5"
-                    : "border-gray-200 dark:border-white/10 hover:border-aacp-gold bg-gray-50 dark:bg-white/5"
+                    ? "border-primary-blue bg-neutral-border/15/30 dark:bg-primary-blue/5"
+                    : "border-gray-200 dark:border-white/10 hover:border-neutral-border bg-gray-50 dark:bg-white/5"
                 )}
               >
                 <input
@@ -905,22 +905,22 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
 
                 {isUploadingLicense ? (
                   <div className="flex flex-col items-center gap-3">
-                    <Loader2 size={32} className="text-aacp-olive animate-spin" />
-                    <span className="text-xs font-bold text-aacp-olive uppercase tracking-widest">Uploading...</span>
+                    <Loader2 size={32} className="text-primary-blue animate-spin" />
+                    <span className="text-xs font-bold text-primary-blue uppercase tracking-widest">Uploading...</span>
                   </div>
                 ) : tradeLicenseUrl ? (
                   <div className="flex flex-col items-center gap-4">
-                    <div className="w-16 h-16 bg-aacp-olive text-white rounded-2xl flex items-center justify-center shadow-lg shadow-aacp-olive/20">
+                    <div className="w-16 h-16 bg-primary-blue text-white rounded-2xl flex items-center justify-center shadow-lg shadow-primary-blue/20">
                       <CheckCircle2 size={32} />
                     </div>
                     <div className="text-center">
                       <p className="text-sm font-bold text-gray-900 dark:text-white">Trade License Verified</p>
-                      <p className="text-[10px] text-aacp-olive font-bold uppercase tracking-widest mt-1">File Uploaded Successfully</p>
+                      <p className="text-[10px] text-primary-blue font-bold uppercase tracking-widest mt-1">File Uploaded Successfully</p>
                     </div>
                   </div>
                 ) : (
                   <div className="flex flex-col items-center gap-4">
-                    <div className="w-16 h-16 bg-white dark:bg-white/5 rounded-2xl border border-gray-200 dark:border-white/10 flex items-center justify-center text-gray-400 group-hover:text-aacp-olive group-hover:scale-110 transition-all duration-300 shadow-sm">
+                    <div className="w-16 h-16 bg-white dark:bg-white/5 rounded-2xl border border-gray-200 dark:border-white/10 flex items-center justify-center text-gray-400 group-hover:text-primary-blue group-hover:scale-110 transition-all duration-300 shadow-sm">
                       <Plus size={32} />
                     </div>
                     <div className="text-center">
@@ -1077,9 +1077,9 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
                           onChange={(e) => setNewAudienceTag(e.target.value)}
                           onKeyDown={(e) => e.key === 'Enter' && addAudienceTag()}
                           placeholder="Add tag"
-                          className="w-36 bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-aacp-olive text-gray-900 dark:text-white transition-all"
+                          className="w-36 bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-primary-blue text-gray-900 dark:text-white transition-all"
                         />
-                        <button type="button" onClick={addAudienceTag} className="w-8 h-8 flex items-center justify-center bg-aacp-olive text-white rounded-lg shadow-sm hover:bg-aacp-gold transition-all">
+                        <button type="button" onClick={addAudienceTag} className="w-8 h-8 flex items-center justify-center bg-primary-blue text-white rounded-lg shadow-sm hover:bg-neutral-border transition-all">
                           <CheckCircle2 size={16} />
                         </button>
                         <button type="button" onClick={() => setShowAudienceInput(false)} className="text-gray-400 hover:text-gray-600 transition-colors">
@@ -1090,7 +1090,7 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
                       <button
                         type="button"
                         onClick={() => setShowAudienceInput(true)}
-                        className="flex items-center gap-1.5 px-4 py-2 border border-dashed border-gray-300 dark:border-white/15 rounded-xl text-xs font-bold text-gray-500 dark:text-gray-400 hover:border-aacp-gold hover:text-aacp-olive hover:bg-aacp-gold/15/30 transition-all"
+                        className="flex items-center gap-1.5 px-4 py-2 border border-dashed border-gray-300 dark:border-white/15 rounded-xl text-xs font-bold text-gray-500 dark:text-gray-400 hover:border-neutral-border hover:text-primary-blue hover:bg-neutral-border/15/30 transition-all"
                       >
                         <Plus size={14} /> Add Tag
                       </button>
@@ -1148,7 +1148,7 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
                       Monthly Marketing Budget
                     </label>
                     <div className="text-right">
-                      <span className="text-2xl font-black text-aacp-olive dark:text-aacp-gold tabular-nums">
+                      <span className="text-2xl font-black text-primary-blue dark:text-neutral-border tabular-nums">
                         Br {monthlyBudget.toLocaleString()}
                       </span>
                       <p className="text-[10px] text-gray-400 uppercase tracking-widest font-bold mt-0.5">Estimated Monthly Cap</p>
@@ -1161,7 +1161,7 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
                     step={MONTHLY_BUDGET_STEP_ETB}
                     value={monthlyBudget}
                     onChange={(e) => setMonthlyBudget(Number(e.target.value))}
-                    className="w-full h-2.5 bg-gray-200 dark:bg-white/10 rounded-full appearance-none cursor-pointer accent-aacp-olive [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-6 [&::-webkit-slider-thumb]:h-6 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-aacp-olive [&::-webkit-slider-thumb]:shadow-lg [&::-webkit-slider-thumb]:shadow-aacp-olive/30 [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-white"
+                    className="w-full h-2.5 bg-gray-200 dark:bg-white/10 rounded-full appearance-none cursor-pointer accent-primary-blue [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-6 [&::-webkit-slider-thumb]:h-6 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-primary-blue [&::-webkit-slider-thumb]:shadow-lg [&::-webkit-slider-thumb]:shadow-primary-blue/30 [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-white"
                   />
                   <div className="flex justify-between mt-3 text-[10px] text-gray-400 font-bold tracking-widest">
                     <span>BR 5K</span>
@@ -1198,13 +1198,13 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
                       className={cn(
                         'flex flex-col items-center justify-center gap-3 p-4 rounded-2xl border transition-all duration-300 group',
                         isSelected
-                          ? 'bg-aacp-gold/15 dark:bg-aacp-olive/10 border-emerald-300 dark:border-aacp-olive/40 text-aacp-olive dark:text-aacp-gold shadow-md shadow-aacp-olive/5'
-                          : 'bg-white dark:bg-black/40 border-gray-100 dark:border-white/8 text-gray-500 dark:text-gray-400 hover:border-aacp-gold/30 dark:hover:border-aacp-olive/20'
+                          ? 'bg-neutral-border/15 dark:bg-primary-blue/10 border-emerald-300 dark:border-primary-blue/40 text-primary-blue dark:text-neutral-border shadow-md shadow-primary-blue/5'
+                          : 'bg-white dark:bg-black/40 border-gray-100 dark:border-white/8 text-gray-500 dark:text-gray-400 hover:border-neutral-border/30 dark:hover:border-primary-blue/20'
                       )}
                     >
                       <div className={cn(
                         "w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300",
-                        isSelected ? "bg-aacp-olive text-white shadow-lg shadow-aacp-olive/20" : "bg-gray-50 dark:bg-white/5 text-gray-400 group-hover:text-aacp-olive"
+                        isSelected ? "bg-primary-blue text-white shadow-lg shadow-primary-blue/20" : "bg-gray-50 dark:bg-white/5 text-gray-400 group-hover:text-primary-blue"
                       )}>
                         <Icon size={20} />
                       </div>
@@ -1228,13 +1228,13 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
                 <span className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                   Profile Completion
                 </span>
-                <span className="text-sm font-black text-aacp-olive dark:text-aacp-gold">
+                <span className="text-sm font-black text-primary-blue dark:text-neutral-border">
                   {profileCompletion}%
                 </span>
               </div>
               <div className="h-2 bg-gray-100 dark:bg-white/5 rounded-full overflow-hidden">
                 <motion.div
-                  className="h-full bg-aacp-olive rounded-full"
+                  className="h-full bg-primary-blue rounded-full"
                   initial={{ width: 0 }}
                   animate={{ width: `${profileCompletion}%` }}
                   transition={{ duration: 0.8, ease: 'easeOut' }}
@@ -1252,10 +1252,10 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
               onClick={handleSubmit}
               disabled={isSubmitting}
               className={cn(
-                'flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold text-sm transition-all shadow-lg shadow-aacp-olive/20',
+                'flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold text-sm transition-all shadow-lg shadow-primary-blue/20',
                 isSubmitting
-                  ? 'bg-aacp-gold text-white cursor-wait'
-                  : 'bg-aacp-olive text-white hover:bg-aacp-gold'
+                  ? 'bg-neutral-border text-white cursor-wait'
+                  : 'bg-primary-blue text-white hover:bg-neutral-border'
               )}
             >
               {isSubmitting ? (

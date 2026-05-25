@@ -174,7 +174,7 @@ export const SocialConnectionModal: React.FC<SocialConnectionModalProps> = ({ pl
                             <div className="flex items-center justify-center gap-3">
                                 <span className="text-3xl font-black tracking-wider dark:text-white">{verificationCode}</span>
                                 <button onClick={copyCode} className="text-gray-400 hover:text-black dark:hover:text-white">
-                                    {copied ? <CheckCircle2 size={20} className="text-aacp-olive" /> : <Copy size={20} />}
+                                    {copied ? <CheckCircle2 size={20} className="text-primary-blue" /> : <Copy size={20} />}
                                 </button>
                             </div>
                         </div>
@@ -194,7 +194,7 @@ export const SocialConnectionModal: React.FC<SocialConnectionModalProps> = ({ pl
                         </button>
 
                         <div className="flex items-center justify-between text-xs text-gray-500 font-bold px-2">
-                            <span>Expires in: <span className={timeLeft === 'Expired' ? 'text-red-500' : 'text-aacp-olive'}>{timeLeft}</span></span>
+                            <span>Expires in: <span className={timeLeft === 'Expired' ? 'text-red-500' : 'text-primary-blue'}>{timeLeft}</span></span>
                         </div>
                     </>
                 )}
@@ -209,7 +209,7 @@ export const SocialConnectionModal: React.FC<SocialConnectionModalProps> = ({ pl
 
                 {state === 'success' && (
                     <div className="py-8 flex flex-col items-center justify-center text-center">
-                        <div className="w-20 h-20 bg-aacp-olive/10 text-aacp-olive rounded-full flex items-center justify-center mb-6">
+                        <div className="w-20 h-20 bg-primary-blue/10 text-primary-blue rounded-full flex items-center justify-center mb-6">
                             <CheckCircle2 size={40} />
                         </div>
                         <h3 className="text-2xl font-black mb-2 dark:text-white">Verified!</h3>

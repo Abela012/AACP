@@ -177,7 +177,7 @@ export default function AdvertiserOnboardingWizard({ api, tradeLicenseUrl, onSub
           <span>{progress}%</span>
         </motion.div>
         <motion.div className="h-2 rounded-full bg-gray-100 dark:bg-white/10 overflow-hidden">
-          <motion.div className="h-full bg-gradient-to-r from-aacp-olive to-teal-400" animate={{ width: `${progress}%` }} transition={{ duration: 0.35 }} />
+          <motion.div className="h-full bg-gradient-to-r from-primary-blue to-teal-400" animate={{ width: `${progress}%` }} transition={{ duration: 0.35 }} />
         </motion.div>
         <div className="flex gap-1 overflow-x-auto pb-1">
           {STEPS.map((s, i) => {
@@ -189,7 +189,7 @@ export default function AdvertiserOnboardingWizard({ api, tradeLicenseUrl, onSub
                 onClick={() => i <= step && setStep(i)}
                 className={cn(
                   'flex items-center gap-1.5 px-3 py-2 rounded-xl text-[10px] font-bold whitespace-nowrap transition-all',
-                  i === step ? 'bg-aacp-olive text-white' : i < step ? 'bg-aacp-gold/25 text-emerald-800 dark:bg-aacp-olive/20 dark:text-emerald-300' : 'bg-gray-100 dark:bg-white/5 text-gray-400'
+                  i === step ? 'bg-primary-blue text-white' : i < step ? 'bg-neutral-border/25 text-emerald-800 dark:bg-primary-blue/20 dark:text-emerald-300' : 'bg-gray-100 dark:bg-white/5 text-gray-400'
                 )}
               >
                 <Icon size={12} />
@@ -206,13 +206,13 @@ export default function AdvertiserOnboardingWizard({ api, tradeLicenseUrl, onSub
             {(() => {
               const Icon = STEPS[step].icon;
               return (
-                <div className="w-12 h-12 rounded-2xl bg-aacp-olive/10 flex items-center justify-center text-aacp-olive">
+                <div className="w-12 h-12 rounded-2xl bg-primary-blue/10 flex items-center justify-center text-primary-blue">
                   <Icon size={22} />
                 </div>
               );
             })()}
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-              <p className="text-[10px] font-bold text-aacp-olive uppercase tracking-widest">Step {step + 1} of {STEPS.length}</p>
+              <p className="text-[10px] font-bold text-primary-blue uppercase tracking-widest">Step {step + 1} of {STEPS.length}</p>
               <h2 className="text-xl font-black text-gray-900 dark:text-white">{STEPS[step].title}</h2>
             </motion.div>
           </div>
@@ -221,7 +221,7 @@ export default function AdvertiserOnboardingWizard({ api, tradeLicenseUrl, onSub
             <div className="space-y-6">
               <div className="flex flex-col items-center">
                 <motion.div className="relative group" whileHover={{ scale: 1.02 }}>
-                  <motion.div className="w-28 h-28 rounded-full border-4 border-aacp-olive/20 overflow-hidden shadow-xl">
+                  <motion.div className="w-28 h-28 rounded-full border-4 border-primary-blue/20 overflow-hidden shadow-xl">
                     <img
                       src={form.profilePicture || `https://ui-avatars.com/api/?name=${form.firstName}+${form.lastName}&background=10b981&color=fff`}
                       alt=""
@@ -284,7 +284,7 @@ export default function AdvertiserOnboardingWizard({ api, tradeLicenseUrl, onSub
                       whileTap={{ scale: 0.98 }}
                       className={cn(
                         'p-6 rounded-2xl border-2 text-left',
-                        form[id].enabled ? 'border-aacp-olive bg-aacp-gold/15/50 dark:bg-aacp-olive/10' : 'border-gray-100 dark:border-white/10'
+                        form[id].enabled ? 'border-primary-blue bg-neutral-border/15/50 dark:bg-primary-blue/10' : 'border-gray-100 dark:border-white/10'
                       )}
                     >
                       <Icon size={28} className={id === 'instagram' ? 'text-pink-500' : ''} />
@@ -314,9 +314,9 @@ export default function AdvertiserOnboardingWizard({ api, tradeLicenseUrl, onSub
                     <WizardField label="Avg. comments" value={p.avgComments} onChange={(v) => patchPlatform(activePlatform, { avgComments: v.replace(/\D/g, '') })} />
                     <WizardField label="Avg. shares" value={p.avgShares} onChange={(v) => patchPlatform(activePlatform, { avgShares: v.replace(/\D/g, '') })} />
                   </motion.div>
-                  <div className="p-4 rounded-2xl bg-aacp-gold/15 dark:bg-aacp-olive/10 border border-aacp-gold/25">
+                  <div className="p-4 rounded-2xl bg-neutral-border/15 dark:bg-primary-blue/10 border border-neutral-border/25">
                     <p className="text-[10px] font-bold text-gray-500 uppercase">Computed engagement</p>
-                    <p className="text-2xl font-black text-aacp-olive">{computeEngagementRate(p).toFixed(2)}%</p>
+                    <p className="text-2xl font-black text-primary-blue">{computeEngagementRate(p).toFixed(2)}%</p>
                   </div>
                 </WizardSection>
               )}
@@ -377,11 +377,11 @@ export default function AdvertiserOnboardingWizard({ api, tradeLicenseUrl, onSub
           <ArrowLeft size={18} /> Back
         </button>
         {step < STEPS.length - 1 ? (
-          <button type="button" onClick={() => setStep((s) => s + 1)} className="flex items-center gap-2 px-8 py-3 rounded-2xl font-bold bg-aacp-olive text-white shadow-lg shadow-aacp-olive/25">
+          <button type="button" onClick={() => setStep((s) => s + 1)} className="flex items-center gap-2 px-8 py-3 rounded-2xl font-bold bg-primary-blue text-white shadow-lg shadow-primary-blue/25">
             Continue <ArrowRight size={18} />
           </button>
         ) : (
-          <button type="button" onClick={handleSubmit} disabled={isSubmitting} className="flex items-center gap-2 px-8 py-3 rounded-2xl font-bold bg-aacp-olive text-white disabled:opacity-60">
+          <button type="button" onClick={handleSubmit} disabled={isSubmitting} className="flex items-center gap-2 px-8 py-3 rounded-2xl font-bold bg-primary-blue text-white disabled:opacity-60">
             {isSubmitting ? <Loader2 className="animate-spin" size={18} /> : null}
             Submit for review
           </button>
