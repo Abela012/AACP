@@ -28,12 +28,22 @@ export const useSubmitReview = () => {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: (data: { collaborationId: string; rating: number; comment: string }) =>
+        mutationFn: (data: { targetUserId: string; opportunityId: string; rating: number; comment: string; collaborationId?: string; }) =>
             reviewApi.create(api, data).then(r => r.data),
         onSuccess: (data: any) => {
             queryClient.invalidateQueries({ queryKey: ['reviews'] });
             // Also invalidate user sync to get updated rating
             queryClient.invalidateQueries({ queryKey: ['user-sync'] });
+            queryClient.invalidateQueries({ queryKey: ['my-sent-reviews'] });
         },
+    });
+};
+
+/** Get reviews sent by the current user */
+export const useMySentReviews = () => {
+    const api = useApiClient();
+    return useQuery({
+        queryKey: ['my-sent-reviews'],
+        queryFn: () => reviewApi.getMySent(api).then(r => r.data.data),
     });
 };

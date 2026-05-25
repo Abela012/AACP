@@ -96,11 +96,11 @@ export const WorkspaceHeader: React.FC<WorkspaceHeaderProps> = ({ campaign, coll
               <Target size={12} className="text-aacp-olive" /> Completion
             </p>
             <div className="flex items-center gap-3">
-               <p className="text-lg font-black text-gray-900 dark:text-white">{collaboration?.overallProgress || 0}%</p>
+               <p className="text-lg font-black text-gray-900 dark:text-white">{status === 'completed' ? 100 : (collaboration?.overallProgress || 0)}%</p>
                <div className="flex-1 h-2 bg-gray-200 dark:bg-white/10 rounded-full overflow-hidden">
                  <motion.div 
                     initial={{ width: 0 }}
-                    animate={{ width: `${collaboration?.overallProgress || 0}%` }}
+                    animate={{ width: `${status === 'completed' ? 100 : (collaboration?.overallProgress || 0)}%` }}
                     className="h-full bg-aacp-olive"
                  />
                </div>
