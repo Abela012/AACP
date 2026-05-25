@@ -1,6 +1,5 @@
-import { useState, type ReactNode } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Link, useLocation } from 'react-router-dom';
+import type { ReactNode } from 'react';
+import { Link } from 'react-router-dom';
 import { useClerk, useUser as useClerkUser } from '@clerk/clerk-react';
 import {
   Shield,
@@ -10,15 +9,14 @@ import {
   Bell,
   Search,
   Menu,
-  X,
   LogOut,
-  Layout,
   Activity,
-  Zap
 } from 'lucide-react';
 import { cn } from '@/src/shared/utils/cn';
 import ThemeToggle from '@/src/shared/components/ThemeToggle';
 import { useUser } from '@/src/shared/context/UserContext';
+import DashboardSidebar from '@/src/shared/components/navigation/DashboardSidebar';
+import { useSidebarState } from '@/src/shared/components/navigation/useSidebarState';
 
 interface Props {
   children: ReactNode;
@@ -35,99 +33,57 @@ export default function SuperAdminLayout({ children }: Props) {
   const { signOut } = useClerk();
   const { user: clerkUser } = useClerkUser();
   const { logout: localLogout } = useUser();
-  const location = useLocation();
-  const [isSidebarOpen, setIsSidebarOpen] = useState(window.innerWidth >= 1024);
+  const { sidebarExpanded, mobileOpen, toggleSidebar, closeMobile, mainOffsetClass } =
+    useSidebarState({ wide: true });
 
   return (
     <div className="min-h-screen bg-[#F6F6FB] dark:bg-[#050505] text-[#1A1D1F] dark:text-white font-sans flex transition-colors duration-300">
-      <AnimatePresence>
-        {isSidebarOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 lg:hidden"
-            onClick={() => setIsSidebarOpen(false)}
-          />
-        )}
-      </AnimatePresence>
-
-      <aside
-        className={cn(
-          'fixed inset-y-0 left-0 w-72 flex flex-col bg-white dark:bg-[#0A0A0A] z-50 transition-all duration-300 transform border-r border-[#EFEFEF] dark:border-white/5',
-          isSidebarOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'
-        )}
-      >
-        <div className="p-8 pb-4">
-          <Link to="/dashboard/super-admin" className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-primary-blue rounded-full flex items-center justify-center shadow-lg shadow-neutral-border/30 dark:shadow-none">
-              <Zap className="text-white w-6 h-6 fill-white" />
-            </div>
-            <div>
-              <h1 className="text-sm font-black uppercase tracking-tight leading-none">AACP Velocity</h1>
-              <span className="text-[10px] font-bold text-primary-blue uppercase tracking-widest leading-none">
-                Super Admin Panel
-              </span>
-            </div>
-          </Link>
-        </div>
-
-        <div className="flex-1 px-4 py-8 overflow-y-auto space-y-6">
-          <nav className="space-y-1">
-            {navigation.map((item) => {
-              const isActive = location.pathname === item.path;
-              return (
-                <Link
-                  key={item.name}
-                  to={item.path}
-                  className={cn(
-                    'flex items-center gap-4 px-4 py-3.5 rounded-2xl text-sm font-semibold transition-all relative group',
-                    isActive
-                      ? 'text-primary-blue bg-neutral-border/20 dark:bg-primary-blue/10'
-                      : 'text-[#6F767E] hover:text-[#1A1D1F] dark:hover:text-white'
-                  )}
-                >
-                  <item.icon size={20} className={cn(isActive ? 'text-primary-blue' : 'text-[#9A9FA5]')} />
-                  {item.name}
-                  {isActive && (
-                    <motion.div layoutId="super-active" className="absolute left-0 w-1 h-6 bg-primary-blue rounded-r-full" />
-                  )}
-                </Link>
-              );
-            })}
-          </nav>
-
+      <DashboardSidebar
+        variant="admin"
+        wide
+        brandHref="/dashboard/super-admin"
+        brandTitle="AACP Velocity"
+        brandSubtitle="Super Admin Panel"
+        expanded={sidebarExpanded}
+        mobileOpen={mobileOpen}
+        onMobileClose={closeMobile}
+        sections={[{ items: navigation }]}
+        midSlot={
           <div className="pt-6 border-t border-[#EFEFEF] dark:border-white/5">
             <Link
               to="/super-admin/audit-trail"
+              title="Activity"
               className="w-full h-12 bg-primary-blue hover:bg-primary-blue text-white rounded-2xl text-sm font-bold shadow-lg shadow-neutral-border/25 dark:shadow-none transition-all flex items-center justify-center gap-2"
             >
-              <Activity size={18} />
-              Activity
+              <Activity size={18} className="shrink-0" />
+              <span>Activity</span>
             </Link>
           </div>
-        </div>
+        }
+        footer={
+          <button
+            type="button"
+            title="Logout"
+            onClick={() => {
+              localLogout();
+              signOut();
+            }}
+            className="w-full flex items-center gap-4 px-4 py-3 rounded-2xl text-sm font-semibold text-[#6F767E] hover:text-red-500 transition-all"
+          >
+            <LogOut size={20} className="shrink-0" />
+            <span>Logout</span>
+          </button>
+        }
+      />
 
-        <div className="p-4 mt-auto">
-          <nav className="space-y-1">
-            <button
-              onClick={() => {
-                localLogout();
-                signOut();
-              }}
-              className="w-full flex items-center gap-4 px-4 py-3 rounded-2xl text-sm font-semibold text-[#6F767E] hover:text-red-500 transition-all"
-            >
-              <LogOut size={20} />
-              Logout
-            </button>
-          </nav>
-        </div>
-      </aside>
-
-      <div className={cn("flex-1 flex flex-col min-w-0 transition-all duration-300", isSidebarOpen ? "lg:ml-72" : "lg:ml-0")}>
+      <div className={cn('flex-1 flex flex-col min-w-0 transition-all duration-300', mainOffsetClass)}>
         <header className="h-20 bg-white/80 dark:bg-[#0A0A0A]/80 backdrop-blur-lg px-8 flex items-center justify-between sticky top-0 z-40 border-b border-[#EFEFEF] dark:border-white/5">
           <div className="flex items-center gap-6">
-            <button className="p-2 -ml-2 text-gray-500 dark:text-gray-400 hover:text-primary-blue transition-colors" onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
+            <button
+              type="button"
+              className="p-2 -ml-2 text-gray-500 dark:text-gray-400 hover:text-primary-blue transition-colors"
+              onClick={toggleSidebar}
+            >
               <Menu size={24} />
             </button>
             <div className="relative hidden lg:block">
@@ -142,12 +98,18 @@ export default function SuperAdminLayout({ children }: Props) {
 
           <div className="flex items-center gap-4">
             <ThemeToggle />
-            <Link to="/super-admin/notifications" className="relative w-10 h-10 flex items-center justify-center text-[#6F767E] hover:text-[#1A1D1F] transition-all">
+            <Link
+              to="/super-admin/notifications"
+              className="relative w-10 h-10 flex items-center justify-center text-[#6F767E] hover:text-[#1A1D1F] transition-all"
+            >
               <Bell size={20} />
               <div className="absolute top-2.5 right-2.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white dark:border-[#0A0A0A]" />
             </Link>
 
-            <Link to="/super-admin/profile" className="flex items-center gap-3 ml-2 pl-4 border-l border-[#EFEFEF] dark:border-white/5 hover:opacity-80 transition-opacity">
+            <Link
+              to="/super-admin/profile"
+              className="flex items-center gap-3 ml-2 pl-4 border-l border-[#EFEFEF] dark:border-white/5 hover:opacity-80 transition-opacity"
+            >
               <div className="text-right hidden sm:block">
                 <p className="text-xs font-bold leading-none mb-1">{clerkUser?.fullName || 'Super Admin'}</p>
                 <p className="text-[10px] font-bold text-primary-blue uppercase tracking-widest leading-none">Velocity Root</p>
@@ -156,7 +118,9 @@ export default function SuperAdminLayout({ children }: Props) {
                 {clerkUser?.imageUrl ? (
                   <img src={clerkUser.imageUrl} alt="User" className="w-full h-full object-cover" />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center text-white font-bold text-xs">SA</div>
+                  <div className="w-full h-full flex items-center justify-center text-white font-bold text-xs">
+                    SA
+                  </div>
                 )}
               </div>
             </Link>
@@ -168,4 +132,3 @@ export default function SuperAdminLayout({ children }: Props) {
     </div>
   );
 }
-

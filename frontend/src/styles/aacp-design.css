@@ -270,7 +270,158 @@
   .aacp-btn-primary:hover:not(:disabled),
   .aacp-btn-creator:hover:not(:disabled),
   .aacp-btn-ghost:hover,
-  .aacp-role-tile--active {
+  .aacp-role-tile--active,
+  .aacp-card:hover {
     transform: none;
   }
+}
+
+/* ─── Dashboard cards (same palette — layout & depth only) ─── */
+
+.aacp-card {
+  position: relative;
+  overflow: hidden;
+  background: #ffffff;
+  border: 1px solid #f3f4f6;
+  border-radius: 1.25rem;
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.04),
+    0 8px 24px -12px rgba(0, 0, 0, 0.06);
+  transition:
+    transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.3s ease;
+}
+
+html.dark .aacp-card {
+  background: #111111;
+  border-color: rgba(255, 255, 255, 0.05);
+  box-shadow: 0 12px 32px -16px rgba(0, 0, 0, 0.45);
+}
+
+.aacp-card:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.04),
+    0 16px 32px -14px rgba(0, 0, 0, 0.1);
+}
+
+html.dark .aacp-card:hover {
+  box-shadow: 0 20px 40px -18px rgba(0, 0, 0, 0.55);
+}
+
+.aacp-card--admin {
+  background: #ffffff;
+  border-color: #efefef;
+  border-radius: 2rem;
+}
+
+html.dark .aacp-card--admin {
+  background: #111111;
+  border-color: rgba(255, 255, 255, 0.05);
+}
+
+.aacp-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #f9fafb;
+}
+
+html.dark .aacp-card__header {
+  border-bottom-color: rgba(255, 255, 255, 0.05);
+}
+
+.aacp-card__title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #111827;
+  letter-spacing: -0.01em;
+}
+
+html.dark .aacp-card__title {
+  color: #ffffff;
+}
+
+.aacp-card__body {
+  padding: 1.5rem;
+}
+
+.aacp-card__body--flush {
+  padding: 0;
+}
+
+.aacp-card--stat {
+  border-radius: 1.35rem 1.75rem 1.5rem 1rem;
+}
+
+.aacp-card--stat .aacp-card__body {
+  padding: 1.25rem 1.35rem;
+}
+
+.aacp-metric__label {
+  display: block;
+  font-size: 0.625rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #9ca3af;
+  margin-bottom: 0.35rem;
+}
+
+html.dark .aacp-metric__label {
+  color: #6b7280;
+}
+
+.aacp-metric__value {
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  color: #111827;
+}
+
+html.dark .aacp-metric__value {
+  color: #ffffff;
+}
+
+.aacp-card--analytics {
+  border-left: 3px solid rgba(151, 143, 102, 0.55);
+  border-radius: 0.75rem 1.25rem 1.25rem 1rem;
+}
+
+.aacp-card--ai {
+  border-radius: 1.25rem;
+}
+
+.aacp-card--opportunity {
+  border-bottom-width: 2px;
+  border-bottom-color: rgba(151, 143, 102, 0.45);
+}
+
+/* Collapsed sidebar tooltips */
+.dashboard-sidebar[data-collapsed='true'] a[title]:hover::after {
+  content: attr(title);
+  position: absolute;
+  left: calc(100% + 0.5rem);
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 60;
+  padding: 0.35rem 0.65rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  white-space: nowrap;
+  color: #111827;
+  background: #ffffff;
+  border: 1px solid #f3f4f6;
+  border-radius: 0.5rem;
+  box-shadow: 0 8px 20px -8px rgba(0, 0, 0, 0.15);
+  pointer-events: none;
+}
+
+html.dark .dashboard-sidebar[data-collapsed='true'] a[title]:hover::after {
+  color: #ffffff;
+  background: #1a1a1a;
+  border-color: rgba(255, 255, 255, 0.1);
 }
