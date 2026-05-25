@@ -18,7 +18,6 @@ import {
   MessageSquare,
   CheckCircle2,
   RotateCcw,
-  Zap
 } from 'lucide-react';
 import { useClerk, useUser as useClerkUser } from '@clerk/clerk-react';
 import { Link, useLocation } from 'react-router-dom';
@@ -28,6 +27,8 @@ import { useUser } from '@/src/shared/context/UserContext';
 import { useProfile } from '@/src/shared/context/ProfileContext';
 import { useNotifications } from '@/src/hooks/useNotifications';
 import { Sparkles } from 'lucide-react';
+import DashboardSidebar from '@/src/shared/components/navigation/DashboardSidebar';
+import { useSidebarState } from '@/src/shared/components/navigation/useSidebarState';
 
 interface AdminLayoutProps {
   children: ReactNode;
@@ -47,7 +48,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const { signOut } = useClerk();
   const { user: clerkUser } = useClerkUser();
   const { profile } = useProfile();
-  const [isSidebarOpen, setIsSidebarOpen] = useState(window.innerWidth >= 1024);
+  const { sidebarExpanded, mobileOpen, toggleSidebar, closeMobile, mainOffsetClass } =
+    useSidebarState();
   const location = useLocation();
   const { logout: localLogout } = useUser();
   const [showReportModal, setShowReportModal] = useState(false);
@@ -98,100 +100,58 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
   return (
     <div className="min-h-screen bg-[#F6F6FB] dark:bg-[#050505] text-[#1A1D1F] dark:text-white font-sans flex transition-colors duration-300">
-      {/* Mobile Sidebar Overlay */}
-      <AnimatePresence>
-        {isSidebarOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 lg:hidden"
-            onClick={() => setIsSidebarOpen(false)}
-          />
-        )}
-      </AnimatePresence>
-
-      {/* Sidebar */}
-      <aside className={cn(
-        "fixed inset-y-0 left-0 w-64 flex flex-col bg-white dark:bg-[#0A0A0A] z-50 transition-all duration-300 transform border-r border-[#EFEFEF] dark:border-white/5",
-        isSidebarOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full"
-      )}>
-        <div className="p-8 pb-4">
-          <Link to="/dashboard/admin" className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-primary-blue rounded-full flex items-center justify-center shadow-lg shadow-neutral-border/30 dark:shadow-none">
-              <Zap className="text-white w-6 h-6 fill-white" />
-            </div>
-            <div>
-              <h1 className="text-sm font-black uppercase tracking-tight text-[#1A1D1F] dark:text-white leading-none">Admin Panel</h1>
-              <span className="text-[10px] font-bold text-primary-blue uppercase tracking-widest leading-none">Enterprise Tier</span>
-            </div>
-          </Link>
-        </div>
-
-        <div className="flex-1 px-4 py-8 overflow-y-auto space-y-6">
-          <nav className="space-y-1">
-            {navigation.map((item) => {
-              const isActive = location.pathname === item.path;
-              return (
-                <Link
-                  key={item.name}
-                  to={item.path}
-                  className={cn(
-                    "flex items-center gap-4 px-4 py-3.5 rounded-2xl text-sm font-semibold transition-all relative group",
-                    isActive
-                      ? "text-primary-blue bg-neutral-border/20 dark:bg-primary-blue/10"
-                      : "text-[#6F767E] hover:text-[#1A1D1F] dark:hover:text-white"
-                  )}
-                >
-                  <item.icon size={20} className={cn("transition-colors", isActive ? "text-primary-blue" : "text-[#9A9FA5]")} />
-                  {item.name}
-                  {isActive && (
-                    <motion.div
-                      layoutId="active-indicator"
-                      className="absolute left-0 w-1 h-6 bg-primary-blue rounded-r-full"
-                    />
-                  )}
-                </Link>
-              );
-            })}
-          </nav>
-
+      <DashboardSidebar
+        variant="admin"
+        brandHref="/dashboard/admin"
+        brandTitle="Admin Panel"
+        brandSubtitle="Enterprise Tier"
+        expanded={sidebarExpanded}
+        mobileOpen={mobileOpen}
+        onMobileClose={closeMobile}
+        sections={[{ items: navigation }]}
+        midSlot={
           <div className="pt-6 border-t border-[#EFEFEF] dark:border-white/5">
             <button
+              type="button"
+              title="New Report"
               onClick={() => setShowReportModal(true)}
               className="w-full h-12 bg-primary-blue hover:bg-primary-blue text-white rounded-2xl text-sm font-bold shadow-lg shadow-neutral-border/25 dark:shadow-none transition-all flex items-center justify-center gap-2"
             >
-              <PlusCircle size={18} />
-              New Report
+              <PlusCircle size={18} className="shrink-0" />
+              <span>New Report</span>
             </button>
           </div>
-        </div>
-
-        <div className="p-4 mt-auto">
+        }
+        footer={
           <nav className="space-y-1">
-            <Link to="/admin/help" className="flex items-center gap-4 px-4 py-3 rounded-2xl text-sm font-semibold text-[#6F767E] hover:text-[#1A1D1F] transition-all">
-              <HelpCircle size={20} />
-              Help Center
+            <Link
+              to="/admin/help"
+              title="Help Center"
+              className="flex items-center gap-4 px-4 py-3 rounded-2xl text-sm font-semibold text-[#6F767E] hover:text-[#1A1D1F] transition-all"
+            >
+              <HelpCircle size={20} className="shrink-0" />
+              <span>Help Center</span>
             </Link>
             <button
+              type="button"
+              title="Logout"
               onClick={() => {
                 localLogout();
                 signOut();
               }}
               className="w-full flex items-center gap-4 px-4 py-3 rounded-2xl text-sm font-semibold text-[#6F767E] hover:text-red-500 transition-all"
             >
-              <LogOut size={20} />
-              Logout
+              <LogOut size={20} className="shrink-0" />
+              <span>Logout</span>
             </button>
           </nav>
-        </div>
-      </aside>
+        }
+      />
 
-      {/* Main Content */}
-      <div className={cn("flex-1 flex flex-col min-w-0 transition-all duration-300", isSidebarOpen ? "lg:ml-64" : "lg:ml-0")}>
+      <div className={cn('flex-1 flex flex-col min-w-0 transition-all duration-300', mainOffsetClass)}>
         <header className="h-20 bg-white/80 dark:bg-[#0A0A0A]/80 backdrop-blur-lg px-8 flex items-center justify-between sticky top-0 z-40 border-b border-[#EFEFEF] dark:border-white/5">
           <div className="flex items-center gap-6">
-            <button className="p-2 -ml-2 text-gray-500 dark:text-gray-400 hover:text-primary-blue transition-colors" onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
+            <button className="p-2 -ml-2 text-gray-500 dark:text-gray-400 hover:text-primary-blue transition-colors" onClick={toggleSidebar}>
               <Menu size={24} />
             </button>
             <div className="hidden md:flex flex-col">
