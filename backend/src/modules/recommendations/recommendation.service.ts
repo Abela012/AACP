@@ -7,7 +7,7 @@ import logger from '../../utils/logger';
 import { extractMetrics, normalizeEngagementRate } from '../../utils/metrics';
 import { buildRecommendationInsightsPrompt, RecommendationPromptCandidate } from '../../services/ai/prompts/recommendation.prompts';
 import { generateJSON } from '../../services/ai/gemini.service';
-import { getCached, setCached } from '../../services/ai/ai.cache';
+import { getCached, setCached, getOrCompute } from '../../services/ai/ai.cache';
 import { clamp, flattenProfileData, normalizeToList } from '../../services/ai/ai.utils';
 
 /**
@@ -608,48 +608,75 @@ export const getRecommendationsForUser = async (userId: string): Promise<Recomme
     results.sort((left, right) => right.score - left.score);
 
     const businessSummary = buildBusinessSummary(user.role, userProfile);
-    const promptCandidates: RecommendationPromptCandidate[] = results.slice(0, 10).map((item) => ({
-        targetId: item.targetId,
-        name: item.name,
-        type: item.type,
-        score: item.score,
-        businessSummary,
-        targetSummary: item.meta?.targetSummary || '',
-        compatibility: item.compatibility,
-    }));
-
-    let insightsById = new Map<string, RecommendationInsights>();
-    let geminiLatencyMs = 0;
-
-    if (promptCandidates.length > 0) {
-        const prompt = buildRecommendationInsightsPrompt(businessSummary, promptCandidates);
-        const geminiResult = await generateJSON<{ insights: RecommendationInsights[] }>(prompt, { insights: [] }, {
-            temperature: 0.35,
-            timeoutMs: 10_000,
-        });
-
-        geminiLatencyMs = geminiResult.latencyMs;
-        insightsById = new Map(
-            (geminiResult.data?.insights || []).map((insight) => [insight.targetId, insight])
-        );
-    }
-
-    const finalRecommendations = results.map((item) => {
-        const insight = insightsById.get(item.targetId) || null;
-        return buildRecommendationItem(item, item.meta?.targetSummary || '', insight ? {
-            ...insight,
-            targetId: item.targetId,
-        } : null);
+    
+    // 1. Build fast deterministic result (fallback insights)
+    const baseRecommendations = results.map((item) => {
+        return buildRecommendationItem(item, item.meta?.targetSummary || '', null);
     });
 
     const result: RecommendationResult = {
-        recommendations: finalRecommendations.slice(0, 100),
+        recommendations: baseRecommendations.slice(0, 100),
         userRole: user.role,
         generatedAt: new Date(),
         cached: false,
     };
 
-    setCached('recommendation-insights', userId, cacheInput, result, geminiLatencyMs);
+    // 2. Start asynchronous background Gemini generation
+    // We don't await this so the HTTP request returns in milliseconds
+    const generateBackgroundInsights = async () => {
+        try {
+            await getOrCompute('recommendation-insights', userId, cacheInput, async () => {
+                const promptCandidates: RecommendationPromptCandidate[] = results.slice(0, 10).map((item) => ({
+                    targetId: item.targetId,
+                    name: item.name,
+                    type: item.type,
+                    score: item.score,
+                    businessSummary,
+                    targetSummary: item.meta?.targetSummary || '',
+                    compatibility: item.compatibility,
+                }));
+
+                if (promptCandidates.length === 0) return result;
+
+                const prompt = buildRecommendationInsightsPrompt(businessSummary, promptCandidates);
+                logger.info(`[Background] Starting AI insight generation for user ${userId}`);
+                
+                const geminiResult = await generateJSON<{ insights: RecommendationInsights[] }>(prompt, { insights: [] }, {
+                    temperature: 0.35,
+                    timeoutMs: 15_000,
+                });
+
+                const insightsById = new Map(
+                    (geminiResult.data?.insights || []).map((insight) => [insight.targetId, insight])
+                );
+
+                const finalRecommendations = results.map((item) => {
+                    const insight = insightsById.get(item.targetId) || null;
+                    return buildRecommendationItem(item, item.meta?.targetSummary || '', insight ? {
+                        ...insight,
+                        targetId: item.targetId,
+                    } : null);
+                });
+
+                const updatedResult: RecommendationResult = {
+                    recommendations: finalRecommendations.slice(0, 100),
+                    userRole: user.role,
+                    generatedAt: new Date(),
+                    cached: true, // Will be cached for subsequent requests
+                };
+
+                setCached('recommendation-insights', userId, cacheInput, updatedResult, geminiResult.latencyMs);
+                logger.info(`[Background] Successfully updated recommendations cache for user ${userId}`);
+                
+                return updatedResult;
+            });
+        } catch (error) {
+            logger.error(`[Background] Failed to generate AI insights: ${error}`);
+        }
+    };
+
+    // Fire and forget
+    generateBackgroundInsights();
 
     return result;
 };

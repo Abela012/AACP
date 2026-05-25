@@ -281,14 +281,20 @@ export default function CollaborationsPage() {
         message: "Project completed successfully! 🎉",
         type: "success",
       });
-      // After completion, show review modal
-      setReviewModal({
-        isOpen: true,
-        collabId: confirmModal.collabId,
-        targetName: confirmModal.targetName,
-        targetUserId: confirmModal.targetUserId,
-        opportunityId: confirmModal.opportunityId,
-      });
+      const hasRated = sentReviews?.some(
+        (r: any) => r.targetUserId === confirmModal.targetUserId,
+      );
+
+      if (!hasRated) {
+        // After completion, show review modal only if they haven't rated this user before
+        setReviewModal({
+          isOpen: true,
+          collabId: confirmModal.collabId,
+          targetName: confirmModal.targetName,
+          targetUserId: confirmModal.targetUserId,
+          opportunityId: confirmModal.opportunityId,
+        });
+      }
     } catch (err: any) {
       setConfirmModal(null);
       setToast({
@@ -481,14 +487,12 @@ export default function CollaborationsPage() {
                         (() => {
                           const hasRated = sentReviews?.some(
                             (r: any) =>
-                              r.opportunityId === c.opportunity?._id &&
                               r.targetUserId === partner?._id,
                           );
 
                           if (hasRated) {
                             const review = sentReviews?.find(
                               (r: any) =>
-                                r.opportunityId === c.opportunity?._id &&
                                 r.targetUserId === partner?._id,
                             );
                             return (

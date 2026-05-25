@@ -25,6 +25,13 @@ export const getReviewById = async (reviewId: string): Promise<IReview | null> =
     return await Review.findById(reviewId).populate('reviewerId targetUserId');
 };
 
+export const getReviewByReviewerAndTarget = async (reviewerId: string, targetUserId: string): Promise<IReview | null> => {
+    return await Review.findOne({
+        reviewerId: new mongoose.Types.ObjectId(reviewerId),
+        targetUserId: new mongoose.Types.ObjectId(targetUserId)
+    });
+};
+
 export const getReviewsByCollaboration = async (opportunityId: string): Promise<IReview[]> => {
     return await Review.find({ opportunityId: new mongoose.Types.ObjectId(opportunityId) })
         .populate('reviewerId targetUserId');
