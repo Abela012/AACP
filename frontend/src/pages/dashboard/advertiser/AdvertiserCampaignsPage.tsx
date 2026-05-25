@@ -163,7 +163,10 @@ export default function AdvertiserCampaignsPage() {
                     const opp = typeof app.opportunity === 'object' ? app.opportunity : {};
                     const owner = opp.businessOwner && typeof opp.businessOwner === 'object' ? `${opp.businessOwner.firstName} ${opp.businessOwner.lastName}` : 'Direct Brand';
                     const progress = app.status === 'accepted' ? 75 : app.status === 'pending' ? 10 : app.status === 'rejected' ? 0 : 100;
-                    
+                    const totalTasks = 4;
+                    const completedTasks = Math.round((progress / 100) * totalTasks);
+                    const allDone = completedTasks >= totalTasks;
+
                     return (
                       <tr key={app._id} className="hover:bg-gray-50/50 dark:hover:bg-white/5 transition-colors group">
                         <td className="px-8 py-6">
@@ -185,16 +188,31 @@ export default function AdvertiserCampaignsPage() {
                           <p className="text-sm text-gray-600 dark:text-gray-400">{opp.category || 'N/A'}</p>
                         </td>
                         <td className="px-8 py-6">
-                          <div className="w-24">
+                          <div className="w-28">
                             <div className="flex justify-between items-center mb-1">
                               <span className="text-[10px] font-bold text-gray-900 dark:text-white">{progress}%</span>
+                              <span className={cn(
+                                "text-[10px] font-bold",
+                                allDone ? "text-emerald-500" : "text-gray-400 dark:text-gray-500"
+                              )}>
+                                {completedTasks}/{totalTasks} tasks
+                              </span>
                             </div>
                             <div className="h-1 w-full bg-gray-100 dark:bg-white/10 rounded-full overflow-hidden">
                               <div 
-                                className="h-full bg-primary-blue transition-all duration-500" 
+                                className={cn(
+                                  "h-full transition-all duration-500",
+                                  allDone ? "bg-emerald-500" : "bg-primary-blue"
+                                )}
                                 style={{ width: `${progress}%` }}
                               />
                             </div>
+                            {allDone && (
+                              <div className="flex items-center gap-1 mt-1">
+                                <CheckCircle2 size={10} className="text-emerald-500" />
+                                <span className="text-[9px] font-bold text-emerald-500 uppercase tracking-wide">Complete</span>
+                              </div>
+                            )}
                           </div>
                         </td>
                         <td className="px-8 py-6">

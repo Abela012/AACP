@@ -22,6 +22,7 @@ import {
   CheckCircle2,
   AlertCircle,
   Coins,
+  Zap,
 } from 'lucide-react';
 import NewReportModal, { type ReportTypeOption } from '@/src/shared/components/reports/NewReportModal';
 import { useClerk } from '@clerk/clerk-react';
@@ -204,10 +205,10 @@ export default function BusinessLayout({ children }: BusinessLayoutProps) {
         {/* Header */}
         <header className="h-20 border-b border-gray-100 dark:border-white/5 px-4 sm:px-8 flex items-center justify-between sticky top-0 bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-md z-40">
           <div className="flex items-center gap-4">
-            <button className="p-2 -ml-2 text-gray-500 dark:text-gray-400 hover:text-primary-blue transition-colors" onClick={toggleSidebar}>
+            <button className="p-2 -ml-2 text-gray-500 hover:text-primary-blue transition-colors" onClick={toggleSidebar}>
               <Menu size={20} />
             </button>
-            {!isSidebarOpen && (
+            {!sidebarExpanded && (
               <Link to="/" className="flex items-center gap-2">
                 <div className="w-7 h-7 bg-primary-blue rounded-full flex items-center justify-center">
                   <Zap className="text-white w-4 h-4 fill-white" />
