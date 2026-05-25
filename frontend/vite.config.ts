@@ -23,7 +23,12 @@ export default defineConfig(({ mode }) => {
     },
     server: {
       port: 5173,
-      strictPort: true, // Fail instead of auto-incrementing to a different port
+      strictPort: true,
+      host: true, // Listen on all local IPs to prevent connection issues
+      hmr: {
+        host: 'localhost',
+        protocol: 'ws',
+      },
     },
   };
 })

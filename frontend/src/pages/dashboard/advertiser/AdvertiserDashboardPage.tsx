@@ -32,6 +32,7 @@ import {
   useSavedOpportunities,
   useToggleSaveOpportunity,
 } from "@/src/hooks/useSavedOpportunities";
+import { useMyTrustScore } from "@/src/hooks/useAdminAnalytics";
 
 export default function AdvertiserDashboardPage() {
   const navigate = useNavigate();

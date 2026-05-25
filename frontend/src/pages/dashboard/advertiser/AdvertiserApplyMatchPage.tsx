@@ -184,7 +184,7 @@ export default function AdvertiserApplyMatchPage() {
     setIsUploading(true);
     try {
       let finalResumeUrl = '';
-      
+
       if (resume?.file) {
         const uploadFormData = new FormData();
         uploadFormData.append('file', resume.file);
