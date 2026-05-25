@@ -30,8 +30,14 @@ export default function LandingHero() {
 
   return (
     <section id="hero" className="relative min-h-svh overflow-hidden pt-28 sm:pt-32">
+      <div
+        className="pointer-events-none absolute inset-0 bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: "url('/images/aacp-landing-hero-bg.png')" }}
+        aria-hidden
+      />
+      <div className="pointer-events-none absolute inset-0 bg-linear-to-r from-neutral-light/95 via-neutral-light/80 to-neutral-light/40" />
       <div className="landing-vignette pointer-events-none absolute inset-0" />
-      <div className="landing-hero-glow pointer-events-none absolute -left-20 top-16 h-[75vh] w-[75vw] opacity-90" />
+      <div className="landing-hero-glow pointer-events-none absolute -left-20 top-16 h-[75vh] w-[75vw] opacity-60" />
       <div className="pointer-events-none absolute bottom-0 right-0 h-px w-2/3 bg-linear-to-l from-primary-blue/40 to-transparent" />
 
       <p
