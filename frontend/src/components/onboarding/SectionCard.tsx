@@ -9,7 +9,7 @@ type SectionCardProps = {
 
 export default function SectionCard({ icon, title, description, children }: SectionCardProps) {
   return (
-    <section className="bg-white dark:bg-[#111] rounded-3xl border border-gray-100 dark:border-white/5 p-6 md:p-8 shadow-sm">
+    <section className="aacp-card aacp-card--panel p-6 md:p-8">
       <div className="flex items-start gap-3 mb-6">
         {icon && (
           <div className="w-10 h-10 rounded-xl bg-primary-blue/10 text-primary-blue flex items-center justify-center shrink-0">

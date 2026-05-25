@@ -11,13 +11,12 @@ import {
   Bell,
   Search,
   Menu,
-  X,
   Lock,
   ShieldCheck,
   Users,
   LogOut,
   MessageSquare,
-  Briefcase, Zap
+  Briefcase,
 } from 'lucide-react';
 import { useClerk } from '@clerk/clerk-react';
 import { Link, useLocation } from 'react-router-dom';
@@ -27,6 +26,8 @@ import { useUser } from '@/src/shared/context/UserContext';
 import { useProfile } from '@/src/shared/context/ProfileContext';
 import { useNotifications } from '@/src/hooks/useNotifications';
 import { useOpportunities } from '@/src/hooks/useOpportunities';
+import DashboardSidebar from '@/src/shared/components/navigation/DashboardSidebar';
+import { useSidebarState } from '@/src/shared/components/navigation/useSidebarState';
 
 interface AdvertiserLayoutProps {
   children: ReactNode;
@@ -34,7 +35,8 @@ interface AdvertiserLayoutProps {
 
 export default function AdvertiserLayout({ children }: AdvertiserLayoutProps) {
   const { signOut } = useClerk();
-  const [isSidebarOpen, setIsSidebarOpen] = useState(window.innerWidth >= 1024);
+  const { sidebarExpanded, mobileOpen, toggleSidebar, closeMobile, mainOffsetClass } =
+    useSidebarState();
   const location = useLocation();
   const { onboardingStatus, logout: localLogout } = useUser();
   const { profile } = useProfile();
@@ -89,101 +91,43 @@ export default function AdvertiserLayout({ children }: AdvertiserLayoutProps) {
   ];
 
   return (
-    <div className="min-h-screen bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-white font-sans flex transition-colors duration-300 advertiser-theme">
-      {/* Mobile Sidebar Overlay */}
-      {isSidebarOpen && (
-        <div
-          className="fixed inset-0 bg-black/50 z-50 lg:hidden"
-          onClick={() => setIsSidebarOpen(false)}
-        />
-      )}
-
-      {/* Sidebar */}
-      <aside className={cn(
-        "fixed inset-y-0 left-0 w-64 border-r border-gray-100 dark:border-white/5 flex flex-col bg-white dark:bg-[#0a0a0a] z-50 transition-all duration-300 transform",
-        isSidebarOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full"
-      )}>
-        <div className="p-6 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-primary-blue rounded-full flex items-center justify-center">
-              <Zap className="text-white w-5 h-5 fill-white" />
-            </div>
-            <span className="text-xl font-bold tracking-tighter text-primary-blue">AACP</span>
-          </Link>
-          <button className="lg:hidden" onClick={() => setIsSidebarOpen(false)}>
-            <X size={20} />
+    <div className="min-h-screen bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-white font-sans flex transition-colors duration-300">
+      <DashboardSidebar
+        brandHref="/"
+        brandTitle="AACP"
+        expanded={sidebarExpanded}
+        mobileOpen={mobileOpen}
+        onMobileClose={closeMobile}
+        sections={[
+          { label: 'Main Menu', items: navigation },
+          { label: 'System', items: systemNavigation },
+        ]}
+        footer={
+          <button
+            type="button"
+            title="Log Out"
+            onClick={() => {
+              localLogout();
+              signOut();
+            }}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-all border border-transparent hover:border-red-100 dark:hover:border-red-500/20"
+          >
+            <LogOut size={18} className="shrink-0" />
+            <span>Log Out</span>
           </button>
-        </div>
+        }
+      />
 
-        <div className="px-4 py-6 space-y-8 flex-1 overflow-y-auto">
-          <div>
-            <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest px-2 mb-4">Main Menu</p>
-            <nav className="space-y-1">
-              {navigation.map((item) => (
-                <Link
-                  key={item.name}
-                  to={item.path}
-                  className={cn(
-                    "w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all group",
-                    location.pathname === item.path
-                      ? "bg-primary-blue/10 text-primary-blue"
-                      : "text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/5"
-                  )}
-                >
-                  <div className="flex items-center gap-3">
-                    <item.icon size={18} />
-                    {item.name}
-                  </div>
-                  {item.badge && (
-                    <span className="bg-primary-blue text-black text-[10px] font-bold px-1.5 py-0.5 rounded-full">
-                      {item.badge}
-                    </span>
-                  )}
-                </Link>
-              ))}
-            </nav>
-          </div>
-
-          <div>
-            <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest px-2 mb-4">System</p>
-            <nav className="space-y-1">
-              {systemNavigation.map((item) => (
-                <Link
-                  key={item.name}
-                  to={item.path}
-                  className={cn(
-                    "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all",
-                    location.pathname === item.path
-                      ? "bg-primary-blue/10 text-primary-blue"
-                      : "text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/5"
-                  )}
-                >
-                  <item.icon size={18} />
-                  {item.name}
-                </Link>
-              ))}
-              <button
-                onClick={() => {
-                  localLogout();
-                  signOut();
-                }}
-                className="w-full mt-2 lg:mt-4 flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-all border border-transparent hover:border-red-100 dark:hover:border-red-500/20"
-              >
-                <LogOut size={18} />
-                Log Out
-              </button>
-            </nav>
-          </div>
-        </div>
-
-      </aside>
-
-      {/* Main Content */}
-      <div className={cn("flex-1 flex flex-col min-w-0 h-screen overflow-y-auto transition-all duration-300", isSidebarOpen ? "lg:pl-64" : "lg:pl-0")}>
+      <div
+        className={cn(
+          'flex-1 flex flex-col min-w-0 h-screen overflow-y-auto transition-all duration-300',
+          mainOffsetClass
+        )}
+      >
         {/* Header */}
         <header className="h-20 border-b border-gray-100 dark:border-white/5 px-4 sm:px-8 flex items-center justify-between sticky top-0 bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-md z-40">
           <div className="flex items-center gap-4">
-            <button className="p-2 -ml-2 text-gray-500 dark:text-gray-400 hover:text-primary-blue transition-colors" onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
+            <button className="p-2 -ml-2 text-gray-500 dark:text-gray-400 hover:text-primary-blue transition-colors" onClick={toggleSidebar}>
               <Menu size={20} />
             </button>
             <nav className="hidden md:flex items-center gap-8">

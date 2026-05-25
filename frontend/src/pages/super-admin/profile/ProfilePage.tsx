@@ -39,7 +39,7 @@ export default function SuperAdminProfilePage() {
         ) : (
           <>
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-              <div className="lg:col-span-8 bg-white dark:bg-[#111111] p-8 rounded-[2.5rem] border border-[#EFEFEF] dark:border-white/5 shadow-sm">
+              <div className="lg:col-span-8 aacp-cx aacp-cx--admin p-8">
                 <div className="flex items-start justify-between gap-6">
                   <div className="flex items-center gap-5">
                     <div className="w-20 h-20 rounded-4xl overflow-hidden bg-neutral-border/25 dark:bg-primary-blue/20 flex items-center justify-center text-primary-blue font-black text-2xl">
@@ -75,7 +75,7 @@ export default function SuperAdminProfilePage() {
                 </div>
               </div>
 
-              <div className="lg:col-span-4 bg-white dark:bg-[#111111] p-8 rounded-[2.5rem] border border-[#EFEFEF] dark:border-white/5 shadow-sm space-y-6">
+              <div className="lg:col-span-4 aacp-cx aacp-cx--admin p-8 space-y-6">
                 <div className="flex items-center gap-3">
                   <Mail className="text-primary-blue" size={18} />
                   <div>
@@ -111,7 +111,7 @@ export default function SuperAdminProfilePage() {
                   {data?.stats.auditEvents ?? 0}
                 </p>
               </div>
-              <div className="bg-white dark:bg-[#111111] p-6 rounded-4xl border border-[#EFEFEF] dark:border-white/5 shadow-sm">
+              <div className="aacp-cx aacp-cx--admin p-6">
                 <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-blue-50 dark:bg-blue-500/10 text-blue-600 mb-5">
                   <Users size={20} />
                 </div>
@@ -135,7 +135,7 @@ export default function SuperAdminProfilePage() {
               </div>
             </div>
 
-            <div className="bg-white dark:bg-[#111111] p-8 rounded-[2.5rem] border border-[#EFEFEF] dark:border-white/5 shadow-sm">
+            <div className="aacp-cx aacp-cx--admin p-8">
               <h3 className="text-xl font-black mb-6">Recent Actions</h3>
               <div className="space-y-4">
                 {data?.recentActions?.length ? (

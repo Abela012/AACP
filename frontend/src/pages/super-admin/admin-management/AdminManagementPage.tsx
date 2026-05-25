@@ -152,19 +152,19 @@ export default function SuperAdminAdminManagementPage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <div className="bg-white dark:bg-[#111111] p-6 rounded-4xl border border-[#EFEFEF] dark:border-white/5 shadow-sm">
+          <div className="aacp-cx aacp-cx--admin p-6">
             <p className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest mb-2">Total Admins</p>
             <p className="text-2xl font-black">{stats.total}</p>
           </div>
-          <div className="bg-white dark:bg-[#111111] p-6 rounded-4xl border border-[#EFEFEF] dark:border-white/5 shadow-sm">
+          <div className="aacp-cx aacp-cx--admin p-6">
             <p className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest mb-2">Super Admins</p>
             <p className="text-2xl font-black">{stats.superAdmins}</p>
           </div>
-          <div className="bg-white dark:bg-[#111111] p-6 rounded-4xl border border-[#EFEFEF] dark:border-white/5 shadow-sm">
+          <div className="aacp-cx aacp-cx--admin p-6">
             <p className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest mb-2">Active Now</p>
             <p className="text-2xl font-black">{stats.active}</p>
           </div>
-          <div className="bg-white dark:bg-[#111111] p-6 rounded-4xl border border-[#EFEFEF] dark:border-white/5 shadow-sm">
+          <div className="aacp-cx aacp-cx--admin p-6">
             <p className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest mb-2">Pending Requests</p>
             <p className="text-2xl font-black">0</p>
           </div>
@@ -337,7 +337,7 @@ export default function SuperAdminAdminManagementPage() {
             </button>
             <div className="absolute -right-10 -bottom-10 w-48 h-48 bg-white/10 rounded-full blur-2xl" />
           </div>
-          <div className="bg-white dark:bg-[#111111] p-8 rounded-[2.5rem] border border-[#EFEFEF] dark:border-white/5 shadow-sm">
+          <div className="aacp-cx aacp-cx--admin p-8">
             <h3 className="text-lg font-black mb-3">Role Compliance</h3>
             <p className="text-xs text-[#6F767E] dark:text-gray-400 font-medium leading-relaxed">
               AACP Velocity implements strict Principle of Least Privilege (PoLP) across all admin tiers.
