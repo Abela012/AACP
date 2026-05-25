@@ -1,24 +1,4 @@
-/* AACP — editorial design system (public + in-app surfaces) */
-
-/*
- * Legacy theme: Dashboards and in-app UI previously relied on aacp-olive / #14a800.
- * Migration uses aacp-olive, aacp-gold, and aacp-cream tokens for visual consistency
- * with the landing page. Page-level polish may still vary until each route is reviewed.
- */
-
-@theme {
-  --color-aacp-olive: #978f66;
-  --color-aacp-gold: #e4d6a9;
-  --color-aacp-cream: #f3e4c9;
-  --color-aacp-parchment: #ebe0c4;
-  --color-aacp-ink: #1a1610;
-  --color-aacp-charcoal: #2a2520;
-  --color-aacp-smoke: #5c5548;
-  --color-aacp-mist: #8a8274;
-  --font-display: "Cormorant Garamond", "Palatino Linotype", Georgia, serif;
-  --font-body: "Syne", "Segoe UI", sans-serif;
-  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
-}
+/* AACP — modern unified design system components */
 
 .aacp-grain::before {
   content: "";
@@ -26,7 +6,7 @@
   inset: 0;
   pointer-events: none;
   z-index: 9998;
-  opacity: 0.045;
+  opacity: 0.035;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   mix-blend-mode: multiply;
 }
@@ -43,6 +23,7 @@
   font-family: var(--font-mono);
 }
 
+/* Primary buttons/CTAs — Background: #0070BB */
 .aacp-btn-primary {
   display: inline-flex;
   align-items: center;
@@ -54,24 +35,25 @@
   font-weight: 600;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--color-aacp-cream);
-  background: linear-gradient(165deg, #6f6844 0%, var(--color-aacp-olive) 48%, #7a7352 100%);
-  border: 1px solid rgba(26, 22, 16, 0.18);
+  color: white;
+  background: #0070BB;
+  border: 1px solid rgba(15, 23, 42, 0.08);
   box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.22) inset,
-    0 12px 32px -8px rgba(26, 22, 16, 0.35);
+    0 1px 0 rgba(255, 255, 255, 0.1) inset,
+    0 12px 32px -8px rgba(0, 112, 187, 0.18);
   transition:
     transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
     box-shadow 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    background-color 0.3s ease,
     filter 0.35s ease;
 }
 
 .aacp-btn-primary:hover:not(:disabled) {
   transform: translateY(-2px);
-  filter: brightness(1.06);
+  background: #005A9E;
   box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.28) inset,
-    0 18px 40px -10px rgba(26, 22, 16, 0.42);
+    0 1px 0 rgba(255, 255, 255, 0.15) inset,
+    0 18px 40px -10px rgba(0, 112, 187, 0.28);
 }
 
 .aacp-btn-primary:active:not(:disabled) {
@@ -83,6 +65,40 @@
   cursor: not-allowed;
 }
 
+/* Creator-specific buttons */
+.aacp-btn-creator {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.9rem 1.75rem;
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: white;
+  background: #0070BB;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.1) inset,
+    0 12px 32px -8px rgba(0, 112, 187, 0.18);
+  transition:
+    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    background-color 0.3s ease,
+    filter 0.35s ease;
+}
+
+.aacp-btn-creator:hover:not(:disabled) {
+  transform: translateY(-2px);
+  background: #005A9E;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.15) inset,
+    0 18px 40px -10px rgba(0, 112, 187, 0.28);
+}
+
+/* Secondary buttons — Background: white, Border: #E2E8F0, Text: #0F172A */
 .aacp-btn-ghost {
   display: inline-flex;
   align-items: center;
@@ -94,19 +110,19 @@
   font-weight: 600;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--color-aacp-ink);
-  background: rgba(243, 228, 201, 0.35);
-  border: 1px solid rgba(151, 143, 102, 0.45);
-  backdrop-filter: blur(8px);
+  color: #0F172A;
+  background: white;
+  border: 1px solid #E2E8F0;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
   transition:
-    background 0.3s ease,
+    background-color 0.3s ease,
     border-color 0.3s ease,
     transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .aacp-btn-ghost:hover {
-  background: rgba(243, 228, 201, 0.65);
-  border-color: var(--color-aacp-olive);
+  background: #F8FAFC;
+  border-color: #CBD5E1;
   transform: translateY(-1px);
 }
 
@@ -114,12 +130,12 @@
   width: 100%;
   border-radius: 0;
   border: none;
-  border-bottom: 1px solid rgba(151, 143, 102, 0.45);
+  border-bottom: 1px solid #E2E8F0;
   background: transparent;
   padding: 0.75rem 0;
   font-family: var(--font-body);
   font-size: 0.95rem;
-  color: var(--color-aacp-ink);
+  color: #0F172A;
   outline: none;
   transition:
     border-color 0.3s ease,
@@ -127,13 +143,13 @@
 }
 
 .aacp-input::placeholder {
-  color: var(--color-aacp-mist);
+  color: #64748B;
   font-weight: 400;
 }
 
 .aacp-input:focus {
-  border-bottom-color: var(--color-aacp-olive);
-  box-shadow: 0 4px 0 -3px rgba(151, 143, 102, 0.35);
+  border-bottom-color: #0070BB;
+  box-shadow: 0 4px 0 -3px #E6F3FB;
 }
 
 .aacp-label {
@@ -144,18 +160,15 @@
   font-weight: 500;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: var(--color-aacp-smoke);
+  color: #64748B;
 }
 
+/* White background cards */
 .aacp-surface-card {
-  background: linear-gradient(
-    145deg,
-    rgba(243, 228, 201, 0.92) 0%,
-    rgba(228, 214, 169, 0.55) 100%
-  );
-  border: 1px solid rgba(151, 143, 102, 0.28);
+  background: white;
+  border: 1px solid #E2E8F0;
   box-shadow:
-    0 24px 48px -20px rgba(26, 22, 16, 0.2),
+    0 24px 48px -20px rgba(15, 23, 42, 0.05),
     0 1px 0 rgba(255, 255, 255, 0.5) inset;
 }
 
@@ -165,23 +178,23 @@
   align-items: center;
   gap: 0.5rem;
   padding: 1.15rem;
-  border: 1px solid rgba(151, 143, 102, 0.3);
-  background: rgba(243, 228, 201, 0.25);
+  border: 1px solid #E2E8F0;
+  background: white;
   transition:
     border-color 0.3s ease,
-    background 0.3s ease,
+    background-color 0.3s ease,
     transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .aacp-role-tile:hover {
-  border-color: rgba(151, 143, 102, 0.55);
-  background: rgba(243, 228, 201, 0.5);
+  border-color: #CBD5E1;
+  background: #F8FAFC;
 }
 
 .aacp-role-tile--active {
-  border-color: var(--color-aacp-olive);
-  background: rgba(151, 143, 102, 0.14);
-  color: var(--color-aacp-olive);
+  border-color: #0070BB;
+  background: #E6F3FB;
+  color: #0070BB;
   transform: translateY(-2px);
 }
 
@@ -198,8 +211,8 @@
   background: linear-gradient(
     90deg,
     transparent,
-    rgba(151, 143, 102, 0.45) 20%,
-    rgba(151, 143, 102, 0.45) 80%,
+    #E2E8F0 20%,
+    #E2E8F0 80%,
     transparent
   );
 }
@@ -212,14 +225,14 @@
   font-size: 0.6rem;
   letter-spacing: 0.28em;
   text-transform: uppercase;
-  color: var(--color-aacp-mist);
+  color: #64748B;
   background: inherit;
 }
 
 .landing-vignette {
   background: radial-gradient(
     ellipse 120% 80% at 70% 20%,
-    rgba(228, 214, 169, 0.55) 0%,
+    #E6F3FB 0%,
     transparent 55%
   );
 }
@@ -227,7 +240,7 @@
 .landing-hero-glow {
   background: radial-gradient(
     circle at 30% 40%,
-    rgba(228, 214, 169, 0.7) 0%,
+    #E6F3FB 0%,
     transparent 50%
   );
 }
@@ -255,6 +268,7 @@
   }
 
   .aacp-btn-primary:hover:not(:disabled),
+  .aacp-btn-creator:hover:not(:disabled),
   .aacp-btn-ghost:hover,
   .aacp-role-tile--active {
     transform: none;
