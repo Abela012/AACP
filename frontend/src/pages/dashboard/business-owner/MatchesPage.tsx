@@ -102,11 +102,13 @@ export default function MatchesPage() {
     return filteredCreators;
   })();
 
+  // Average match should reflect the currently displayed (filtered) creators
+  // so the hero matches the list the user sees (per-niche / search filters).
   const avgMatchScore =
-    recommendations.length > 0
+    displayCreators.length > 0
       ? Math.round(
-          recommendations.reduce((sum: number, item: any) => sum + formatMatchScore(item.score), 0) /
-            recommendations.length
+          displayCreators.reduce((sum: number, item: any) => sum + formatMatchScore(item.score), 0) /
+            displayCreators.length
         )
       : 0;
 

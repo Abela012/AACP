@@ -50,6 +50,7 @@ import {
 } from "@/src/hooks/useOpportunities";
 import { useWalletBalance, useWalletHistory } from "@/src/hooks/useWallet";
 import { useRecommendations } from "@/src/hooks/useRecommendations";
+import { useMyTrustScore } from "@/src/hooks/useAdminAnalytics";
 import { useUserCollaborations } from "@/src/hooks/useCollaborations";
 import { useBusinessOwnerApplications } from "@/src/hooks/useApplications";
 import { useConversations } from "@/src/hooks/useChat";

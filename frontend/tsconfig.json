@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
-    "types": ["vite/client"]
+    "types": ["vite/client"],
+    "ignoreDeprecations": "5.0"
   },
   "files": [],
   "references": [

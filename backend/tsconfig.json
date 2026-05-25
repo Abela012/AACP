@@ -18,6 +18,10 @@
     "rootDir": "./src",
     "baseUrl": ".",
     "typeRoots": ["./node_modules/@types", "./src/types"]
+    ,
+    "types": ["node"]
+    ,
+    "ignoreDeprecations": "6.0"
   },
   "include": ["src/**/*", "src/types/**/*.d.ts"],
   "exclude": ["node_modules", "dist"],

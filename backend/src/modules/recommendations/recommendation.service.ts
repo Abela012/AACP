@@ -606,6 +606,7 @@ export const getRecommendationsForUser = async (userId: string): Promise<Recomme
     }
 
     results.sort((left, right) => right.score - left.score);
+    spreadAdvertiserMatchScores(results);
 
     const businessSummary = buildBusinessSummary(user.role, userProfile);
     const promptCandidates: RecommendationPromptCandidate[] = results.slice(0, 10).map((item) => ({

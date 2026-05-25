@@ -1,3 +1,4 @@
+/// <reference types="node" />
 /**
  * Test predictive ROI with the new dynamic AI logic
  * Run: npx ts-node scratch/test_predictive_roi.ts

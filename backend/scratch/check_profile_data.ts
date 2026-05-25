@@ -1,3 +1,4 @@
+/// <reference types="node" />
 /**
  * Quick script to check what profileData looks like in the database
  * Run: npx ts-node scratch/check_profile_data.ts

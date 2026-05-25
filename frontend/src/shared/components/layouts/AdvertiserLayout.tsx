@@ -15,6 +15,8 @@ import {
   LogOut,
   MessageSquare,
   Briefcase,
+  Zap,
+  Users,
 } from 'lucide-react';
 import { useClerk } from '@clerk/clerk-react';
 import { Link, useLocation } from 'react-router-dom';
