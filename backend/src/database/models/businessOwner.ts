@@ -34,6 +34,9 @@ export interface IBusinessProfile extends Document {
     pendingUpdates?: any;
     pendingProfileData?: any;
     profileData?: any;
+
+    averageRating?: number;
+    totalReviews?: number;
 }
 
 const businessProfileSchema = new Schema(
@@ -107,6 +110,16 @@ const businessProfileSchema = new Schema(
 
         profileData: {
             type: Schema.Types.Mixed,
+        },
+
+        averageRating: {
+            type: Number,
+            default: 0,
+        },
+
+        totalReviews: {
+            type: Number,
+            default: 0,
         },
     },
     { timestamps: true }

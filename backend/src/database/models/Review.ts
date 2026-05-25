@@ -1,5 +1,7 @@
 import mongoose, { Document, Schema, Model } from "mongoose";
 import User from "./User";
+import AdvertiserProfile from "./AdvertiserProfile";
+import BusinessOwner from "./businessOwner";
 
 export interface IReview extends Document {
     reviewerId: mongoose.Types.ObjectId;
@@ -87,16 +89,30 @@ reviewSchema.statics.calculateAverageRating = async function(userId: mongoose.Ty
         }
     ]);
 
-    if (stats.length > 0) {
-        await User.findByIdAndUpdate(userId, {
-            averageRating: parseFloat(stats[0].avgRating.toFixed(2)),
-            totalReviews: stats[0].totalReviews
-        });
-    } else {
-        await User.findByIdAndUpdate(userId, {
-            averageRating: 0,
-            totalReviews: 0
-        });
+    const averageRating = stats.length > 0 ? parseFloat(stats[0].avgRating.toFixed(2)) : 0;
+    const totalReviews = stats.length > 0 ? stats[0].totalReviews : 0;
+
+    // 1. Update User model
+    const user = await User.findByIdAndUpdate(userId, {
+        averageRating,
+        totalReviews
+    }, { new: true });
+
+    // 2. Sync to AdvertiserProfile or BusinessOwner profile depending on user role
+    if (user) {
+        if (user.role === 'advertiser') {
+            await AdvertiserProfile.findOneAndUpdate(
+                { userId: user._id },
+                { averageRating, totalReviews },
+                { new: true, upsert: true }
+            );
+        } else if (user.role === 'business_owner') {
+            await BusinessOwner.findOneAndUpdate(
+                { userId: user._id },
+                { averageRating, totalReviews },
+                { new: true, upsert: true }
+            );
+        }
     }
 };
 
