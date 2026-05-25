@@ -88,7 +88,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
                     <Star size={12} className="text-amber-500 fill-amber-500" />
                     Overall Rating
                   </label>
-                  <div className="flex flex-col items-center p-6 bg-gray-50 dark:bg-white/5 rounded-3xl border border-gray-100 dark:border-white/5">
+                  <div className="flex flex-col items-center p-6 bg-gray-50 aacp-card aacp-card--glass">
                     <StarRating 
                       rating={rating} 
                       onRatingChange={setRating} 

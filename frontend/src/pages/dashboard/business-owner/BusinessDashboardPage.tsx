@@ -63,15 +63,22 @@ import { type Opportunity } from '@/src/api/opportunityApi';
 
 // â”€â”€â”€ SUB-COMPONENTS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-const Card = ({ children, className, title, extra }: any) => (
-  <div className={cn("bg-white dark:bg-[#111] rounded-3xl border border-gray-100 dark:border-white/5 shadow-sm overflow-hidden", className)}>
+const cardVariantClass: Record<string, string> = {
+  panel: 'aacp-card--panel',
+  stat: 'aacp-card--stat',
+  analytics: 'aacp-card--analytics',
+  ai: 'aacp-card--ai',
+};
+
+const Card = ({ children, className, title, extra, variant = 'panel' }: any) => (
+  <div className={cn('aacp-card overflow-hidden', cardVariantClass[variant] ?? 'aacp-card--panel', className)}>
     {(title || extra) && (
-      <div className="px-6 py-4 border-b border-gray-50 dark:border-white/5 flex justify-between items-center">
-        <h3 className="font-bold text-gray-900 dark:text-white flex items-center gap-2">{title}</h3>
+      <div className="aacp-card__header">
+        <h3 className="aacp-card__title flex items-center gap-2">{title}</h3>
         {extra}
       </div>
     )}
-    <div className="p-6">{children}</div>
+    <div className="aacp-card__body">{children}</div>
   </div>
 );
 

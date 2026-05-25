@@ -12,7 +12,7 @@ function Card({
   children: React.ReactNode;
 }) {
   return (
-    <section className="bg-white dark:bg-[#111] rounded-3xl border border-gray-100 dark:border-white/5 p-6 shadow-sm">
+    <section className="aacp-cx aacp-cx--panel p-6 shadow-sm">
       <div className="flex items-center gap-2 mb-4">
         <div className="w-9 h-9 rounded-xl bg-primary-blue/10 text-primary-blue flex items-center justify-center">
           {icon}
