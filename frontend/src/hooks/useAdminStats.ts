@@ -17,8 +17,8 @@ export const useAdminStats = () => {
 /** Helper — parse role breakdown from stats response into display-ready format */
 export const parseRoleBreakdown = (byRole: { _id: string; count: number }[], total: number) => {
     const colorMap: Record<string, string> = {
-        business_owner: '#14a800',
-        advertiser: '#2563EB',
+        business_owner: '#0070BB',
+        advertiser: '#0070BB',
         admin: '#F59E0B',
         super_admin: '#EF4444',
     };

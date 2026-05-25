@@ -28,7 +28,7 @@ export default function AdminTradeLicensePreview({ url, title = 'Trade license' 
           href={url}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 px-4 py-2.5 bg-aacp-olive hover:bg-aacp-olive text-white rounded-xl text-xs font-bold transition-colors"
+          className="inline-flex items-center gap-2 px-4 py-2.5 bg-primary-blue hover:bg-primary-blue text-white rounded-xl text-xs font-bold transition-colors"
         >
           <Eye size={14} /> View full document
         </a>
@@ -45,7 +45,7 @@ export default function AdminTradeLicensePreview({ url, title = 'Trade license' 
           href={url}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 px-4 py-2.5 text-aacp-olive text-xs font-bold hover:underline"
+          className="inline-flex items-center gap-2 px-4 py-2.5 text-primary-blue text-xs font-bold hover:underline"
         >
           <ExternalLink size={14} /> Open in new tab
         </a>
@@ -54,7 +54,7 @@ export default function AdminTradeLicensePreview({ url, title = 'Trade license' 
       <div className="aspect-video rounded-3xl overflow-hidden bg-gray-50 dark:bg-white/5 border border-[#EFEFEF] dark:border-white/10 relative">
         {showAsPdf ? (
           <div className="w-full h-full flex flex-col items-center justify-center gap-3 p-6 text-center">
-            <FileText size={48} className="text-aacp-olive" />
+            <FileText size={48} className="text-primary-blue" />
             <p className="text-sm font-bold text-gray-700 dark:text-gray-300">{title}</p>
             <p className="text-xs text-gray-500 max-w-sm break-all">{url}</p>
             <iframe

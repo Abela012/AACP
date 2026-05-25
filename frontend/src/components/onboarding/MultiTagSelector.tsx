@@ -25,7 +25,7 @@ export default function MultiTagSelector({ label, options, selected, onChange, e
             className={cn(
               'px-3 py-1.5 rounded-full text-xs font-bold border transition-all',
               selected.includes(opt)
-                ? 'bg-aacp-olive text-black border-aacp-olive'
+                ? 'bg-primary-blue text-black border-primary-blue'
                 : 'bg-gray-50 dark:bg-white/5 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-white/10 hover:border-emerald-300'
             )}
           >

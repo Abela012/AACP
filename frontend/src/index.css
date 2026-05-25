@@ -5,7 +5,42 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
+  /* Legacy mappings to new color system */
+  --color-aacp-olive: #0070BB;
+  --color-aacp-gold: #E2E8F0;
+  --color-aacp-cream: #F8FAFC;
+  --color-aacp-parchment: #F8FAFC;
+  --color-aacp-ink: #0F172A;
+  --color-aacp-charcoal: #1E293B;
+  --color-aacp-smoke: #64748B;
+  --color-aacp-mist: #94A3B8;
+
+  /* Primary Color System — #0070BB */
+  --color-primary-blue: #0070BB;
+  --color-primary-blue-hover: #005A9E;
+  --color-primary-blue-light: #E6F3FB;
+
+  /* Alias for all portals (business, admin, advertiser) */
+  --color-secondary-purple: #0070BB;
+  --color-secondary-purple-hover: #005A9E;
+  --color-secondary-purple-light: #E6F3FB;
+
+  --color-accent-cyan: #06B6D4;
+
+  --color-neutral-dark: #0F172A;
+  --color-neutral-medium: #64748B;
+  --color-neutral-light: #F8FAFC;
+  --color-neutral-border: #E2E8F0;
+
+  --color-semantic-success: #10B981;
+  --color-semantic-warning: #F59E0B;
+  --color-semantic-error: #EF4444;
+
   --radius-4xl: 2rem;
+  
+  --font-display: "Cormorant Garamond", "Palatino Linotype", Georgia, serif;
+  --font-body: "Syne", "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
 }
 
 html {
@@ -31,8 +66,8 @@ body {
 }
 
 html.dark body {
-  background-color: #12100d;
-  color: #ebe0c4;
+  background-color: #0f172a; /* Neutral dark for dark mode background */
+  color: #f8fafc; /* Neutral light for dark mode text */
 }
 
 * {
@@ -40,6 +75,6 @@ html.dark body {
 }
 
 ::selection {
-  background: rgba(151, 143, 102, 0.35);
-  color: var(--color-aacp-ink);
+  background: var(--color-primary-blue-light);
+  color: var(--color-primary-blue);
 }

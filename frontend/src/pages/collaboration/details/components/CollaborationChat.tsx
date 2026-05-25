@@ -32,8 +32,8 @@ export const CollaborationChat: React.FC<any> = ({ messages, currentUser, onSend
       <div className="p-6 border-b border-gray-100 dark:border-white/5 flex justify-between items-center bg-gray-50/30 dark:bg-transparent">
          <div>
             <h3 className="text-lg font-black text-gray-900 dark:text-white tracking-tight">Direct Messenger</h3>
-            <p className="text-[10px] font-bold text-aacp-olive uppercase tracking-widest flex items-center gap-1.5">
-               <span className="w-1.5 h-1.5 bg-aacp-olive rounded-full animate-pulse" /> Live Now
+            <p className="text-[10px] font-bold text-primary-blue uppercase tracking-widest flex items-center gap-1.5">
+               <span className="w-1.5 h-1.5 bg-primary-blue rounded-full animate-pulse" /> Live Now
             </p>
          </div>
          <button className="p-2 hover:bg-gray-100 dark:hover:bg-white/5 rounded-xl text-gray-400">
@@ -64,25 +64,25 @@ export const CollaborationChat: React.FC<any> = ({ messages, currentUser, onSend
 
       <div className="p-6 bg-gray-50/30 dark:bg-transparent border-t border-gray-100 dark:border-white/5">
          <div className="relative flex items-center gap-3">
-            <button className="p-2 text-gray-400 hover:text-aacp-olive transition-colors">
+            <button className="p-2 text-gray-400 hover:text-primary-blue transition-colors">
                <Paperclip size={20} />
             </button>
             <div className="relative flex-1">
               <input 
                 type="text" 
                 placeholder="Type your message..."
-                className="w-full bg-white dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-2xl px-5 py-4 text-sm focus:outline-none focus:border-aacp-olive pr-12 shadow-inner"
+                className="w-full bg-white dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-2xl px-5 py-4 text-sm focus:outline-none focus:border-primary-blue pr-12 shadow-inner"
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleSend()}
               />
-              <button className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-300 hover:text-aacp-olive transition-colors">
+              <button className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-300 hover:text-primary-blue transition-colors">
                  <Smile size={20} />
               </button>
             </div>
             <button 
               onClick={handleSend}
-              className="p-4 bg-aacp-olive text-white rounded-2xl hover:bg-aacp-olive transition-all shadow-lg shadow-aacp-olive/20"
+              className="p-4 bg-primary-blue text-white rounded-2xl hover:bg-primary-blue transition-all shadow-lg shadow-primary-blue/20"
             >
                <Send size={20} />
             </button>

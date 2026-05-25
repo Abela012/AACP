@@ -28,7 +28,7 @@ export default function AdminSuspendedUserPage() {
             <div className="flex items-center gap-3">
               <span className="text-lg font-bold">Marcus Thorne</span>
               <span className="text-gray-300 dark:text-white/10">•</span>
-              <span className="text-[10px] font-black uppercase tracking-widest text-aacp-olive">Agency Partner</span>
+              <span className="text-[10px] font-black uppercase tracking-widest text-primary-blue">Agency Partner</span>
               <span className="text-gray-300 dark:text-white/10">•</span>
               <span className="text-[10px] font-black uppercase tracking-widest px-2 py-1 bg-red-100 dark:bg-red-500/20 text-red-600 rounded">Suspended</span>
             </div>
@@ -64,7 +64,7 @@ export default function AdminSuspendedUserPage() {
                 <p className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest mb-1">Followers</p>
                 <div className="flex items-center justify-center gap-2">
                   <span className="text-2xl font-black">1.2M</span>
-                  <span className="text-[10px] font-bold text-aacp-olive bg-aacp-gold/15 dark:bg-aacp-olive/10 px-1.5 py-0.5 rounded flex items-center gap-0.5">
+                  <span className="text-[10px] font-bold text-primary-blue bg-neutral-border/15 dark:bg-primary-blue/10 px-1.5 py-0.5 rounded flex items-center gap-0.5">
                     <TrendingUp size={10} /> +4.2%
                   </span>
                 </div>
@@ -78,7 +78,7 @@ export default function AdminSuspendedUserPage() {
                 <div className="flex items-center justify-center gap-1 mb-1">
                   <span className="text-lg font-black mr-2">4.2 <span className="text-xs text-[#9A9FA5] font-bold">/ 5</span></span>
                   {[...Array(5)].map((_, i) => (
-                    <Star key={i} size={14} className={i < 4 ? "text-aacp-olive fill-current" : "text-gray-200 dark:text-gray-800"} />
+                    <Star key={i} size={14} className={i < 4 ? "text-primary-blue fill-current" : "text-gray-200 dark:text-gray-800"} />
                   ))}
                 </div>
               </div>
@@ -107,7 +107,7 @@ export default function AdminSuspendedUserPage() {
 
                 <div className="flex justify-between items-center p-4 bg-[#F4F4F4]/50 dark:bg-white/5 rounded-2xl border border-[#EFEFEF] dark:border-white/5">
                   <span className="text-xs font-bold text-[#6F767E] dark:text-gray-400">Flagged Message Content</span>
-                  <button className="text-[10px] font-black text-aacp-olive uppercase hover:underline flex items-center gap-1">
+                  <button className="text-[10px] font-black text-primary-blue uppercase hover:underline flex items-center gap-1">
                     View Transcript <ExternalLink size={10} />
                   </button>
                 </div>
@@ -127,11 +127,11 @@ export default function AdminSuspendedUserPage() {
 
           {/* Administrative Actions Column */}
           <div className="lg:col-span-4 space-y-8">
-            <div className="bg-aacp-gold/20 dark:bg-white/5 p-8 rounded-[3rem] border border-white dark:border-white/5 shadow-inner">
+            <div className="bg-neutral-border/20 dark:bg-white/5 p-8 rounded-[3rem] border border-white dark:border-white/5 shadow-inner">
               <h3 className="font-black text-xl mb-10">Administrative Actions</h3>
 
               <div className="space-y-4 mb-10">
-                <button className="w-full p-6 bg-linear-to-tr from-aacp-olive to-aacp-olive text-white rounded-3xl flex items-start gap-4 transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-aacp-gold/25 dark:shadow-none text-left">
+                <button className="w-full p-6 bg-linear-to-tr from-primary-blue to-primary-blue text-white rounded-3xl flex items-start gap-4 transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-neutral-border/25 dark:shadow-none text-left">
                   <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center shrink-0">
                     <Zap size={20} className="fill-current" />
                   </div>
@@ -166,7 +166,7 @@ export default function AdminSuspendedUserPage() {
                 <p className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest pl-2">Internal Notes</p>
                 <div className="relative">
                   <textarea
-                    className="w-full h-32 bg-white/50 dark:bg-white/5 border border-[#EFEFEF] dark:border-white/10 rounded-2xl p-4 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-aacp-olive/20 transition-all resize-none italic"
+                    className="w-full h-32 bg-white/50 dark:bg-white/5 border border-[#EFEFEF] dark:border-white/10 rounded-2xl p-4 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-primary-blue/20 transition-all resize-none italic"
                     placeholder="Document the decision process for audit logs..."
                   />
                 </div>
@@ -191,7 +191,7 @@ export default function AdminSuspendedUserPage() {
               Marcus Thorne attempted login at 14:45
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-1.5 h-1.5 rounded-full bg-aacp-olive" />
+              <div className="w-1.5 h-1.5 rounded-full bg-primary-blue" />
               Warning Email Sent at 15:10
             </div>
           </div>

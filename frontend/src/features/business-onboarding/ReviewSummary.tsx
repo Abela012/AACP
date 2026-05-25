@@ -14,7 +14,7 @@ const Row = ({ label, value }: { label: string; value: React.ReactNode }) => (
 
 const Section = ({ title, children }: { title: string; children: React.ReactNode }) => (
   <div className="p-4 rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10">
-    <p className="text-[10px] font-black uppercase tracking-widest text-aacp-olive mb-3">{title}</p>
+    <p className="text-[10px] font-black uppercase tracking-widest text-primary-blue mb-3">{title}</p>
     <div className="space-y-0">{children}</div>
   </div>
 );

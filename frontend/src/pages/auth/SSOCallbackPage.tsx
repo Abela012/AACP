@@ -17,7 +17,7 @@ const SSOCallbackPage: React.FC = () => {
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 p-4 text-center">
       <div className="flex flex-col items-center max-w-sm w-full bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
         {/* Spinning Loader Animation */}
-        <div className="w-12 h-12 border-4 border-aacp-olive border-t-transparent rounded-full animate-spin mb-6"></div>
+        <div className="w-12 h-12 border-4 border-primary-blue border-t-transparent rounded-full animate-spin mb-6"></div>
         
         {/* Message */}
         <h2 className="text-xl font-semibold text-gray-800 mb-2">Verifying your account...</h2>

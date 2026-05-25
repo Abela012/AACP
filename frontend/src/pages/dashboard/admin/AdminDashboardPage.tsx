@@ -35,7 +35,7 @@ export default function AdminDashboardPage() {
       action: 'MANAGE',
       path: '/admin/users',
       bg: 'bg-green-100 dark:bg-green-500/10',
-      color: 'text-aacp-olive'
+      color: 'text-primary-blue'
     },
     { 
       label: 'Coin Requests', 
@@ -96,7 +96,7 @@ export default function AdminDashboardPage() {
             <h2 className="text-xl font-bold">System Permissions</h2>
             <button 
               onClick={() => navigate('/admin/messages')}
-              className="text-aacp-olive font-bold text-sm hover:underline"
+              className="text-primary-blue font-bold text-sm hover:underline"
             >
               Request Access Change
             </button>
@@ -108,18 +108,18 @@ export default function AdminDashboardPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: idx * 0.1 }}
               onClick={() => navigate(p.path)}
-              className="bg-white dark:bg-[#111111] p-6 rounded-4xl border border-[#EFEFEF] dark:border-white/5 shadow-sm flex flex-col justify-between cursor-pointer hover:border-aacp-olive transition-all group"
+              className="bg-white dark:bg-[#111111] p-6 rounded-4xl border border-[#EFEFEF] dark:border-white/5 shadow-sm flex flex-col justify-between cursor-pointer hover:border-primary-blue transition-all group"
             >
               <div className="flex justify-between items-start mb-6">
                 <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${p.bg} ${p.color}`}>
                   <p.icon size={24} />
                 </div>
-                <button className="text-[10px] font-black tracking-widest bg-aacp-olive text-white px-3 py-1.5 rounded-lg group-hover:scale-105 transition-transform">
+                <button className="text-[10px] font-black tracking-widest bg-primary-blue text-white px-3 py-1.5 rounded-lg group-hover:scale-105 transition-transform">
                   {p.action}
                 </button>
               </div>
               <div>
-                <h3 className="font-bold mb-2 group-hover:text-aacp-olive transition-colors">{p.label}</h3>
+                <h3 className="font-bold mb-2 group-hover:text-primary-blue transition-colors">{p.label}</h3>
                 <p className="text-xs text-[#6F767E] dark:text-gray-400 font-medium leading-relaxed">
                   {p.desc}
                 </p>
@@ -135,14 +135,14 @@ export default function AdminDashboardPage() {
             <h3 className="text-lg font-black mb-6">Platform Insights</h3>
             {isLoading ? (
               <div className="flex items-center justify-center h-48">
-                <Loader2 className="w-8 h-8 text-aacp-olive animate-spin" />
+                <Loader2 className="w-8 h-8 text-primary-blue animate-spin" />
               </div>
             ) : (
               <div className="space-y-6">
                 <div className="p-5 bg-green-50 dark:bg-green-500/5 rounded-[1.5rem] border border-green-100 dark:border-green-500/10">
                   <div className="flex justify-between items-center mb-2">
-                    <span className="text-[10px] font-black text-aacp-olive uppercase tracking-widest">Active Users</span>
-                    <Activity size={14} className="text-aacp-olive" />
+                    <span className="text-[10px] font-black text-primary-blue uppercase tracking-widest">Active Users</span>
+                    <Activity size={14} className="text-primary-blue" />
                   </div>
                   <p className="text-2xl font-black text-[#1A1D1F] dark:text-white">{(stats?.totalUsers || 0).toLocaleString()}</p>
                   <p className="text-[10px] font-bold text-green-600 mt-1">Total registered users</p>
@@ -170,7 +170,7 @@ export default function AdminDashboardPage() {
           </div>
 
           <div className="lg:col-span-9">
-            <div className="bg-aacp-olive p-8 rounded-[2.5rem] shadow-xl text-white relative overflow-hidden group">
+            <div className="bg-primary-blue p-8 rounded-[2.5rem] shadow-xl text-white relative overflow-hidden group">
               <div className="relative z-10">
                 <h3 className="font-bold mb-8">Efficiency Pulse</h3>
                 <div className="space-y-6">

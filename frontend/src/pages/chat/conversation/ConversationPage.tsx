@@ -193,7 +193,7 @@ export default function ConversationPage() {
               {/* Connection badge */}
               <div className={cn(
                 "flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest",
-                isConnected ? "bg-aacp-gold/25 dark:bg-aacp-olive/20 text-aacp-olive" : "bg-gray-100 dark:bg-white/5 text-gray-400"
+                isConnected ? "bg-neutral-border/25 dark:bg-primary-blue/20 text-primary-blue" : "bg-gray-100 dark:bg-white/5 text-gray-400"
               )}>
                 {isConnected ? <Wifi size={10} /> : <WifiOff size={10} />}
                 {isConnected ? 'Live' : 'Offline'}
@@ -206,7 +206,7 @@ export default function ConversationPage() {
                 placeholder="Search conversations..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-xl pl-10 pr-4 py-2 text-sm focus:outline-none focus:border-aacp-olive transition-all text-gray-900 dark:text-white"
+                className="w-full bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-xl pl-10 pr-4 py-2 text-sm focus:outline-none focus:border-primary-blue transition-all text-gray-900 dark:text-white"
               />
             </div>
           </div>
@@ -219,7 +219,7 @@ export default function ConversationPage() {
                 className={cn(
                   "w-full flex items-center gap-4 p-3 rounded-2xl transition-all",
                   activeContact?.userId === contact.userId
-                    ? "bg-aacp-olive/10 dark:bg-aacp-olive/5 shadow-sm"
+                    ? "bg-primary-blue/10 dark:bg-primary-blue/5 shadow-sm"
                     : "hover:bg-gray-50 dark:hover:bg-white/5"
                 )}
               >
@@ -227,12 +227,12 @@ export default function ConversationPage() {
                   <img src={contact.avatar || `https://ui-avatars.com/api/?name=${contact.name}&background=10b981&color=fff`} alt={contact.name} className="w-12 h-12 rounded-full object-cover" />
 
                   {contact.online && (
-                    <div className="absolute bottom-0 right-0 w-3 h-3 bg-aacp-olive border-2 border-white dark:border-[#0a0a0a] rounded-full" />
+                    <div className="absolute bottom-0 right-0 w-3 h-3 bg-primary-blue border-2 border-white dark:border-[#0a0a0a] rounded-full" />
                   )}
                 </div>
                 <div className="flex-1 min-w-0 text-left">
                   <div className="flex justify-between items-baseline mb-1">
-                    <h3 className={cn("text-sm font-bold truncate", activeContact?.userId === contact.userId ? "text-aacp-olive" : "text-gray-900 dark:text-white")}>
+                    <h3 className={cn("text-sm font-bold truncate", activeContact?.userId === contact.userId ? "text-primary-blue" : "text-gray-900 dark:text-white")}>
                       {contact.name}
                     </h3>
                     <span className="text-[10px] text-gray-400 dark:text-gray-500 shrink-0 ml-2">{contact.time}</span>
@@ -240,7 +240,7 @@ export default function ConversationPage() {
                   <p className="text-xs text-gray-500 dark:text-gray-400 truncate pr-4">{contact.lastMessage}</p>
                 </div>
                 {contact.unread > 0 && (
-                  <div className="w-5 h-5 bg-aacp-olive rounded-full flex items-center justify-center text-[10px] font-bold text-black shrink-0">
+                  <div className="w-5 h-5 bg-primary-blue rounded-full flex items-center justify-center text-[10px] font-bold text-black shrink-0">
                     {contact.unread}
                   </div>
                 )}
@@ -259,12 +259,12 @@ export default function ConversationPage() {
                   <img src={activeContact.avatar || `https://ui-avatars.com/api/?name=${activeContact.name}&background=10b981&color=fff`} alt={activeContact.name} className="w-10 h-10 rounded-full object-cover" />
 
                   {activeContact.online && (
-                    <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-aacp-olive border-2 border-white dark:border-[#0a0a0a] rounded-full" />
+                    <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-primary-blue border-2 border-white dark:border-[#0a0a0a] rounded-full" />
                   )}
                 </div>
                 <div>
                   <h2 className="text-sm font-bold text-gray-900 dark:text-white">{activeContact.name}</h2>
-                  <p className="text-[10px] text-aacp-olive font-bold uppercase tracking-wider">
+                  <p className="text-[10px] text-primary-blue font-bold uppercase tracking-wider">
                     {activeContact.online ? 'Online' : 'Away'}
                   </p>
                 </div>
@@ -287,7 +287,7 @@ export default function ConversationPage() {
               {/* Connection or Loading notice */}
               {(!isConnected || messagesLoading) && (
                 <div className="flex justify-center">
-                  <div className="flex items-center gap-2 px-4 py-2 bg-aacp-gold/15 dark:bg-aacp-olive/10 border border-aacp-gold/30 dark:border-aacp-olive/20 rounded-2xl text-xs font-bold text-aacp-olive">
+                  <div className="flex items-center gap-2 px-4 py-2 bg-neutral-border/15 dark:bg-primary-blue/10 border border-neutral-border/30 dark:border-primary-blue/20 rounded-2xl text-xs font-bold text-primary-blue">
                     <Loader2 size={14} className="animate-spin" />
                     {messagesLoading ? 'Loading message history...' : 'Connecting to real-time chat...'}
                   </div>
@@ -296,8 +296,8 @@ export default function ConversationPage() {
 
               {messages.length === 0 && isConnected && (
                 <div className="flex flex-col items-center justify-center h-full text-center py-20">
-                  <div className="w-16 h-16 bg-aacp-gold/25 dark:bg-aacp-olive/20 rounded-2xl flex items-center justify-center mb-4">
-                    <Send size={24} className="text-aacp-olive" />
+                  <div className="w-16 h-16 bg-neutral-border/25 dark:bg-primary-blue/20 rounded-2xl flex items-center justify-center mb-4">
+                    <Send size={24} className="text-primary-blue" />
                   </div>
                   <p className="text-sm font-bold text-gray-500 dark:text-gray-400">No messages yet</p>
                   <p className="text-xs text-gray-400 dark:text-gray-500">Say hello to {activeContact.name}!</p>
@@ -318,21 +318,21 @@ export default function ConversationPage() {
                       <div className={cn(
                         "p-4 rounded-3xl text-sm leading-relaxed",
                         isMine
-                          ? "bg-aacp-olive text-black font-medium rounded-tr-none shadow-lg shadow-aacp-olive/10"
+                          ? "bg-primary-blue text-black font-medium rounded-tr-none shadow-lg shadow-primary-blue/10"
                           : "bg-gray-100 dark:bg-white/5 text-gray-700 dark:text-gray-300 rounded-tl-none"
                       )}>
                         {msg.text}
                       </div>
                       <div className={cn("flex items-center gap-2 mt-1.5 px-1", isMine ? "justify-end" : "justify-start")}>
                         {lastDeliveredId === msg._id && (
-                          <span className="text-[10px] text-aacp-olive font-bold uppercase tracking-wider animate-pulse">
+                          <span className="text-[10px] text-primary-blue font-bold uppercase tracking-wider animate-pulse">
                             Delivered
                           </span>
                         )}
                         <span className="text-[10px] text-gray-400 dark:text-gray-500 font-medium">
                           {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         </span>
-                        {isMine && <CheckCheck size={14} className="text-aacp-olive" />}
+                        {isMine && <CheckCheck size={14} className="text-primary-blue" />}
                       </div>
                     </div>
                   </div>
@@ -357,10 +357,10 @@ export default function ConversationPage() {
             {/* Input */}
             <div className="p-8 border-t border-gray-100 dark:border-white/5">
               <form onSubmit={handleSend} className="bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 p-2 rounded-4xl flex items-center gap-2 shadow-sm">
-                <button type="button" className="p-3 text-gray-400 hover:text-aacp-olive transition-colors">
+                <button type="button" className="p-3 text-gray-400 hover:text-primary-blue transition-colors">
                   <Smile size={20} />
                 </button>
-                <button type="button" className="p-3 text-gray-400 hover:text-aacp-olive transition-colors border-r border-gray-100 dark:border-white/5 pr-4">
+                <button type="button" className="p-3 text-gray-400 hover:text-primary-blue transition-colors border-r border-gray-100 dark:border-white/5 pr-4">
                   <Paperclip size={20} />
                 </button>
                 <input
@@ -374,7 +374,7 @@ export default function ConversationPage() {
                 <button
                   type="submit"
                   disabled={!inputText.trim() || !isConnected}
-                  className="w-12 h-12 bg-aacp-olive text-black rounded-full flex items-center justify-center hover:bg-aacp-gold transition-all shadow-lg shadow-aacp-olive/20 disabled:opacity-50 disabled:shadow-none"
+                  className="w-12 h-12 bg-primary-blue text-black rounded-full flex items-center justify-center hover:bg-neutral-border transition-all shadow-lg shadow-primary-blue/20 disabled:opacity-50 disabled:shadow-none"
                 >
                   <Send size={20} />
                 </button>
@@ -384,7 +384,7 @@ export default function ConversationPage() {
         ) : (
           <div className="flex-1 flex flex-col items-center justify-center bg-white dark:bg-[#0a0a0a] text-center">
             {collabsLoading ? (
-               <Loader2 size={32} className="animate-spin text-aacp-olive mb-4" />
+               <Loader2 size={32} className="animate-spin text-primary-blue mb-4" />
             ) : (
                <div className="w-16 h-16 bg-gray-50 dark:bg-white/5 rounded-2xl flex items-center justify-center mb-4 text-gray-400">
                   <MessageSquare size={24} />

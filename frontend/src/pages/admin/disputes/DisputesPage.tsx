@@ -78,7 +78,7 @@ export default function DisputesPage() {
   const stats = [
     { label: 'Open Disputes', value: disputes.filter((d: any) => d.status === 'OPEN').length.toString(), icon: AlertCircle, bg: 'bg-amber-50 dark:bg-amber-500/10', iconColor: 'text-amber-500', border: 'border-amber-100 dark:border-amber-500/20' },
     { label: 'Under Review', value: disputes.filter((d: any) => d.status === 'UNDER REVIEW').length.toString(), icon: Scale, bg: 'bg-blue-50 dark:bg-blue-500/10', iconColor: 'text-blue-500', border: 'border-blue-100 dark:border-blue-500/20' },
-    { label: 'Resolved', value: disputes.filter((d: any) => d.status === 'RESOLVED').length.toString(), icon: CheckCircle2, bg: 'bg-aacp-gold/15 dark:bg-aacp-olive/10', iconColor: 'text-aacp-olive', border: 'border-aacp-gold/25 dark:border-aacp-olive/20' },
+    { label: 'Resolved', value: disputes.filter((d: any) => d.status === 'RESOLVED').length.toString(), icon: CheckCircle2, bg: 'bg-neutral-border/15 dark:bg-primary-blue/10', iconColor: 'text-primary-blue', border: 'border-neutral-border/25 dark:border-primary-blue/20' },
     { label: 'Escalated', value: disputes.filter((d: any) => d.status === 'ESCALATED').length.toString(), icon: ShieldAlert, bg: 'bg-red-50 dark:bg-red-500/10', iconColor: 'text-red-500', border: 'border-red-100 dark:border-red-500/20' },
   ];
 
@@ -111,7 +111,7 @@ export default function DisputesPage() {
     switch (status) {
       case 'OPEN': return 'bg-amber-100 dark:bg-amber-500/20 text-amber-600';
       case 'UNDER REVIEW': return 'bg-blue-100 dark:bg-blue-500/20 text-blue-600';
-      case 'RESOLVED': return 'bg-aacp-gold/25 dark:bg-aacp-olive/20 text-aacp-olive';
+      case 'RESOLVED': return 'bg-neutral-border/25 dark:bg-primary-blue/20 text-primary-blue';
       case 'ESCALATED': return 'bg-red-100 dark:bg-red-500/20 text-red-600';
       default: return 'bg-gray-100 text-gray-600';
     }
@@ -121,7 +121,7 @@ export default function DisputesPage() {
     switch (priority) {
       case 'HIGH': return 'text-red-500';
       case 'MEDIUM': return 'text-amber-500';
-      case 'LOW': return 'text-aacp-olive';
+      case 'LOW': return 'text-primary-blue';
       default: return 'text-gray-500';
     }
   };
@@ -143,7 +143,7 @@ export default function DisputesPage() {
                 placeholder="Search disputes..." 
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="bg-white dark:bg-white/5 border border-[#EFEFEF] dark:border-white/10 rounded-2xl pl-11 pr-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-aacp-olive/20 w-64 transition-all"
+                className="bg-white dark:bg-white/5 border border-[#EFEFEF] dark:border-white/10 rounded-2xl pl-11 pr-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary-blue/20 w-64 transition-all"
               />
             </div>
             <div className="relative">
@@ -217,7 +217,7 @@ export default function DisputesPage() {
               onClick={() => setActiveTab(tab.key)}
               className={`px-5 py-2.5 rounded-2xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-2 ${
                 activeTab === tab.key
-                  ? 'bg-aacp-olive text-white shadow-lg shadow-aacp-gold/25 dark:shadow-none'
+                  ? 'bg-primary-blue text-white shadow-lg shadow-neutral-border/25 dark:shadow-none'
                   : 'bg-white dark:bg-white/5 border border-[#EFEFEF] dark:border-white/10 text-[#6F767E] hover:bg-gray-50 dark:hover:bg-white/10'
               }`}
             >
@@ -251,7 +251,7 @@ export default function DisputesPage() {
                 {isLoading ? (
                   <tr>
                     <td colSpan={6} className="py-20 text-center">
-                      <Loader2 size={32} className="text-aacp-olive animate-spin mx-auto mb-4" />
+                      <Loader2 size={32} className="text-primary-blue animate-spin mx-auto mb-4" />
                       <p className="text-sm font-bold text-[#6F767E]">Loading disputes...</p>
                     </td>
                   </tr>
@@ -310,7 +310,7 @@ export default function DisputesPage() {
                       <div className="flex justify-end gap-2">
                         <button 
                           onClick={() => handleAction(dispute.id, 'view')}
-                          className="p-2 hover:bg-white dark:hover:bg-white/10 rounded-xl transition-all text-[#9A9FA5] hover:text-aacp-olive"
+                          className="p-2 hover:bg-white dark:hover:bg-white/10 rounded-xl transition-all text-[#9A9FA5] hover:text-primary-blue"
                         >
                           <Eye size={18} />
                         </button>
@@ -325,7 +325,7 @@ export default function DisputesPage() {
                         {dispute.status !== 'RESOLVED' && (
                           <button 
                             onClick={() => handleAction(dispute.id, 'resolve')}
-                            className="p-2 hover:bg-white dark:hover:bg-white/10 rounded-xl transition-all text-[#9A9FA5] hover:text-aacp-olive"
+                            className="p-2 hover:bg-white dark:hover:bg-white/10 rounded-xl transition-all text-[#9A9FA5] hover:text-primary-blue"
                           >
                             <CheckSquare size={18} />
                           </button>
@@ -363,7 +363,7 @@ export default function DisputesPage() {
                 <div className="flex justify-between items-center mb-8">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-[#F4F4F4] dark:bg-white/5 rounded-xl flex items-center justify-center">
-                      <Scale size={20} className="text-aacp-olive" />
+                      <Scale size={20} className="text-primary-blue" />
                     </div>
                     <div>
                       <h2 className="text-lg font-black text-[#1A1D1F] dark:text-white leading-none mb-1">Case Detail</h2>
@@ -420,7 +420,7 @@ export default function DisputesPage() {
                             <p className="text-[10px] font-bold text-[#9A9FA5]">REPORTER ({selectedDispute.reporterRole})</p>
                           </div>
                         </div>
-                        <Link to={`/admin/users/${selectedDispute.id}`} className="p-2 text-[#9A9FA5] hover:text-aacp-olive">
+                        <Link to={`/admin/users/${selectedDispute.id}`} className="p-2 text-[#9A9FA5] hover:text-primary-blue">
                           <ArrowRight size={18} />
                         </Link>
                       </div>
@@ -442,13 +442,13 @@ export default function DisputesPage() {
                   <div>
                     <div className="flex justify-between items-center mb-4">
                       <h3 className="text-sm font-black text-[#1A1D1F] dark:text-white">Case Timeline</h3>
-                      <button className="text-[10px] font-black text-aacp-olive uppercase tracking-widest">Full Log</button>
+                      <button className="text-[10px] font-black text-primary-blue uppercase tracking-widest">Full Log</button>
                     </div>
                     <div className="space-y-4 relative before:absolute before:left-[19px] before:top-2 before:bottom-2 before:w-0.5 before:bg-[#EFEFEF] dark:before:bg-white/10">
                       {[
                         { time: '10:45 AM', event: 'Dispute opened by reporter', icon: AlertCircle, color: 'text-amber-500' },
                         { time: '11:20 AM', event: 'Evidence documentation uploaded', icon: FileText, color: 'text-blue-500' },
-                        { time: '02:15 PM', event: 'System verification triggered', icon: Clock, color: 'text-aacp-olive' },
+                        { time: '02:15 PM', event: 'System verification triggered', icon: Clock, color: 'text-primary-blue' },
                       ].map((item, i) => (
                         <div key={i} className="flex gap-6 relative">
                           <div className={`w-10 h-10 rounded-xl bg-white dark:bg-[#1A1D1F] border border-[#EFEFEF] dark:border-white/10 flex items-center justify-center z-10 ${item.color}`}>
@@ -468,7 +468,7 @@ export default function DisputesPage() {
                     {selectedDispute.status !== 'RESOLVED' && (
                       <button 
                         onClick={() => handleAction(selectedDispute.id, 'resolve')}
-                        className="flex-1 py-4 bg-aacp-olive hover:bg-aacp-olive/90 text-white rounded-2xl text-xs font-black uppercase tracking-widest transition-all shadow-lg shadow-aacp-gold/25 dark:shadow-none"
+                        className="flex-1 py-4 bg-primary-blue hover:bg-primary-blue/90 text-white rounded-2xl text-xs font-black uppercase tracking-widest transition-all shadow-lg shadow-neutral-border/25 dark:shadow-none"
                       >
                         Resolve Case
                       </button>
@@ -498,7 +498,7 @@ export default function DisputesPage() {
             exit={{ opacity: 0, scale: 0.9 }}
             className={`fixed bottom-8 left-1/2 -translate-x-1/2 z-[100] px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3 border ${
               toast.type === 'success' 
-                ? 'bg-aacp-olive text-white border-aacp-gold' 
+                ? 'bg-primary-blue text-white border-neutral-border' 
                 : 'bg-red-500 text-white border-red-400'
             }`}
           >

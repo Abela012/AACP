@@ -56,7 +56,7 @@ export default function AdminChatPage() {
               <input
                 type="text"
                 placeholder="Search..."
-                className="w-full bg-white dark:bg-white/5 border border-[#EFEFEF] dark:border-white/10 rounded-xl pl-10 pr-4 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-aacp-olive/20 transition-all"
+                className="w-full bg-white dark:bg-white/5 border border-[#EFEFEF] dark:border-white/10 rounded-xl pl-10 pr-4 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-primary-blue/20 transition-all"
               />
             </div>
           </div>
@@ -79,7 +79,7 @@ export default function AdminChatPage() {
                   )}
                 >
                   <div className="relative shrink-0">
-                    <div className="w-12 h-12 rounded-2xl bg-linear-to-tr from-aacp-olive to-aacp-gold flex items-center justify-center overflow-hidden">
+                    <div className="w-12 h-12 rounded-2xl bg-linear-to-tr from-primary-blue to-neutral-border flex items-center justify-center overflow-hidden">
                       {user.profilePicture ? (
                         <img src={user.profilePicture} alt={user.firstName} className="w-full h-full object-cover" />
                       ) : (
@@ -89,7 +89,7 @@ export default function AdminChatPage() {
                   </div>
                   <div className="flex-1 min-w-0 text-left">
                     <div className="flex justify-between items-baseline mb-1">
-                      <h3 className={cn("text-xs font-black truncate", activeChat?._id === user._id ? "text-aacp-olive" : "text-[#1A1D1F] dark:text-white")}>
+                      <h3 className={cn("text-xs font-black truncate", activeChat?._id === user._id ? "text-primary-blue" : "text-[#1A1D1F] dark:text-white")}>
                         {user.firstName} {user.lastName}
                       </h3>
                     </div>
@@ -108,13 +108,13 @@ export default function AdminChatPage() {
               {/* Header */}
               <header className="px-8 h-20 border-b border-[#F4F4F4] dark:border-white/5 flex items-center justify-between shrink-0">
                 <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-xl bg-aacp-olive/10 flex items-center justify-center text-aacp-olive">
+                  <div className="w-10 h-10 rounded-xl bg-primary-blue/10 flex items-center justify-center text-primary-blue">
                     {activeChat.type === 'Group' ? <Users size={20} /> : <ShieldCheck size={20} />}
                   </div>
                   <div>
                     <h2 className="text-sm font-black text-[#1A1D1F] dark:text-white">{activeChat.firstName} {activeChat.lastName}</h2>
                     <div className="flex items-center gap-2">
-                      <span className="w-1.5 h-1.5 rounded-full bg-aacp-olive" />
+                      <span className="w-1.5 h-1.5 rounded-full bg-primary-blue" />
                       <p className="text-[10px] text-[#9A9FA5] font-bold uppercase tracking-wider">
                         Online
                       </p>
@@ -133,7 +133,7 @@ export default function AdminChatPage() {
               <div ref={scrollRef} className="flex-1 overflow-y-auto p-8 space-y-8 bg-[#FDFDFD] dark:bg-[#111111]">
                 {messagesLoading && (
                   <div className="flex justify-center">
-                    <div className="flex items-center gap-2 px-4 py-2 bg-aacp-olive/10 border border-aacp-olive/20 rounded-2xl text-[10px] font-black uppercase tracking-widest text-aacp-olive">
+                    <div className="flex items-center gap-2 px-4 py-2 bg-primary-blue/10 border border-primary-blue/20 rounded-2xl text-[10px] font-black uppercase tracking-widest text-primary-blue">
                       <Loader2 size={12} className="animate-spin" />
                       Loading message history...
                     </div>
@@ -149,7 +149,7 @@ export default function AdminChatPage() {
                       <div className={cn("max-w-[70%] flex gap-4", isMe ? "flex-row-reverse" : "flex-row")}>
                         <div className={cn(
                           "w-8 h-8 rounded-lg shrink-0 flex items-center justify-center text-white overflow-hidden",
-                          isMe ? "bg-aacp-olive" : "bg-blue-500"
+                          isMe ? "bg-primary-blue" : "bg-blue-500"
                         )}>
                           {msg.sender?.profilePicture ? (
                             <img src={msg.sender.profilePicture} alt="" className="w-full h-full object-cover" />
@@ -169,12 +169,12 @@ export default function AdminChatPage() {
                           <div className={cn(
                             "p-4 rounded-2xl text-xs font-medium leading-relaxed shadow-sm",
                             isMe
-                              ? "bg-aacp-olive text-white rounded-tr-none"
+                              ? "bg-primary-blue text-white rounded-tr-none"
                               : "bg-white dark:bg-white/5 border border-[#EFEFEF] dark:border-white/10 text-[#1A1D1F] dark:text-white rounded-tl-none"
                           )}>
                             {msg.text}
                           </div>
-                          {isMe && <div className="mt-1 flex items-center gap-1 text-[10px] font-bold text-aacp-olive uppercase tracking-widest px-1"><CheckCheck size={12} /> Delivered</div>}
+                          {isMe && <div className="mt-1 flex items-center gap-1 text-[10px] font-bold text-primary-blue uppercase tracking-widest px-1"><CheckCheck size={12} /> Delivered</div>}
                         </div>
                       </div>
                     </div>
@@ -184,11 +184,11 @@ export default function AdminChatPage() {
 
               {/* Footer Input */}
               <div className="p-8 border-t border-[#F4F4F4] dark:border-white/5">
-                <form onSubmit={handleSendMessage} className="bg-[#F8F8FD] dark:bg-white/5 border border-[#EFEFEF] dark:border-white/10 p-2 rounded-3xl flex items-center gap-2 shadow-sm focus-within:ring-2 focus-within:ring-aacp-olive/20 transition-all">
-                  <button type="button" className="p-3 text-[#9A9FA5] hover:text-aacp-olive transition-colors">
+                <form onSubmit={handleSendMessage} className="bg-[#F8F8FD] dark:bg-white/5 border border-[#EFEFEF] dark:border-white/10 p-2 rounded-3xl flex items-center gap-2 shadow-sm focus-within:ring-2 focus-within:ring-primary-blue/20 transition-all">
+                  <button type="button" className="p-3 text-[#9A9FA5] hover:text-primary-blue transition-colors">
                     <Smile size={20} />
                   </button>
-                  <button type="button" className="p-3 text-[#9A9FA5] hover:text-aacp-olive transition-colors pr-4 border-r border-[#EFEFEF] dark:border-white/10">
+                  <button type="button" className="p-3 text-[#9A9FA5] hover:text-primary-blue transition-colors pr-4 border-r border-[#EFEFEF] dark:border-white/10">
                     <Paperclip size={20} />
                   </button>
                   <input
@@ -201,7 +201,7 @@ export default function AdminChatPage() {
                   <button
                     type="submit"
                     disabled={!message.trim()}
-                    className="px-6 h-12 bg-aacp-olive text-white rounded-2xl flex items-center justify-center gap-2 hover:bg-aacp-olive transition-all shadow-lg shadow-aacp-gold/25 dark:shadow-none disabled:opacity-50 disabled:shadow-none font-black text-[10px] uppercase tracking-widest"
+                    className="px-6 h-12 bg-primary-blue text-white rounded-2xl flex items-center justify-center gap-2 hover:bg-primary-blue transition-all shadow-lg shadow-neutral-border/25 dark:shadow-none disabled:opacity-50 disabled:shadow-none font-black text-[10px] uppercase tracking-widest"
                   >
                     Send Message
                     <Send size={14} />

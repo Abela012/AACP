@@ -138,7 +138,7 @@ export default function UserApprovalPage() {
                   <label className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest mb-2 block">{isBusiness ? 'Industry' : 'Primary Niche'}</label>
                   <div className="flex flex-wrap gap-2">
                     {isBusiness ? (
-                      <span className="px-4 py-2 bg-aacp-gold/15 dark:bg-aacp-olive/10 text-aacp-olive rounded-xl text-xs font-bold ring-1 ring-aacp-gold/25 dark:ring-aacp-olive/20">{displayProfileData.industry || 'General'}</span>
+                      <span className="px-4 py-2 bg-neutral-border/15 dark:bg-primary-blue/10 text-primary-blue rounded-xl text-xs font-bold ring-1 ring-neutral-border/25 dark:ring-primary-blue/20">{displayProfileData.industry || 'General'}</span>
                     ) : (
                       (displayProfileData.selectedStyles || ['Lifestyle']).map((style: string) => (
                         <span key={style} className="px-4 py-2 bg-gray-50 dark:bg-white/5 text-[#6F767E] dark:text-gray-400 rounded-xl text-xs font-bold border border-gray-100 dark:border-white/10">{style}</span>
@@ -150,7 +150,7 @@ export default function UserApprovalPage() {
                 <div>
                   <label className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest mb-2 block">Location</label>
                   <div className="flex items-center gap-2 font-bold text-[#1A1D1F] dark:text-white">
-                    <MapPin size={16} className="text-aacp-olive" />
+                    <MapPin size={16} className="text-primary-blue" />
                     <span className="text-sm">{displayProfileData.businessLocation || displayProfileData.geoTags?.[0] || displayUser.location || 'Remote'}</span>
                   </div>
                 </div>
@@ -176,7 +176,7 @@ export default function UserApprovalPage() {
               </div>
             </div>
 
-            <div className="bg-aacp-olive p-8 rounded-[2.5rem] text-white shadow-xl">
+            <div className="bg-primary-blue p-8 rounded-[2.5rem] text-white shadow-xl">
               <h3 className="font-bold mb-8">Application Score</h3>
               <div className="flex items-baseline gap-2 mb-4">
                 <span className="text-6xl font-black">94</span>
@@ -245,7 +245,7 @@ export default function UserApprovalPage() {
                     className="w-full p-4 bg-[#F4F4F4]/50 dark:bg-white/5 hover:bg-white dark:hover:bg-white/10 transition-all rounded-2xl flex items-center justify-between group border border-transparent hover:border-[#EFEFEF] dark:hover:border-white/5"
                   >
                     <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 rounded-xl bg-aacp-gold/25 dark:bg-aacp-olive/20 text-aacp-olive flex items-center justify-center">
+                      <div className="w-10 h-10 rounded-xl bg-neutral-border/25 dark:bg-primary-blue/20 text-primary-blue flex items-center justify-center">
                         <Globe size={18} />
                       </div>
                       <div className="text-left">
@@ -278,7 +278,7 @@ export default function UserApprovalPage() {
             {!isBusiness && (displayProfileData.tiktok || displayProfileData.instagram) && (
               <div className="bg-white dark:bg-[#111111] p-8 rounded-[2.5rem] border border-[#EFEFEF] dark:border-white/5 shadow-sm space-y-8">
                 <h3 className="font-extrabold text-lg flex items-center gap-2">
-                  <BarChart3 size={20} className="text-aacp-olive" />
+                  <BarChart3 size={20} className="text-primary-blue" />
                   Analytics Review
                 </h3>
 
@@ -311,7 +311,7 @@ export default function UserApprovalPage() {
                           <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">{stat.label}</p>
                           <p className={cn(
                             'text-sm font-black',
-                            (stat as any).warn ? 'text-amber-600' : stat.highlight ? 'text-aacp-olive' : ''
+                            (stat as any).warn ? 'text-amber-600' : stat.highlight ? 'text-primary-blue' : ''
                           )}>{stat.value}</p>
                         </div>
                       ))}
@@ -453,7 +453,7 @@ export default function UserApprovalPage() {
             {isBusiness && (
               <div className="bg-white dark:bg-[#111111] p-8 rounded-[2.5rem] border border-[#EFEFEF] dark:border-white/5 shadow-sm space-y-8">
                 <h3 className="font-extrabold text-lg flex items-center gap-2">
-                  <Building2 size={20} className="text-aacp-olive" />
+                  <Building2 size={20} className="text-primary-blue" />
                   Business Review
                 </h3>
 
@@ -464,7 +464,7 @@ export default function UserApprovalPage() {
                   </div>
                   <div className="space-y-1">
                     <label className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest block">Monthly Budget</label>
-                    <p className="text-sm font-black text-aacp-olive">${displayProfileData.monthlyBudget?.toLocaleString() || '0'}</p>
+                    <p className="text-sm font-black text-primary-blue">${displayProfileData.monthlyBudget?.toLocaleString() || '0'}</p>
                   </div>
                 </div>
 
@@ -483,7 +483,7 @@ export default function UserApprovalPage() {
                   <p className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest">Promotion Goals</p>
                   <div className="flex flex-wrap gap-2">
                     {(displayProfileData.promotionGoals || []).map((goal: string) => (
-                      <span key={goal} className="px-3 py-1 bg-aacp-gold/15 dark:bg-aacp-olive/10 text-aacp-olive rounded-lg text-[10px] font-bold border border-aacp-gold/25 dark:border-aacp-olive/20">
+                      <span key={goal} className="px-3 py-1 bg-neutral-border/15 dark:bg-primary-blue/10 text-primary-blue rounded-lg text-[10px] font-bold border border-neutral-border/25 dark:border-primary-blue/20">
                         {goal}
                       </span>
                     ))}
@@ -506,9 +506,9 @@ export default function UserApprovalPage() {
 
           {/* Right Column: Approval Controls */}
           <div className="lg:col-span-3 space-y-6 lg:sticky lg:top-28">
-            <div className="bg-aacp-gold/20 dark:bg-white/5 p-8 rounded-[3rem] text-center border border-white dark:border-white/5 shadow-inner">
+            <div className="bg-neutral-border/20 dark:bg-white/5 p-8 rounded-[3rem] text-center border border-white dark:border-white/5 shadow-inner">
               <div className="w-12 h-12 bg-white dark:bg-white/10 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-sm">
-                <ShieldCheck size={24} className="text-aacp-olive" />
+                <ShieldCheck size={24} className="text-primary-blue" />
               </div>
               <h3 className="font-black text-xl mb-2">Approval<br />Controls</h3>
               <p className="text-xs text-[#6F767E] dark:text-gray-400 font-medium mb-8 leading-relaxed">
@@ -519,7 +519,7 @@ export default function UserApprovalPage() {
                 <button
                   onClick={() => updateStatus.mutate('approved')}
                   disabled={updateStatus.isPending || ((user.status === 'approved' || user.status === 'active') && !hasPendingChanges)}
-                  className="w-full h-16 bg-aacp-olive hover:bg-aacp-olive text-white rounded-1.5rem font-bold text-sm flex items-center justify-center gap-3 shadow-lg shadow-aacp-gold/25 dark:shadow-none transition-all group disabled:opacity-50"
+                  className="w-full h-16 bg-primary-blue hover:bg-primary-blue text-white rounded-1.5rem font-bold text-sm flex items-center justify-center gap-3 shadow-lg shadow-neutral-border/25 dark:shadow-none transition-all group disabled:opacity-50"
                 >
                   <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center ring-4 ring-white/10">
                     <ShieldCheck size={14} className="fill-current" />

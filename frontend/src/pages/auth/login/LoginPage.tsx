@@ -39,10 +39,10 @@ export default function LoginForm() {
   return (
     <div className="flex flex-col">
       <div className="mb-10 text-left">
-        <h2 className="aacp-font-display mb-3 text-4xl text-aacp-ink dark:text-aacp-cream">
+        <h2 className="aacp-font-display mb-3 text-4xl text-neutral-dark dark:text-neutral-light">
           Welcome back
         </h2>
-        <p className="text-base text-aacp-smoke dark:text-aacp-gold/55">
+        <p className="text-base text-neutral-medium dark:text-neutral-border/55">
           Sign in with email or SSO (Google, Facebook). TikTok auth is available after registration
           for advertisers linking social profiles.
         </p>
@@ -50,7 +50,7 @@ export default function LoginForm() {
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {infoMessage && (
-          <div className="border border-aacp-olive/30 bg-aacp-gold/25 p-3 text-sm font-medium leading-relaxed text-aacp-ink">
+          <div className="border border-primary-blue/30 bg-neutral-border/25 p-3 text-sm font-medium leading-relaxed text-neutral-dark">
             {infoMessage}
           </div>
         )}
@@ -74,13 +74,13 @@ export default function LoginForm() {
               inputMode="numeric"
               autoComplete="one-time-code"
             />
-            <p className="mt-2 text-xs font-medium leading-relaxed text-aacp-smoke">
+            <p className="mt-2 text-xs font-medium leading-relaxed text-neutral-medium">
               Use the email code or your authenticator app, then tap Verify.
             </p>
             <button
               type="button"
               onClick={() => resetSignInFlow()}
-              className="mt-4 text-xs font-semibold text-aacp-olive hover:underline"
+              className="mt-4 text-xs font-semibold text-primary-blue hover:underline"
             >
               Use a different email
             </button>
@@ -113,7 +113,7 @@ export default function LoginForm() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-0 top-1/2 -translate-y-1/2 text-aacp-mist transition-colors hover:text-aacp-olive"
+                  className="absolute right-0 top-1/2 -translate-y-1/2 text-neutral-medium transition-colors hover:text-primary-blue"
                 >
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
@@ -124,15 +124,15 @@ export default function LoginForm() {
               <label className="group flex cursor-pointer items-center gap-2">
                 <input
                   type="checkbox"
-                  className="h-4 w-4 accent-aacp-olive"
+                  className="h-4 w-4 accent-primary-blue"
                 />
-                <span className="text-sm font-medium text-aacp-smoke transition-colors group-hover:text-aacp-ink">
+                <span className="text-sm font-medium text-neutral-medium transition-colors group-hover:text-neutral-dark">
                   Keep me signed in
                 </span>
               </label>
               <Link
                 to="/auth/forgot-password"
-                className="text-sm font-semibold text-aacp-olive hover:underline"
+                className="text-sm font-semibold text-primary-blue hover:underline"
               >
                 Forgot password?
               </Link>
@@ -146,14 +146,14 @@ export default function LoginForm() {
       </form>
 
       <div className="mt-8 space-y-4">
-        <p className="text-center font-mono text-[0.6rem] uppercase tracking-[0.22em] text-aacp-mist">
+        <p className="text-center font-mono text-[0.6rem] uppercase tracking-[0.22em] text-neutral-medium">
           Role for social login
         </p>
         <div className="grid grid-cols-2 gap-3">
           <button
             type="button"
             onClick={() => setRole('business_owner')}
-            className={`aacp-role-tile ${role === 'business_owner' ? 'aacp-role-tile--active' : 'text-aacp-smoke'}`}
+            className={`aacp-role-tile ${role === 'business_owner' ? 'aacp-role-tile--active' : 'text-neutral-medium'}`}
           >
             <Briefcase size={20} strokeWidth={1.25} />
             <span className="font-mono text-[0.55rem] uppercase tracking-[0.15em]">Business</span>
@@ -161,7 +161,7 @@ export default function LoginForm() {
           <button
             type="button"
             onClick={() => setRole('advertiser')}
-            className={`aacp-role-tile ${role === 'advertiser' ? 'aacp-role-tile--active' : 'text-aacp-smoke'}`}
+            className={`aacp-role-tile ${role === 'advertiser' ? 'aacp-role-tile--active' : 'text-neutral-medium'}`}
           >
             <Megaphone size={20} strokeWidth={1.25} />
             <span className="font-mono text-[0.55rem] uppercase tracking-[0.15em]">Advertiser</span>
@@ -170,7 +170,7 @@ export default function LoginForm() {
       </div>
 
       <div className="aacp-divider text-center">
-        <span className="bg-aacp-cream dark:bg-[#12100d]">Or continue with</span>
+        <span className="bg-neutral-light dark:bg-[#12100d]">Or continue with</span>
       </div>
 
       <div className="grid grid-cols-2 gap-3">
@@ -178,7 +178,7 @@ export default function LoginForm() {
           type="button"
           onClick={() => handleSocialAuth('oauth_facebook')}
           disabled={loading}
-          className="flex h-12 items-center justify-center border border-aacp-olive/30 bg-aacp-cream/50 transition-colors hover:bg-aacp-gold/35 disabled:opacity-50"
+          className="flex h-12 items-center justify-center border border-primary-blue/30 bg-neutral-light/50 transition-colors hover:bg-neutral-border/35 disabled:opacity-50"
         >
           <img src={FacebookIcon} alt="Facebook" className="h-6 w-6 object-contain" />
         </button>
@@ -186,15 +186,15 @@ export default function LoginForm() {
           type="button"
           onClick={() => handleSocialAuth('oauth_google')}
           disabled={loading}
-          className="flex h-12 items-center justify-center border border-aacp-olive/30 bg-aacp-cream/50 transition-colors hover:bg-aacp-gold/35 disabled:opacity-50"
+          className="flex h-12 items-center justify-center border border-primary-blue/30 bg-neutral-light/50 transition-colors hover:bg-neutral-border/35 disabled:opacity-50"
         >
           <img src={GoogleIcon} alt="Google" className="h-6 w-6 object-contain" />
         </button>
       </div>
 
-      <p className="mt-10 text-center text-sm font-medium text-aacp-smoke">
+      <p className="mt-10 text-center text-sm font-medium text-neutral-medium">
         New to AACP?{' '}
-        <Link to="/auth/register" className="font-semibold text-aacp-olive hover:underline">
+        <Link to="/auth/register" className="font-semibold text-primary-blue hover:underline">
           Create account
         </Link>
       </p>

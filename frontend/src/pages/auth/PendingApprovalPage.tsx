@@ -17,12 +17,12 @@ export default function PendingApprovalPage() {
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="max-w-md w-full bg-white dark:bg-[#111] rounded-[2.5rem] p-8 md:p-12 shadow-2xl shadow-aacp-olive/10 border border-gray-100 dark:border-white/5 text-center"
+        className="max-w-md w-full bg-white dark:bg-[#111] rounded-[2.5rem] p-8 md:p-12 shadow-2xl shadow-primary-blue/10 border border-gray-100 dark:border-white/5 text-center"
       >
-        <div className="w-20 h-20 bg-aacp-olive/10 rounded-3xl flex items-center justify-center mx-auto mb-8 relative">
-          <Clock className="w-10 h-10 text-aacp-olive animate-pulse" />
+        <div className="w-20 h-20 bg-primary-blue/10 rounded-3xl flex items-center justify-center mx-auto mb-8 relative">
+          <Clock className="w-10 h-10 text-primary-blue animate-pulse" />
           <div className="absolute -top-2 -right-2 w-8 h-8 bg-white dark:bg-[#111] rounded-full flex items-center justify-center shadow-lg border border-gray-100 dark:border-white/5">
-            <ShieldCheck className="w-5 h-5 text-aacp-olive" />
+            <ShieldCheck className="w-5 h-5 text-primary-blue" />
           </div>
         </div>
 
@@ -33,7 +33,7 @@ export default function PendingApprovalPage() {
         <p className="text-gray-600 dark:text-gray-400 leading-relaxed mb-8">
           Thank you for completing your profile! Our team is currently reviewing your information to ensure a high-quality community. 
           <br /><br />
-          This typically takes <span className="text-aacp-olive font-bold">24-48 hours</span>. We'll notify you via email once you're approved.
+          This typically takes <span className="text-primary-blue font-bold">24-48 hours</span>. We'll notify you via email once you're approved.
         </p>
 
         <div className="space-y-4">

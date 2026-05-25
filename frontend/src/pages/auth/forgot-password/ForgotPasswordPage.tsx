@@ -26,19 +26,19 @@ export default function ForgotPasswordForm() {
       <div className="mb-10 text-left">
         {!successfulCreation ? (
           <>
-            <h2 className="aacp-font-display mb-3 text-4xl text-aacp-ink dark:text-aacp-cream">
+            <h2 className="aacp-font-display mb-3 text-4xl text-neutral-dark dark:text-neutral-light">
               Reset password
             </h2>
-            <p className="text-base text-aacp-smoke dark:text-aacp-gold/55">
+            <p className="text-base text-neutral-medium dark:text-neutral-border/55">
               Enter your email to receive a 6-digit verification code.
             </p>
           </>
         ) : (
           <>
-            <h2 className="aacp-font-display mb-3 text-4xl text-aacp-ink dark:text-aacp-cream">
+            <h2 className="aacp-font-display mb-3 text-4xl text-neutral-dark dark:text-neutral-light">
               Set new password
             </h2>
-            <p className="text-base text-aacp-smoke dark:text-aacp-gold/55">
+            <p className="text-base text-neutral-medium dark:text-neutral-border/55">
               We&apos;ve sent a code to {emailAddress}
             </p>
           </>
@@ -75,15 +75,15 @@ export default function ForgotPasswordForm() {
 
           <Link
             to="/auth/login"
-            className="flex items-center justify-center gap-2 text-sm font-semibold text-aacp-smoke transition-colors hover:text-aacp-olive"
+            className="flex items-center justify-center gap-2 text-sm font-semibold text-neutral-medium transition-colors hover:text-primary-blue"
           >
             <ArrowLeft size={16} /> Back to log in
           </Link>
         </form>
       ) : (
         <form onSubmit={onResetPassword} className="space-y-8">
-          <div className="border border-aacp-olive/25 bg-aacp-gold/20 p-6 text-center">
-            <ShieldCheck className="mx-auto mb-4 h-12 w-12 text-aacp-olive" strokeWidth={1.25} />
+          <div className="border border-primary-blue/25 bg-neutral-border/20 p-6 text-center">
+            <ShieldCheck className="mx-auto mb-4 h-12 w-12 text-primary-blue" strokeWidth={1.25} />
             <label className="aacp-label mb-4 block">Verification code</label>
             <input
               type="text"
@@ -110,7 +110,7 @@ export default function ForgotPasswordForm() {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-0 top-1/2 -translate-y-1/2 text-aacp-mist transition-colors hover:text-aacp-olive"
+                className="absolute right-0 top-1/2 -translate-y-1/2 text-neutral-medium transition-colors hover:text-primary-blue"
               >
                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
@@ -128,16 +128,16 @@ export default function ForgotPasswordForm() {
           <button
             type="button"
             onClick={() => setSuccessfulCreation(false)}
-            className="w-full text-sm font-semibold text-aacp-smoke transition-colors hover:text-aacp-olive"
+            className="w-full text-sm font-semibold text-neutral-medium transition-colors hover:text-primary-blue"
           >
             Resend code
           </button>
         </form>
       )}
 
-      <p className="mt-10 text-center text-sm font-medium text-aacp-smoke">
+      <p className="mt-10 text-center text-sm font-medium text-neutral-medium">
         Wait, I remember my password!{' '}
-        <Link to="/auth/login" className="font-semibold text-aacp-olive hover:underline">
+        <Link to="/auth/login" className="font-semibold text-primary-blue hover:underline">
           Log in
         </Link>
       </p>

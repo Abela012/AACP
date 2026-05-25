@@ -25,13 +25,13 @@ export default function AdminChangePasswordCard() {
   } = useChangePassword();
 
   const inputClass =
-    'w-full rounded-2xl border border-[#EFEFEF] dark:border-white/10 bg-[#F8F8FD] dark:bg-black/30 px-4 py-3 text-sm text-[#1A1D1F] dark:text-white focus:outline-none focus:ring-2 focus:ring-aacp-olive/30 disabled:opacity-50';
+    'w-full rounded-2xl border border-[#EFEFEF] dark:border-white/10 bg-[#F8F8FD] dark:bg-black/30 px-4 py-3 text-sm text-[#1A1D1F] dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-blue/30 disabled:opacity-50';
 
   return (
     <section className="bg-white dark:bg-[#111111] rounded-[2rem] border border-[#EFEFEF] dark:border-white/5 shadow-sm overflow-hidden">
-      <div className="px-8 py-6 border-b border-[#EFEFEF] dark:border-white/5 bg-linear-to-r from-aacp-olive/5 to-transparent">
+      <div className="px-8 py-6 border-b border-[#EFEFEF] dark:border-white/5 bg-linear-to-r from-primary-blue/5 to-transparent">
         <div className="flex items-center gap-3">
-          <div className="w-11 h-11 rounded-2xl bg-aacp-olive/10 flex items-center justify-center text-aacp-olive">
+          <div className="w-11 h-11 rounded-2xl bg-primary-blue/10 flex items-center justify-center text-primary-blue">
             <Key size={22} />
           </div>
           <div>
@@ -50,7 +50,7 @@ export default function AdminChangePasswordCard() {
             onClick={() => setMode('password')}
             className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
               mode === 'password'
-                ? 'bg-aacp-olive text-white shadow-md shadow-green-100 dark:shadow-none'
+                ? 'bg-primary-blue text-white shadow-md shadow-green-100 dark:shadow-none'
                 : 'bg-[#F8F8FD] dark:bg-white/5 text-[#6F767E]'
             }`}
           >
@@ -61,7 +61,7 @@ export default function AdminChangePasswordCard() {
             onClick={() => setMode('email')}
             className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
               mode === 'email'
-                ? 'bg-aacp-olive text-white shadow-md shadow-green-100 dark:shadow-none'
+                ? 'bg-primary-blue text-white shadow-md shadow-green-100 dark:shadow-none'
                 : 'bg-[#F8F8FD] dark:bg-white/5 text-[#6F767E]'
             }`}
           >
@@ -75,7 +75,7 @@ export default function AdminChangePasswordCard() {
           </p>
         )}
         {success && (
-          <p className="mb-4 text-xs font-bold text-aacp-olive dark:text-aacp-gold bg-aacp-gold/15 dark:bg-aacp-olive/10 border border-aacp-gold/30 dark:border-aacp-olive/20 rounded-xl px-4 py-3">
+          <p className="mb-4 text-xs font-bold text-primary-blue dark:text-neutral-border bg-neutral-border/15 dark:bg-primary-blue/10 border border-neutral-border/30 dark:border-primary-blue/20 rounded-xl px-4 py-3">
             {success}
           </p>
         )}
@@ -83,7 +83,7 @@ export default function AdminChangePasswordCard() {
         {mode === 'password' ? (
           <form onSubmit={changePassword} className="space-y-4 max-w-md">
             <p className="text-xs text-[#6F767E] dark:text-gray-400 flex items-start gap-2">
-              <ShieldCheck size={14} className="shrink-0 mt-0.5 text-aacp-olive" />
+              <ShieldCheck size={14} className="shrink-0 mt-0.5 text-primary-blue" />
               If you see “additional verification required”, switch to <strong>Reset via email</strong> above.
             </p>
             <div>
@@ -128,7 +128,7 @@ export default function AdminChangePasswordCard() {
             <button
               type="submit"
               disabled={!canChangePassword || loading}
-              className="px-6 py-3 bg-aacp-olive text-white rounded-2xl text-xs font-bold hover:bg-aacp-olive transition-all disabled:opacity-50 flex items-center gap-2"
+              className="px-6 py-3 bg-primary-blue text-white rounded-2xl text-xs font-bold hover:bg-primary-blue transition-all disabled:opacity-50 flex items-center gap-2"
             >
               {loading && <Loader2 size={14} className="animate-spin" />}
               Update password
@@ -146,7 +146,7 @@ export default function AdminChangePasswordCard() {
                 type="button"
                 onClick={sendEmailResetCode}
                 disabled={loading || !email}
-                className="px-6 py-3 bg-aacp-olive text-white rounded-2xl text-xs font-bold hover:bg-aacp-olive transition-all disabled:opacity-50 flex items-center gap-2"
+                className="px-6 py-3 bg-primary-blue text-white rounded-2xl text-xs font-bold hover:bg-primary-blue transition-all disabled:opacity-50 flex items-center gap-2"
               >
                 {loading && <Loader2 size={14} className="animate-spin" />}
                 Send verification code
@@ -197,7 +197,7 @@ export default function AdminChangePasswordCard() {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="px-6 py-3 bg-aacp-olive text-white rounded-2xl text-xs font-bold hover:bg-aacp-olive transition-all disabled:opacity-50 flex items-center gap-2"
+                    className="px-6 py-3 bg-primary-blue text-white rounded-2xl text-xs font-bold hover:bg-primary-blue transition-all disabled:opacity-50 flex items-center gap-2"
                   >
                     {loading && <Loader2 size={14} className="animate-spin" />}
                     Set new password

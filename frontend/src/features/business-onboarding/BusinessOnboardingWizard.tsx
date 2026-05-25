@@ -178,7 +178,7 @@ export default function BusinessOnboardingWizard({ isInsideDashboard, mode = 'on
   if (!hydrated) {
     return (
       <div className="min-h-[40vh] flex items-center justify-center">
-        <div className="w-10 h-10 border-2 border-aacp-olive/30 border-t-aacp-olive rounded-full animate-spin" />
+        <div className="w-10 h-10 border-2 border-primary-blue/30 border-t-primary-blue rounded-full animate-spin" />
       </div>
     );
   }
@@ -187,7 +187,7 @@ export default function BusinessOnboardingWizard({ isInsideDashboard, mode = 'on
     return (
       <div className="min-h-screen bg-[#fafaf8] dark:bg-[#0a0a0a] flex items-center justify-center px-4">
         <div className="bg-white dark:bg-[#111] rounded-3xl border p-10 max-w-md w-full text-center shadow-xl">
-          <CheckCircle2 size={48} className="text-aacp-olive mx-auto mb-4" />
+          <CheckCircle2 size={48} className="text-primary-blue mx-auto mb-4" />
           <h2 className="text-2xl font-black mb-2">Profile submitted</h2>
           <p className="text-sm text-gray-500 mb-6">Our team will review your business profile within 24–48 hours.</p>
           <button
@@ -196,7 +196,7 @@ export default function BusinessOnboardingWizard({ isInsideDashboard, mode = 'on
               setOnboardingStatus('pending');
               navigate('/dashboard');
             }}
-            className="w-full bg-aacp-olive text-black font-bold py-3 rounded-2xl"
+            className="w-full bg-primary-blue text-black font-bold py-3 rounded-2xl"
           >
             Continue
           </button>
@@ -210,7 +210,7 @@ export default function BusinessOnboardingWizard({ isInsideDashboard, mode = 'on
       {!isInsideDashboard && (
         <header className="text-center pt-8 pb-4 px-4 max-w-3xl mx-auto">
           <p className="text-sm font-bold text-gray-500 mb-1">AACP Business Onboarding</p>
-          <h1 className="text-3xl font-black text-aacp-olive">
+          <h1 className="text-3xl font-black text-primary-blue">
             {isEditMode ? 'Business profile' : 'AI-ready business profile'}
           </h1>
           <p className="text-sm text-gray-500 mt-2 max-w-lg mx-auto">
@@ -220,7 +220,7 @@ export default function BusinessOnboardingWizard({ isInsideDashboard, mode = 'on
       )}
 
       <div className="max-w-3xl mx-auto px-4 pb-32 space-y-6">
-        <div className="p-4 rounded-2xl bg-aacp-gold/15 dark:bg-aacp-olive/10 border border-aacp-gold/25 dark:border-aacp-olive/20 text-sm text-gray-700 dark:text-gray-300">
+        <div className="p-4 rounded-2xl bg-neutral-border/15 dark:bg-primary-blue/10 border border-neutral-border/25 dark:border-primary-blue/20 text-sm text-gray-700 dark:text-gray-300">
           <p className="font-bold text-emerald-800 dark:text-emerald-300 mb-1">Better data, better AI insights</p>
           <p>
             The more you complete your profile, the more accurate our campaign suggestions and performance
@@ -231,7 +231,7 @@ export default function BusinessOnboardingWizard({ isInsideDashboard, mode = 'on
         <CompletionProgress step={step} completion={completion} onStepClick={setStep} />
 
         <div className="flex items-center gap-2 text-xs text-gray-500">
-          <span className="font-bold text-aacp-olive">Step {step} of 8</span>
+          <span className="font-bold text-primary-blue">Step {step} of 8</span>
           <span>·</span>
           <span>{currentMeta.title}</span>
           <span className="text-gray-400">— {currentMeta.subtitle}</span>
@@ -248,7 +248,7 @@ export default function BusinessOnboardingWizard({ isInsideDashboard, mode = 'on
             {step === 1 && (
               <SectionCard icon={<Users size={20} />} title="Basic business info" description="Contact and legal details">
                 <div className="flex flex-col items-center mb-6">
-                  <label className="relative w-24 h-24 rounded-full overflow-hidden border-4 border-aacp-olive/20 cursor-pointer group">
+                  <label className="relative w-24 h-24 rounded-full overflow-hidden border-4 border-primary-blue/20 cursor-pointer group">
                     <img
                       src={
                         form.profilePicture ||
@@ -298,7 +298,7 @@ export default function BusinessOnboardingWizard({ isInsideDashboard, mode = 'on
                 </FormField>
                 <FormField label="Trade license" helper="Upload a clear photo or PDF of your business license." required error={errors.tradeLicenseUrl}>
                   {form.tradeLicenseUrl ? (
-                    <div className="flex flex-col items-center p-4 border border-aacp-gold/25 dark:border-aacp-olive/20 bg-aacp-gold/15/30 dark:bg-aacp-olive/5 rounded-2xl">
+                    <div className="flex flex-col items-center p-4 border border-neutral-border/25 dark:border-primary-blue/20 bg-neutral-border/15/30 dark:bg-primary-blue/5 rounded-2xl">
                       {form.tradeLicenseUrl.toLowerCase().endsWith('.pdf') ? (
                         <div className="flex items-center gap-3 mb-3">
                           <div className="w-12 h-12 bg-red-500/10 text-red-500 rounded-xl flex items-center justify-center font-bold text-xs">PDF</div>
@@ -308,7 +308,7 @@ export default function BusinessOnboardingWizard({ isInsideDashboard, mode = 'on
                               href={form.tradeLicenseUrl}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-xs text-aacp-olive hover:underline font-semibold"
+                              className="text-xs text-primary-blue hover:underline font-semibold"
                             >
                               View uploaded PDF
                             </a>
@@ -326,7 +326,7 @@ export default function BusinessOnboardingWizard({ isInsideDashboard, mode = 'on
                               href={form.tradeLicenseUrl}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-xs text-white bg-aacp-olive px-3 py-1.5 rounded-lg font-semibold hover:bg-aacp-olive transition-colors"
+                              className="text-xs text-white bg-primary-blue px-3 py-1.5 rounded-lg font-semibold hover:bg-primary-blue transition-colors"
                             >
                               Open Full Image
                             </a>
@@ -355,7 +355,7 @@ export default function BusinessOnboardingWizard({ isInsideDashboard, mode = 'on
                       </label>
                     </div>
                   ) : (
-                    <label className="flex flex-col items-center justify-center border-2 border-dashed border-gray-200 dark:border-white/10 rounded-2xl p-8 cursor-pointer hover:border-aacp-gold transition-colors w-full">
+                    <label className="flex flex-col items-center justify-center border-2 border-dashed border-gray-200 dark:border-white/10 rounded-2xl p-8 cursor-pointer hover:border-neutral-border transition-colors w-full">
                       <input
                         type="file"
                         accept="image/*,.pdf"
@@ -404,7 +404,7 @@ export default function BusinessOnboardingWizard({ isInsideDashboard, mode = 'on
                 <FormField label="Business tags" helper="Add keywords that describe your business (press Enter).">
                   <div className="flex flex-wrap gap-2 mb-2">
                     {form.businessTags.map((t) => (
-                      <span key={t} className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-aacp-olive/10 text-xs font-bold">
+                      <span key={t} className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-primary-blue/10 text-xs font-bold">
                         {t}
                         <button type="button" onClick={() => patch('businessTags', form.businessTags.filter((x) => x !== t))}>
                           <X size={12} />
@@ -628,9 +628,9 @@ export default function BusinessOnboardingWizard({ isInsideDashboard, mode = 'on
                     step={MONTHLY_BUDGET_STEP_ETB}
                     value={form.monthlyBudget}
                     onChange={(e) => patch('monthlyBudget', Number(e.target.value))}
-                    className="w-full accent-aacp-olive"
+                    className="w-full accent-primary-blue"
                   />
-                  <p className="text-sm font-black text-aacp-olive mt-1">{formatBirr(form.monthlyBudget)}</p>
+                  <p className="text-sm font-black text-primary-blue mt-1">{formatBirr(form.monthlyBudget)}</p>
                 </FormField>
                 <label className="flex items-center gap-2 text-sm font-medium">
                   <input type="checkbox" checked={form.hasRunAdsBefore} onChange={(e) => patch('hasRunAdsBefore', e.target.checked)} />
@@ -681,7 +681,7 @@ export default function BusinessOnboardingWizard({ isInsideDashboard, mode = 'on
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm mb-4">
                   <div className="p-3 rounded-xl bg-gray-50 dark:bg-white/5">
                     <p className="text-[10px] uppercase text-gray-500 font-bold">Completion</p>
-                    <p className="font-bold text-aacp-olive">{completion.percent}%</p>
+                    <p className="font-bold text-primary-blue">{completion.percent}%</p>
                   </div>
                   <div className="p-3 rounded-xl bg-gray-50 dark:bg-white/5">
                     <p className="text-[10px] uppercase text-gray-500 font-bold">AI readiness</p>
@@ -736,7 +736,7 @@ export default function BusinessOnboardingWizard({ isInsideDashboard, mode = 'on
             <Save size={16} /> {isSaving ? 'Saving…' : 'Save'}
           </button>
           {step < 8 ? (
-            <button type="button" onClick={goNext} className="px-6 py-2.5 rounded-xl bg-aacp-olive text-black font-bold text-sm flex items-center gap-1">
+            <button type="button" onClick={goNext} className="px-6 py-2.5 rounded-xl bg-primary-blue text-black font-bold text-sm flex items-center gap-1">
               Next <ArrowRight size={16} />
             </button>
           ) : (
@@ -744,7 +744,7 @@ export default function BusinessOnboardingWizard({ isInsideDashboard, mode = 'on
               type="button"
               onClick={handleSubmit}
               disabled={isSubmitting}
-              className="px-6 py-2.5 rounded-xl bg-aacp-olive text-black font-bold text-sm"
+              className="px-6 py-2.5 rounded-xl bg-primary-blue text-black font-bold text-sm"
             >
               {isSubmitting
                 ? 'Submitting…'

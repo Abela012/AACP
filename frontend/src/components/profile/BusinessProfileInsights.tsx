@@ -14,7 +14,7 @@ function Card({
   return (
     <section className="bg-white dark:bg-[#111] rounded-3xl border border-gray-100 dark:border-white/5 p-6 shadow-sm">
       <div className="flex items-center gap-2 mb-4">
-        <div className="w-9 h-9 rounded-xl bg-aacp-olive/10 text-aacp-olive flex items-center justify-center">
+        <div className="w-9 h-9 rounded-xl bg-primary-blue/10 text-primary-blue flex items-center justify-center">
           {icon}
         </div>
         <h3 className="font-bold text-gray-900 dark:text-white">{title}</h3>
@@ -44,7 +44,7 @@ export default function BusinessProfileInsights() {
         <div className="grid grid-cols-2 gap-4">
           <div>
             <p className="text-[10px] uppercase font-bold text-gray-500">Completion</p>
-            <p className="text-2xl font-black text-aacp-olive">{Number(pc.percent) || 0}%</p>
+            <p className="text-2xl font-black text-primary-blue">{Number(pc.percent) || 0}%</p>
           </div>
           <div>
             <p className="text-[10px] uppercase font-bold text-gray-500">AI readiness</p>
@@ -110,7 +110,7 @@ export default function BusinessProfileInsights() {
       <Card title="Audience summary" icon={<Users size={18} />}>
         <div className="flex flex-wrap gap-1.5 mb-2">
           {((ta.gender as string[]) || []).map((g) => (
-            <span key={g} className="px-2 py-0.5 rounded-full bg-aacp-olive/10 text-xs font-bold">
+            <span key={g} className="px-2 py-0.5 rounded-full bg-primary-blue/10 text-xs font-bold">
               {g}
             </span>
           ))}
@@ -144,7 +144,7 @@ export default function BusinessProfileInsights() {
         <div className="flex flex-wrap gap-1.5 mb-3">
           {goals.length ? (
             goals.map((g) => (
-              <span key={g} className="px-2 py-0.5 rounded-full bg-aacp-olive/10 text-xs font-bold">
+              <span key={g} className="px-2 py-0.5 rounded-full bg-primary-blue/10 text-xs font-bold">
                 {g}
               </span>
             ))

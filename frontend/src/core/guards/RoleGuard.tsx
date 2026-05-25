@@ -59,7 +59,7 @@ export default function RoleGuard({ children, allowedRoles }: RoleGuardProps) {
     if (!isLoaded || (needsRoleFetch && isMeLoading)) {
         return (
             <div className="flex flex-col items-center justify-center min-h-screen p-6 bg-gray-50">
-                <div className="w-12 h-12 border-4 border-aacp-olive border-t-transparent rounded-full animate-spin mb-4" />
+                <div className="w-12 h-12 border-4 border-primary-blue border-t-transparent rounded-full animate-spin mb-4" />
             </div>
         );
     }

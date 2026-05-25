@@ -178,7 +178,7 @@ export default function AdminUserDetailPage() {
                 )}
               </div>
               {(user.status === 'active' || user.role === 'admin' || user.role === 'super_admin') && (
-                <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-aacp-olive rounded-full border-4 border-white dark:border-[#111111] flex items-center justify-center">
+                <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-primary-blue rounded-full border-4 border-white dark:border-[#111111] flex items-center justify-center">
                   <CheckCircle2 size={14} className="text-white" />
                 </div>
               )}
@@ -190,7 +190,7 @@ export default function AdminUserDetailPage() {
                 <div className="flex gap-2">
                   <span className="text-[10px] font-black uppercase tracking-widest px-2 py-1 bg-gray-100 dark:bg-white/10 text-gray-500 rounded">{user.role.replace('_', ' ')}</span>
                   <span className={`text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded ${
-                    (user.role === 'admin' || user.role === 'super_admin' || user.status === 'active') ? 'bg-aacp-gold/25 dark:bg-aacp-olive/20 text-aacp-olive' :
+                    (user.role === 'admin' || user.role === 'super_admin' || user.status === 'active') ? 'bg-neutral-border/25 dark:bg-primary-blue/20 text-primary-blue' :
                     user.status === 'suspended' ? 'bg-red-100 dark:bg-red-500/20 text-red-600' :
                     'bg-amber-100 dark:bg-amber-500/20 text-amber-600'
                   }`}>
@@ -226,7 +226,7 @@ export default function AdminUserDetailPage() {
                 <>
                   <button 
                     onClick={handleEditPermissions}
-                    className="flex-1 bg-aacp-olive hover:bg-aacp-olive text-white rounded-[2.5rem] p-8 flex flex-col items-center justify-center gap-4 shadow-lg shadow-aacp-gold/25 dark:shadow-none transition-all group"
+                    className="flex-1 bg-primary-blue hover:bg-primary-blue text-white rounded-[2.5rem] p-8 flex flex-col items-center justify-center gap-4 shadow-lg shadow-neutral-border/25 dark:shadow-none transition-all group"
                   >
                     <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center">
                       <Settings2 size={24} />
@@ -237,7 +237,7 @@ export default function AdminUserDetailPage() {
                     onClick={handleResetPassword}
                     className="bg-[#F0F0FA] dark:bg-white/5 hover:bg-[#E5E5F5] dark:hover:bg-white/10 rounded-[2.5rem] flex flex-col items-center justify-center gap-2 transition-all p-4"
                   >
-                    <History size={20} className="text-aacp-olive" />
+                    <History size={20} className="text-primary-blue" />
                     <span className="text-xs font-bold text-[#1A1D1F] dark:text-white">Reset PW</span>
                   </button>
                 </>
@@ -248,10 +248,10 @@ export default function AdminUserDetailPage() {
                   <button 
                     onClick={() => handleStatusChange('active')}
                     disabled={updateStatus.isPending}
-                    className="bg-aacp-gold/15 dark:bg-aacp-olive/10 hover:bg-aacp-gold/25 dark:hover:bg-aacp-olive/20 rounded-[2.5rem] flex flex-col items-center justify-center gap-2 transition-all p-4 border border-aacp-gold/25 dark:border-aacp-olive/20 disabled:opacity-50"
+                    className="bg-neutral-border/15 dark:bg-primary-blue/10 hover:bg-neutral-border/25 dark:hover:bg-primary-blue/20 rounded-[2.5rem] flex flex-col items-center justify-center gap-2 transition-all p-4 border border-neutral-border/25 dark:border-primary-blue/20 disabled:opacity-50"
                   >
-                    <CheckCircle2 size={20} className="text-aacp-olive" />
-                    <span className="text-xs font-bold text-aacp-olive">Approve</span>
+                    <CheckCircle2 size={20} className="text-primary-blue" />
+                    <span className="text-xs font-bold text-primary-blue">Approve</span>
                   </button>
                 ) : (user.status === 'active' || user.status === 'approved') && hasPendingChanges ? (
                     <button 
@@ -266,10 +266,10 @@ export default function AdminUserDetailPage() {
                   <button 
                     onClick={() => handleStatusChange('active')}
                     disabled={updateStatus.isPending}
-                    className="bg-aacp-gold/15 dark:bg-aacp-olive/10 hover:bg-aacp-gold/25 dark:hover:bg-aacp-olive/20 rounded-[2.5rem] flex flex-col items-center justify-center gap-2 transition-all p-4 border border-aacp-gold/25 dark:border-aacp-olive/20 disabled:opacity-50"
+                    className="bg-neutral-border/15 dark:bg-primary-blue/10 hover:bg-neutral-border/25 dark:hover:bg-primary-blue/20 rounded-[2.5rem] flex flex-col items-center justify-center gap-2 transition-all p-4 border border-neutral-border/25 dark:border-primary-blue/20 disabled:opacity-50"
                   >
-                    <ShieldCheck size={20} className="text-aacp-olive" />
-                    <span className="text-xs font-bold text-aacp-olive">Reinstate</span>
+                    <ShieldCheck size={20} className="text-primary-blue" />
+                    <span className="text-xs font-bold text-primary-blue">Reinstate</span>
                   </button>
                 ) : (
                   <button 
@@ -340,7 +340,7 @@ export default function AdminUserDetailPage() {
                   </div>
                   <div className="space-y-1">
                     <label className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest block">Monthly Budget</label>
-                    <p className="text-sm font-bold text-aacp-olive">${displayProfileData?.monthlyBudget || '0'}</p>
+                    <p className="text-sm font-bold text-primary-blue">${displayProfileData?.monthlyBudget || '0'}</p>
                   </div>
                   <div className="lg:col-span-3">
                     <label className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest block mb-2">Services Offered</label>
@@ -355,7 +355,7 @@ export default function AdminUserDetailPage() {
                         </span>
                       ))}
                       {displayProfileData?.promotionGoals?.map((tag: string, i: number) => (
-                        <span key={`pg-${i}`} className="px-3 py-1 bg-aacp-gold/15 dark:bg-aacp-olive/10 text-aacp-olive rounded-lg text-[10px] font-bold border border-aacp-gold/25 dark:border-aacp-olive/20">
+                        <span key={`pg-${i}`} className="px-3 py-1 bg-neutral-border/15 dark:bg-primary-blue/10 text-primary-blue rounded-lg text-[10px] font-bold border border-neutral-border/25 dark:border-primary-blue/20">
                           {tag}
                         </span>
                       ))}
@@ -378,14 +378,14 @@ export default function AdminUserDetailPage() {
                   </div>
                   <div className="space-y-1">
                     <label className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest block">Base Rate</label>
-                    <p className="text-sm font-bold text-aacp-olive">${displayProfileData?.baseRate || '0'}</p>
+                    <p className="text-sm font-bold text-primary-blue">${displayProfileData?.baseRate || '0'}</p>
                   </div>
                   <div className="space-y-1">
                     <label className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest block">Social Handles</label>
                     <p className="text-sm font-bold text-gray-700 dark:text-gray-300">
                       {displayProfileData?.youtubeHandle && <span className="text-red-500 mr-2">YT: {displayProfileData?.youtubeHandle}</span>}
                       {displayProfileData?.tiktokHandle && <span className="text-pink-500 mr-2">TT: {displayProfileData?.tiktokHandle}</span>}
-                      {displayProfileData?.instagramHandle && <span className="text-purple-500 mr-2">IG: {displayProfileData?.instagramHandle}</span>}
+                      {displayProfileData?.instagramHandle && <span className="text-primary-blue mr-2">IG: {displayProfileData?.instagramHandle}</span>}
                       {displayProfileData?.xHandle && <span className="text-blue-400 mr-2">X: {displayProfileData?.xHandle}</span>}
                       {displayProfileData?.facebookHandle && <span className="text-blue-600">FB: {displayProfileData?.facebookHandle}</span>}
                     </p>
@@ -400,7 +400,7 @@ export default function AdminUserDetailPage() {
                     <label className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest block mb-2">Niches / Categories</label>
                     <div className="flex flex-wrap gap-2">
                       {displayProfileData?.niches?.map((niche: string, i: number) => (
-                        <span key={i} className="px-3 py-1 bg-aacp-gold/15 dark:bg-aacp-olive/10 text-aacp-olive rounded-lg text-[10px] font-bold border border-aacp-gold/25 dark:border-aacp-olive/20">
+                        <span key={i} className="px-3 py-1 bg-neutral-border/15 dark:bg-primary-blue/10 text-primary-blue rounded-lg text-[10px] font-bold border border-neutral-border/25 dark:border-primary-blue/20">
                           {niche}
                         </span>
                       )) || <span className="text-xs text-gray-400">None</span>}
@@ -572,7 +572,7 @@ export default function AdminUserDetailPage() {
               <div className="flex justify-between items-center mb-8">
                 <h3 className="font-extrabold text-xl">Verification Documents</h3>
                 <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${
-                  user.isVerified ? 'bg-aacp-gold/15 dark:bg-aacp-olive/10 text-aacp-olive' : 'bg-amber-50 dark:bg-amber-500/10 text-amber-600'
+                  user.isVerified ? 'bg-neutral-border/15 dark:bg-primary-blue/10 text-primary-blue' : 'bg-amber-50 dark:bg-amber-500/10 text-amber-600'
                 }`}>
                   {user.isVerified ? 'KYC Verified' : 'Pending Verification'}
                 </span>
@@ -588,7 +588,7 @@ export default function AdminUserDetailPage() {
                         href={tradeLicenseUrl} 
                         target="_blank" 
                         rel="noopener noreferrer"
-                        className="text-[10px] font-black text-aacp-olive uppercase tracking-widest hover:underline flex items-center gap-1"
+                        className="text-[10px] font-black text-primary-blue uppercase tracking-widest hover:underline flex items-center gap-1"
                       >
                         <Download size={12} /> Download
                       </a>
@@ -603,7 +603,7 @@ export default function AdminUserDetailPage() {
                           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                         />
                         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                          <a href={tradeLicenseUrl} target="_blank" rel="noopener noreferrer" className="p-4 bg-white rounded-2xl text-black hover:bg-aacp-olive hover:text-white transition-all shadow-xl">
+                          <a href={tradeLicenseUrl} target="_blank" rel="noopener noreferrer" className="p-4 bg-white rounded-2xl text-black hover:bg-primary-blue hover:text-white transition-all shadow-xl">
                             <Eye size={24} />
                           </a>
                         </div>
@@ -628,7 +628,7 @@ export default function AdminUserDetailPage() {
                         href={user.idVerificationUrl} 
                         target="_blank" 
                         rel="noopener noreferrer"
-                        className="text-[10px] font-black text-aacp-olive uppercase tracking-widest hover:underline flex items-center gap-1"
+                        className="text-[10px] font-black text-primary-blue uppercase tracking-widest hover:underline flex items-center gap-1"
                       >
                         <Download size={12} /> Download
                       </a>
@@ -643,7 +643,7 @@ export default function AdminUserDetailPage() {
                           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                         />
                         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                          <a href={user.idVerificationUrl} target="_blank" rel="noopener noreferrer" className="p-4 bg-white rounded-2xl text-black hover:bg-aacp-olive hover:text-white transition-all shadow-xl">
+                          <a href={user.idVerificationUrl} target="_blank" rel="noopener noreferrer" className="p-4 bg-white rounded-2xl text-black hover:bg-primary-blue hover:text-white transition-all shadow-xl">
                             <Eye size={24} />
                           </a>
                         </div>
@@ -669,7 +669,7 @@ export default function AdminUserDetailPage() {
           <div className="bg-white dark:bg-[#111111] p-8 rounded-[3rem] border border-[#EFEFEF] dark:border-white/5 shadow-sm">
             <div className="flex justify-between items-center mb-10">
               <h3 className="font-extrabold text-lg">Wallet & Earnings</h3>
-              <div className="w-10 h-10 bg-aacp-gold/25 dark:bg-aacp-olive/20 rounded-xl flex items-center justify-center text-aacp-olive">
+              <div className="w-10 h-10 bg-neutral-border/25 dark:bg-primary-blue/20 rounded-xl flex items-center justify-center text-primary-blue">
                 <Coins size={18} />
               </div>
             </div>
@@ -678,7 +678,7 @@ export default function AdminUserDetailPage() {
               <p className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest mb-2">Available Coins</p>
               <div className="flex items-center justify-center gap-2">
                 <span className="text-4xl font-black">{user.wallet?.availableCoins?.toLocaleString() || '0'}</span>
-                <span className="text-sm font-bold text-aacp-olive uppercase">AACP</span>
+                <span className="text-sm font-bold text-primary-blue uppercase">AACP</span>
               </div>
             </div>
 
@@ -709,14 +709,14 @@ export default function AdminUserDetailPage() {
 
             <div className="bg-[#F8F8FD] dark:bg-white/5 p-4 rounded-2xl flex items-center justify-between mb-10">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-aacp-gold/25 dark:bg-aacp-olive/20 rounded-lg flex items-center justify-center text-aacp-olive">
+                <div className="w-8 h-8 bg-neutral-border/25 dark:bg-primary-blue/20 rounded-lg flex items-center justify-center text-primary-blue">
                   <Zap size={14} fill="currentColor" />
                 </div>
                 <span className="text-xs font-bold">Campaign Success</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="h-1.5 w-24 bg-gray-200 dark:bg-white/10 rounded-full overflow-hidden">
-                  <div className="h-full bg-aacp-olive w-[94%]" />
+                  <div className="h-full bg-primary-blue w-[94%]" />
                 </div>
                 <span className="text-xs font-black">94%</span>
               </div>
@@ -733,8 +733,8 @@ export default function AdminUserDetailPage() {
               </div>
             </div>
 
-            <div className="flex items-center justify-center gap-2 text-aacp-olive">
-              <CheckCircle2 size={16} fill="currentColor" className="text-aacp-olive" />
+            <div className="flex items-center justify-center gap-2 text-primary-blue">
+              <CheckCircle2 size={16} fill="currentColor" className="text-primary-blue" />
               <span className="text-[10px] font-black uppercase tracking-widest">KYC Verification Complete</span>
             </div>
           </div>
@@ -752,7 +752,7 @@ export default function AdminUserDetailPage() {
               {user.logs && user.logs.length > 0 ? (
                 user.logs.map((log: any, i: number) => (
                   <div key={i} className="flex gap-4">
-                    <div className={`w-2 h-2 rounded-full ${i % 2 === 0 ? 'bg-aacp-olive' : 'bg-blue-500'} mt-1.5 shrink-0`} />
+                    <div className={`w-2 h-2 rounded-full ${i % 2 === 0 ? 'bg-primary-blue' : 'bg-blue-500'} mt-1.5 shrink-0`} />
                     <div>
                       <p className="text-sm font-bold leading-tight mb-0.5">{log.message}</p>
                       <p className="text-[10px] font-medium text-[#9A9FA5]">
@@ -766,7 +766,7 @@ export default function AdminUserDetailPage() {
               )}
             </div>
 
-            <button className="w-full py-2 text-aacp-olive font-bold text-xs uppercase tracking-widest hover:underline">
+            <button className="w-full py-2 text-primary-blue font-bold text-xs uppercase tracking-widest hover:underline">
               Full Activity Audit
             </button>
           </div>
@@ -805,7 +805,7 @@ export default function AdminUserDetailPage() {
                       <td className="py-6 px-4">
                         <div className="flex items-center gap-2">
                           <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0`}>
-                             <ChevronRight size={10} className={tx.type === 'credit' ? 'text-aacp-olive' : 'text-red-500'} />
+                             <ChevronRight size={10} className={tx.type === 'credit' ? 'text-primary-blue' : 'text-red-500'} />
                           </div>
                           <span className="text-xs font-bold">{tx.type === 'credit' ? 'Deposit' : 'Withdrawal'}</span>
                         </div>
@@ -816,7 +816,7 @@ export default function AdminUserDetailPage() {
                       </td>
                       <td className="py-6 px-4">
                         <span className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest ${
-                          tx.status === 'completed' ? 'bg-aacp-gold/25 dark:bg-aacp-olive/20 text-aacp-olive' :
+                          tx.status === 'completed' ? 'bg-neutral-border/25 dark:bg-primary-blue/20 text-primary-blue' :
                           tx.status === 'pending' ? 'bg-amber-100 dark:bg-amber-500/20 text-amber-600' :
                           'bg-red-100 dark:bg-red-500/20 text-red-600'
                         }`}>
@@ -824,7 +824,7 @@ export default function AdminUserDetailPage() {
                         </span>
                       </td>
                       <td className="py-6 px-4 text-right">
-                        <button className="p-2 hover:bg-white dark:hover:bg-white/10 rounded-xl transition-all text-[#9A9FA5] group-hover:text-aacp-olive">
+                        <button className="p-2 hover:bg-white dark:hover:bg-white/10 rounded-xl transition-all text-[#9A9FA5] group-hover:text-primary-blue">
                           <Eye size={18} />
                         </button>
                       </td>
@@ -854,7 +854,7 @@ export default function AdminUserDetailPage() {
             exit={{ opacity: 0, scale: 0.9 }}
             className={`fixed bottom-8 left-1/2 -translate-x-1/2 z-50 px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3 border ${
               toast.type === 'success' 
-                ? 'bg-aacp-olive text-white border-aacp-gold' 
+                ? 'bg-primary-blue text-white border-neutral-border' 
                 : 'bg-red-500 text-white border-red-400'
             }`}
           >

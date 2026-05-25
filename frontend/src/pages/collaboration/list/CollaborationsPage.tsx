@@ -95,7 +95,7 @@ function ConfirmModal({
             className="relative w-full max-w-md bg-white dark:bg-[#111] rounded-3xl border border-gray-100 dark:border-white/10 shadow-2xl overflow-hidden"
           >
             {/* Decorative top gradient */}
-            <div className="h-1.5 bg-gradient-to-r from-aacp-olive via-amber-400 to-aacp-olive" />
+            <div className="h-1.5 bg-gradient-to-r from-primary-blue via-amber-400 to-primary-blue" />
 
             <div className="p-8 text-center">
               {/* Icon */}
@@ -116,20 +116,20 @@ function ConfirmModal({
               {/* Info box */}
               <div className="mt-5 p-4 rounded-2xl bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/5 text-left">
                 <p className="text-xs font-bold text-gray-500 dark:text-gray-400 flex items-center gap-2">
-                  <ShieldCheck size={14} className="text-aacp-olive" />
+                  <ShieldCheck size={14} className="text-primary-blue" />
                   What happens next:
                 </p>
                 <ul className="mt-2 space-y-1.5 text-xs text-gray-500 dark:text-gray-400 font-medium">
                   <li className="flex items-start gap-2">
-                    <CheckCircle2 size={12} className="text-aacp-olive mt-0.5 shrink-0" />
+                    <CheckCircle2 size={12} className="text-primary-blue mt-0.5 shrink-0" />
                     The project status will change to "Completed"
                   </li>
                   <li className="flex items-start gap-2">
-                    <CheckCircle2 size={12} className="text-aacp-olive mt-0.5 shrink-0" />
+                    <CheckCircle2 size={12} className="text-primary-blue mt-0.5 shrink-0" />
                     You'll be prompted to rate your experience
                   </li>
                   <li className="flex items-start gap-2">
-                    <CheckCircle2 size={12} className="text-aacp-olive mt-0.5 shrink-0" />
+                    <CheckCircle2 size={12} className="text-primary-blue mt-0.5 shrink-0" />
                     Payment will be released to the collaborator
                   </li>
                 </ul>
@@ -147,7 +147,7 @@ function ConfirmModal({
                 <button
                   onClick={onConfirm}
                   disabled={isLoading}
-                  className="flex-1 h-12 rounded-xl bg-aacp-olive text-white font-black text-sm hover:brightness-110 transition-all shadow-lg shadow-aacp-olive/20 flex items-center justify-center gap-2 disabled:opacity-50"
+                  className="flex-1 h-12 rounded-xl bg-primary-blue text-white font-black text-sm hover:brightness-110 transition-all shadow-lg shadow-primary-blue/20 flex items-center justify-center gap-2 disabled:opacity-50"
                 >
                   {isLoading ? (
                     <>
@@ -260,7 +260,7 @@ export default function CollaborationsPage() {
               placeholder="Search collaborations..." 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 rounded-xl border border-gray-100 dark:border-white/10 bg-white dark:bg-white/5 focus:border-aacp-olive dark:focus:border-aacp-olive outline-none text-sm dark:text-white"
+              className="w-full pl-10 pr-4 py-2 rounded-xl border border-gray-100 dark:border-white/10 bg-white dark:bg-white/5 focus:border-primary-blue dark:focus:border-primary-blue outline-none text-sm dark:text-white"
             />
           </div>
           <div className="flex gap-3">
@@ -282,7 +282,7 @@ export default function CollaborationsPage() {
         <div className="grid grid-cols-1 gap-6">
           {isLoading ? (
             <div className="py-20 flex flex-col items-center justify-center gap-4">
-              <Loader2 size={40} className="animate-spin text-aacp-olive" />
+              <Loader2 size={40} className="animate-spin text-primary-blue" />
               <p className="text-gray-500 font-bold">Loading your collaborations...</p>
             </div>
           ) : filteredCollaborations.length > 0 ? (
@@ -303,18 +303,18 @@ export default function CollaborationsPage() {
                       <div className="flex items-center gap-4 mb-6">
                         <div className={cn(
                           "w-12 h-12 rounded-2xl flex items-center justify-center text-white font-black",
-                          c.status === 'active' ? "bg-aacp-olive" : "bg-gray-400"
+                          c.status === 'active' ? "bg-primary-blue" : "bg-gray-400"
                         )}>
                           {c.opportunity?.title?.[0]?.toUpperCase() || 'P'}
                         </div>
                         <div>
-                          <h3 className="text-lg font-black text-gray-900 dark:text-white group-hover:text-aacp-olive transition-colors">
+                          <h3 className="text-lg font-black text-gray-900 dark:text-white group-hover:text-primary-blue transition-colors">
                             {c.opportunity?.title || 'Project Collaboration'}
                           </h3>
                           <div className="flex items-center gap-3 mt-1">
                             <span className={cn(
                               "text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded",
-                              c.status === 'active' ? "bg-aacp-olive/10 text-aacp-olive" : 
+                              c.status === 'active' ? "bg-primary-blue/10 text-primary-blue" : 
                               c.status === 'completed' ? "bg-blue-500/10 text-blue-600" :
                               "bg-gray-100 text-gray-500"
                             )}>
@@ -353,7 +353,7 @@ export default function CollaborationsPage() {
                           <div className="flex items-center gap-3">
                             <div className="flex-1 h-1.5 bg-gray-100 dark:bg-white/10 rounded-full overflow-hidden">
                               <div 
-                                className="h-full bg-aacp-olive rounded-full transition-all duration-500" 
+                                className="h-full bg-primary-blue rounded-full transition-all duration-500" 
                                 style={{ width: `${c.status === 'completed' ? 100 : (c.overallProgress || 0)}%` }}
                               />
                             </div>
@@ -367,7 +367,7 @@ export default function CollaborationsPage() {
                       {c.status === 'active' && userRole === 'business_owner' && (
                         <button 
                           onClick={(e) => { e.stopPropagation(); handleCompleteClick(c._id, partnerName, partner?._id, c.opportunity?._id); }}
-                          className="w-full h-12 bg-aacp-olive text-white font-black rounded-xl hover:bg-aacp-olive transition-all shadow-lg shadow-aacp-olive/20 flex items-center justify-center gap-2"
+                          className="w-full h-12 bg-primary-blue text-white font-black rounded-xl hover:bg-primary-blue transition-all shadow-lg shadow-primary-blue/20 flex items-center justify-center gap-2"
                         >
                           <CheckCircle2 size={18} /> Complete Project
                         </button>

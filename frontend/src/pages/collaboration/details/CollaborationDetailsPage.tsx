@@ -85,7 +85,7 @@ export default function CollaborationDetailsPage() {
     return (
       <Layout>
         <div className="flex items-center justify-center min-h-[60vh]">
-          <div className="w-12 h-12 border-4 border-aacp-olive/30 border-t-aacp-olive rounded-full animate-spin" />
+          <div className="w-12 h-12 border-4 border-primary-blue/30 border-t-primary-blue rounded-full animate-spin" />
         </div>
       </Layout>
     );
@@ -128,7 +128,7 @@ export default function CollaborationDetailsPage() {
         <div className="mb-8">
            <button 
             onClick={() => navigate(-1)}
-            className="flex items-center gap-2 text-xs font-black text-gray-400 uppercase tracking-widest hover:text-aacp-olive transition-all"
+            className="flex items-center gap-2 text-xs font-black text-gray-400 uppercase tracking-widest hover:text-primary-blue transition-all"
            >
              <ArrowLeft size={14} /> Back to My Campaigns
            </button>
@@ -177,7 +177,7 @@ export default function CollaborationDetailsPage() {
                     <section className="bg-white dark:bg-[#0a0a0a] rounded-[2.5rem] border border-gray-100 dark:border-white/5 p-8 shadow-sm">
                       <div className="flex items-center justify-between mb-8">
                         <h3 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                          <Info className="text-aacp-olive" size={20} />
+                          <Info className="text-primary-blue" size={20} />
                           Campaign Brief
                         </h3>
                         <div className="flex -space-x-2">
@@ -214,7 +214,7 @@ export default function CollaborationDetailsPage() {
 
                     {/* Partner Card */}
                     <section className="bg-gray-900 text-white rounded-[2.5rem] p-8 shadow-xl relative overflow-hidden group">
-                       <div className="absolute top-0 right-0 w-64 h-64 bg-aacp-olive/10 rounded-full blur-3xl group-hover:bg-aacp-olive/20 transition-all" />
+                       <div className="absolute top-0 right-0 w-64 h-64 bg-primary-blue/10 rounded-full blur-3xl group-hover:bg-primary-blue/20 transition-all" />
                        <div className="relative z-10 flex flex-col sm:flex-row items-center gap-8">
                           <div className="w-24 h-24 rounded-3xl bg-white/10 p-1 shrink-0 overflow-hidden">
                              <img 
@@ -228,7 +228,7 @@ export default function CollaborationDetailsPage() {
                              <p className="text-sm font-medium text-white/50 mb-4">{userRole === 'business_owner' ? 'Professional Content Creator' : 'Brand Marketing Manager'}</p>
                              <div className="flex flex-wrap justify-center sm:justify-start gap-4">
                                 <button onClick={() => navigate(`/profile/${partner._id}`)} className="px-5 py-2 bg-white/10 hover:bg-white/20 text-xs font-bold rounded-xl transition-all border border-white/5">View Profile</button>
-                                <button onClick={() => setActiveTab('chat')} className="px-5 py-2 bg-aacp-olive hover:bg-aacp-olive text-xs font-bold rounded-xl transition-all shadow-lg shadow-aacp-olive/20">Send Message</button>
+                                <button onClick={() => setActiveTab('chat')} className="px-5 py-2 bg-primary-blue hover:bg-primary-blue text-xs font-bold rounded-xl transition-all shadow-lg shadow-primary-blue/20">Send Message</button>
                              </div>
                           </div>
                        </div>

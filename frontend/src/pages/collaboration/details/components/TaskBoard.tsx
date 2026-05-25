@@ -45,7 +45,7 @@ export const TaskBoard: React.FC<TaskBoardProps> = ({ tasks, userRole, onAddTask
 
   const getStatusIcon = (s: string) => {
     switch (s) {
-      case 'approved': return <CheckCircle2 className="text-aacp-olive" size={18} />;
+      case 'approved': return <CheckCircle2 className="text-primary-blue" size={18} />;
       case 'submitted': return <Clock className="text-blue-500" size={18} />;
       case 'in_progress': return <Clock className="text-amber-500" size={18} />;
       default: return <Clock className="text-gray-300" size={18} />;
@@ -62,7 +62,7 @@ export const TaskBoard: React.FC<TaskBoardProps> = ({ tasks, userRole, onAddTask
         {userRole === 'business_owner' && (
           <button 
             onClick={() => setIsAddingTask(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-aacp-olive text-white rounded-xl font-bold hover:bg-aacp-olive transition-all shadow-lg shadow-aacp-olive/20"
+            className="flex items-center gap-2 px-4 py-2 bg-primary-blue text-white rounded-xl font-bold hover:bg-primary-blue transition-all shadow-lg shadow-primary-blue/20"
           >
             <Plus size={18} />
             Create Task
@@ -91,14 +91,14 @@ export const TaskBoard: React.FC<TaskBoardProps> = ({ tasks, userRole, onAddTask
               key={task._id || task.id || `task-${index}`}
               className={cn(
                 "group bg-white dark:bg-[#0a0a0a] border rounded-3xl p-5 transition-all hover:shadow-xl hover:shadow-gray-100 dark:hover:shadow-none",
-                task.status === 'approved' ? "border-aacp-gold/25 dark:border-aacp-olive/10" : "border-gray-100 dark:border-white/5"
+                task.status === 'approved' ? "border-neutral-border/25 dark:border-primary-blue/10" : "border-gray-100 dark:border-white/5"
               )}
             >
               <div className="flex items-start justify-between gap-4">
                 <div className="flex items-start gap-4">
                   <div className={cn(
                     "mt-1 w-10 h-10 rounded-xl flex items-center justify-center shrink-0",
-                    task.status === 'approved' ? "bg-aacp-gold/15 dark:bg-aacp-olive/10" : "bg-gray-50 dark:bg-white/5"
+                    task.status === 'approved' ? "bg-neutral-border/15 dark:bg-primary-blue/10" : "bg-gray-50 dark:bg-white/5"
                   )}>
                     {getStatusIcon(task.status)}
                   </div>
@@ -121,7 +121,7 @@ export const TaskBoard: React.FC<TaskBoardProps> = ({ tasks, userRole, onAddTask
                       </span>
                       <span className={cn(
                         "text-[10px] font-bold flex items-center gap-1 px-2 py-0.5 rounded-full capitalize",
-                        task.status === 'approved' ? "bg-aacp-olive/10 text-aacp-olive" :
+                        task.status === 'approved' ? "bg-primary-blue/10 text-primary-blue" :
                         task.status === 'submitted' ? "bg-blue-500/10 text-blue-600" :
                         task.status === 'in_progress' ? "bg-amber-500/10 text-amber-600" :
                         "bg-gray-100 text-gray-500"
@@ -152,7 +152,7 @@ export const TaskBoard: React.FC<TaskBoardProps> = ({ tasks, userRole, onAddTask
                   {userRole === 'business_owner' && task.status === 'submitted' && (
                     <button 
                       onClick={() => onUpdateStatus((task._id || task.id)!, 'approved')}
-                      className="px-3 py-1.5 bg-aacp-olive text-white text-[10px] font-black rounded-lg uppercase"
+                      className="px-3 py-1.5 bg-primary-blue text-white text-[10px] font-black rounded-lg uppercase"
                     >
                       Approve
                     </button>
@@ -184,7 +184,7 @@ export const TaskBoard: React.FC<TaskBoardProps> = ({ tasks, userRole, onAddTask
                   <input 
                     type="text" 
                     placeholder="e.g. Upload TikTok Draft"
-                    className="w-full bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-aacp-olive"
+                    className="w-full bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary-blue"
                     value={newTask.title}
                     onChange={(e) => setNewTask({...newTask, title: e.target.value})}
                   />
@@ -194,7 +194,7 @@ export const TaskBoard: React.FC<TaskBoardProps> = ({ tasks, userRole, onAddTask
                   <textarea 
                     rows={3}
                     placeholder="Explain what needs to be done..."
-                    className="w-full bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-aacp-olive"
+                    className="w-full bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary-blue"
                     value={newTask.description}
                     onChange={(e) => setNewTask({...newTask, description: e.target.value})}
                   />
@@ -203,7 +203,7 @@ export const TaskBoard: React.FC<TaskBoardProps> = ({ tasks, userRole, onAddTask
                    <div>
                     <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 block px-1">Priority</label>
                     <select 
-                      className="w-full bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-aacp-olive"
+                      className="w-full bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary-blue"
                       value={newTask.priority}
                       onChange={(e) => setNewTask({...newTask, priority: e.target.value as any})}
                     >
@@ -218,7 +218,7 @@ export const TaskBoard: React.FC<TaskBoardProps> = ({ tasks, userRole, onAddTask
                     <input 
                       type="date" 
                       min={new Date().toISOString().split('T')[0]}
-                      className="w-full bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-aacp-olive"
+                      className="w-full bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary-blue"
                       value={newTask.dueDate}
                       onChange={(e) => setNewTask({...newTask, dueDate: e.target.value})}
                     />
@@ -238,7 +238,7 @@ export const TaskBoard: React.FC<TaskBoardProps> = ({ tasks, userRole, onAddTask
                       setNewTask({ title: '', description: '', priority: 'medium', dueDate: '' });
                     }}
                     disabled={!newTask.title}
-                    className="flex-1 py-3 bg-aacp-olive text-white font-bold rounded-xl hover:bg-aacp-olive shadow-lg shadow-aacp-olive/20 disabled:opacity-50"
+                    className="flex-1 py-3 bg-primary-blue text-white font-bold rounded-xl hover:bg-primary-blue shadow-lg shadow-primary-blue/20 disabled:opacity-50"
                   >
                     Save Task
                   </button>
