@@ -184,6 +184,9 @@ export const verifyTikTokCode = async (req: Request, res: Response) => {
             }
 
             userData = items[0] as any;
+            if (userData.error) {
+                return res.status(400).json({ success: false, message: `TikTok profile error: ${userData.error}` });
+            }
             console.log('[TikTokAuth] Raw Apify Data keys:', Object.keys(userData));
             console.log('[TikTokAuth] Raw Apify authorMeta:', JSON.stringify(userData?.authorMeta || {}));
             

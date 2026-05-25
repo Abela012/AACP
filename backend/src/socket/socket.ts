@@ -74,9 +74,8 @@ export const initSocket = (httpServer: HttpServer): SocketServer => {
 
             // Store clerkId on socket — we will fetch the full user from DB when messages are sent
             (socket as any).clerkId = clerkId;
-            (socket as any).token = token;
-            
-            logger.info(`Socket handshake successful for clerkId: ${clerkId}`);
+            // (socket as any).token = token;
+            // Removed handshake successful info log to reduce spam
             return next();
         } catch (err: any) {
             logger.error(`Socket Auth Exception: ${err.message}`);
@@ -90,8 +89,9 @@ export const initSocket = (httpServer: HttpServer): SocketServer => {
         // Resolve user from DB once at connection start (outside of handshake to prevent timeouts)
         const user = await User.findOne({ clerkId }).select('_id clerkId firstName lastName profilePicture role');
         if (!user) {
-            logger.warn(`User not found for clerkId: ${clerkId}. Disconnecting socket.`);
-            socket.disconnect();
+            // Log as debug and don't disconnect to prevent infinite reconnect loops from the client
+            logger.debug(`Socket connected but user not synced yet for clerkId: ${clerkId}`);
+            socket.emit('auth:error', { code: 'USER_NOT_SYNCED', message: 'User not synced to database yet' });
             return;
         }
 

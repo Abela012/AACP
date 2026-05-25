@@ -143,3 +143,5 @@ process.on('SIGTERM', async () => {
 });
 
 export default app;
+// Trigger nodemon restart
+// Trigger nodemon restart
