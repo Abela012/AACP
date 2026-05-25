@@ -55,6 +55,8 @@ export interface ProfileData {
   facebookConnected?: boolean;
   socialProfiles?: any[];
   connectedAccounts?: any;
+  averageRating?: number;
+  totalReviews?: number;
 }
 
 interface ProfileContextType {
@@ -75,6 +77,8 @@ const EMPTY_PROFILE: ProfileData = {
   avatarUrl: '',
   coverImageUrl: '',
   phone: '',
+  averageRating: 0,
+  totalReviews: 0,
 };
 
 const ProfileContext = createContext<ProfileContextType | undefined>(undefined);
@@ -275,6 +279,9 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
           engagementRate: maxER ? parseFloat(maxER.toFixed(2)) : (pd.engagementRate || ppd.engagementRate || 0),
           // Pass connectedAccounts through so downstream components (EditProfilePage) can read raw metrics
           connectedAccounts: userData.connectedAccounts || {},
+          // Rating data from reviews
+          averageRating: userData.averageRating || 0,
+          totalReviews: userData.totalReviews || 0,
         };
 
         // Sync special mappings

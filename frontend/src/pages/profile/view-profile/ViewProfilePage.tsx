@@ -127,6 +127,8 @@ export default function ViewProfilePage() {
       ...(pud.profilePicture ? { avatarUrl: pud.profilePicture } : {}),
       ...(pud.coverImage ? { coverImageUrl: pud.coverImage, coverImage: pud.coverImage } : {}),
       connectedAccounts: ca,
+      averageRating: raw.averageRating || 0,
+      totalReviews: raw.totalReviews || 0,
     };
   };
 
@@ -166,8 +168,8 @@ export default function ViewProfilePage() {
     type: isTargetProfileBusiness ? profile.industry || 'Business' : 'Premium Content Creator',
     bio: profile.bio || 'No bio provided yet.',
     established: '2024',
-    rating: '5.0',
-    reviews: isTargetProfileBusiness ? 0 : 0,
+    rating: profile.averageRating ? profile.averageRating.toFixed(1) : '0.0',
+    reviews: profile.totalReviews || 0,
     location: profile.businessLocation || profile.location || (isTargetProfileBusiness ? 'Not Set' : (profile.geoTags?.[0] || 'Global')),
     website: profile.website || 'No website',
     email: profile.email,
@@ -230,23 +232,26 @@ export default function ViewProfilePage() {
     const computeER = (metrics: any) => {
       const stored = computeNum(metrics.engagementRate);
       if (stored > 0 && stored <= 100) return stored;
+      
+      const v = computeNum(metrics.avgViews);
       const f = computeNum(metrics.followers);
-      if (f <= 0) return 0;
-      const likes = computeNum(metrics.totalLikes) || computeNum(metrics.avgLikes);
+      const denominator = v > 0 ? v : (f > 0 ? f : 1);
+      
+      const likes = computeNum(metrics.avgLikes) || computeNum(metrics.totalLikes);
       const comments = computeNum(metrics.avgComments);
       const shares = computeNum(metrics.avgShares);
-      const rawER = ((likes + comments + shares) / f) * 100;
+      const rawER = ((likes + comments + shares) / denominator) * 100;
       return Math.min(rawER, 100);
     };
 
     const ca = p.connectedAccounts || {};
 
-    const tMetrics = ca.tiktok?.metrics || p.tiktok || p.profileData?.tiktok || {};
+    const tMetrics = ca.tiktok?.metrics || ca.tiktok || {};
     const tFollowers = computeNum(tMetrics.followers);
     const tAvgViews = computeNum(tMetrics.avgViews);
     const tER = computeER(tMetrics);
 
-    const iMetrics = ca.instagram?.metrics || p.instagram || p.profileData?.instagram || {};
+    const iMetrics = ca.instagram?.metrics || ca.instagram || {};
     const iFollowers = computeNum(iMetrics.followers);
     const iAvgViews = computeNum(iMetrics.avgViews);
     const iER = computeER(iMetrics);
@@ -856,7 +861,7 @@ export default function ViewProfilePage() {
                               2x Amplification Stories with Swipe-up Link
                             </li>
                             <li className="flex items-center gap-2">
-                                  <div className="h-full bg-gray-500 rounded-full" style={{ width: marketBenchmarkBarWidth }} />
+                              <span className="w-1.5 h-1.5 rounded-full bg-gray-400" />
                               30 Days Paid Media Usage Rights
                             </li>
                             <li className="flex items-center gap-2">

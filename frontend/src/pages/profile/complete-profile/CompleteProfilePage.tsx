@@ -617,7 +617,7 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
         if (updatedUser.status === 'active' || updatedUser.status === 'approved') {
           toast.success("Business profile configured successfully!");
           setOnboardingStatus('approved');
-          navigate('/dashboard');
+          window.location.href = '/dashboard';
         } else {
           setSubmitted(true);
         }
@@ -638,7 +638,7 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
         if (res.data && res.data.user) {
           toast.success("TikTok profile configured successfully!");
           setOnboardingStatus('approved');
-          navigate('/dashboard');
+          window.location.href = '/dashboard';
         }
       }
     } catch (error: any) {
@@ -672,7 +672,7 @@ export default function CompleteProfilePage({ isInsideDashboard = false }: { isI
           <button
             onClick={() => {
               setOnboardingStatus('pending');
-              navigate('/dashboard');
+              window.location.href = '/dashboard';
             }}
             className="w-full bg-aacp-olive text-white font-bold py-3.5 rounded-2xl hover:bg-aacp-gold transition-all shadow-lg shadow-aacp-olive/20"
           >

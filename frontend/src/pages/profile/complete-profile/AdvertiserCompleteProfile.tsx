@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useUser } from '@/src/shared/context/UserContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   FaTiktok,
@@ -58,6 +59,7 @@ interface ConnectedAccounts {
 export default function AdvertiserCompleteProfile() {
   const navigate = useNavigate();
   const api = useApiClient();
+  const { setOnboardingStatus } = useUser();
 
   // Loading States
   const [loading, setLoading] = useState(true);
@@ -334,7 +336,8 @@ export default function AdvertiserCompleteProfile() {
 
       if (res.data && res.data.success) {
         toast.success("Profile complete! Welcome to AACP 🎉", { duration: 4000 });
-        navigate('/dashboard', { replace: true });
+        setOnboardingStatus('approved');
+        window.location.href = '/dashboard';
       }
     } catch (error: any) {
       console.error("Profile completion failed:", error);
