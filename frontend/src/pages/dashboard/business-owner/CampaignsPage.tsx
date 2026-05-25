@@ -133,9 +133,10 @@ export default function CampaignsPage() {
                            "px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider",
                            c.status === 'open' ? "bg-green-50 dark:bg-green-500/10 text-green-600 dark:text-green-400" :
                            c.status === 'in_progress' ? "bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400" :
+                           c.status === 'closed' || c.status === 'completed' ? "bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400" :
                            "bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400"
                         )}>
-                          {c.status.replace('_', ' ')}
+                          {c.status === 'closed' ? 'completed' : c.status.replace('_', ' ')}
                         </span>
                       </td>
                       <td className="px-8 py-6">

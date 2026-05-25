@@ -1,36 +1,47 @@
-import { motion } from 'framer-motion';
+import { motion } from "framer-motion";
 import {
   ArrowLeft,
   Lock,
   TrendingUp,
   Star,
   AlertTriangle,
-  History,
   Zap,
   Mail,
   Ban,
   MessageSquare,
   ChevronRight,
   ExternalLink,
-  ShieldAlert
-} from 'lucide-react';
-import { Link } from 'react-router-dom';
-import AdminLayout from '@/src/shared/components/layouts/AdminLayout';
+  ShieldAlert,
+  Loader2,
+} from "lucide-react";
+import { Link, useParams } from "react-router-dom";
+import AdminLayout from "@/src/shared/components/layouts/AdminLayout";
+import { useTrustScore } from "@/src/hooks/useAdminAnalytics";
 
 export default function AdminSuspendedUserPage() {
+  // This is a sample page - normally you'd get the user ID from URL params
+  const { userId = "sample-user-id" } = useParams<{ userId?: string }>();
+  const { data: trustScoreData, isLoading: trustScoreLoading } =
+    useTrustScore(userId);
   return (
     <AdminLayout>
       <div className="max-w-[1400px] mx-auto pb-12">
         {/* Header Section */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
           <div>
-            <h1 className="text-3xl font-black text-[#1A1D1F] dark:text-white leading-none mb-4">Manage Suspended User</h1>
+            <h1 className="text-3xl font-black text-[#1A1D1F] dark:text-white leading-none mb-4">
+              Manage Suspended User
+            </h1>
             <div className="flex items-center gap-3">
               <span className="text-lg font-bold">Marcus Thorne</span>
               <span className="text-gray-300 dark:text-white/10">•</span>
-              <span className="text-[10px] font-black uppercase tracking-widest text-primary-blue">Agency Partner</span>
+              <span className="text-[10px] font-black uppercase tracking-widest text-primary-blue">
+                Agency Partner
+              </span>
               <span className="text-gray-300 dark:text-white/10">•</span>
-              <span className="text-[10px] font-black uppercase tracking-widest px-2 py-1 bg-red-100 dark:bg-red-500/20 text-red-600 rounded">Suspended</span>
+              <span className="text-[10px] font-black uppercase tracking-widest px-2 py-1 bg-red-100 dark:bg-red-500/20 text-red-600 rounded">
+                Suspended
+              </span>
             </div>
           </div>
           <div className="flex gap-3">
@@ -61,7 +72,9 @@ export default function AdminSuspendedUserPage() {
 
             <div className="space-y-8">
               <div>
-                <p className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest mb-1">Followers</p>
+                <p className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest mb-1">
+                  Followers
+                </p>
                 <div className="flex items-center justify-center gap-2">
                   <span className="text-2xl font-black">1.2M</span>
                   <span className="text-[10px] font-bold text-primary-blue bg-neutral-border/15 dark:bg-primary-blue/10 px-1.5 py-0.5 rounded flex items-center gap-0.5">
@@ -70,17 +83,44 @@ export default function AdminSuspendedUserPage() {
                 </div>
               </div>
               <div>
-                <p className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest mb-1">Total Earned</p>
+                <p className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest mb-1">
+                  Total Earned
+                </p>
                 <span className="text-2xl font-black">$45,000</span>
               </div>
               <div>
-                <p className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest mb-2">Trust Score</p>
-                <div className="flex items-center justify-center gap-1 mb-1">
-                  <span className="text-lg font-black mr-2">4.2 <span className="text-xs text-[#9A9FA5] font-bold">/ 5</span></span>
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} size={14} className={i < 4 ? "text-primary-blue fill-current" : "text-gray-200 dark:text-gray-800"} />
-                  ))}
-                </div>
+                <p className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest mb-2">
+                  Trust Score
+                </p>
+                {trustScoreLoading ? (
+                  <div className="flex items-center justify-center h-10">
+                    <Loader2 className="w-5 h-5 text-primary-blue animate-spin" />
+                  </div>
+                ) : trustScoreData ? (
+                  <div className="flex items-center justify-center gap-1 mb-1">
+                    <span className="text-lg font-black mr-2">
+                      {trustScoreData.trustScore}{" "}
+                      <span className="text-xs text-[#9A9FA5] font-bold">
+                        / 100
+                      </span>
+                    </span>
+                    {[...Array(5)].map((_, i) => (
+                      <Star
+                        key={i}
+                        size={14}
+                        className={
+                          i < Math.ceil(trustScoreData.trustScore / 20)
+                            ? "text-primary-blue fill-current"
+                            : "text-gray-200 dark:text-gray-800"
+                        }
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <span className="text-xs text-gray-400">
+                    No score available
+                  </span>
+                )}
               </div>
             </div>
           </div>
@@ -96,30 +136,44 @@ export default function AdminSuspendedUserPage() {
               </div>
 
               <div className="bg-red-50/50 dark:bg-red-500/5 p-6 rounded-4xl border border-red-100 dark:border-red-500/10 mb-10">
-                <p className="text-[10px] font-black text-red-600 uppercase tracking-widest mb-3">Policy Violation: Repeated Spam</p>
+                <p className="text-[10px] font-black text-red-600 uppercase tracking-widest mb-3">
+                  Policy Violation: Repeated Spam
+                </p>
                 <p className="text-sm font-medium text-[#1A1D1F] dark:text-white/80 leading-relaxed">
-                  Account flagged by automated safety filters 14 times within a 48-hour window. Content matches known phishing patterns and unsolicited commercial outreach in collaboration threads.
+                  Account flagged by automated safety filters 14 times within a
+                  48-hour window. Content matches known phishing patterns and
+                  unsolicited commercial outreach in collaboration threads.
                 </p>
               </div>
 
               <div className="space-y-6">
-                <p className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest">Evidence & Logs</p>
+                <p className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest">
+                  Evidence & Logs
+                </p>
 
                 <div className="flex justify-between items-center p-4 bg-[#F4F4F4]/50 dark:bg-white/5 rounded-2xl border border-[#EFEFEF] dark:border-white/5">
-                  <span className="text-xs font-bold text-[#6F767E] dark:text-gray-400">Flagged Message Content</span>
+                  <span className="text-xs font-bold text-[#6F767E] dark:text-gray-400">
+                    Flagged Message Content
+                  </span>
                   <button className="text-[10px] font-black text-primary-blue uppercase hover:underline flex items-center gap-1">
                     View Transcript <ExternalLink size={10} />
                   </button>
                 </div>
 
                 <div className="flex justify-between items-center p-4 bg-[#F4F4F4]/50 dark:bg-white/5 rounded-2xl border border-[#EFEFEF] dark:border-white/5">
-                  <span className="text-xs font-bold text-[#6F767E] dark:text-gray-400">Detection Source</span>
+                  <span className="text-xs font-bold text-[#6F767E] dark:text-gray-400">
+                    Detection Source
+                  </span>
                   <span className="text-xs font-black">AI Sentinel-V4</span>
                 </div>
 
                 <div className="flex justify-between items-center p-4 bg-[#F4F4F4]/50 dark:bg-white/5 rounded-2xl border border-[#EFEFEF] dark:border-white/5">
-                  <span className="text-xs font-bold text-[#6F767E] dark:text-gray-400">Suspension Date</span>
-                  <span className="text-xs font-black text-[#1A1D1F] dark:text-white">Oct 24, 2023 - 14:22 UTC</span>
+                  <span className="text-xs font-bold text-[#6F767E] dark:text-gray-400">
+                    Suspension Date
+                  </span>
+                  <span className="text-xs font-black text-[#1A1D1F] dark:text-white">
+                    Oct 24, 2023 - 14:22 UTC
+                  </span>
                 </div>
               </div>
             </div>
@@ -128,7 +182,9 @@ export default function AdminSuspendedUserPage() {
           {/* Administrative Actions Column */}
           <div className="lg:col-span-4 space-y-8">
             <div className="bg-neutral-border/20 dark:bg-white/5 p-8 rounded-[3rem] border border-white dark:border-white/5 shadow-inner">
-              <h3 className="font-black text-xl mb-10">Administrative Actions</h3>
+              <h3 className="font-black text-xl mb-10">
+                Administrative Actions
+              </h3>
 
               <div className="space-y-4 mb-10">
                 <button className="w-full p-6 bg-linear-to-tr from-primary-blue to-primary-blue text-white rounded-3xl flex items-start gap-4 transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-neutral-border/25 dark:shadow-none text-left">
@@ -136,8 +192,12 @@ export default function AdminSuspendedUserPage() {
                     <Zap size={20} className="fill-current" />
                   </div>
                   <div>
-                    <p className="text-sm font-black mb-1">Reactivate Account</p>
-                    <p className="text-[10px] font-bold opacity-60 leading-tight">Restore full partner access immediately</p>
+                    <p className="text-sm font-black mb-1">
+                      Reactivate Account
+                    </p>
+                    <p className="text-[10px] font-bold opacity-60 leading-tight">
+                      Restore full partner access immediately
+                    </p>
                   </div>
                 </button>
 
@@ -146,8 +206,12 @@ export default function AdminSuspendedUserPage() {
                     <Mail size={20} className="text-[#6F767E]" />
                   </div>
                   <div>
-                    <p className="text-sm font-black mb-1">Send Official Warning</p>
-                    <p className="text-[10px] font-bold text-[#6F767E] dark:text-gray-400 leading-tight">Notify user of policy breach</p>
+                    <p className="text-sm font-black mb-1">
+                      Send Official Warning
+                    </p>
+                    <p className="text-[10px] font-bold text-[#6F767E] dark:text-gray-400 leading-tight">
+                      Notify user of policy breach
+                    </p>
                   </div>
                 </button>
 
@@ -156,14 +220,20 @@ export default function AdminSuspendedUserPage() {
                     <Ban size={20} className="text-red-500" />
                   </div>
                   <div>
-                    <p className="text-sm font-black text-red-600 mb-1">Permanent Ban</p>
-                    <p className="text-[10px] font-bold text-red-400 leading-tight">Remove access and block identity</p>
+                    <p className="text-sm font-black text-red-600 mb-1">
+                      Permanent Ban
+                    </p>
+                    <p className="text-[10px] font-bold text-red-400 leading-tight">
+                      Remove access and block identity
+                    </p>
                   </div>
                 </button>
               </div>
 
               <div className="space-y-4">
-                <p className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest pl-2">Internal Notes</p>
+                <p className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest pl-2">
+                  Internal Notes
+                </p>
                 <div className="relative">
                   <textarea
                     className="w-full h-32 bg-white/50 dark:bg-white/5 border border-[#EFEFEF] dark:border-white/10 rounded-2xl p-4 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-primary-blue/20 transition-all resize-none italic"
@@ -174,25 +244,6 @@ export default function AdminSuspendedUserPage() {
                   Save Notes
                 </button>
               </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Bottom Activity Row */}
-        <div className="mt-12 bg-gray-50 dark:bg-white/5 p-6 rounded-4xl border border-[#EFEFEF] dark:border-white/5">
-          <div className="flex flex-wrap items-center gap-8 text-[10px] font-bold uppercase tracking-widest text-[#6F767E] dark:text-gray-400">
-            <span className="text-[#1A1D1F] dark:text-white">Recent Activity</span>
-            <div className="flex items-center gap-2">
-              <div className="w-1.5 h-1.5 rounded-full bg-red-500" />
-              Suspended by System at 14:22
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-1.5 h-1.5 rounded-full bg-gray-400" />
-              Marcus Thorne attempted login at 14:45
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-1.5 h-1.5 rounded-full bg-primary-blue" />
-              Warning Email Sent at 15:10
             </div>
           </div>
         </div>

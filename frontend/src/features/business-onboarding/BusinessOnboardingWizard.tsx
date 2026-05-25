@@ -294,7 +294,7 @@ export default function BusinessOnboardingWizard({ isInsideDashboard, mode = 'on
                   <input className={inputClass} value={form.businessName} onChange={(e) => patch('businessName', e.target.value)} placeholder="Abebe Coffee House" />
                 </FormField>
                 <FormField label="Business location" helper="City, sub-city, or landmark." example="Bole, Addis Ababa" required error={errors.businessLocation}>
-                  <input className={inputClass} value={form.businessLocation} onChange={(e) => patch('businessLocation', e.target.value)} />
+                  <input className={inputClass} value={form.businessLocation} onChange={(e) => patch('businessLocation', e.target.value)} placeholder="e.g Town (Addis Ababa)" />
                 </FormField>
                 <FormField label="Trade license" helper="Upload a clear photo or PDF of your business license." required error={errors.tradeLicenseUrl}>
                   {form.tradeLicenseUrl ? (
@@ -740,18 +740,16 @@ export default function BusinessOnboardingWizard({ isInsideDashboard, mode = 'on
               Next <ArrowRight size={16} />
             </button>
           ) : (
-            <button
-              type="button"
-              onClick={handleSubmit}
-              disabled={isSubmitting}
-              className="px-6 py-2.5 rounded-xl bg-primary-blue text-black font-bold text-sm"
-            >
-              {isSubmitting
-                ? 'Submitting…'
-                : isApproved
-                  ? 'Save profile'
-                  : 'Submit for review'}
-            </button>
+            !isApproved && (
+              <button
+                type="button"
+                onClick={handleSubmit}
+                disabled={isSubmitting}
+                className="px-6 py-2.5 rounded-xl bg-primary-blue text-black font-bold text-sm"
+              >
+                {isSubmitting ? 'Submitting…' : 'Submit for review'}
+              </button>
+            )
           )}
         </div>
       </div>

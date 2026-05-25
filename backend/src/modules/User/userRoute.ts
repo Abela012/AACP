@@ -13,7 +13,8 @@ import {
   getSavedCreators,
   completeAdvertiserProfile,
   getAdvertiserProfile,
-  syncTikTokMetrics
+  syncTikTokMetrics,
+  getMyTrustScore,
 } from "./userController";
 import { requireAuth } from "../../middlewares/auth.middleware";
 import multer from "multer";
@@ -182,15 +183,10 @@ router.post(
   "/profile/picture",
   requireAuth,
   upload.single("image"),
-  uploadProfilePicture
+  uploadProfilePicture,
 );
 
-router.post(
-  "/upload",
-  requireAuth,
-  upload.single("file"),
-  uploadFile
-);
+router.post("/upload", requireAuth, upload.single("file"), uploadFile);
 
 /**
  * @swagger
@@ -266,9 +262,15 @@ router.post("/toggle-creator", requireAuth, toggleSavedCreator);
 router.get("/saved-creators", requireAuth, getSavedCreators);
 
 // TikTok-First Advertiser Profile Endpoints
-router.post("/advertiser/profile/complete", requireAuth, completeAdvertiserProfile);
+router.post(
+  "/advertiser/profile/complete",
+  requireAuth,
+  completeAdvertiserProfile,
+);
 router.get("/advertiser/profile", requireAuth, getAdvertiserProfile);
 router.post("/advertiser/profile/sync-tiktok", requireAuth, syncTikTokMetrics);
+
+router.get("/trust-score", requireAuth, getMyTrustScore);
 
 router.get("/:id", requireAuth, getUserById);
 

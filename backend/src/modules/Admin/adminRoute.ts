@@ -1,27 +1,31 @@
 import express from "express";
 import { requireAdmin } from "../../middlewares/auth.middleware";
 import {
-    getDashboardStats,
-    getChartData,
-    getAllUsers,
-    getUserById,
-    updateUserRole,
-    banUser,
-    getReports,
-    resolveReport,
-    createNews,
-    getWalletRequests,
-    approveWalletRequest,
-    rejectWalletRequest,
-    getAdminSettings,
-    patchAdminSettings,
-    getAdminNotifications,
+  getDashboardStats,
+  getEfficiencyPulse,
+  calculateTrustScore,
+  getApplicantMetrics,
+  getProfitabilityMetrics,
+  getChartData,
+  getAllUsers,
+  getUserById,
+  updateUserRole,
+  banUser,
+  getReports,
+  resolveReport,
+  createNews,
+  getWalletRequests,
+  approveWalletRequest,
+  rejectWalletRequest,
+  getAdminSettings,
+  patchAdminSettings,
+  getAdminNotifications,
 } from "./adminController";
 
 import {
-    getDisputes,
-    resolveDispute,
-    escalateDispute
+  getDisputes,
+  resolveDispute,
+  escalateDispute,
 } from "./disputeController";
 
 const router = express.Router();
@@ -79,6 +83,26 @@ router.get("/notifications", getAdminNotifications);
  *         description: Forbidden
  */
 router.get("/stats", getDashboardStats);
+
+/**
+ * Get efficiency pulse metrics (verification rate, response time, actions logged)
+ */
+router.get("/analytics/efficiency-pulse", getEfficiencyPulse);
+
+/**
+ * Get applicant reach and engagement metrics for "Reach vs Engagement" graph
+ */
+router.get("/analytics/applicants/metrics", getApplicantMetrics);
+
+/**
+ * Get profitability metrics for "Profitability Trend" graph
+ */
+router.get("/analytics/applicants/profitability", getProfitabilityMetrics);
+
+/**
+ * Calculate trust score for a specific user
+ */
+router.get("/analytics/trust-score/:userId", calculateTrustScore);
 
 /**
  * @swagger

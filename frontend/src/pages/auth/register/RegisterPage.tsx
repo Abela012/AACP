@@ -88,7 +88,7 @@ export default function RegisterForm() {
                   type="text"
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
-                  placeholder="John"
+                  placeholder="First Name"
                   className="aacp-input"
                   required
                 />
@@ -99,7 +99,7 @@ export default function RegisterForm() {
                   type="text"
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
-                  placeholder="Doe"
+                  placeholder="Last Name"
                   className="aacp-input"
                   required
                 />

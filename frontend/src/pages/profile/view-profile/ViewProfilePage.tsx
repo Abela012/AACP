@@ -192,7 +192,7 @@ export default function ViewProfilePage() {
     name: profile.businessName || `${profile.firstName} ${profile.lastName}` || 'User Profile',
     type: isTargetProfileBusiness ? profile.industry || 'Business' : 'Premium Content Creator',
     bio: profile.bio || 'No bio provided yet.',
-    established: '2024',
+    established: profile.createdAt ? new Date(profile.createdAt).getFullYear().toString() : 'N/A',
     rating: profile.averageRating ? profile.averageRating.toFixed(1) : '0.0',
     reviews: profile.totalReviews || 0,
     location: profile.businessLocation || profile.location || (isTargetProfileBusiness ? 'Not Set' : (profile.geoTags?.[0] || 'Global')),
@@ -209,14 +209,14 @@ export default function ViewProfilePage() {
 
     // Extended Business Data
     businessDetails: {
-      services: (profile as any).servicesOffered || 'General Services',
-      voice: (profile as any).brandVoice || 'Professional',
-      companySize: (profile as any).companySize || 'Private',
+      services: (profile as any).servicesOffered || 'Not set',
+      voice: (profile as any).brandVoice || 'Not set',
+      companySize: (profile as any).companySize || 'Not set',
       kpis: (profile as any).primaryKpis || [],
       goals: (profile as any).promotionGoals || [],
       audienceAge: (profile as any).targetAudienceAgeRanges || [],
       promoterTypes: (profile as any).preferredPromoterTypes || [],
-      promoterCount: (profile as any).promotersNeededCount || 'As needed',
+      promoterCount: (profile as any).promotersNeededCount || 'Not set',
       avgOrder: (profile as any).avgOrderValueETB ? `${(profile as any).avgOrderValueETB} ETB` : 'Not set',
       maxPerPost: (profile as any).budget ? `${(profile as any).budget} ETB` : 'Not set',
       minEng: (profile as any).minEngagement ? `${(profile as any).minEngagement}%` : 'Not set',
@@ -224,9 +224,9 @@ export default function ViewProfilePage() {
 
     stats: isTargetProfileBusiness
       ? [
-        { label: 'Monthly Budget', value: profile.monthlyBudget ? `${profile.monthlyBudget.toLocaleString()} ETB` : 'Flexible' },
+        { label: 'Monthly Budget', value: profile.monthlyBudget ? `${profile.monthlyBudget.toLocaleString()} ETB` : 'Not set' },
         { label: 'Platforms', value: profile.selectedPlatforms?.length.toString() || '0' },
-        { label: 'Company Size', value: (profile as any).companySize || 'Private' },
+        { label: 'Company Size', value: (profile as any).companySize || 'Not set' },
       ]
       : [],
   };

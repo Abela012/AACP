@@ -1,17 +1,24 @@
-import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
-import { 
-  Send, Paperclip, MoreVertical, Search, Phone, Video,
-  Smile, CheckCheck, Wifi, WifiOff, Loader2, MessageSquare
-} from 'lucide-react';
-import { cn } from '@/src/shared/utils/cn';
-import AdvertiserLayout from '@/src/shared/components/layouts/AdvertiserLayout';
-import BusinessLayout from '@/src/shared/components/layouts/BusinessLayout';
-import AdminLayout from '@/src/shared/components/layouts/AdminLayout';
-import { useUser } from '@/src/shared/context/UserContext';
-import { useUser as useClerkUser } from '@clerk/clerk-react';
-import { useChat, useConversations } from '@/src/hooks/useChat';
-import { startTyping, stopTyping } from '@/src/api/socketService';
-import { useLocation } from 'react-router-dom';
+import { useState, useRef, useEffect, useCallback, useMemo } from "react";
+import {
+  Send,
+  Paperclip,
+  Search,
+  Smile,
+  CheckCheck,
+  Wifi,
+  WifiOff,
+  Loader2,
+  MessageSquare,
+} from "lucide-react";
+import { cn } from "@/src/shared/utils/cn";
+import AdvertiserLayout from "@/src/shared/components/layouts/AdvertiserLayout";
+import BusinessLayout from "@/src/shared/components/layouts/BusinessLayout";
+import AdminLayout from "@/src/shared/components/layouts/AdminLayout";
+import { useUser } from "@/src/shared/context/UserContext";
+import { useUser as useClerkUser } from "@clerk/clerk-react";
+import { useChat, useConversations } from "@/src/hooks/useChat";
+import { startTyping, stopTyping } from "@/src/api/socketService";
+import { useLocation } from "react-router-dom";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface Contact {
@@ -29,84 +36,92 @@ interface Contact {
 
 // ─── Room ID helper — deterministic pairing key ───────────────────────────────
 // Keep for backward compatibility or one-to-one mapping if needed
-const makeRoomId = (a: string, b: string) =>
-  [a, b].sort().join('_');
+const makeRoomId = (a: string, b: string) => [a, b].sort().join("_");
 
 // ─── Component ────────────────────────────────────────────────────────────────
 export default function ConversationPage() {
   const { userRole } = useUser();
   const { user: clerkUser } = useClerkUser();
-  const myId = clerkUser?.id ?? '';
+  const myId = clerkUser?.id ?? "";
 
   // Layout selection
-  let Layout: React.ComponentType<{ children: React.ReactNode }> = AdvertiserLayout;
-  if (userRole === 'business_owner') Layout = BusinessLayout;
-  if (userRole === 'admin') Layout = AdminLayout;
+  let Layout: React.ComponentType<{ children: React.ReactNode }> =
+    AdvertiserLayout;
+  if (userRole === "business_owner") Layout = BusinessLayout;
+  if (userRole === "admin") Layout = AdminLayout;
 
   const { data: conversations, isLoading: collabsLoading } = useConversations();
 
   const contacts: Contact[] = useMemo(() => {
     if (!conversations) return [];
-    return conversations.map((conv: any) => {
-      // Determine the "other" user
-      const partner = conv.participants?.find((p: any) => p.clerkId !== myId && p._id !== myId);
-      
-      // Fallback if partner is somehow undefined
-      if (!partner) return null;
+    return conversations
+      .map((conv: any) => {
+        // Determine the "other" user
+        const partner = conv.participants?.find(
+          (p: any) => p.clerkId !== myId && p._id !== myId,
+        );
 
-      return {
-        userId: partner.clerkId || partner._id,
-        mongoId: partner._id,
-        clerkId: partner.clerkId,
-        conversationId: conv._id,
-        name: `${partner.firstName} ${partner.lastName}`,
-        avatar: partner.profilePicture || `https://ui-avatars.com/api/?name=${partner.firstName}+${partner.lastName}&background=10b981&color=fff`,
-        lastMessage: conv.lastMessage?.text || 'New conversation', 
-        time: new Date(conv.updatedAt || new Date()).toLocaleDateString(),
-        online: false, 
-        unread: 0,
-      };
-    }).filter(Boolean) as Contact[];
+        // Fallback if partner is somehow undefined
+        if (!partner) return null;
+
+        return {
+          userId: partner.clerkId || partner._id,
+          mongoId: partner._id,
+          clerkId: partner.clerkId,
+          conversationId: conv._id,
+          name: `${partner.firstName} ${partner.lastName}`,
+          avatar:
+            partner.profilePicture ||
+            `https://ui-avatars.com/api/?name=${partner.firstName}+${partner.lastName}&background=10b981&color=fff`,
+          lastMessage: conv.lastMessage?.text || "New conversation",
+          time: new Date(conv.updatedAt || new Date()).toLocaleDateString(),
+          online: false,
+          unread: 0,
+        };
+      })
+      .filter(Boolean) as Contact[];
   }, [conversations, myId]);
 
   const [activeContact, setActiveContact] = useState<Contact | null>(null);
   const { state } = useLocation();
-  const targetUserId = (state as any)?.userId || (state as any)?.creator?.targetId;
+  const targetUserId =
+    (state as any)?.userId || (state as any)?.creator?.targetId;
   const targetCreator = (state as any)?.creator;
 
   useEffect(() => {
     if (contacts.length > 0) {
       if (targetUserId) {
         // Robust matching: Check both MongoDB ID and Clerk ID
-        const targetContact = contacts.find(c => 
-          c.mongoId === targetUserId || 
-          c.clerkId === targetUserId ||
-          c.userId === targetUserId
+        const targetContact = contacts.find(
+          (c) =>
+            c.mongoId === targetUserId ||
+            c.clerkId === targetUserId ||
+            c.userId === targetUserId,
         );
-        
+
         if (targetContact) {
           setActiveContact(targetContact);
           return;
         }
-        
+
         // If not found but we have creator info, create a virtual contact
         if (targetCreator && !activeContact) {
-           setActiveContact({
-             userId: targetCreator.targetId,
-             mongoId: targetCreator.targetId,
-             clerkId: '', // unknown yet
-             conversationId: '', // will be created by useChat
-             name: targetCreator.name,
-             avatar: targetCreator.meta?.profilePicture,
-             lastMessage: 'Start a new conversation',
-             time: 'Now',
-             online: false,
-             unread: 0
-           });
-           return;
+          setActiveContact({
+            userId: targetCreator.targetId,
+            mongoId: targetCreator.targetId,
+            clerkId: "", // unknown yet
+            conversationId: "", // will be created by useChat
+            name: targetCreator.name,
+            avatar: targetCreator.meta?.profilePicture,
+            lastMessage: "Start a new conversation",
+            time: "Now",
+            online: false,
+            unread: 0,
+          });
+          return;
         }
       }
-      
+
       if (!activeContact) {
         setActiveContact(contacts[0]);
       }
@@ -115,28 +130,34 @@ export default function ConversationPage() {
       setActiveContact({
         userId: targetCreator.targetId,
         mongoId: targetCreator.targetId,
-        clerkId: '',
-        conversationId: '',
+        clerkId: "",
+        conversationId: "",
         name: targetCreator.name,
         avatar: targetCreator.meta?.profilePicture,
-        lastMessage: 'Start a new conversation',
-        time: 'Now',
+        lastMessage: "Start a new conversation",
+        time: "Now",
         online: false,
-        unread: 0
+        unread: 0,
       });
     }
   }, [contacts, activeContact, targetUserId, targetCreator]);
 
-  const [searchQuery, setSearchQuery] = useState('');
-  const [inputText, setInputText] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
+  const [inputText, setInputText] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
   const typingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Use the MongoDB Conversation ID as the roomId for absolute consistency
-  const roomId = activeContact?.conversationId || '';
+  const roomId = activeContact?.conversationId || "";
 
   // ── Real-time chat hook ──
-  const { messages, sendMessage, isConnected, typingUsers, isLoading: messagesLoading } = useChat(roomId, activeContact?.userId);
+  const {
+    messages,
+    sendMessage,
+    isConnected,
+    typingUsers,
+    isLoading: messagesLoading,
+  } = useChat(roomId, activeContact?.userId);
 
   const [lastDeliveredId, setLastDeliveredId] = useState<string | null>(null);
 
@@ -145,12 +166,12 @@ export default function ConversationPage() {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-    
+
     // Check if the latest message is from me, to show a "Delivered" notification
     if (messages.length > 0) {
       const lastMsg = messages[messages.length - 1];
       const isMine = lastMsg.sender.clerkId === myId;
-      
+
       // If it's a new message and it's mine, show delivered status
       if (isMine) {
         setLastDeliveredId(lastMsg._id);
@@ -161,13 +182,16 @@ export default function ConversationPage() {
   }, [messages, myId]);
 
   // ── Send handler ──
-  const handleSend = useCallback((e: React.FormEvent) => {
-    e.preventDefault();
-    if (!inputText.trim() || !activeContact) return;
-    sendMessage(inputText, activeContact.userId);
-    setInputText('');
-    if (typingTimerRef.current) clearTimeout(typingTimerRef.current);
-  }, [inputText, sendMessage, activeContact?.userId]);
+  const handleSend = useCallback(
+    (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!inputText.trim() || !activeContact) return;
+      sendMessage(inputText, activeContact.userId);
+      setInputText("");
+      if (typingTimerRef.current) clearTimeout(typingTimerRef.current);
+    },
+    [inputText, sendMessage, activeContact?.userId],
+  );
 
   // ── Typing indicator ──
   const handleInputChange = (value: string) => {
@@ -178,8 +202,8 @@ export default function ConversationPage() {
     typingTimerRef.current = setTimeout(() => stopTyping(roomId), 2000);
   };
 
-  const filteredContacts = contacts.filter(c =>
-    c.name.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredContacts = contacts.filter((c) =>
+    c.name.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   return (
@@ -189,14 +213,20 @@ export default function ConversationPage() {
         <div className="w-80 border-r border-gray-100 dark:border-white/5 flex flex-col bg-white dark:bg-[#0a0a0a]">
           <div className="p-6">
             <div className="flex items-center justify-between mb-6">
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Messages</h1>
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+                Messages
+              </h1>
               {/* Connection badge */}
-              <div className={cn(
-                "flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest",
-                isConnected ? "bg-neutral-border/25 dark:bg-primary-blue/20 text-primary-blue" : "bg-gray-100 dark:bg-white/5 text-gray-400"
-              )}>
+              <div
+                className={cn(
+                  "flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest",
+                  isConnected
+                    ? "bg-neutral-border/25 dark:bg-primary-blue/20 text-primary-blue"
+                    : "bg-gray-100 dark:bg-white/5 text-gray-400",
+                )}
+              >
                 {isConnected ? <Wifi size={10} /> : <WifiOff size={10} />}
-                {isConnected ? 'Live' : 'Offline'}
+                {isConnected ? "Live" : "Offline"}
               </div>
             </div>
             <div className="relative">
@@ -220,11 +250,18 @@ export default function ConversationPage() {
                   "w-full flex items-center gap-4 p-3 rounded-2xl transition-all",
                   activeContact?.userId === contact.userId
                     ? "bg-primary-blue/10 dark:bg-primary-blue/5 shadow-sm"
-                    : "hover:bg-gray-50 dark:hover:bg-white/5"
+                    : "hover:bg-gray-50 dark:hover:bg-white/5",
                 )}
               >
                 <div className="relative shrink-0">
-                  <img src={contact.avatar || `https://ui-avatars.com/api/?name=${contact.name}&background=10b981&color=fff`} alt={contact.name} className="w-12 h-12 rounded-full object-cover" />
+                  <img
+                    src={
+                      contact.avatar ||
+                      `https://ui-avatars.com/api/?name=${contact.name}&background=10b981&color=fff`
+                    }
+                    alt={contact.name}
+                    className="w-12 h-12 rounded-full object-cover"
+                  />
 
                   {contact.online && (
                     <div className="absolute bottom-0 right-0 w-3 h-3 bg-primary-blue border-2 border-white dark:border-[#0a0a0a] rounded-full" />
@@ -232,12 +269,23 @@ export default function ConversationPage() {
                 </div>
                 <div className="flex-1 min-w-0 text-left">
                   <div className="flex justify-between items-baseline mb-1">
-                    <h3 className={cn("text-sm font-bold truncate", activeContact?.userId === contact.userId ? "text-primary-blue" : "text-gray-900 dark:text-white")}>
+                    <h3
+                      className={cn(
+                        "text-sm font-bold truncate",
+                        activeContact?.userId === contact.userId
+                          ? "text-primary-blue"
+                          : "text-gray-900 dark:text-white",
+                      )}
+                    >
                       {contact.name}
                     </h3>
-                    <span className="text-[10px] text-gray-400 dark:text-gray-500 shrink-0 ml-2">{contact.time}</span>
+                    <span className="text-[10px] text-gray-400 dark:text-gray-500 shrink-0 ml-2">
+                      {contact.time}
+                    </span>
                   </div>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 truncate pr-4">{contact.lastMessage}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 truncate pr-4">
+                    {contact.lastMessage}
+                  </p>
                 </div>
                 {contact.unread > 0 && (
                   <div className="w-5 h-5 bg-primary-blue rounded-full flex items-center justify-center text-[10px] font-bold text-black shrink-0">
@@ -256,40 +304,43 @@ export default function ConversationPage() {
             <header className="px-8 h-20 border-b border-gray-100 dark:border-white/5 flex items-center justify-between shrink-0">
               <div className="flex items-center gap-4">
                 <div className="relative">
-                  <img src={activeContact.avatar || `https://ui-avatars.com/api/?name=${activeContact.name}&background=10b981&color=fff`} alt={activeContact.name} className="w-10 h-10 rounded-full object-cover" />
+                  <img
+                    src={
+                      activeContact.avatar ||
+                      `https://ui-avatars.com/api/?name=${activeContact.name}&background=10b981&color=fff`
+                    }
+                    alt={activeContact.name}
+                    className="w-10 h-10 rounded-full object-cover"
+                  />
 
                   {activeContact.online && (
                     <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-primary-blue border-2 border-white dark:border-[#0a0a0a] rounded-full" />
                   )}
                 </div>
                 <div>
-                  <h2 className="text-sm font-bold text-gray-900 dark:text-white">{activeContact.name}</h2>
+                  <h2 className="text-sm font-bold text-gray-900 dark:text-white">
+                    {activeContact.name}
+                  </h2>
                   <p className="text-[10px] text-primary-blue font-bold uppercase tracking-wider">
-                    {activeContact.online ? 'Online' : 'Away'}
+                    {activeContact.online ? "Online" : "Away"}
                   </p>
                 </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <button className="p-2.5 text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors rounded-xl hover:bg-gray-50 dark:hover:bg-white/5">
-                  <Phone size={18} />
-                </button>
-                <button className="p-2.5 text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors rounded-xl hover:bg-gray-50 dark:hover:bg-white/5">
-                  <Video size={18} />
-                </button>
-                <button className="p-2.5 text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors rounded-xl hover:bg-gray-50 dark:hover:bg-white/5 border-l border-gray-100 dark:border-white/5 ml-2 pl-4">
-                  <MoreVertical size={18} />
-                </button>
               </div>
             </header>
 
             {/* Messages area */}
-            <div ref={scrollRef} className="flex-1 overflow-y-auto p-8 space-y-4">
+            <div
+              ref={scrollRef}
+              className="flex-1 overflow-y-auto p-8 space-y-4"
+            >
               {/* Connection or Loading notice */}
               {(!isConnected || messagesLoading) && (
                 <div className="flex justify-center">
                   <div className="flex items-center gap-2 px-4 py-2 bg-neutral-border/15 dark:bg-primary-blue/10 border border-neutral-border/30 dark:border-primary-blue/20 rounded-2xl text-xs font-bold text-primary-blue">
                     <Loader2 size={14} className="animate-spin" />
-                    {messagesLoading ? 'Loading message history...' : 'Connecting to real-time chat...'}
+                    {messagesLoading
+                      ? "Loading message history..."
+                      : "Connecting to real-time chat..."}
                   </div>
                 </div>
               )}
@@ -299,40 +350,73 @@ export default function ConversationPage() {
                   <div className="w-16 h-16 bg-neutral-border/25 dark:bg-primary-blue/20 rounded-2xl flex items-center justify-center mb-4">
                     <Send size={24} className="text-primary-blue" />
                   </div>
-                  <p className="text-sm font-bold text-gray-500 dark:text-gray-400">No messages yet</p>
-                  <p className="text-xs text-gray-400 dark:text-gray-500">Say hello to {activeContact.name}!</p>
+                  <p className="text-sm font-bold text-gray-500 dark:text-gray-400">
+                    No messages yet
+                  </p>
+                  <p className="text-xs text-gray-400 dark:text-gray-500">
+                    Say hello to {activeContact.name}!
+                  </p>
                 </div>
               )}
 
               {messages.map((msg) => {
                 const isMine = msg.sender.clerkId === myId;
                 return (
-                  <div key={msg._id} className={cn("flex w-full", isMine ? "justify-end" : "justify-start")}>
+                  <div
+                    key={msg._id}
+                    className={cn(
+                      "flex w-full",
+                      isMine ? "justify-end" : "justify-start",
+                    )}
+                  >
                     {!isMine && (
                       <div className="w-8 h-8 rounded-full overflow-hidden mr-3 shrink-0 self-end">
-                        <img src={activeContact.avatar || `https://ui-avatars.com/api/?name=${msg.sender.firstName}+${msg.sender.lastName}&background=10b981&color=fff`} alt={msg.sender.firstName} className="w-full h-full object-cover" />
-
+                        <img
+                          src={
+                            activeContact.avatar ||
+                            `https://ui-avatars.com/api/?name=${msg.sender.firstName}+${msg.sender.lastName}&background=10b981&color=fff`
+                          }
+                          alt={msg.sender.firstName}
+                          className="w-full h-full object-cover"
+                        />
                       </div>
                     )}
-                    <div className={cn("max-w-[70%] group", isMine ? "items-end text-right" : "items-start")}>
-                      <div className={cn(
-                        "p-4 rounded-3xl text-sm leading-relaxed",
-                        isMine
-                          ? "bg-primary-blue text-black font-medium rounded-tr-none shadow-lg shadow-primary-blue/10"
-                          : "bg-gray-100 dark:bg-white/5 text-gray-700 dark:text-gray-300 rounded-tl-none"
-                      )}>
+                    <div
+                      className={cn(
+                        "max-w-[70%] group",
+                        isMine ? "items-end text-right" : "items-start",
+                      )}
+                    >
+                      <div
+                        className={cn(
+                          "p-4 rounded-3xl text-sm leading-relaxed",
+                          isMine
+                            ? "bg-primary-blue text-black font-medium rounded-tr-none shadow-lg shadow-primary-blue/10"
+                            : "bg-gray-100 dark:bg-white/5 text-gray-700 dark:text-gray-300 rounded-tl-none",
+                        )}
+                      >
                         {msg.text}
                       </div>
-                      <div className={cn("flex items-center gap-2 mt-1.5 px-1", isMine ? "justify-end" : "justify-start")}>
+                      <div
+                        className={cn(
+                          "flex items-center gap-2 mt-1.5 px-1",
+                          isMine ? "justify-end" : "justify-start",
+                        )}
+                      >
                         {lastDeliveredId === msg._id && (
                           <span className="text-[10px] text-primary-blue font-bold uppercase tracking-wider animate-pulse">
                             Delivered
                           </span>
                         )}
                         <span className="text-[10px] text-gray-400 dark:text-gray-500 font-medium">
-                          {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          {new Date(msg.createdAt).toLocaleTimeString([], {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
                         </span>
-                        {isMine && <CheckCheck size={14} className="text-primary-blue" />}
+                        {isMine && (
+                          <CheckCheck size={14} className="text-primary-blue" />
+                        )}
                       </div>
                     </div>
                   </div>
@@ -344,11 +428,22 @@ export default function ConversationPage() {
                 <div className="flex justify-start">
                   <div className="bg-gray-100 dark:bg-white/5 px-5 py-3 rounded-3xl rounded-tl-none flex items-center gap-2">
                     <div className="flex gap-1">
-                      <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                      <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                      <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                      <span
+                        className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                        style={{ animationDelay: "0ms" }}
+                      />
+                      <span
+                        className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                        style={{ animationDelay: "150ms" }}
+                      />
+                      <span
+                        className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                        style={{ animationDelay: "300ms" }}
+                      />
                     </div>
-                    <span className="text-[10px] text-gray-400 font-medium">{typingUsers.join(', ')} typing...</span>
+                    <span className="text-[10px] text-gray-400 font-medium">
+                      {typingUsers.join(", ")} typing...
+                    </span>
                   </div>
                 </div>
               )}
@@ -356,18 +451,29 @@ export default function ConversationPage() {
 
             {/* Input */}
             <div className="p-8 border-t border-gray-100 dark:border-white/5">
-              <form onSubmit={handleSend} className="bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 p-2 rounded-4xl flex items-center gap-2 shadow-sm">
-                <button type="button" className="p-3 text-gray-400 hover:text-primary-blue transition-colors">
+              <form
+                onSubmit={handleSend}
+                className="bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 p-2 rounded-4xl flex items-center gap-2 shadow-sm"
+              >
+                <button
+                  type="button"
+                  className="p-3 text-gray-400 hover:text-primary-blue transition-colors"
+                >
                   <Smile size={20} />
                 </button>
-                <button type="button" className="p-3 text-gray-400 hover:text-primary-blue transition-colors border-r border-gray-100 dark:border-white/5 pr-4">
+                <button
+                  type="button"
+                  className="p-3 text-gray-400 hover:text-primary-blue transition-colors border-r border-gray-100 dark:border-white/5 pr-4"
+                >
                   <Paperclip size={20} />
                 </button>
                 <input
                   type="text"
                   value={inputText}
                   onChange={(e) => handleInputChange(e.target.value)}
-                  placeholder={isConnected ? "Type your message here..." : "Connecting..."}
+                  placeholder={
+                    isConnected ? "Type your message here..." : "Connecting..."
+                  }
                   disabled={!isConnected}
                   className="flex-1 bg-transparent border-none focus:outline-none text-sm text-gray-900 dark:text-white px-2 disabled:opacity-50"
                 />
@@ -384,19 +490,24 @@ export default function ConversationPage() {
         ) : (
           <div className="flex-1 flex flex-col items-center justify-center bg-white dark:bg-[#0a0a0a] text-center">
             {collabsLoading ? (
-               <Loader2 size={32} className="animate-spin text-primary-blue mb-4" />
+              <Loader2
+                size={32}
+                className="animate-spin text-primary-blue mb-4"
+              />
             ) : (
-               <div className="w-16 h-16 bg-gray-50 dark:bg-white/5 rounded-2xl flex items-center justify-center mb-4 text-gray-400">
-                  <MessageSquare size={24} />
-               </div>
+              <div className="w-16 h-16 bg-gray-50 dark:bg-white/5 rounded-2xl flex items-center justify-center mb-4 text-gray-400">
+                <MessageSquare size={24} />
+              </div>
             )}
             <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-              {collabsLoading ? 'Loading conversations...' : 'No conversations yet'}
+              {collabsLoading
+                ? "Loading conversations..."
+                : "No conversations yet"}
             </h2>
             <p className="text-sm text-gray-500 dark:text-gray-400 max-w-sm">
-              {collabsLoading 
-                ? 'Please wait while we fetch your connections.' 
-                : 'Start a collaboration to connect with creators and businesses.'}
+              {collabsLoading
+                ? "Please wait while we fetch your connections."
+                : "Start a collaboration to connect with creators and businesses."}
             </p>
           </div>
         )}

@@ -80,6 +80,14 @@ export const completeCollaboration = async (id: string, businessOwnerId: string)
     collaboration.completedDate = new Date();
     await collaboration.save();
 
+    // Also mark the opportunity as completed
+    if (collaboration.opportunity) {
+        await mongoose.model('Opportunity').findByIdAndUpdate(
+            collaboration.opportunity,
+            { status: 'completed' }
+        );
+    }
+
     return collaboration;
 };
 

@@ -179,19 +179,11 @@ export default function BuyCoinsPanel({
 
       <div className="fixed bottom-0 left-0 right-0 z-30 border-t border-gray-200 dark:border-white/10 bg-white/95 dark:bg-[#0a0a0a]/95 backdrop-blur-md px-4 py-4">
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="text-center sm:text-left">
-            <p className="text-xs text-gray-500">Selected</p>
-            <p className="font-bold text-gray-900 dark:text-white">
-              {pack.coins.toLocaleString()} coins · {formatBirr(pack.priceEtb)}
-              {paymentMethod === 'chapa' && (
-                <span className="text-primary-blue text-xs font-bold ml-2">via Chapa</span>
-              )}
-            </p>
-          </div>
+          <div className="hidden sm:block"></div>
           <button
             type="button"
             onClick={handleProceed}
-            className="w-full sm:w-auto bg-primary-blue hover:bg-neutral-border text-black px-10 py-3.5 rounded-xl font-bold shadow-lg shadow-primary-blue/25 transition-all"
+            className="w-full sm:w-auto sm:ml-auto bg-primary-blue hover:bg-neutral-border text-black px-10 py-3.5 rounded-xl font-bold shadow-lg shadow-primary-blue/25 transition-all"
           >
             Continue to payment
           </button>

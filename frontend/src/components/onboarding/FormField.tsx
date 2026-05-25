@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import React, { type ReactNode } from 'react';
 import { cn } from '@/src/shared/utils/cn';
 
 type FormFieldProps = {
@@ -30,7 +30,14 @@ export default function FormField({
       {example && (
         <p className="text-[11px] text-primary-blue/90 dark:text-neutral-border/90 font-medium">Example: {example}</p>
       )}
-      {children}
+      {React.isValidElement(children)
+        ? React.cloneElement(children, {
+          className: cn(
+            (children as any).props.className,
+            error && 'border-red-500 focus:ring-red-500/30 dark:border-red-500'
+          ),
+        } as any)
+        : children}
       {error && <p className="text-xs font-semibold text-red-600 dark:text-red-400">{error}</p>}
     </div>
   );

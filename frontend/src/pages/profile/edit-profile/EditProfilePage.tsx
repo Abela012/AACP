@@ -38,7 +38,7 @@ import { useApiClient } from '@/src/api/apiClient';
 import { userApi } from '@/src/api/userApi';
 
 export default function EditProfilePage() {
-  const { userRole, logout: localLogout } = useUser();
+  const { userRole, logout: localLogout, onboardingStatus } = useUser();
   const { profile, updateProfile, refreshProfile, isLoading } = useProfile();
   const { signOut } = useClerk();
   const { user: clerkUser } = useClerkUser();
@@ -51,6 +51,7 @@ export default function EditProfilePage() {
   const [activeTab, setActiveTab] = useState('general');
   const [isSaving, setIsSaving] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   // Local form state – seeded from context
   const [firstName, setFirstName] = useState(profile.firstName || '');
@@ -60,13 +61,13 @@ export default function EditProfilePage() {
   const [phone, setPhone] = useState(profile.phone || '');
   const [businessName, setBusinessName] = useState(profile.businessName || '');
   const [website, setWebsite] = useState(profile.website || '');
-  const [industry, setIndustry] = useState(profile.industry || 'Food & Beverage');
+  const [industry, setIndustry] = useState(profile.industry || '');
   const [businessLocation, setBusinessLocation] = useState(profile.businessLocation || '');
-  const [companySize, setCompanySize] = useState(profile.companySize || '1-10');
-  const [monthlyBudget, setMonthlyBudget] = useState(profile.monthlyBudget || 50000);
-  const [maxSpendPerPostETB, setMaxSpendPerPostETB] = useState((profile as any).budget || 15000);
-  const [minEngagementPercent, setMinEngagementPercent] = useState((profile as any).minEngagement || '3');
-  const [brandVoice, setBrandVoice] = useState((profile as any).brandVoice || 'Friendly');
+  const [companySize, setCompanySize] = useState(profile.companySize || '');
+  const [monthlyBudget, setMonthlyBudget] = useState(profile.monthlyBudget || '');
+  const [maxSpendPerPostETB, setMaxSpendPerPostETB] = useState((profile as any).budget || '');
+  const [minEngagementPercent, setMinEngagementPercent] = useState((profile as any).minEngagement || '');
+  const [brandVoice, setBrandVoice] = useState((profile as any).brandVoice || '');
   const [servicesOffered, setServicesOffered] = useState((profile as any).servicesOffered || '');
   const [primaryKpis, setPrimaryKpis] = useState<string[]>((profile as any).primaryKpis || []);
   const [promotionGoals, setPromotionGoals] = useState<string[]>((profile as any).promotionGoals || []);
@@ -110,13 +111,13 @@ export default function EditProfilePage() {
       setPhone(profile.phone || '');
       setBusinessName(profile.businessName || '');
       setWebsite(profile.website || '');
-      setIndustry(profile.industry || 'Food & Beverage');
+      setIndustry(profile.industry || '');
       setBusinessLocation(profile.businessLocation || '');
-      setCompanySize(profile.companySize || '1-10');
-      setMonthlyBudget(profile.monthlyBudget || 50000);
-      setMaxSpendPerPostETB((profile as any).budget || 15000);
-      setMinEngagementPercent((profile as any).minEngagement || '3');
-      setBrandVoice((profile as any).brandVoice || 'Friendly');
+      setCompanySize(profile.companySize || '');
+      setMonthlyBudget(profile.monthlyBudget || '');
+      setMaxSpendPerPostETB((profile as any).budget || '');
+      setMinEngagementPercent((profile as any).minEngagement || '');
+      setBrandVoice((profile as any).brandVoice || '');
       setServicesOffered((profile as any).servicesOffered || '');
       setPrimaryKpis((profile as any).primaryKpis || []);
       setPromotionGoals((profile as any).promotionGoals || []);
@@ -350,6 +351,24 @@ export default function EditProfilePage() {
   const [showSubmitModal, setShowSubmitModal] = useState(false);
 
   const handleSave = async () => {
+    // Validation
+    const newErrors: Record<string, string> = {};
+    if (firstName && /\d/.test(firstName)) newErrors.firstName = 'Numeric input is not allowed in this field';
+    if (lastName && /\d/.test(lastName)) newErrors.lastName = 'Numeric input is not allowed in this field';
+    if (phone && /[a-zA-Z]/.test(phone)) newErrors.phone = 'Alphabetic characters are not allowed in this field';
+    if (businessName && /\d/.test(businessName)) newErrors.businessName = 'Numeric input is not allowed in this field';
+    if (businessLocation && /\d/.test(businessLocation)) newErrors.businessLocation = 'Numeric input is not allowed in this field';
+    if (industry && /\d/.test(industry)) newErrors.industry = 'Numeric input is not allowed in this field';
+    if (monthlyBudget && /[a-zA-Z]/.test(String(monthlyBudget))) newErrors.monthlyBudget = 'Alphabetic characters are not allowed in this field';
+    if (maxSpendPerPostETB && /[a-zA-Z]/.test(String(maxSpendPerPostETB))) newErrors.budget = 'Alphabetic characters are not allowed in this field';
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      toast.error('Please fix the errors in the form.');
+      return;
+    }
+    setErrors({});
+
     setIsSaving(true);
     try {
       if (activeTab === 'general') {
@@ -423,9 +442,20 @@ export default function EditProfilePage() {
           ageRanges: profile.ageRanges,
           primaryLanguage: profile.primaryLanguage,
         };
-        await userApi.submitProfile(api, {
-          profileData,
-        });
+        if (isBusiness && onboardingStatus === 'approved') {
+          // If already approved, just update the profile to prevent reverting to pending
+          await userApi.updateProfile(api, {
+            businessName,
+            location: businessLocation,
+            profileData,
+          });
+          setShowSuccess(true);
+          setTimeout(() => setShowSuccess(false), 3000);
+        } else {
+          await userApi.submitProfile(api, {
+            profileData,
+          });
+        }
 
         if (!isBusiness) {
           updateProfile({
@@ -449,7 +479,7 @@ export default function EditProfilePage() {
           });
           setShowSuccess(true);
           setTimeout(() => setShowSuccess(false), 3000);
-        } else {
+        } else if (onboardingStatus !== 'approved') {
           setShowSubmitModal(true);
         }
       }
@@ -717,9 +747,10 @@ export default function EditProfilePage() {
                           type="text"
                           value={firstName}
                           onChange={(e) => setFirstName(e.target.value)}
-                          className={inputCls}
+                          className={cn(inputCls, errors.firstName && 'border-red-500 focus:ring-red-500/30')}
                         />
                       </div>
+                      {errors.firstName && <p className="text-xs text-red-500 font-semibold">{errors.firstName}</p>}
                     </div>
                     <div className="space-y-2">
                       <label className={labelCls}>Last Name</label>
@@ -729,9 +760,10 @@ export default function EditProfilePage() {
                           type="text"
                           value={lastName}
                           onChange={(e) => setLastName(e.target.value)}
-                          className={inputCls}
+                          className={cn(inputCls, errors.lastName && 'border-red-500 focus:ring-red-500/30')}
                         />
                       </div>
+                      {errors.lastName && <p className="text-xs text-red-500 font-semibold">{errors.lastName}</p>}
                     </div>
                     <div className="space-y-2 sm:col-span-2">
                       <label className={labelCls}>Email Address</label>
@@ -753,10 +785,11 @@ export default function EditProfilePage() {
                           type="tel"
                           value={phone}
                           onChange={(e) => setPhone(e.target.value)}
-                          className={inputCls}
+                          className={cn(inputCls, errors.phone && 'border-red-500 focus:ring-red-500/30')}
                           placeholder="+251 ..."
                         />
                       </div>
+                      {errors.phone && <p className="text-xs text-red-500 font-semibold">{errors.phone}</p>}
                     </div>
                     <div className="space-y-2 sm:col-span-2">
                       <label className={labelCls}>{isBusiness ? 'Brand Description' : 'About Me / Biography'}</label>
@@ -790,9 +823,10 @@ export default function EditProfilePage() {
                               type="text"
                               value={businessName}
                               onChange={(e) => setBusinessName(e.target.value)}
-                              className={inputCls}
+                              className={cn(inputCls, errors.businessName && 'border-red-500 focus:ring-red-500/30')}
                             />
                           </div>
+                          {errors.businessName && <p className="text-xs text-red-500 font-semibold">{errors.businessName}</p>}
                         </div>
 
                         <div className="space-y-2">
@@ -800,10 +834,11 @@ export default function EditProfilePage() {
                           <select
                             value={industry}
                             onChange={(e) => setIndustry(e.target.value)}
-                            className="w-full bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary-blue transition-all text-gray-900 dark:text-white appearance-none"
+                            className={cn("w-full bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary-blue transition-all text-gray-900 dark:text-white appearance-none", errors.industry && 'border-red-500 focus:ring-red-500/30')}
                           >
                             {industriesList.map(ind => <option key={ind} value={ind}>{ind}</option>)}
                           </select>
+                          {errors.industry && <p className="text-xs text-red-500 font-semibold">{errors.industry}</p>}
                         </div>
 
                         <div className="space-y-2">
@@ -828,10 +863,11 @@ export default function EditProfilePage() {
                               type="text"
                               value={businessLocation}
                               onChange={(e) => setBusinessLocation(e.target.value)}
-                              className={inputCls}
+                              className={cn(inputCls, errors.businessLocation && 'border-red-500 focus:ring-red-500/30')}
                               placeholder={profilePlaceholder(profile.businessLocation, 'City, Country')}
                             />
                           </div>
+                          {errors.businessLocation && <p className="text-xs text-red-500 font-semibold">{errors.businessLocation}</p>}
                         </div>
 
                         <div className="space-y-2">
@@ -868,20 +904,22 @@ export default function EditProfilePage() {
                             <div className="space-y-2">
                               <label className={labelCls}>Monthly Budget (ETB)</label>
                               <input
-                                type="number"
+                                type="text"
                                 value={monthlyBudget}
-                                onChange={(e) => setMonthlyBudget(Number(e.target.value))}
-                                className={inputCls.replace('pl-10', 'pl-4')}
+                                onChange={(e) => setMonthlyBudget(e.target.value)}
+                                className={cn(inputCls.replace('pl-10', 'pl-4'), errors.monthlyBudget && 'border-red-500 focus:ring-red-500/30')}
                               />
+                              {errors.monthlyBudget && <p className="text-xs text-red-500 font-semibold">{errors.monthlyBudget}</p>}
                             </div>
                             <div className="space-y-2">
                               <label className={labelCls}>Max Budget per Post (ETB)</label>
                               <input
-                                type="number"
+                                type="text"
                                 value={maxSpendPerPostETB}
-                                onChange={(e) => setMaxSpendPerPostETB(Number(e.target.value))}
-                                className={inputCls.replace('pl-10', 'pl-4')}
+                                onChange={(e) => setMaxSpendPerPostETB(e.target.value)}
+                                className={cn(inputCls.replace('pl-10', 'pl-4'), errors.budget && 'border-red-500 focus:ring-red-500/30')}
                               />
+                              {errors.budget && <p className="text-xs text-red-500 font-semibold">{errors.budget}</p>}
                             </div>
                             <div className="space-y-2">
                               <label className={labelCls}>Min. Engagement (%)</label>
