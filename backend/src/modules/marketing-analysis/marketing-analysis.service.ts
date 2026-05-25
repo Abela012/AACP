@@ -4,6 +4,7 @@ import Application from '../../database/models/Application';
 import BusinessOwner from '../../database/models/businessOwner';
 import AdvertiserProfile from '../../database/models/AdvertiserProfile';
 import { generateJSON } from '../../services/ai/gemini.service';
+import { getCached, getOrCompute, setCached } from '../../services/ai/ai.cache';
 import logger from '../../utils/logger';
 
 // ─── Profile Data Helper ─────────────────────────────────────────────────────
@@ -741,13 +742,19 @@ export const predictAdvertiserROI = async (
 
     const advProfile = advProfileDoc?.profileData || {};
     const ownerProfile = ownerProfileDoc?.profileData || {};
+    
+    const cacheInput = { businessOwnerId, advertiserId };
+    const cached = getCached('predictive-roi', businessOwnerId, cacheInput);
+    if (cached) return { ...cached, cached: true };
 
     // 2. Extract REAL metrics from nested profileData (tiktok/instagram)
     const metrics = extractMetrics(advProfile);
     // Detect whether we have real synced platform metrics or are falling back to defaults
     const hasRealMetrics = Boolean(metrics && (metrics.followers > 0 || metrics.avgViews > 0 || metrics.engagementRate > 0));
-    const followers = hasRealMetrics ? metrics.followers : 0;
-    const engagementRate = hasRealMetrics ? metrics.engagementRate : 0;
+    
+    // Fix: If no synced metrics, use manual profile followers or 500, and use a 2.5% baseline engagement
+    const followers = hasRealMetrics ? metrics.followers : (metrics.followers || advProfile.followers || 500);
+    const engagementRate = hasRealMetrics && metrics.engagementRate > 0 ? metrics.engagementRate : 2.5;
     const productPrice = ownerProfile.monthlyBudget ? Math.round(ownerProfile.monthlyBudget / 50) : 50;
     
     // Default estimated cost for prediction (can be adjusted based on follower tier)
@@ -783,14 +790,64 @@ export const predictAdvertiserROI = async (
         insight: aiInsight,
     };
 
-    const geminiResult = await generateJSON(prompt, fallback, {
-        temperature: 0.6,
-        timeoutMs: 8000,
-    });
-
-    const parsed = geminiResult.data;
-    dynamicConvRate = parsed.conversionRate || dynamicConvRate;
-    dynamicReachFactor = parsed.reachFactor || dynamicReachFactor;
+    // Fire Gemini in background
+    getOrCompute('predictive-roi', businessOwnerId, cacheInput, async () => {
+        try {
+            const geminiResult = await generateJSON(prompt, fallback, {
+                temperature: 0.6,
+                timeoutMs: 8000,
+            });
+            const parsed = geminiResult.data;
+            const updatedConvRate = parsed.conversionRate || dynamicConvRate;
+            const updatedReachFactor = parsed.reachFactor || dynamicReachFactor;
+            
+            const r = Math.round(followers * updatedReachFactor);
+            const c = r * (engagementRate / 100) * updatedConvRate;
+            const rev = c * productPrice;
+            const prof = rev - estimatedCost;
+            const roip = (prof / estimatedCost) * 100;
+            
+            const updatedResult = {
+                summary: parsed.insight || aiInsight,
+                metrics: {
+                    followers,
+                    reach: r,
+                    engagementRate,
+                    conversionRate: Number((updatedConvRate * 100).toFixed(1)),
+                    estimatedConversions: Math.round(c),
+                    revenue: Number(rev.toFixed(2)),
+                    avgProductPrice: productPrice,
+                    cost: estimatedCost,
+                    avgViews: metrics.avgViews || Math.round(followers * 0.16),
+                    totalLikes: metrics.totalLikes || Math.round(followers * 0.75),
+                    avgComments: metrics.avgComments || Math.round(followers * 0.02),
+                    avgShares: metrics.avgShares || Math.round(followers * 0.012),
+                },
+                projections: ['Month 1', 'Month 2', 'Month 3', 'Month 4', 'Month 5', 'Month 6'].map((month, i) => {
+                    const growth = 1 + (i * 0.12);
+                    const currR = r * growth;
+                    const currC = currR * (engagementRate / 100) * updatedConvRate;
+                    const currRev = currC * productPrice;
+                    return { month, reach: Math.round(currR), conversions: Math.round(currC), revenue: Math.round(currRev), profit: Math.round(currRev - estimatedCost) };
+                }),
+                aiInsight: parsed.insight || aiInsight,
+                niche: metrics.niche,
+                platforms: metrics.platforms,
+                primaryPlatform: metrics.primaryPlatform || 'N/A',
+                contentStyle: metrics.contentStyle || 'N/A',
+                profitable: prof > 0,
+                profit: Number(prof.toFixed(2)),
+                roi: Number(roip.toFixed(2)),
+                usesMockData: !hasRealMetrics,
+                audienceInfo: metrics.audienceInfo || { topCountry: 'Global', ageRange: 'Mixed', gender: 'Mixed' }
+            };
+            
+            setCached('predictive-roi', businessOwnerId, cacheInput, updatedResult, geminiResult.latencyMs);
+            return updatedResult;
+        } catch (err) {
+            logger.error(`[Background] ROI prediction failed: ${err}`);
+        }
+    }).catch(err => logger.error(`[Background] ${err}`));
 
     // 4. Projections & ROI
     const reach = Math.round(followers * dynamicReachFactor);
@@ -801,16 +858,16 @@ export const predictAdvertiserROI = async (
 
     const fallbackPositiveInsight = `Based on current metrics, this creator shows strong growth potential with a projected profit of ${profit.toFixed(2)} ETB and ROI of ${roi.toFixed(2)}%.`;
     const fallbackNegativeInsight = `Based on current metrics, this creator is a risky investment because the projected profit is ${profit.toFixed(2)} ETB and the ROI is ${roi.toFixed(2)}%. The campaign needs a lower cost or better conversion assumptions.`;
-    const optimisticCopy = (parsed.insight || aiInsight || '').toLowerCase();
+    const optimisticCopy = (aiInsight || '').toLowerCase();
 
     if (profit <= 0) {
         aiInsight = optimisticCopy.includes('strong growth potential') || optimisticCopy.includes('profitable') || optimisticCopy.includes('high growth')
             ? fallbackNegativeInsight
-            : (parsed.insight || fallbackNegativeInsight);
+            : fallbackNegativeInsight;
     } else {
         aiInsight = optimisticCopy.includes('risky') || optimisticCopy.includes('not profitable')
             ? fallbackPositiveInsight
-            : (parsed.insight || fallbackPositiveInsight);
+            : fallbackPositiveInsight;
     }
 
     const projections = ['Month 1', 'Month 2', 'Month 3', 'Month 4', 'Month 5', 'Month 6'].map((month, i) => {

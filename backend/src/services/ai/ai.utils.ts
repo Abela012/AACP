@@ -18,6 +18,7 @@ export const stripPII = (data: Record<string, any>): Record<string, any> => {
 export const flattenProfileData = (profileDoc: any): Record<string, any> => {
     if (!profileDoc) return {};
     return {
+        ...profileDoc,
         ...(profileDoc.profileData || {}),
         ...(profileDoc.pendingProfileData || {}),
         ...(profileDoc.pendingUpdates || {}),

@@ -57,7 +57,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
             onClick={onClose}
             className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9998]"
           />
-          
+
           {/* Modal */}
           <motion.div
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
@@ -73,7 +73,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
                   </h2>
                   <p className="text-gray-500 dark:text-gray-400 text-sm font-medium mt-1">{subtitle}</p>
                 </div>
-                <button 
+                <button
                   onClick={onClose}
                   className="w-10 h-10 rounded-xl bg-gray-50 dark:bg-white/5 flex items-center justify-center text-gray-400 hover:text-gray-600 dark:hover:text-white transition-colors"
                 >
@@ -89,17 +89,17 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
                     Overall Rating
                   </label>
                   <div className="flex flex-col items-center p-6 bg-gray-50 aacp-card aacp-card--glass">
-                    <StarRating 
-                      rating={rating} 
-                      onRatingChange={setRating} 
-                      size={40} 
+                    <StarRating
+                      rating={rating}
+                      onRatingChange={setRating}
+                      size={40}
                     />
                     <p className="mt-4 text-xs font-bold text-gray-400">
-                      {rating === 0 ? "Select stars" : 
-                       rating === 1 ? "Poor" : 
-                       rating === 2 ? "Fair" : 
-                       rating === 3 ? "Good" : 
-                       rating === 4 ? "Very Good" : "Excellent!"}
+                      {rating === 0 ? "Select stars" :
+                        rating === 1 ? "Poor" :
+                          rating === 2 ? "Fair" :
+                            rating === 3 ? "Good" :
+                              rating === 4 ? "Very Good" : "Excellent!"}
                     </p>
                   </div>
                 </div>
@@ -108,7 +108,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
                 <div className="space-y-3">
                   <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 dark:text-gray-500 flex items-center gap-2">
                     <MessageSquare size={12} className="text-primary-blue" />
-                    Comment (Optional)
+                    Comment (required)
                   </label>
                   <textarea
                     value={comment}
@@ -127,8 +127,8 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
                   disabled={isSubmitting || rating === 0}
                   className={cn(
                     "w-full h-14 rounded-2xl font-black text-sm flex items-center justify-center gap-2 transition-all shadow-xl",
-                    rating > 0 
-                      ? "bg-primary-blue text-white hover:bg-primary-blue shadow-primary-blue/20" 
+                    rating > 0
+                      ? "bg-primary-blue text-white hover:bg-primary-blue shadow-primary-blue/20"
                       : "bg-gray-100 dark:bg-white/5 text-gray-400 dark:text-gray-500 cursor-not-allowed shadow-none"
                   )}
                 >

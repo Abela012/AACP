@@ -96,6 +96,13 @@ export const extractMetrics = (profileData: any) => {
 
     processPlatform(profileData.tiktok, 'TikTok');
     processPlatform(profileData.instagram, 'Instagram');
+    
+    if (profileData.socialProfiles && Array.isArray(profileData.socialProfiles)) {
+        profileData.socialProfiles.forEach((p: any) => {
+            const platformName = p.platform === 'TikTok' ? 'TikTok' : p.platform === 'Instagram' ? 'Instagram' : p.platform;
+            processPlatform(p, platformName);
+        });
+    }
 
     // Legacy / flat profile fallbacks
     if (followers === 0 && profileData.followers) {
@@ -112,16 +119,43 @@ export const extractMetrics = (profileData: any) => {
         }
     }
 
-    const primaryPlatform = parseNum(profileData.tiktok?.followers) >= parseNum(profileData.instagram?.followers) ? 'TikTok' : 'Instagram';
-    
-    // Extract content style from primary platform
+    let maxF = 0;
+    let primaryPlatform = 'N/A';
+    let primaryProfile: any = null;
+
+    if (profileData.tiktok && parseNum(profileData.tiktok.followers) >= maxF) {
+        maxF = parseNum(profileData.tiktok.followers);
+        primaryPlatform = 'TikTok';
+        primaryProfile = profileData.tiktok;
+    }
+    if (profileData.instagram && parseNum(profileData.instagram.followers) > maxF) {
+        maxF = parseNum(profileData.instagram.followers);
+        primaryPlatform = 'Instagram';
+        primaryProfile = profileData.instagram;
+    }
+
+    if (profileData.socialProfiles && Array.isArray(profileData.socialProfiles)) {
+        profileData.socialProfiles.forEach((p: any) => {
+            const f = parseNum(p.followers);
+            if (f > maxF) {
+                maxF = f;
+                primaryPlatform = p.platform === 'TikTok' ? 'TikTok' : p.platform === 'Instagram' ? 'Instagram' : p.platform;
+                primaryProfile = p;
+            }
+        });
+    }
+
     let contentStyle = 'N/A';
-    const primary = primaryPlatform === 'TikTok' ? profileData.tiktok : profileData.instagram;
-    if (primary?.contentStyle) {
-        const style = primary.contentStyle;
+    if (primaryProfile?.contentStyle) {
+        const style = primaryProfile.contentStyle;
         if (typeof style === 'string') contentStyle = style;
         else if (Array.isArray(style)) contentStyle = style.join(', ');
         else if (typeof style === 'object') contentStyle = Object.values(style).filter(Boolean).join(', ') || 'N/A';
+    } else if (primaryProfile?.contentStyles) {
+        const style = primaryProfile.contentStyles;
+        if (Array.isArray(style)) contentStyle = style.join(', ');
+    } else if (profileData.contentFormats) {
+        contentStyle = Array.isArray(profileData.contentFormats) ? profileData.contentFormats.join(', ') : profileData.contentFormats;
     }
 
     return {

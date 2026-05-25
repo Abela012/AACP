@@ -25,6 +25,12 @@ export const createReview = async (req: Request, res: Response) => {
             return error(res, "You cannot review yourself", 400);
         }
 
+        // Validation: rating is allowed only once per user pair
+        const existingReview = await reviewService.getReviewByReviewerAndTarget(reviewer._id.toString(), targetUserId);
+        if (existingReview) {
+            return error(res, "You have already rated this user. Rating is allowed only once.", 400);
+        }
+
         const review = await reviewService.createReview({
             reviewerId: reviewer._id as any,
             targetUserId: targetUserId as any,
