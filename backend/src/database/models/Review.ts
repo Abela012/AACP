@@ -65,8 +65,8 @@ const reviewSchema: Schema<IReview> = new Schema(
     { timestamps: true }
 );
 
-// Ensure one user can only submit one review per collaboration
-reviewSchema.index({ reviewerId: 1, opportunityId: 1 }, { unique: true });
+// Ensure one user can only submit one review for a specific target user per opportunity
+reviewSchema.index({ reviewerId: 1, opportunityId: 1, targetUserId: 1 }, { unique: true });
 reviewSchema.index({ targetUserId: 1 });
 reviewSchema.index({ opportunityId: 1 });
 
