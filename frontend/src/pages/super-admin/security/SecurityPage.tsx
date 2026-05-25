@@ -76,7 +76,7 @@ export default function SuperAdminSecurityPage() {
                   initial={{ opacity: 0, y: 12 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: idx * 0.05 }}
-                  className="bg-white dark:bg-[#111111] p-6 rounded-4xl border border-[#EFEFEF] dark:border-white/5 shadow-sm"
+                  className="aacp-cx aacp-cx--admin p-6"
                 >
                   <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${card.bg} ${card.color} border ${card.border} mb-6`}>
                     <card.icon size={20} />
@@ -88,7 +88,7 @@ export default function SuperAdminSecurityPage() {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-              <div className="lg:col-span-5 bg-white dark:bg-[#111111] p-8 rounded-[2.5rem] border border-[#EFEFEF] dark:border-white/5 shadow-sm">
+              <div className="lg:col-span-5 aacp-cx aacp-cx--admin p-8">
                 <h3 className="text-xl font-black mb-8">Security Controls</h3>
                 <div className="space-y-5">
                   {data?.controls.map((control, idx) => (
@@ -111,7 +111,7 @@ export default function SuperAdminSecurityPage() {
                 </div>
               </div>
 
-              <div className="lg:col-span-7 bg-white dark:bg-[#111111] p-8 rounded-[2.5rem] border border-[#EFEFEF] dark:border-white/5 shadow-sm">
+              <div className="lg:col-span-7 aacp-cx aacp-cx--admin p-8">
                 <div className="flex items-center gap-3 mb-8">
                   <Clock className="text-primary-blue" size={20} />
                   <h3 className="text-xl font-black">Recent Security Events</h3>

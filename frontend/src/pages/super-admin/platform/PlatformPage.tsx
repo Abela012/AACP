@@ -129,7 +129,7 @@ export default function SuperAdminPlatformPage() {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-              <div className="lg:col-span-7 bg-white dark:bg-[#111111] p-8 rounded-[2.5rem] border border-[#EFEFEF] dark:border-white/5 shadow-sm">
+              <div className="lg:col-span-7 aacp-cx aacp-cx--admin p-8">
                 <div className="flex items-center gap-3 mb-8">
                   <Coins className="text-primary-blue" size={20} />
                   <h3 className="text-xl font-black">Platform Economics</h3>
@@ -167,7 +167,7 @@ export default function SuperAdminPlatformPage() {
               </div>
 
               <div className="lg:col-span-5 space-y-8">
-                <div className="bg-white dark:bg-[#111111] p-8 rounded-[2.5rem] border border-[#EFEFEF] dark:border-white/5 shadow-sm">
+                <div className="aacp-cx aacp-cx--admin p-8">
                   <div className="flex items-center gap-3 mb-8">
                     <KeyRound className="text-amber-600" size={20} />
                     <h3 className="text-xl font-black">Integration Keys</h3>
@@ -193,7 +193,7 @@ export default function SuperAdminPlatformPage() {
               </div>
             </div>
 
-            <div className="bg-white dark:bg-[#111111] p-8 rounded-[2.5rem] border border-[#EFEFEF] dark:border-white/5 shadow-sm">
+            <div className="aacp-cx aacp-cx--admin p-8">
               <div className="flex items-center gap-3 mb-8">
                 <Landmark className="text-primary-blue" size={20} />
                 <h3 className="text-xl font-black">Manual payment details</h3>
@@ -247,7 +247,7 @@ export default function SuperAdminPlatformPage() {
               </div>
             </div>
 
-            <div className="bg-white dark:bg-[#111111] p-8 rounded-[2.5rem] border border-[#EFEFEF] dark:border-white/5 shadow-sm">
+            <div className="aacp-cx aacp-cx--admin p-8">
               <div className="flex items-center justify-between mb-8">
                 <div className="flex items-center gap-3">
                   <Mail className="text-primary-blue" size={20} />
