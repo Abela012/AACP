@@ -636,9 +636,11 @@ export const updateContentNiche = async (req: Request, res: Response): Promise<v
         }
 
         // Validate that at least one social media account is connected
+        // — only enforced during initial setup, not when editing an already-completed profile
+        const isEditingExistingProfile = advertiserProfile.profileCompleted === true;
         let hasConnected = advertiserProfile.socialProfiles && advertiserProfile.socialProfiles.length > 0 && advertiserProfile.socialProfiles.some(sp => sp.verified);
 
-        if (!hasConnected) {
+        if (!hasConnected && !isEditingExistingProfile) {
             res.status(400).json({ success: false, message: "Please connect at least one social media account" });
             return;
         }
