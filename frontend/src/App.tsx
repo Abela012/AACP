@@ -41,11 +41,13 @@ import DisputesPage from "./pages/admin/disputes/DisputesPage";
 import AdminNotificationsPage from "./pages/admin/notifications/AdminNotificationsPage";
 import AdminProfilePage from "./pages/admin/profile/AdminProfilePage";
 import AdminChatPage from "./pages/admin/messages/AdminChatPage";
+import AdminHelpPage from "./pages/admin/help/AdminHelpPage";
 
 import AuditLogsPage from "./pages/system/audit-logs/AuditLogsPage";
 import CreateCampaignPage from "./pages/dashboard/business-owner/CreateCampaignPage";
 import EditCampaignPage from "./pages/dashboard/business-owner/EditCampaignPage";
 import CampaignApplicantsPage from "./pages/dashboard/business-owner/CampaignApplicantsPage";
+import BusinessHelpPage from "./pages/dashboard/business-owner/BusinessHelpPage";
 import PendingApprovalPage from "./pages/auth/PendingApprovalPage";
 import SSOCallbackPage from "./pages/auth/SSOCallbackPage";
 import SuperAdminAdminManagementPage from "./pages/super-admin/admin-management/AdminManagementPage";
@@ -214,6 +216,16 @@ function App() {
             <AuthGuard>
               <RoleGuard allowedRoles={["business_owner"]}>
                 <AnalyticsPage />
+              </RoleGuard>
+            </AuthGuard>
+          }
+        />
+        <Route
+          path="/business/help"
+          element={
+            <AuthGuard>
+              <RoleGuard allowedRoles={["business_owner"]}>
+                <BusinessHelpPage />
               </RoleGuard>
             </AuthGuard>
           }
@@ -572,7 +584,13 @@ function App() {
         />
         <Route
           path="/admin/help"
-          element={<Navigate to="/admin/analytics" replace />}
+          element={
+            <AuthGuard>
+              <RoleGuard allowedRoles={["admin"]}>
+                <AdminHelpPage />
+              </RoleGuard>
+            </AuthGuard>
+          }
         />
 
         {/* Super Admin Specific Routes */}

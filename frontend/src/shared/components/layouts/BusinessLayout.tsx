@@ -3,15 +3,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   LayoutDashboard, 
   Megaphone, 
-  Users, 
   BarChart3, 
   CreditCard, 
   Settings, 
-  Rocket,
   Bell,
   Search,
   Menu,
-  X,
   Lock,
   ShieldCheck,
   Sparkles,
@@ -20,7 +17,13 @@ import {
   Briefcase,
   Loader2,
   Star,
+  HelpCircle,
+  PlusCircle,
+  CheckCircle2,
+  AlertCircle,
+  Coins,
 } from 'lucide-react';
+import NewReportModal, { type ReportTypeOption } from '@/src/shared/components/reports/NewReportModal';
 import { useClerk } from '@clerk/clerk-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { cn } from '@/src/shared/utils/cn';
@@ -87,6 +90,44 @@ export default function BusinessLayout({ children }: BusinessLayoutProps) {
     { name: 'Settings', icon: Settings, path: '/profile/edit/business' },
   ];
 
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [selectedReportType, setSelectedReportType] = useState<string | null>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [toast, setToast] = useState<{ show: boolean; message: string; type: 'success' | 'error' }>({
+    show: false,
+    message: '',
+    type: 'success',
+  });
+
+  const businessReportTypes: ReportTypeOption[] = [
+    { id: 'campaigns', label: 'Campaign Performance', icon: Megaphone },
+    { id: 'creators', label: 'Creator Matches', icon: Sparkles },
+    { id: 'wallet', label: 'Spend & Wallet', icon: Coins },
+    { id: 'partnerships', label: 'Partnership Summary', icon: Briefcase },
+  ];
+
+  const showToast = (message: string, type: 'success' | 'error' = 'success') => {
+    setToast({ show: true, message, type });
+    setTimeout(() => setToast({ show: false, message: '', type: 'success' }), 4000);
+  };
+
+  const handleGenerateReport = () => {
+    if (!selectedReportType) {
+      showToast('Please select a report category first.', 'error');
+      return;
+    }
+
+    setIsGenerating(true);
+    setTimeout(() => {
+      setIsGenerating(false);
+      setShowReportModal(false);
+      const label =
+        businessReportTypes.find((t) => t.id === selectedReportType)?.label ?? selectedReportType;
+      setSelectedReportType(null);
+      showToast(`${label} report generated and downloaded successfully!`, 'success');
+    }, 2500);
+  };
+
   return (
     <div className="min-h-screen bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-white font-sans flex transition-colors duration-300">
       <DashboardSidebar
@@ -99,19 +140,42 @@ export default function BusinessLayout({ children }: BusinessLayoutProps) {
           { label: 'Main Menu', items: navigation },
           { label: 'System', items: systemNavigation },
         ]}
+        midSlot={
+          <div className="border-t border-gray-100 pt-6 dark:border-white/5">
+            <button
+              type="button"
+              title="New Report"
+              onClick={() => setShowReportModal(true)}
+              className="flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-primary-blue text-sm font-bold text-white shadow-lg shadow-primary-blue/20 transition-all hover:bg-primary-blue-hover"
+            >
+              <PlusCircle size={18} className="shrink-0" aria-hidden />
+              <span>New Report</span>
+            </button>
+          </div>
+        }
         footer={
-          <button
-            type="button"
-            title="Log Out"
-            onClick={() => {
-              localLogout();
-              signOut();
-            }}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-all border border-transparent hover:border-red-100 dark:hover:border-red-500/20"
-          >
-            <LogOut size={18} className="shrink-0" />
-            <span>Log Out</span>
-          </button>
+          <nav className="space-y-1">
+            <Link
+              to="/business/help"
+              title="Help Center"
+              className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-gray-500 transition-all hover:bg-gray-50 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-white"
+            >
+              <HelpCircle size={18} className="shrink-0" aria-hidden />
+              <span>Help Center</span>
+            </Link>
+            <button
+              type="button"
+              title="Log Out"
+              onClick={() => {
+                localLogout();
+                signOut();
+              }}
+              className="flex w-full items-center gap-3 rounded-xl border border-transparent px-3 py-2.5 text-sm font-medium text-red-500 transition-all hover:border-red-100 hover:bg-red-50 dark:hover:border-red-500/20 dark:hover:bg-red-500/10"
+            >
+              <LogOut size={18} className="shrink-0" aria-hidden />
+              <span>Log Out</span>
+            </button>
+          </nav>
         }
       />
 
@@ -368,6 +432,42 @@ export default function BusinessLayout({ children }: BusinessLayoutProps) {
           </p>
         </footer>
       </div>
+
+      <NewReportModal
+        open={showReportModal}
+        onClose={() => setShowReportModal(false)}
+        reportTypes={businessReportTypes}
+        selectedReportType={selectedReportType}
+        onSelectReportType={setSelectedReportType}
+        onGenerate={handleGenerateReport}
+        isGenerating={isGenerating}
+        title="Generate business report"
+        subtitle="Campaign & creator insights"
+      />
+
+      <AnimatePresence>
+        {toast.show && (
+          <motion.div
+            initial={{ opacity: 0, y: 50, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            className={cn(
+              'fixed bottom-8 right-8 z-[100] flex items-center gap-3 rounded-2xl border px-6 py-3 shadow-2xl',
+              toast.type === 'success'
+                ? 'border-primary-blue/30 bg-primary-blue text-white'
+                : 'border-red-400 bg-red-500 text-white'
+            )}
+            role="status"
+          >
+            {toast.type === 'success' ? (
+              <CheckCircle2 size={18} aria-hidden />
+            ) : (
+              <AlertCircle size={18} aria-hidden />
+            )}
+            <span className="text-xs font-black uppercase tracking-widest">{toast.message}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

@@ -319,6 +319,122 @@ const compatibilitySummary = (compatibility: RecommendationCompatibility): strin
     return `Niche ${compatibility.nicheCompatibility}/30, Audience ${compatibility.audienceCompatibility}/20, Location ${compatibility.audienceLocationCompatibility}/15, Platform ${compatibility.platformCompatibility}/15, Engagement ${compatibility.engagementQuality}/15, Relevance ${compatibility.audienceRelevance}/5.`;
 };
 
+/** @internal Exported via recommendationScoring for unit tests */
+const listOverlapRatio = jaccardOverlap;
+
+const scoreEngagement = (targetER: number, userMinER: number): number => {
+    const er = normalizeEngagementRate(targetER);
+    if (er <= 0) return 0;
+
+    const maxPts = 30;
+    let pts = (er / 100) * maxPts;
+
+    const minNorm = normalizeEngagementRate(userMinER);
+    if (minNorm > 0) {
+        if (er < minNorm) {
+            pts = (er / minNorm) * (maxPts * 0.55);
+        } else {
+            const headroom = Math.max(100 - minNorm, 1);
+            const excess = er - minNorm;
+            pts = maxPts * 0.55 + (excess / headroom) * (maxPts * 0.45);
+        }
+    }
+
+    return clamp(pts, 0, maxPts);
+};
+
+const scoreFollowers = (followers: number): number => {
+    if (followers <= 0) return 0;
+    const logMin = 3;
+    const logMax = 7;
+    const logF = Math.log10(followers + 1);
+    return clamp(((logF - logMin) / (logMax - logMin)) * 25, 0, 25);
+};
+
+const calculateMatchScore = (
+    userProfile: Record<string, any>,
+    userLocation: string | undefined,
+    target: Record<string, any>,
+    targetLocation: string | undefined
+): number => {
+    let score = 0;
+
+    const userPreferredNiches = normalizeToList(
+        userProfile.preferredNiches ||
+        userProfile.niches ||
+        userProfile.targetAudienceTags ||
+        userProfile.category ||
+        userProfile.niche ||
+        userProfile.industry
+    );
+    const userTags = normalizeToList(userProfile.targetAudienceTags);
+    const targetNiches = normalizeToList(target.niches || (target.category ? [target.category] : []));
+
+    const nicheOverlap = listOverlapRatio(userPreferredNiches, targetNiches);
+    if (nicheOverlap > 0) {
+        score += nicheOverlap * 30;
+    } else if (userTags.length > 0 && targetNiches.length > 0) {
+        score += listOverlapRatio(userTags, targetNiches) * 20;
+    }
+
+    const userPreferredPlatforms = normalizeToList(
+        userProfile.preferredPlatform || userProfile.selectedPlatforms || userProfile.platform || userProfile.platforms
+    );
+    const targetPlatforms = normalizeToList(target.platforms || target.platform || target.primaryPlatform);
+    if (userPreferredPlatforms.length > 0 && targetPlatforms.length > 0) {
+        score += listOverlapRatio(userPreferredPlatforms, targetPlatforms) * 20;
+    }
+
+    const targetEngagement = target.engagementRate ?? target.profileData?.engagementRate ?? 0;
+    const userMinEngagement = userProfile.minEngagement ?? userProfile.minEngagementRate ?? 0;
+    score += scoreEngagement(targetEngagement, userMinEngagement);
+
+    const targetFollowers = target.followers ?? target.profileData?.followers ?? 0;
+    score += scoreFollowers(targetFollowers);
+
+    const userBudget = userProfile.budget ?? 0;
+    const targetPrice = target.pricePerPost ?? target.profileData?.pricePerPost ?? target.budget?.amount ?? 0;
+    if (userBudget > 0 && targetPrice > 0) {
+        score += clamp(Math.min(userBudget / targetPrice, 1) * 15, 0, 15);
+    }
+
+    if (userLocation && targetLocation && userLocation.toLowerCase() === targetLocation.toLowerCase()) {
+        score += 10;
+    }
+
+    const rating = target.averageRating ?? target.meta?.averageRating ?? 0;
+    if (rating > 0) {
+        score += clamp((rating / 5) * 5, 0, 5);
+    }
+
+    return Math.min(score, 100);
+};
+
+const spreadAdvertiserMatchScores = (items: RecommendationItem[]): void => {
+    if (items.length === 0) return;
+
+    const rawScores = items.map((item) => (item.meta?.rawScore as number) ?? item.score);
+    const min = Math.min(...rawScores);
+    const max = Math.max(...rawScores);
+
+    if (max - min >= 2) {
+        items.forEach((item, index) => {
+            const raw = rawScores[index];
+            item.score = Math.round(42 + ((raw - min) / (max - min)) * 56);
+        });
+        return;
+    }
+
+    items.forEach((item) => {
+        const er = normalizeEngagementRate((item.meta?.engagementRate as number) ?? 0);
+        const followers = (item.meta?.followers as number) ?? 0;
+        const rating = (item.meta?.averageRating as number) ?? 0;
+        item.score = Math.round(
+            clamp(44 + er * 1.35 + Math.log10(followers + 1) * 2.8 + rating * 4, 40, 98)
+        );
+    });
+};
+
 export const getRecommendationsForUser = async (userId: string): Promise<RecommendationResult> => {
     const user = await User.findById(userId).lean();
     if (!user) {

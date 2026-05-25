@@ -10,15 +10,14 @@ import {
   Bell,
   Search,
   Menu,
-  X,
   LogOut,
   HelpCircle,
   PlusCircle,
-  Layout,
   MessageSquare,
   CheckCircle2,
-  RotateCcw,
+  Sparkles,
 } from 'lucide-react';
+import NewReportModal, { type ReportTypeOption } from '@/src/shared/components/reports/NewReportModal';
 import { useClerk, useUser as useClerkUser } from '@clerk/clerk-react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/src/shared/utils/cn';
@@ -26,7 +25,6 @@ import ThemeToggle from '@/src/shared/components/ThemeToggle';
 import { useUser } from '@/src/shared/context/UserContext';
 import { useProfile } from '@/src/shared/context/ProfileContext';
 import { useNotifications } from '@/src/hooks/useNotifications';
-import { Sparkles } from 'lucide-react';
 import DashboardSidebar from '@/src/shared/components/navigation/DashboardSidebar';
 import { useSidebarState } from '@/src/shared/components/navigation/useSidebarState';
 
@@ -78,6 +76,13 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     setTimeout(() => setToast({ show: false, message: '', type: 'success' }), 4000);
   };
 
+  const adminReportTypes: ReportTypeOption[] = [
+    { id: 'insights', label: 'Platform Insights', icon: LayoutDashboard },
+    { id: 'revenue', label: 'Revenue Ledger', icon: Coins },
+    { id: 'users', label: 'User Demographics', icon: Users },
+    { id: 'audit', label: 'Audit Summary', icon: CheckCircle2 },
+  ];
+
   const handleGenerateReport = () => {
     if (!selectedReportType) {
       showToast('Please select a report category first.', 'error');
@@ -86,12 +91,13 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
     setIsGenerating(true);
 
-    // Mock generation delay
     setTimeout(() => {
       setIsGenerating(false);
       setShowReportModal(false);
+      const label =
+        adminReportTypes.find((t) => t.id === selectedReportType)?.label ?? selectedReportType;
       setSelectedReportType(null);
-      showToast(`${selectedReportType.charAt(0).toUpperCase() + selectedReportType.slice(1)} report generated and downloaded successfully!`, 'success');
+      showToast(`${label} report generated and downloaded successfully!`, 'success');
     }, 2500);
   };
 
@@ -260,126 +266,15 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         </main>
       </div>
 
-      {/* New Report Modal */}
-      <AnimatePresence>
-        {showReportModal && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setShowReportModal(false)}
-              className="fixed inset-0 bg-black/40 backdrop-blur-sm z-60"
-            />
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-xl bg-white dark:bg-[#0F0F0F] rounded-[3rem] shadow-2xl border border-[#EFEFEF] dark:border-white/5 z-[70 overflow-hidden"
-            >
-              <div className="p-8 sm:p-10">
-                <div className="flex justify-between items-center mb-10">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-neutral-border/15 dark:bg-primary-blue/10 rounded-2xl flex items-center justify-center text-primary-blue">
-                      <BarChart3 size={24} />
-                    </div>
-                    <div>
-                      <h2 className="text-xl font-black">Generate Intelligence</h2>
-                      <p className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest">Custom Platform Reporting</p>
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => setShowReportModal(false)}
-                    className="p-3 hover:bg-gray-100 dark:hover:bg-white/5 rounded-2xl transition-all"
-                  >
-                    <X size={24} className="text-[#9A9FA5]" />
-                  </button>
-                </div>
-
-                <div className="space-y-8">
-                  {/* Report Type */}
-                  <div>
-                    <label className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest mb-4 block">Report Category</label>
-                    <div className="grid grid-cols-2 gap-4">
-                      {[
-                        { id: 'insights', label: 'Platform Insights', icon: LayoutDashboard },
-                        { id: 'revenue', label: 'Revenue Ledger', icon: Coins },
-                        { id: 'users', label: 'User Demographics', icon: Users },
-                        { id: 'audit', label: 'Audit Summary', icon: CheckCircle2 },
-                      ].map((type) => (
-                        <button
-                          key={type.id}
-                          onClick={() => setSelectedReportType(type.id)}
-                          className={cn(
-                            "flex flex-col items-center gap-3 p-6 rounded-4xl border transition-all group relative",
-                            selectedReportType === type.id
-                              ? "bg-white dark:bg-white/10 border-primary-blue shadow-xl shadow-neutral-border/25 dark:shadow-none"
-                              : "bg-gray-50 dark:bg-white/5 border-transparent hover:border-primary-blue/30 hover:bg-white dark:hover:bg-white/10"
-                          )}
-                        >
-                          <type.icon size={20} className={cn("transition-colors", selectedReportType === type.id ? "text-primary-blue" : "text-[#9A9FA5] group-hover:text-primary-blue")} />
-                          <span className={cn("text-xs font-bold transition-colors", selectedReportType === type.id ? "text-[#1A1D1F] dark:text-white" : "text-[#6F767E]")}>{type.label}</span>
-                          {selectedReportType === type.id && (
-                            <motion.div layoutId="selected-check" className="absolute top-4 right-4 text-primary-blue">
-                              <CheckCircle2 size={16} />
-                            </motion.div>
-                          )}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Format & Period */}
-                  <div className="grid grid-cols-2 gap-6">
-                    <div>
-                      <label className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest mb-4 block">Output Format</label>
-                      <select className="w-full bg-gray-50 dark:bg-white/5 border border-[#EFEFEF] dark:border-white/10 rounded-2xl px-5 py-4 text-xs font-bold focus:ring-2 focus:ring-primary-blue/20 appearance-none outline-none">
-                        <option>Portable Document (PDF)</option>
-                        <option>CSV Spreadsheet</option>
-                        <option>Excel Workbook</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label className="text-[10px] font-black text-[#9A9FA5] uppercase tracking-widest mb-4 block">Date Range</label>
-                      <select className="w-full bg-gray-50 dark:bg-white/5 border border-[#EFEFEF] dark:border-white/10 rounded-2xl px-5 py-4 text-xs font-bold focus:ring-2 focus:ring-primary-blue/20 appearance-none outline-none">
-                        <option>Last 7 Days</option>
-                        <option>Last 30 Days</option>
-                        <option>Current Quarter</option>
-                        <option>Fiscal Year</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <button
-                    onClick={handleGenerateReport}
-                    disabled={isGenerating}
-                    className={cn(
-                      "w-full py-5 rounded-4xl font-black text-xs uppercase tracking-[0.2em] transition-all mt-4 flex items-center justify-center gap-3",
-                      isGenerating
-                        ? "bg-gray-100 dark:bg-white/5 text-[#9A9FA5] cursor-not-allowed"
-                        : "bg-primary-blue hover:bg-primary-blue text-white shadow-xl shadow-neutral-border/25 dark:shadow-none"
-                    )}
-                  >
-                    {isGenerating ? (
-                      <>
-                        <motion.div
-                          animate={{ rotate: 360 }}
-                          transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                        >
-                          <RotateCcw size={18} />
-                        </motion.div>
-                        Generating...
-                      </>
-                    ) : (
-                      'Generate Report'
-                    )}
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
+      <NewReportModal
+        open={showReportModal}
+        onClose={() => setShowReportModal(false)}
+        reportTypes={adminReportTypes}
+        selectedReportType={selectedReportType}
+        onSelectReportType={setSelectedReportType}
+        onGenerate={handleGenerateReport}
+        isGenerating={isGenerating}
+      />
 
       {/* Global Toast */}
       <AnimatePresence>
