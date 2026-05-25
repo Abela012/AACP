@@ -53,6 +53,7 @@ import { useRecommendations } from "@/src/hooks/useRecommendations";
 import { useUserCollaborations } from "@/src/hooks/useCollaborations";
 import { useBusinessOwnerApplications } from "@/src/hooks/useApplications";
 import { useConversations } from "@/src/hooks/useChat";
+import { useMyTrustScore } from "@/src/hooks/useAdminAnalytics";
 
 // ─── SUB-COMPONENTS ───────────────────────────────────────────────────────────
 
