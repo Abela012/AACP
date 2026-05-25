@@ -1,5 +1,5 @@
-import { useState, useRef, useEffect, type ReactNode } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useRef, useEffect, type ReactNode } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   LayoutDashboard,
   Megaphone,
@@ -7,13 +7,11 @@ import {
   BarChart3,
   CreditCard,
   Settings,
-  Target,
   Bell,
   Search,
   Menu,
   Lock,
   ShieldCheck,
-  Users,
   LogOut,
   MessageSquare,
   Briefcase,
@@ -40,54 +38,63 @@ export default function AdvertiserLayout({ children }: AdvertiserLayoutProps) {
   const location = useLocation();
   const { onboardingStatus, logout: localLogout } = useUser();
   const { profile } = useProfile();
-  const isApproved = onboardingStatus === 'approved';
+  const isApproved = onboardingStatus === "approved";
 
   const { notifications, unreadCount, markAllAsRead } = useNotifications();
   const { data: oppsData } = useOpportunities();
   const matchCount = oppsData?.opportunities?.length ?? 0;
 
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [showNotifications, setShowNotifications] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
   const notifRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
-        setSearchQuery('');
+      if (
+        searchRef.current &&
+        !searchRef.current.contains(event.target as Node)
+      ) {
+        setSearchQuery("");
       }
-      if (notifRef.current && !notifRef.current.contains(event.target as Node)) {
+      if (
+        notifRef.current &&
+        !notifRef.current.contains(event.target as Node)
+      ) {
         setShowNotifications(false);
       }
     }
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   // Pages that are ALWAYS accessible
-  const isPublicPage = location.pathname === '/dashboard/advertiser' || location.pathname === '/profile/complete/advertiser';
+  const isPublicPage =
+    location.pathname === "/dashboard/advertiser" ||
+    location.pathname === "/profile/complete/advertiser";
   const showLockOverlay = !isApproved && !isPublicPage;
 
   const navigation = [
-    { name: 'Overview', icon: LayoutDashboard, path: '/dashboard/advertiser' },
-    { name: 'Campaigns', icon: Megaphone, path: '/advertiser/campaigns' },
-    { name: 'AI Matches', icon: Sparkles, path: '/advertiser/matches', badge: matchCount > 0 ? matchCount.toString() : undefined },
-    { name: 'Partnerships', icon: Briefcase, path: '/advertiser/collaborations' },
-    { name: 'Reports', icon: BarChart3, path: '/advertiser/analytics' },
-    { name: 'Messages', icon: MessageSquare, path: '/messages' },
+    { name: "Overview", icon: LayoutDashboard, path: "/dashboard/advertiser" },
+    { name: "Campaigns", icon: Megaphone, path: "/advertiser/campaigns" },
+    {
+      name: "AI Matches",
+      icon: Sparkles,
+      path: "/advertiser/matches",
+      badge: matchCount > 0 ? matchCount.toString() : undefined,
+    },
+    {
+      name: "Partnerships",
+      icon: Briefcase,
+      path: "/advertiser/collaborations",
+    },
+    { name: "Reports", icon: BarChart3, path: "/advertiser/analytics" },
+    { name: "Messages", icon: MessageSquare, path: "/messages" },
   ];
 
   const systemNavigation = [
-    { name: 'Wallet', icon: CreditCard, path: '/advertiser/wallet' },
-    { name: 'Settings', icon: Settings, path: '/profile/edit/advertiser' },
-  ];
-
-  const headerNav = [
-    { name: 'Dashboard', path: '/dashboard/advertiser' },
-    { name: 'Opportunities', path: '/advertiser/matches' },
-    { name: 'Partnerships', path: '/advertiser/collaborations' },
-    { name: 'Analytics', path: '/advertiser/analytics' },
-    { name: 'Campaigns', path: '/advertiser/campaigns' },
+    { name: "Wallet", icon: CreditCard, path: "/advertiser/wallet" },
+    { name: "Settings", icon: Settings, path: "/profile/edit/advertiser" },
   ];
 
   return (
@@ -130,22 +137,16 @@ export default function AdvertiserLayout({ children }: AdvertiserLayoutProps) {
             <button className="p-2 -ml-2 text-gray-500 dark:text-gray-400 hover:text-primary-blue transition-colors" onClick={toggleSidebar}>
               <Menu size={20} />
             </button>
-            <nav className="hidden md:flex items-center gap-8">
-              {headerNav.map((item) => (
-                <Link
-                  key={item.name}
-                  to={item.path}
-                  className={cn(
-                    "text-sm font-medium transition-colors pb-1",
-                    location.pathname === item.path
-                      ? "text-primary-blue border-b-2 border-primary-blue"
-                      : "text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
-                  )}
-                >
-                  {item.name}
-                </Link>
-              ))}
-            </nav>
+            {!isSidebarOpen && (
+              <Link to="/" className="flex items-center gap-2">
+                <div className="w-7 h-7 bg-primary-blue rounded-full flex items-center justify-center">
+                  <Zap className="text-white w-4 h-4 fill-white" />
+                </div>
+                <span className="text-lg font-bold tracking-tighter text-primary-blue">
+                  AACP
+                </span>
+              </Link>
+            )}
           </div>
 
           <div className="flex items-center gap-2 sm:gap-4 relative">
@@ -168,7 +169,9 @@ export default function AdvertiserLayout({ children }: AdvertiserLayoutProps) {
                     className="absolute top-12 left-0 right-0 bg-white dark:bg-[#1a1a1a] border border-gray-100 dark:border-white/10 rounded-xl shadow-xl overflow-hidden z-50 text-left"
                   >
                     <div className="p-3">
-                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-2 mb-2">Results for "{searchQuery}"</p>
+                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-2 mb-2">
+                        Results for "{searchQuery}"
+                      </p>
                       <button className="w-full text-left px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 rounded-lg flex items-center gap-2">
                         <Search size={14} className="text-primary-blue" />
                         Search campaigns for "{searchQuery}"
@@ -210,32 +213,61 @@ export default function AdvertiserLayout({ children }: AdvertiserLayoutProps) {
                     className="absolute top-14 right-0 w-80 bg-white dark:bg-[#1a1a1a] rounded-4xl shadow-2xl border border-gray-100 dark:border-white/10 overflow-hidden z-50 text-left"
                   >
                     <div className="p-6 border-b border-gray-100 dark:border-white/5 flex justify-between items-center bg-gray-50/50 dark:bg-white/2">
-                      <h3 className="font-bold text-gray-900 dark:text-white">Notifications</h3>
+                      <h3 className="font-bold text-gray-900 dark:text-white">
+                        Notifications
+                      </h3>
                       {unreadCount > 0 && (
-                        <span className="bg-primary-blue/10 text-primary-blue text-[10px] font-bold px-2 py-1 rounded-lg uppercase tracking-wider">{unreadCount} New</span>
+                        <span className="bg-primary-blue/10 text-primary-blue text-[10px] font-bold px-2 py-1 rounded-lg uppercase tracking-wider">
+                          {unreadCount} New
+                        </span>
                       )}
                     </div>
                     <div className="max-h-80 overflow-y-auto divide-y divide-gray-50 dark:divide-white/5">
                       {notifications.length > 0 ? (
                         notifications.map((notif) => (
-                          <div key={notif.id} className="p-5 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors cursor-pointer flex gap-4">
-                            <div className={cn(
-                              "w-10 h-10 rounded-xl flex items-center justify-center shrink-0",
-                              notif.type === 'application' ? "bg-primary-blue/10 text-primary-blue" : "bg-blue-600/10 text-blue-600"
-                            )}>
-                              {notif.type === 'application' ? <Sparkles size={18} /> : <MessageSquare size={18} />}
+                          <div
+                            key={notif.id}
+                            className="p-5 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors cursor-pointer flex gap-4"
+                          >
+                            <div
+                              className={cn(
+                                "w-10 h-10 rounded-xl flex items-center justify-center shrink-0",
+                                notif.type === "application"
+                                  ? "bg-primary-blue/10 text-primary-blue"
+                                  : "bg-blue-600/10 text-blue-600",
+                              )}
+                            >
+                              {notif.type === "application" ? (
+                                <Sparkles size={18} />
+                              ) : (
+                                <MessageSquare size={18} />
+                              )}
                             </div>
                             <div>
-                              <p className="text-sm font-bold text-gray-900 dark:text-white mb-1">{notif.title}</p>
-                              <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed mb-2">{notif.message}</p>
-                              <span className="text-[10px] font-bold text-gray-400 uppercase">{new Date(notif.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                              <p className="text-sm font-bold text-gray-900 dark:text-white mb-1">
+                                {notif.title}
+                              </p>
+                              <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed mb-2">
+                                {notif.message}
+                              </p>
+                              <span className="text-[10px] font-bold text-gray-400 uppercase">
+                                {new Date(notif.createdAt).toLocaleTimeString(
+                                  [],
+                                  { hour: "2-digit", minute: "2-digit" },
+                                )}
+                              </span>
                             </div>
                           </div>
                         ))
                       ) : (
                         <div className="p-10 text-center">
-                          <Bell className="mx-auto text-gray-300 dark:text-gray-700 mb-3" size={32} />
-                          <p className="text-xs font-bold text-gray-400">All caught up!</p>
+                          <Bell
+                            className="mx-auto text-gray-300 dark:text-gray-700 mb-3"
+                            size={32}
+                          />
+                          <p className="text-xs font-bold text-gray-400">
+                            All caught up!
+                          </p>
                         </div>
                       )}
                     </div>
@@ -245,9 +277,15 @@ export default function AdvertiserLayout({ children }: AdvertiserLayoutProps) {
             </div>
 
             <ThemeToggle />
-            <Link to="/profile/view/advertiser" className="w-10 h-10 rounded-xl overflow-hidden border border-gray-100 dark:border-white/10">
+            <Link
+              to="/profile/view/advertiser"
+              className="w-10 h-10 rounded-xl overflow-hidden border border-gray-100 dark:border-white/10"
+            >
               <img
-                src={profile.avatarUrl || `https://ui-avatars.com/api/?name=${profile.firstName}+${profile.lastName}&background=10b981&color=fff`}
+                src={
+                  profile.avatarUrl ||
+                  `https://ui-avatars.com/api/?name=${profile.firstName}+${profile.lastName}&background=10b981&color=fff`
+                }
                 alt="Profile"
                 className="w-full h-full object-cover"
                 referrerPolicy="no-referrer"
@@ -263,9 +301,12 @@ export default function AdvertiserLayout({ children }: AdvertiserLayoutProps) {
                 <div className="w-20 h-20 bg-primary-blue/10 rounded-3xl flex items-center justify-center mx-auto mb-6">
                   <Lock className="text-primary-blue w-10 h-10" />
                 </div>
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">Profile Pending Approval</h2>
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">
+                  Profile Pending Approval
+                </h2>
                 <p className="text-gray-500 dark:text-gray-400 mb-8 leading-relaxed">
-                  Your advertiser profile is currently being reviewed. This page will be unlocked once your account is approved.
+                  Your advertiser profile is currently being reviewed. This page
+                  will be unlocked once your account is approved.
                 </p>
                 <div className="flex flex-col gap-3">
                   <Link
