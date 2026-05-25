@@ -57,7 +57,7 @@ export default function AdminHelpPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.1 }}
-              className="bg-white dark:bg-[#111111] p-8 rounded-[2.5rem] border border-[#EFEFEF] dark:border-white/5 shadow-sm hover:shadow-md transition-all group cursor-pointer"
+              className="aacp-cx aacp-cx--admin p-8 hover:shadow-md transition-all group cursor-pointer"
             >
               <div className={`w-12 h-12 rounded-2xl ${cat.bg} ${cat.color} flex items-center justify-center mb-6`}>
                 <cat.icon size={24} />

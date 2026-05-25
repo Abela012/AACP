@@ -120,7 +120,7 @@ export default function UserApprovalPage() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           {/* Left Column: Details & Score */}
           <div className="lg:col-span-4 space-y-8">
-            <div className="bg-white dark:bg-[#111111] p-8 rounded-[2.5rem] border border-[#EFEFEF] dark:border-white/5 shadow-sm relative overflow-hidden">
+            <div className="aacp-cx aacp-cx--admin p-8 relative overflow-hidden">
               <div className="flex justify-between items-center mb-8">
                 <h3 className="font-extrabold text-lg">Profile Details</h3>
                 <Fingerprint size={20} className="text-[#9A9FA5] opacity-20" />
@@ -188,7 +188,7 @@ export default function UserApprovalPage() {
 
           {/* Middle Column: Documents */}
           <div className="lg:col-span-5 space-y-8">
-            <div className="bg-white dark:bg-[#111111] p-8 rounded-[2.5rem] border border-[#EFEFEF] dark:border-white/5 shadow-sm">
+            <div className="aacp-cx aacp-cx--admin p-8">
               <div className="flex justify-between items-center mb-8">
                 <h3 className="font-extrabold text-lg">Verification Documents</h3>
                 <div className="flex gap-2">
@@ -276,7 +276,7 @@ export default function UserApprovalPage() {
 
             {/* Analytics Review Section - Only for Advertisers */}
             {!isBusiness && (displayProfileData.tiktok || displayProfileData.instagram) && (
-              <div className="bg-white dark:bg-[#111111] p-8 rounded-[2.5rem] border border-[#EFEFEF] dark:border-white/5 shadow-sm space-y-8">
+              <div className="aacp-cx aacp-cx--admin p-8 space-y-8">
                 <h3 className="font-extrabold text-lg flex items-center gap-2">
                   <BarChart3 size={20} className="text-primary-blue" />
                   Analytics Review
@@ -451,7 +451,7 @@ export default function UserApprovalPage() {
 
             {/* Business Review Section - Only for Business Owners */}
             {isBusiness && (
-              <div className="bg-white dark:bg-[#111111] p-8 rounded-[2.5rem] border border-[#EFEFEF] dark:border-white/5 shadow-sm space-y-8">
+              <div className="aacp-cx aacp-cx--admin p-8 space-y-8">
                 <h3 className="font-extrabold text-lg flex items-center gap-2">
                   <Building2 size={20} className="text-primary-blue" />
                   Business Review
