@@ -1,26 +1,20 @@
-import { useParams, useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  ArrowLeft, 
-  MessageSquare, 
-  CheckCircle2, 
-  Clock, 
-  ShieldCheck,
-  ExternalLink,
-  ChevronRight,
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import { useParams, useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  ArrowLeft,
+  MessageSquare,
   Flag,
-  FileText,
   AlertCircle,
-  Star,
   LayoutDashboard,
   ListTodo,
   FolderKanban,
   BarChart3,
-  Info
-} from 'lucide-react';
-import { 
-  useCollaborationDetails, 
-  useCompleteCollaboration,
+  Info,
+} from "lucide-react";
+import {
+  useCollaborationDetails,
   useAddTask,
   useUpdateTask,
   useSubmitDeliverable,
@@ -28,58 +22,75 @@ import {
   useCollaborationAnalytics,
   useSubmitAnalytics,
   useRefreshAnalytics,
-} from '@/src/hooks/useCollaborations';
-import { useCollaborationReviews } from '@/src/hooks/useReviews';
-import { useUser } from '@/src/shared/context/UserContext';
-import { useProfile } from '@/src/shared/context/ProfileContext';
-import BusinessLayout from '@/src/shared/components/layouts/BusinessLayout';
-import AdvertiserLayout from '@/src/shared/components/layouts/AdvertiserLayout';
-import { cn } from '@/src/shared/utils/cn';
-import { useState } from 'react';
-import { toast } from 'react-hot-toast';
+} from "@/src/hooks/useCollaborations";
+import { useCollaborationReviews } from "@/src/hooks/useReviews";
+import { useUser } from "@/src/shared/context/UserContext";
+import { useProfile } from "@/src/shared/context/ProfileContext";
+import BusinessLayout from "@/src/shared/components/layouts/BusinessLayout";
+import AdvertiserLayout from "@/src/shared/components/layouts/AdvertiserLayout";
+import { cn } from "@/src/shared/utils/cn";
+import { useState } from "react";
+import { toast } from "react-hot-toast";
 
 // New Components
-import { WorkspaceHeader } from './components/WorkspaceHeader';
-import { TaskBoard } from './components/TaskBoard';
-import { DeliverablesManager } from './components/DeliverablesManager';
-import { AnalyticsDashboard } from './components/AnalyticsDashboard';
-import { ActivityFeed } from './components/ActivityFeed';
-import { CollaborationChat } from './components/CollaborationChat';
+import { WorkspaceHeader } from "./components/WorkspaceHeader";
+import { TaskBoard } from "./components/TaskBoard";
+import { DeliverablesManager } from "./components/DeliverablesManager";
+import { AnalyticsDashboard } from "./components/AnalyticsDashboard";
+import { ActivityFeed } from "./components/ActivityFeed";
+import { CollaborationChat } from "./components/CollaborationChat";
 
 // Hooks
-import { useChat } from '@/src/hooks/useChat';
+import { useChat } from "@/src/hooks/useChat";
+import { useReportPartner } from "@/src/hooks/useCollaborations";
+import ReportPartnerModal from "./components/ReportPartnerModal";
 
-type TabType = 'overview' | 'tasks' | 'deliverables' | 'chat' | 'analytics';
+type TabType = "overview" | "tasks" | "deliverables" | "chat" | "analytics";
 
 export default function CollaborationDetailsPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { userRole } = useUser();
   const { profile } = useProfile();
-  
-  const { data: collab, isLoading, error, refetch } = useCollaborationDetails(id!);
+
+  const {
+    data: collab,
+    isLoading,
+    error,
+    refetch,
+  } = useCollaborationDetails(id!);
   const { data: reviews } = useCollaborationReviews(id!);
-  
+
   const addTaskMutation = useAddTask();
   const updateTaskMutation = useUpdateTask();
   const submitDeliverableMutation = useSubmitDeliverable();
   const reviewDeliverableMutation = useReviewDeliverable();
 
   // Analytics
-  const { data: analyticsData = [], isLoading: analyticsLoading } = useCollaborationAnalytics(id!);
+  const { data: analyticsData = [], isLoading: analyticsLoading } =
+    useCollaborationAnalytics(id!);
   const submitAnalyticsMutation = useSubmitAnalytics(id!);
   const refreshAnalyticsMutation = useRefreshAnalytics(id!);
-  const [refreshingAnalyticsId, setRefreshingAnalyticsId] = useState<string | null>(null);
+  const [refreshingAnalyticsId, setRefreshingAnalyticsId] = useState<
+    string | null
+  >(null);
+  const [showReportModal, setShowReportModal] = useState(false);
 
-  const [activeTab, setActiveTab] = useState<TabType>('overview');
+  const reportPartnerMutation = useReportPartner(id!);
 
-  const partner = userRole === 'business_owner' ? collab?.advertiser : collab?.businessOwner;
-  const partnerName = partner?.fullName || partner?.firstName ? `${partner.firstName} ${partner.lastName}` : 'Partner';
+  const [activeTab, setActiveTab] = useState<TabType>("overview");
+
+  const partner =
+    userRole === "business_owner" ? collab?.advertiser : collab?.businessOwner;
+  const partnerName =
+    partner?.fullName || partner?.firstName
+      ? `${partner.firstName} ${partner.lastName}`
+      : "Partner";
 
   // Initialize Chat
-  const { messages, sendMessage } = useChat('', partner?._id);
+  const { messages, sendMessage } = useChat("", partner?._id);
 
-  const Layout = userRole === 'advertiser' ? AdvertiserLayout : BusinessLayout;
+  const Layout = userRole === "advertiser" ? AdvertiserLayout : BusinessLayout;
 
   if (isLoading) {
     return (
@@ -98,12 +109,15 @@ export default function CollaborationDetailsPage() {
           <div className="w-20 h-20 bg-red-500/10 rounded-full flex items-center justify-center mb-6">
             <AlertCircle className="text-red-500 w-10 h-10" />
           </div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Workspace Not Found</h2>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+            Workspace Not Found
+          </h2>
           <p className="text-gray-500 dark:text-gray-400 max-w-sm mb-8">
-            The workspace you're looking for doesn't exist or you don't have permission to access it.
+            The workspace you're looking for doesn't exist or you don't have
+            permission to access it.
           </p>
-          <button 
-            onClick={() => navigate('/dashboard')}
+          <button
+            onClick={() => navigate("/dashboard")}
             className="px-8 py-3 bg-gray-900 dark:bg-white text-white dark:text-black font-bold rounded-xl hover:opacity-90 transition-all"
           >
             Return to Dashboard
@@ -114,11 +128,11 @@ export default function CollaborationDetailsPage() {
   }
 
   const tabs: { id: TabType; label: string; icon: any }[] = [
-    { id: 'overview', label: 'Overview', icon: LayoutDashboard },
-    { id: 'tasks', label: 'Tasks', icon: ListTodo },
-    { id: 'deliverables', label: 'Deliverables', icon: FolderKanban },
-    { id: 'chat', label: 'Messenger', icon: MessageSquare },
-    { id: 'analytics', label: 'Analytics', icon: BarChart3 },
+    { id: "overview", label: "Overview", icon: LayoutDashboard },
+    { id: "tasks", label: "Tasks", icon: ListTodo },
+    { id: "deliverables", label: "Deliverables", icon: FolderKanban },
+    { id: "chat", label: "Messenger", icon: MessageSquare },
+    { id: "analytics", label: "Analytics", icon: BarChart3 },
   ];
 
   return (
@@ -126,38 +140,38 @@ export default function CollaborationDetailsPage() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         {/* Breadcrumb / Back */}
         <div className="mb-8">
-           <button 
+          <button
             onClick={() => navigate(-1)}
             className="flex items-center gap-2 text-xs font-black text-gray-400 uppercase tracking-widest hover:text-primary-blue transition-all"
-           >
-             <ArrowLeft size={14} /> Back to My Campaigns
-           </button>
+          >
+            <ArrowLeft size={14} /> Back to My Campaigns
+          </button>
         </div>
 
         {/* Global Header Component */}
-        <WorkspaceHeader 
-          campaign={collab.opportunity} 
-          collaboration={collab} 
-          status={collab.status} 
+        <WorkspaceHeader
+          campaign={collab.opportunity}
+          collaboration={collab}
+          status={collab.status}
         />
 
         {/* Dashboard Navigation */}
         <div className="flex overflow-x-auto gap-2 mb-10 pb-2 no-scrollbar">
-           {tabs.map((tab) => (
-             <button
-               key={tab.id}
-               onClick={() => setActiveTab(tab.id)}
-               className={cn(
-                 "flex items-center gap-2 px-6 py-3 rounded-2xl text-sm font-bold transition-all shrink-0 border",
-                 activeTab === tab.id 
-                   ? "bg-gray-900 dark:bg-white text-white dark:text-black border-gray-900 dark:border-white shadow-xl shadow-gray-200 dark:shadow-none" 
-                   : "bg-white dark:bg-white/5 text-gray-500 dark:text-gray-400 border-gray-100 dark:border-white/5 hover:bg-gray-50 dark:hover:bg-white/10"
-               )}
-             >
-               <tab.icon size={18} />
-               {tab.label}
-             </button>
-           ))}
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={cn(
+                "flex items-center gap-2 px-6 py-3 rounded-2xl text-sm font-bold transition-all shrink-0 border",
+                activeTab === tab.id
+                  ? "bg-gray-900 dark:bg-white text-white dark:text-black border-gray-900 dark:border-white shadow-xl shadow-gray-200 dark:shadow-none"
+                  : "bg-white dark:bg-white/5 text-gray-500 dark:text-gray-400 border-gray-100 dark:border-white/5 hover:bg-gray-50 dark:hover:bg-white/10",
+              )}
+            >
+              <tab.icon size={18} />
+              {tab.label}
+            </button>
+          ))}
         </div>
 
         {/* Dynamic Tab Content */}
@@ -170,7 +184,7 @@ export default function CollaborationDetailsPage() {
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.2 }}
             >
-              {activeTab === 'overview' && (
+              {activeTab === "overview" && (
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                   <div className="lg:col-span-2 space-y-8">
                     {/* Project Intro */}
@@ -181,164 +195,205 @@ export default function CollaborationDetailsPage() {
                           Campaign Brief
                         </h3>
                         <div className="flex -space-x-2">
-                           {[1,2,3].map(i => (
-                             <div key={i} className="w-8 h-8 rounded-full border-2 border-white dark:border-black bg-gray-100 dark:bg-white/5 flex items-center justify-center text-[10px] font-bold">
-                               {i}
-                             </div>
-                           ))}
+                          {[1, 2, 3].map((i) => (
+                            <div
+                              key={i}
+                              className="w-8 h-8 rounded-full border-2 border-white dark:border-black bg-gray-100 dark:bg-white/5 flex items-center justify-center text-[10px] font-bold"
+                            >
+                              {i}
+                            </div>
+                          ))}
                         </div>
                       </div>
                       <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed font-medium mb-8">
-                        {collab.opportunity?.description || 'No detailed brief provided for this campaign yet.'}
+                        {collab.opportunity?.description ||
+                          "No detailed brief provided for this campaign yet."}
                       </p>
-                      
+
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                         <div className="p-4 bg-gray-50 dark:bg-white/5 rounded-2xl">
-                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Duration</p>
-                            <p className="text-xs font-bold text-gray-900 dark:text-white">30 Days</p>
-                         </div>
-                         <div className="p-4 bg-gray-50 dark:bg-white/5 rounded-2xl">
-                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Usage</p>
-                            <p className="text-xs font-bold text-gray-900 dark:text-white">6 Months</p>
-                         </div>
-                         <div className="p-4 bg-gray-50 dark:bg-white/5 rounded-2xl">
-                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Platform</p>
-                            <p className="text-xs font-bold text-gray-900 dark:text-white">{collab.opportunity?.platforms?.join(', ') || 'Global'}</p>
-                         </div>
-                         <div className="p-4 bg-gray-50 dark:bg-white/5 rounded-2xl">
-                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Target</p>
-                            <p className="text-xs font-bold text-gray-900 dark:text-white">Gen Z / Urban</p>
-                         </div>
+                        <div className="p-4 bg-gray-50 dark:bg-white/5 rounded-2xl">
+                          <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">
+                            Duration
+                          </p>
+                          <p className="text-xs font-bold text-gray-900 dark:text-white">
+                            30 Days
+                          </p>
+                        </div>
+                        <div className="p-4 bg-gray-50 dark:bg-white/5 rounded-2xl">
+                          <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">
+                            Usage
+                          </p>
+                          <p className="text-xs font-bold text-gray-900 dark:text-white">
+                            6 Months
+                          </p>
+                        </div>
+                        <div className="p-4 bg-gray-50 dark:bg-white/5 rounded-2xl">
+                          <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">
+                            Platform
+                          </p>
+                          <p className="text-xs font-bold text-gray-900 dark:text-white">
+                            {collab.opportunity?.platforms?.join(", ") ||
+                              "Global"}
+                          </p>
+                        </div>
+                        <div className="p-4 bg-gray-50 dark:bg-white/5 rounded-2xl">
+                          <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">
+                            Target
+                          </p>
+                          <p className="text-xs font-bold text-gray-900 dark:text-white">
+                            Gen Z / Urban
+                          </p>
+                        </div>
                       </div>
                     </section>
 
                     {/* Partner Card */}
                     <section className="bg-gray-900 text-white rounded-[2.5rem] p-8 shadow-xl relative overflow-hidden group">
-                       <div className="absolute top-0 right-0 w-64 h-64 bg-primary-blue/10 rounded-full blur-3xl group-hover:bg-primary-blue/20 transition-all" />
-                       <div className="relative z-10 flex flex-col sm:flex-row items-center gap-8">
-                          <div className="w-24 h-24 rounded-3xl bg-white/10 p-1 shrink-0 overflow-hidden">
-                             <img 
-                               src={partner?.profilePicture || `https://ui-avatars.com/api/?name=${partnerName}&background=10b981&color=fff`} 
-                               alt="" 
-                               className="w-full h-full object-cover rounded-2xl" 
-                             />
+                      <div className="absolute top-0 right-0 w-64 h-64 bg-primary-blue/10 rounded-full blur-3xl group-hover:bg-primary-blue/20 transition-all" />
+                      <div className="relative z-10 flex flex-col sm:flex-row items-center gap-8">
+                        <div className="w-24 h-24 rounded-3xl bg-white/10 p-1 shrink-0 overflow-hidden">
+                          <img
+                            src={
+                              partner?.profilePicture ||
+                              `https://ui-avatars.com/api/?name=${partnerName}&background=10b981&color=fff`
+                            }
+                            alt=""
+                            className="w-full h-full object-cover rounded-2xl"
+                          />
+                        </div>
+                        <div className="text-center sm:text-left flex-1">
+                          <h4 className="text-xl font-black mb-1">
+                            {partnerName}
+                          </h4>
+                          <p className="text-sm font-medium text-white/50 mb-4">
+                            {userRole === "business_owner"
+                              ? "Professional Content Creator"
+                              : "Brand Marketing Manager"}
+                          </p>
+                          <div className="flex flex-wrap justify-center sm:justify-start gap-4">
+                            <button
+                              onClick={() =>
+                                navigate(`/profile/${partner._id}`)
+                              }
+                              className="px-5 py-2 bg-white/10 hover:bg-white/20 text-xs font-bold rounded-xl transition-all border border-white/5"
+                            >
+                              View Profile
+                            </button>
+                            <button
+                              onClick={() => setActiveTab("chat")}
+                              className="px-5 py-2 bg-primary-blue hover:bg-primary-blue text-xs font-bold rounded-xl transition-all shadow-lg shadow-primary-blue/20"
+                            >
+                              Send Message
+                            </button>
+                            <button
+                              onClick={() => setShowReportModal(true)}
+                              className="px-5 py-2 bg-red-500/20 hover:bg-red-500/30 text-red-300 hover:text-red-200 text-xs font-bold rounded-xl transition-all border border-red-500/20 flex items-center gap-1.5"
+                            >
+                              <Flag size={12} /> Report
+                            </button>
                           </div>
-                          <div className="text-center sm:text-left flex-1">
-                             <h4 className="text-xl font-black mb-1">{partnerName}</h4>
-                             <p className="text-sm font-medium text-white/50 mb-4">{userRole === 'business_owner' ? 'Professional Content Creator' : 'Brand Marketing Manager'}</p>
-                             <div className="flex flex-wrap justify-center sm:justify-start gap-4">
-                                <button onClick={() => navigate(`/profile/${partner._id}`)} className="px-5 py-2 bg-white/10 hover:bg-white/20 text-xs font-bold rounded-xl transition-all border border-white/5">View Profile</button>
-                                <button onClick={() => setActiveTab('chat')} className="px-5 py-2 bg-primary-blue hover:bg-primary-blue text-xs font-bold rounded-xl transition-all shadow-lg shadow-primary-blue/20">Send Message</button>
-                             </div>
-                          </div>
-                       </div>
+                        </div>
+                      </div>
                     </section>
                   </div>
 
                   <div className="space-y-8">
                     <ActivityFeed activities={collab.activities || []} />
-                    
-                    <div className="bg-amber-500 rounded-[2.5rem] p-8 text-white shadow-xl shadow-amber-500/20 relative overflow-hidden">
-                       <div className="absolute -right-4 -top-4 w-24 h-24 bg-white/10 rounded-full blur-2xl" />
-                       <h3 className="text-lg font-black mb-6 flex items-center gap-2">
-                         <ShieldCheck size={20} />
-                         AACP Escrow
-                       </h3>
-                       <p className="text-xs font-medium text-white/80 mb-6 leading-relaxed">
-                         Funds are safely held in escrow and will be released automatically once milestones are approved.
-                       </p>
-                       <div className="space-y-3">
-                          <div className="flex justify-between items-center text-xs font-black">
-                             <span className="opacity-70">Secured Amount</span>
-                             <span>{collab.agreedBudget?.amount?.toLocaleString()} {collab.agreedBudget?.currency}</span>
-                          </div>
-                          <div className="flex justify-between items-center text-xs font-black">
-                             <span className="opacity-70">Dispute Window</span>
-                             <span>48 Hours</span>
-                          </div>
-                       </div>
-                    </div>
                   </div>
                 </div>
               )}
 
-              {activeTab === 'tasks' && (
-                <TaskBoard 
-                  tasks={collab.tasks || []} 
-                  userRole={userRole!} 
+              {activeTab === "tasks" && (
+                <TaskBoard
+                  tasks={collab.tasks || []}
+                  userRole={userRole!}
                   onAddTask={async (task) => {
                     try {
-                      await addTaskMutation.mutateAsync({ id: collab._id, task });
-                      toast.success('Task created successfully');
+                      await addTaskMutation.mutateAsync({
+                        id: collab._id,
+                        task,
+                      });
+                      toast.success("Task created successfully");
                     } catch (err: any) {
-                      toast.error(err.message || 'Failed to create task');
+                      toast.error(err.message || "Failed to create task");
                     }
                   }}
                   onUpdateStatus={async (taskId, status) => {
                     try {
-                      await updateTaskMutation.mutateAsync({ id: collab._id, taskId, status });
-                      toast.success('Status updated');
+                      await updateTaskMutation.mutateAsync({
+                        id: collab._id,
+                        taskId,
+                        status,
+                      });
+                      toast.success("Status updated");
                     } catch (err: any) {
-                      toast.error(err.message || 'Failed to update status');
+                      toast.error(err.message || "Failed to update status");
                     }
                   }}
                 />
               )}
 
-              {activeTab === 'deliverables' && (
-                <DeliverablesManager 
-                  deliverables={collab.milestones?.flatMap((m: any) => m.submissions) || []} 
-                  userRole={userRole!} 
+              {activeTab === "deliverables" && (
+                <DeliverablesManager
+                  deliverables={
+                    collab.milestones?.flatMap((m: any) => m.submissions) || []
+                  }
+                  userRole={userRole!}
                   onUpload={async (deliverable) => {
                     try {
                       const formData = new FormData();
-                      if (deliverable.file) formData.append('file', deliverable.file);
-                      if (deliverable.title) formData.append('title', deliverable.title);
-                      if (deliverable.description) formData.append('description', deliverable.description);
-                      if (deliverable.notes) formData.append('notes', deliverable.notes);
-                      if (deliverable.type) formData.append('type', deliverable.type);
+                      if (deliverable.file)
+                        formData.append("file", deliverable.file);
+                      if (deliverable.title)
+                        formData.append("title", deliverable.title);
+                      if (deliverable.description)
+                        formData.append("description", deliverable.description);
+                      if (deliverable.notes)
+                        formData.append("notes", deliverable.notes);
+                      if (deliverable.type)
+                        formData.append("type", deliverable.type);
 
-                      await submitDeliverableMutation.mutateAsync({ 
-                        id: collab._id, 
+                      await submitDeliverableMutation.mutateAsync({
+                        id: collab._id,
                         deliverable: formData,
-                        onProgress: deliverable.onProgress
+                        onProgress: deliverable.onProgress,
                       });
-                      toast.success('Deliverable submitted');
+                      toast.success("Deliverable submitted");
                     } catch (err: any) {
-                      toast.error(err.message || 'Failed to submit');
+                      toast.error(err.message || "Failed to submit");
                     }
                   }}
                   onAction={async (submissionId, action, feedback) => {
                     try {
-                      await reviewDeliverableMutation.mutateAsync({ 
-                        id: collab._id, 
-                        submissionId, 
-                        review: { status: action, feedback: feedback || '' } 
+                      await reviewDeliverableMutation.mutateAsync({
+                        id: collab._id,
+                        submissionId,
+                        review: { status: action, feedback: feedback || "" },
                       });
-                      toast.success(`Deliverable ${action.replace('_', ' ')}`);
+                      toast.success(`Deliverable ${action.replace("_", " ")}`);
                     } catch (err: any) {
-                      toast.error(err.message || 'Failed to update review');
+                      toast.error(err.message || "Failed to update review");
                     }
                   }}
                 />
               )}
 
-              {activeTab === 'chat' && (
-                <CollaborationChat 
-                  messages={messages.map(m => ({
+              {activeTab === "chat" && (
+                <CollaborationChat
+                  messages={messages.map((m) => ({
                     id: m._id,
                     senderId: m.sender._id,
                     senderName: `${m.sender.firstName} ${m.sender.lastName}`,
                     text: m.text,
                     timestamp: m.createdAt,
-                    isSelf: m.sender._id === profile._id
+                    isSelf: m.sender._id === profile._id,
                   }))}
                   currentUser={profile}
                   onSendMessage={(text: string) => sendMessage(text)}
                 />
               )}
 
-              {activeTab === 'analytics' && (
+              {activeTab === "analytics" && (
                 <AnalyticsDashboard
                   collaborationId={id!}
                   analytics={analyticsData}
@@ -349,18 +404,26 @@ export default function CollaborationDetailsPage() {
                   onSubmitUrl={async (data) => {
                     try {
                       await submitAnalyticsMutation.mutateAsync(data);
-                      toast.success('Post submitted! Scraping metrics…');
+                      toast.success("Post submitted! Scraping metrics…");
                     } catch (err: any) {
-                      toast.error(err?.response?.data?.message || err.message || 'Failed to submit post');
+                      toast.error(
+                        err?.response?.data?.message ||
+                          err.message ||
+                          "Failed to submit post",
+                      );
                     }
                   }}
                   onRefresh={async (analyticsId) => {
                     setRefreshingAnalyticsId(analyticsId);
                     try {
                       await refreshAnalyticsMutation.mutateAsync(analyticsId);
-                      toast.success('Refresh queued!');
+                      toast.success("Refresh queued!");
                     } catch (err: any) {
-                      toast.error(err?.response?.data?.message || err.message || 'Refresh failed');
+                      toast.error(
+                        err?.response?.data?.message ||
+                          err.message ||
+                          "Refresh failed",
+                      );
                     } finally {
                       setRefreshingAnalyticsId(null);
                     }
@@ -371,6 +434,17 @@ export default function CollaborationDetailsPage() {
           </AnimatePresence>
         </div>
       </main>
+
+      <ReportPartnerModal
+        isOpen={showReportModal}
+        onClose={() => setShowReportModal(false)}
+        partnerName={partnerName}
+        isSubmitting={reportPartnerMutation.isPending}
+        onSubmit={async (payload) => {
+          await reportPartnerMutation.mutateAsync(payload);
+          toast.success("Report submitted to admin successfully");
+        }}
+      />
     </Layout>
   );
 }
