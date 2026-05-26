@@ -115,19 +115,6 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         mobileOpen={mobileOpen}
         onMobileClose={closeMobile}
         sections={[{ items: navigation }]}
-        midSlot={
-          <div className="pt-6 border-t border-[#EFEFEF] dark:border-white/5">
-            <button
-              type="button"
-              title="New Report"
-              onClick={() => setShowReportModal(true)}
-              className="w-full h-12 bg-primary-blue hover:bg-primary-blue text-white rounded-2xl text-sm font-bold shadow-lg shadow-neutral-border/25 dark:shadow-none transition-all flex items-center justify-center gap-2"
-            >
-              <PlusCircle size={18} className="shrink-0" />
-              <span>New Report</span>
-            </button>
-          </div>
-        }
         footer={
           <nav className="space-y-1">
             <Link

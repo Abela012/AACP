@@ -438,10 +438,14 @@ export default function BusinessDashboardPage() {
             },
             {
               label: "Trust Score",
-              value: "78/100",
-              trend: "+4",
-              trendType: "up",
-              subtext: "Top 10% Business",
+              value: trustScoreLoading
+                ? "…"
+                : trustScoreValue !== null
+                  ? `${trustScoreValue}/100`
+                  : "—",
+              trend: trustScoreValue !== null && trustScoreValue >= 70 ? "Strong" : "Building",
+              trendType: trustScoreValue !== null && trustScoreValue >= 70 ? "up" : "neutral",
+              subtext: "Based on verification, reviews & activity",
               icon: ShieldCheck,
               color: "text-indigo-500",
               bg: "bg-indigo-500/10",

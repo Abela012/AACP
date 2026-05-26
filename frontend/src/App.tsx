@@ -25,7 +25,6 @@ import AdvertiserBuyCoinsPage from "./pages/dashboard/advertiser/AdvertiserBuyCo
 import AdvertiserManualCheckoutPage from "./pages/dashboard/advertiser/AdvertiserManualCheckoutPage";
 import ViewProfilePage from "./pages/profile/view-profile/ViewProfilePage";
 import EditProfilePage from "./pages/profile/edit-profile/EditProfilePage";
-import CompleteProfilePage from "./pages/profile/complete-profile/CompleteProfilePage";
 import BusinessCompleteProfilePage from "./pages/profile/complete-profile/BusinessCompleteProfilePage";
 import LandingPage from "./pages/landing/LandingPage";
 import ConversationPage from "./pages/chat/conversation/ConversationPage";
@@ -433,14 +432,26 @@ function App() {
           }
         />
 
-        {/* Profile Completion / Common Redirects */}
+        {/* Profile completion — always use dashboard onboarding (same wizard as first visit) */}
         <Route
           path="/profile/complete/business"
-          element={<BusinessCompleteProfilePage />}
+          element={
+            <AuthGuard>
+              <RoleGuard allowedRoles={["business_owner"]}>
+                <Navigate to="/dashboard/business-owner" replace />
+              </RoleGuard>
+            </AuthGuard>
+          }
         />
         <Route
           path="/profile/complete/advertiser"
-          element={<CompleteProfilePage />}
+          element={
+            <AuthGuard>
+              <RoleGuard allowedRoles={["advertiser"]}>
+                <Navigate to="/dashboard/advertiser" replace />
+              </RoleGuard>
+            </AuthGuard>
+          }
         />
         <Route
           path="/pending-approval"

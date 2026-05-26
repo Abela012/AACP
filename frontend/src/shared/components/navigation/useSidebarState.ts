@@ -15,6 +15,7 @@ export function useSidebarState(options?: { wide?: boolean }) {
 
   const toggleSidebar = useCallback(() => {
     if (window.matchMedia('(min-width: 1024px)').matches) {
+      setMobileOpen(false);
       setSidebarExpanded((v) => !v);
     } else {
       setMobileOpen((v) => !v);

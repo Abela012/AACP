@@ -11,14 +11,14 @@ export default function LandingDiscovery() {
               01 — Platform
             </p>
             <h2 className="mt-3 aacp-font-display text-[clamp(2.5rem,6vw,4.25rem)] leading-[1.05] text-neutral-dark">
-              Built for the full
+              Core capabilities for
               <br />
-              <span className="italic">collaboration lifecycle.</span>
+              <span className="italic text-primary-blue">modern brand–creator teams.</span>
             </h2>
           </div>
           <p className="max-w-md text-sm leading-relaxed text-neutral-medium lg:text-right">
-            From AI-assisted discovery through verified onboarding, campaign applications, active
-            collaborations, payments, and analytics—AACP covers what teams actually run day to day.
+            AI matching, opportunities, collaboration workspaces, wallets, and analytics—everything
+            your team needs in one verified marketplace.
           </p>
         </div>
 

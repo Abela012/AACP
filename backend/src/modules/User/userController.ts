@@ -1499,7 +1499,6 @@ export const getMyTrustScore = async (
     return res.json({ success: true, message: "Trust score calculated", data });
   } catch (err: any) {
     console.error("[TrustScore Error]", err);
-    require('fs').writeFileSync('trust-score-error.log', JSON.stringify({ message: err.message, stack: err.stack }));
-    res.status(500).json({ message: "Internal server error", error: err.message, stack: err.stack });
+    next(err);
   }
 };

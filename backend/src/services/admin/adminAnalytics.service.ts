@@ -161,10 +161,13 @@ export const calculateTrustScore = async (
     // 3. Performance Score (0-25 points)
     // Based on average rating and engagement
     const reviews = await Review.find({ targetUserId: userId });
-    const averageRating =
+    let averageRating =
       reviews.length > 0
         ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
         : 0;
+    if (averageRating === 0 && typeof (user as any).averageRating === 'number') {
+      averageRating = (user as any).averageRating;
+    }
     const performanceScore = (averageRating / 5) * 25;
 
     // 4. Engagement Score (0-25 points)

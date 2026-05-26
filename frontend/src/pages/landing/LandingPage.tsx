@@ -1,5 +1,7 @@
 import LandingNav from './components/LandingNav';
 import LandingHero from './components/LandingHero';
+import LandingHowItWorks from './components/LandingHowItWorks';
+import LandingTestimonial from './components/LandingTestimonial';
 import LandingDiscovery from './components/LandingDiscovery';
 import LandingManifesto from './components/LandingManifesto';
 import LandingPlatform from './components/LandingPlatform';
@@ -12,6 +14,8 @@ export default function LandingPage() {
       <LandingNav />
       <main>
         <LandingHero />
+        <LandingHowItWorks />
+        <LandingTestimonial />
         <LandingDiscovery />
         <LandingManifesto />
         <LandingPlatform />

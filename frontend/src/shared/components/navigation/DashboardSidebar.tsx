@@ -60,8 +60,7 @@ export default function DashboardSidebar({
       <aside
         className={cn(
           'dashboard-sidebar fixed inset-y-0 left-0 z-50 flex flex-col transition-all duration-300 ease-out',
-          expanded ? expandedWidth : 'lg:w-[4.5rem]',
-          'w-64',
+          expanded ? expandedWidth : 'w-64 lg:w-[4.5rem]',
           mobileOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full lg:translate-x-0',
           isAdmin
             ? 'bg-white dark:bg-[#0A0A0A] border-r border-[#EFEFEF] dark:border-white/5'

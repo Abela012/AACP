@@ -584,7 +584,11 @@ export const getAdminSettings = async (
 ) => {
   try {
     const settings = await getPlatformSettings();
-    const recentAudit = await AuditLog.find()
+    // Admin view: show only user-impacting admin actions (exclude super-admin actions)
+    const recentAudit = await AuditLog.find({
+      actorRole: "admin",
+      targetUser: { $ne: null },
+    })
       .sort({ createdAt: -1 })
       .limit(30)
       .populate("actor", "firstName lastName email username")

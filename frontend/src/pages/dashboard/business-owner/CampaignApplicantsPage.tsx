@@ -20,14 +20,34 @@ import {
 import { useParams, useNavigate } from 'react-router-dom';
 import BusinessLayout from '@/src/shared/components/layouts/BusinessLayout';
 import { useOpportunityApplications, useAcceptApplication, useRejectApplication } from '@/src/hooks/useApplications';
-import { useMarketingAnalysis } from '@/src/hooks/useMarketingAnalysis';
+import { useMarketingAnalysis, usePredictiveAnalysis } from '@/src/hooks/useMarketingAnalysis';
 import { useOpportunity } from '@/src/hooks/useOpportunities';
 import { useStartCollaboration } from '@/src/hooks/useCollaborations';
 import { cn } from '@/src/shared/utils/cn';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 import MarketingAnalysisDashboard from '@/src/shared/components/analysis/MarketingAnalysisDashboard';
+import PredictiveAnalysisDashboard from '@/src/shared/components/analysis/PredictiveAnalysisDashboard';
+import type { MarketingAnalysisResult } from '@/src/api/marketingAnalysisApi';
 
 import { ConfirmModal } from '@/src/shared/components/modal/ConfirmModal';
+
+const matchApplicantAnalysis = (analysis: MarketingAnalysisResult['analysis'], advertiserId: unknown) =>
+  analysis.find((a) => String(a.advertiserId) === String(advertiserId));
+
+const buildSingleApplicantAnalysis = (
+  data: MarketingAnalysisResult,
+  advertiserId: string
+): MarketingAnalysisResult | null => {
+  const item = matchApplicantAnalysis(data.analysis, advertiserId);
+  if (!item) return null;
+  return {
+    ...data,
+    analysis: [item],
+    bestChoice: item,
+    totalApplicants: 1,
+    summary: item.aiInsight || data.summary,
+  };
+};
 
 export default function CampaignApplicantsPage() {
   const { id } = useParams();
@@ -210,7 +230,15 @@ export default function CampaignApplicantsPage() {
           </div>
 
           <div className="grid grid-cols-1 gap-8">
-            {applications?.map((app: any) => (
+            {applications?.map((app: any) => {
+              const advertiserId = app.advertiser?._id || app.advertiser;
+              const isExpanded = expandedApplicantId === String(advertiserId);
+              const singleAnalysis =
+                analysisData && advertiserId
+                  ? buildSingleApplicantAnalysis(analysisData, String(advertiserId))
+                  : null;
+
+              return (
               <motion.div
                 key={app._id}
                 initial={{ opacity: 0, y: 20 }}
@@ -222,7 +250,16 @@ export default function CampaignApplicantsPage() {
                   {/* Left: Applicant Wrapped Info */}
                   <div className="p-8 md:p-10 lg:w-2/3 border-r border-gray-50 dark:border-white/5">
                     <div className="flex flex-col md:flex-row gap-8 items-start mb-10">
-                      <div className="relative">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setExpandedApplicantId((prev) =>
+                            prev === String(advertiserId) ? null : String(advertiserId)
+                          )
+                        }
+                        className="relative text-left transition-opacity hover:opacity-90"
+                        title="View marketing analysis"
+                      >
                         <div className="w-24 h-24 rounded-4xl overflow-hidden border-4 border-white dark:border-[#111] shadow-lg bg-gray-100">
                           <img
                             src={app.advertiser?.profilePicture || `https://ui-avatars.com/api/?name=${app.advertiser?.firstName}+${app.advertiser?.lastName}&background=10b981&color=fff`}
@@ -233,13 +270,21 @@ export default function CampaignApplicantsPage() {
                         <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-primary-blue rounded-full border-4 border-white dark:border-[#111] flex items-center justify-center">
                           <ShieldCheck size={14} className="text-white" />
                         </div>
-                      </div>
+                      </button>
 
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-1">
-                          <h4 className="text-2xl font-black text-gray-900 dark:text-white">
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setExpandedApplicantId((prev) =>
+                                prev === String(advertiserId) ? null : String(advertiserId)
+                              )
+                            }
+                            className="text-2xl font-black text-gray-900 dark:text-white hover:text-primary-blue transition-colors text-left"
+                          >
                             {app.advertiser?.firstName} {app.advertiser?.lastName}
-                          </h4>
+                          </button>
                           <span className="text-[10px] font-black uppercase tracking-widest bg-gray-100 dark:bg-white/10 text-gray-500 px-2 py-1 rounded">Creator</span>
                         </div>
                         <div className="flex items-center gap-4 text-xs font-bold text-gray-400 mb-6">
@@ -252,9 +297,9 @@ export default function CampaignApplicantsPage() {
                             "{app.coverLetter || 'I am very interested in this opportunity and believe my content style matches your brand vision.'}"
                           </p>
                           {(() => {
-                            const applicantAnalysis = analysisData?.analysis?.find(
-                              (a: any) => a.advertiserId === (app.advertiser?._id || app.advertiser)
-                            );
+                            const applicantAnalysis = analysisData?.analysis
+                              ? matchApplicantAnalysis(analysisData.analysis, advertiserId)
+                              : undefined;
                             if (applicantAnalysis?.aiInsight) {
                               return (
                                 <div className="pt-3 border-t border-gray-200 dark:border-white/10">
@@ -369,9 +414,9 @@ export default function CampaignApplicantsPage() {
                             )}
 
                             {(() => {
-                              const applicantAnalysis = analysisData?.analysis?.find(
-                                (a: any) => a.advertiserId === (app.advertiser?._id || app.advertiser)
-                              );
+                              const applicantAnalysis = analysisData?.analysis
+                                ? matchApplicantAnalysis(analysisData.analysis, advertiserId)
+                                : undefined;
                               if (applicantAnalysis) {
                                 return (
                                   <div className="mt-6 grid grid-cols-2 gap-4 border-t border-gray-100 dark:border-white/5 pt-6">
@@ -503,8 +548,38 @@ export default function CampaignApplicantsPage() {
                     </div>
                   </div>
                 </div>
+
+                <AnimatePresence>
+                  {isExpanded && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="border-t border-gray-100 dark:border-white/5 bg-gray-50/40 dark:bg-white/[0.02] px-6 py-8 md:px-10"
+                    >
+                      <p className="text-[10px] font-black text-primary-blue uppercase tracking-widest mb-4 flex items-center gap-2">
+                        <Sparkles size={14} /> Marketing analysis — {app.advertiser?.firstName} {app.advertiser?.lastName}
+                      </p>
+                      {singleAnalysis ? (
+                        <MarketingAnalysisDashboard data={singleAnalysis} />
+                      ) : predictiveLoading ? (
+                        <div className="flex items-center justify-center gap-3 py-12">
+                          <Loader2 className="w-8 h-8 text-primary-blue animate-spin" />
+                          <span className="text-sm font-bold text-gray-500">Loading analysis…</span>
+                        </div>
+                      ) : predictiveData ? (
+                        <PredictiveAnalysisDashboard data={predictiveData} />
+                      ) : (
+                        <p className="text-sm text-gray-500 py-6">
+                          Analysis is not available yet. Try again after applicants are synced.
+                        </p>
+                      )}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </motion.div>
-            ))}
+            );
+            })}
 
             {applications?.length === 0 && (
               <div className="text-center py-20 bg-white dark:bg-white/5 rounded-[3rem] border-2 border-dashed border-gray-100 dark:border-white/5">

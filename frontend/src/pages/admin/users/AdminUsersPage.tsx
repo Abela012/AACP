@@ -76,9 +76,12 @@ export default function AdminUsersPage() {
 
   // Client-side role filter (search is server-side)
   const users = data?.users ?? [];
+  const visibleUsers = users.filter(
+    (u) => u.role !== 'admin' && u.role !== 'super_admin'
+  );
   const filteredUsers = activeFilter === 'All'
-    ? users
-    : users.filter(u => {
+    ? visibleUsers
+    : visibleUsers.filter(u => {
         if (activeFilter === 'Advertiser') return u.role === 'advertiser';
         if (activeFilter === 'Business Owner') return u.role === 'business_owner';
         return true;

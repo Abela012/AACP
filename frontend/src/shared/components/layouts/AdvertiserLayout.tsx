@@ -99,6 +99,15 @@ export default function AdvertiserLayout({ children }: AdvertiserLayoutProps) {
     { name: "Settings", icon: Settings, path: "/profile/edit/advertiser" },
   ];
 
+  const headerNav = [
+    { name: "Overview", path: "/dashboard/advertiser" },
+    { name: "Campaigns", path: "/advertiser/campaigns" },
+    { name: "AI Matches", path: "/advertiser/matches" },
+    { name: "Partnerships", path: "/advertiser/collaborations" },
+    { name: "Reports", path: "/advertiser/analytics" },
+    { name: "Wallet", path: "/advertiser/wallet" },
+  ];
+
   return (
     <div className="min-h-screen bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-white font-sans flex transition-colors duration-300">
       <DashboardSidebar
@@ -134,24 +143,57 @@ export default function AdvertiserLayout({ children }: AdvertiserLayoutProps) {
         )}
       >
         {/* Header */}
-        <header className="h-20 border-b border-gray-100 dark:border-white/5 px-4 sm:px-8 flex items-center justify-between sticky top-0 bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-md z-40">
-          <div className="flex items-center gap-4">
-            <button className="p-2 -ml-2 text-gray-500 dark:text-gray-400 hover:text-primary-blue transition-colors" onClick={toggleSidebar}>
-              <Menu size={20} />
+        <header className="min-h-[5.5rem] h-auto py-3 border-b border-gray-100 dark:border-white/5 px-4 sm:px-8 flex flex-wrap items-center justify-between gap-3 sticky top-0 bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-md z-40 shadow-[0_18px_45px_-35px_rgba(0,0,0,0.35)] rounded-b-[2rem]">
+          <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+            <button
+              type="button"
+              aria-label={mobileOpen ? 'Close menu' : sidebarExpanded ? 'Collapse sidebar' : 'Expand sidebar'}
+              className="p-2 -ml-2 text-gray-500 dark:text-gray-400 hover:text-primary-blue transition-colors shrink-0"
+              onClick={toggleSidebar}
+            >
+              <Menu size={22} />
             </button>
             {!sidebarExpanded && (
-              <Link to="/" className="flex items-center gap-2">
-                <div className="w-7 h-7 bg-primary-blue rounded-full flex items-center justify-center">
+              <Link to="/" className="flex items-center gap-2 shrink-0">
+                <div className="w-8 h-8 bg-primary-blue rounded-full flex items-center justify-center">
                   <Zap className="text-white w-4 h-4 fill-white" />
                 </div>
-                <span className="text-lg font-bold tracking-tighter text-primary-blue">
+                <span className="text-lg font-bold tracking-tighter text-primary-blue hidden sm:inline">
                   AACP
                 </span>
               </Link>
             )}
+            <div className="hidden md:flex flex-col pl-1 border-l border-gray-100 dark:border-white/10 ml-1">
+              <h2 className="text-base font-bold text-gray-900 dark:text-white leading-tight">
+                Advertiser Portal
+              </h2>
+              <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">
+                Campaigns, matches & earnings
+              </p>
+            </div>
           </div>
 
-          <div className="flex items-center gap-2 sm:gap-4 relative">
+          <nav className="hidden lg:flex items-center gap-1 flex-1 justify-center max-w-3xl mx-4 order-3 lg:order-none w-full lg:w-auto">
+            {headerNav.map((item) => {
+              const isActive = location.pathname === item.path;
+              return (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className={cn(
+                    'px-3 py-2 rounded-xl text-sm font-semibold whitespace-nowrap transition-colors',
+                    isActive
+                      ? 'bg-primary-blue/10 text-primary-blue'
+                      : 'text-gray-500 dark:text-gray-400 hover:text-primary-blue hover:bg-gray-50 dark:hover:bg-white/5'
+                  )}
+                >
+                  {item.name}
+                </Link>
+              );
+            })}
+          </nav>
+
+          <div className="flex items-center gap-2 sm:gap-4 relative ml-auto">
             {/* Search */}
             <div className="relative hidden sm:block" ref={searchRef}>
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 w-4 h-4" />
@@ -160,7 +202,7 @@ export default function AdvertiserLayout({ children }: AdvertiserLayoutProps) {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search insights..."
-                className="bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-xl pl-10 pr-4 py-2 text-sm focus:outline-none focus:border-primary-blue w-48 lg:w-64 transition-all text-gray-900 dark:text-white"
+                className="bg-gray-50/80 dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-2xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-blue/20 focus:border-primary-blue w-56 lg:w-80 transition-all text-gray-900 dark:text-white shadow-sm"
               />
               <AnimatePresence>
                 {searchQuery && (

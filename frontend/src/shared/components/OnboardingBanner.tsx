@@ -41,8 +41,8 @@ export default function OnboardingBanner({ status, role }: OnboardingBannerProps
         <p className="mt-1 text-xs">{config.description}</p>
       </div>
       {status === 'incomplete' && (
-        <Link 
-          to={`/profile/complete/${role}`}
+        <Link
+          to={role === 'business' ? '/dashboard/business-owner' : '/dashboard/advertiser'}
           className="px-4 py-2 bg-amber-500 text-white rounded-xl text-xs font-bold hover:bg-amber-600 transition-colors shadow-lg shadow-amber-500/20"
         >
           Complete Profile

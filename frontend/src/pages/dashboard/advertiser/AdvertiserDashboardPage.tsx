@@ -83,10 +83,14 @@ export default function AdvertiserDashboardPage() {
   const stats = [
     {
       label: "Trust Score",
-      value: "N/A",
+      value: trustScoreLoading
+        ? "…"
+        : trustScoreValue !== null
+          ? `${trustScoreValue}/100`
+          : "—",
       subValue: "",
-      trend: "New Account",
-      trendType: "neutral",
+      trend: trustScoreValue !== null && trustScoreValue >= 70 ? "Strong" : "Building",
+      trendType: trustScoreValue !== null && trustScoreValue >= 70 ? "up" : "neutral",
       icon: ShieldCheck,
       color: "text-primary-blue",
       bg: "bg-primary-blue/10",
@@ -192,7 +196,7 @@ export default function AdvertiserDashboardPage() {
                 <button
                   key={idx}
                   onClick={() => handleStatClick(stat.label)}
-                  className="bg-white dark:bg-[#111] rounded-3xl border border-gray-100 dark:border-white/5 p-6 hover:border-primary-blue/30 shadow-sm transition-all text-left group w-full"
+                  className="bg-white dark:bg-[#111] rounded-3xl border border-gray-100 dark:border-white/5 p-6 hover:border-primary-blue/30 shadow-sm hover:shadow-[0_24px_60px_-40px_rgba(0,0,0,0.35)] transition-all text-left group w-full transform-gpu hover:-translate-y-0.5"
                 >
                   {/* Top row */}
                   <div className="flex items-start justify-between gap-2 mb-4">

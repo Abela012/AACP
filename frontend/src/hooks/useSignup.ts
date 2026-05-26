@@ -1,6 +1,7 @@
 import { useSignUp } from "@clerk/clerk-react";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { getFriendlyAuthError } from "@/src/shared/utils/authErrors";
 
 export const useSignup = () => {
     const { isLoaded, signUp, setActive } = useSignUp();
@@ -36,14 +37,7 @@ export const useSignup = () => {
             await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
             setPendingVerification(true);
         } catch (err: unknown) {
-            const clerkErr = err as { errors?: { message?: string }[] };
-            const msg = clerkErr.errors?.[0]?.message || "An error occurred during sign up.";
-            // Filter out heavy breach messages
-            if (msg.includes("data breach")) {
-                setError("Please use a stronger or different password for your safety.");
-            } else {
-                setError(msg);
-            }
+            setError(getFriendlyAuthError(err, "Unable to create your account. Please try again."));
         } finally {
             setLoading(false);
         }
@@ -86,8 +80,7 @@ export const useSignup = () => {
                 setError("Verification incomplete. Please try again.");
             }
         } catch (err: unknown) {
-            const clerkErr = err as { errors?: { message?: string }[] };
-            setError(clerkErr.errors?.[0]?.message || "An error occurred during verification.");
+            setError(getFriendlyAuthError(err, "Verification failed. Please check your code and try again."));
         } finally {
             setLoading(false);
         }

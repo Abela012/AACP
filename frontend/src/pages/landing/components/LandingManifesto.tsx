@@ -58,8 +58,8 @@ export default function LandingManifesto() {
           className="relative mx-auto mt-16 flex max-w-[1200px] flex-col items-start justify-between gap-6 border border-neutral-border/20 bg-neutral-dark/30 p-8 sm:flex-row sm:items-center"
         >
           <p className="max-w-xl text-sm leading-relaxed text-neutral-border/55">
-            Ready to post a campaign or apply as an advertiser? Create an account with Clerk, pick
-            your role, and complete onboarding—SSO via Google or Facebook is available at sign-in.
+            Ready to post a campaign or apply as an advertiser? Create an account, pick your role,
+            and complete onboarding—Google sign-in is available at login.
           </p>
           <button
             type="button"

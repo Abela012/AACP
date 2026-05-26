@@ -2,7 +2,6 @@ import { useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { Eye, EyeOff, Briefcase, Megaphone } from 'lucide-react';
 import { useLogin } from '../../../hooks/useLogin';
-import FacebookIcon from '../../../assets/Facebook.png';
 import GoogleIcon from '../../../assets/google.webp';
 
 export default function LoginForm() {
@@ -43,8 +42,8 @@ export default function LoginForm() {
           Welcome back
         </h2>
         <p className="text-base text-neutral-medium dark:text-neutral-border/55">
-          Sign in with email or SSO (Google, Facebook). TikTok auth is available after registration
-          for advertisers linking social profiles.
+          Sign in with your email or continue with Google. TikTok linking is available after you register
+          as an advertiser.
         </p>
       </div>
 
@@ -173,24 +172,15 @@ export default function LoginForm() {
         <span className="bg-neutral-light dark:bg-[#12100d]">Or continue with</span>
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
-        <button
-          type="button"
-          onClick={() => handleSocialAuth('oauth_facebook')}
-          disabled={loading}
-          className="flex h-12 items-center justify-center border border-primary-blue/30 bg-neutral-light/50 transition-colors hover:bg-neutral-border/35 disabled:opacity-50"
-        >
-          <img src={FacebookIcon} alt="Facebook" className="h-6 w-6 object-contain" />
-        </button>
-        <button
-          type="button"
-          onClick={() => handleSocialAuth('oauth_google')}
-          disabled={loading}
-          className="flex h-12 items-center justify-center border border-primary-blue/30 bg-neutral-light/50 transition-colors hover:bg-neutral-border/35 disabled:opacity-50"
-        >
-          <img src={GoogleIcon} alt="Google" className="h-6 w-6 object-contain" />
-        </button>
-      </div>
+      <button
+        type="button"
+        onClick={() => handleSocialAuth('oauth_google')}
+        disabled={loading}
+        className="flex h-12 w-full items-center justify-center gap-3 border border-primary-blue/30 bg-neutral-light/50 text-sm font-semibold text-neutral-dark transition-colors hover:bg-neutral-border/35 disabled:opacity-50"
+      >
+        <img src={GoogleIcon} alt="" className="h-6 w-6 object-contain" />
+        Continue with Google
+      </button>
 
       <p className="mt-10 text-center text-sm font-medium text-neutral-medium">
         New to AACP?{' '}

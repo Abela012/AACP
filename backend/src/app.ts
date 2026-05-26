@@ -18,14 +18,36 @@ export function createApp(): Application {
   app.use(express.urlencoded({ extended: true, limit: '50mb' }));
   app.use(helmet());
 
+  const isDevOrTest =
+    process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test';
+
+  const isAllowedDevOrigin = (origin: string): boolean => {
+    try {
+      const { hostname, port } = new URL(origin);
+      const devPorts = new Set(['5173', '3000', '4173', '5174']);
+      if (hostname === 'localhost' || hostname === '127.0.0.1') {
+        return !port || devPorts.has(port);
+      }
+      // LAN / link-local — Vite often binds to 169.254.x.x or 192.168.x.x
+      if (
+        /^192\.168\.\d{1,3}\.\d{1,3}$/.test(hostname) ||
+        /^10\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(hostname) ||
+        /^172\.(1[6-9]|2\d|3[0-1])\.\d{1,3}\.\d{1,3}$/.test(hostname) ||
+        /^169\.254\.\d{1,3}\.\d{1,3}$/.test(hostname)
+      ) {
+        return !port || devPorts.has(port);
+      }
+    } catch {
+      return false;
+    }
+    return false;
+  };
+
   app.use(
     cors({
       origin: (origin, callback) => {
         if (!origin) return callback(null, true);
-        if (process.env.NODE_ENV === 'development' && origin.includes('localhost')) {
-          return callback(null, true);
-        }
-        if (process.env.NODE_ENV === 'test') {
+        if (isDevOrTest && isAllowedDevOrigin(origin)) {
           return callback(null, true);
         }
         const allowedOrigins = [

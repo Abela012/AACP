@@ -157,19 +157,6 @@ export default function BusinessLayout({ children }: BusinessLayoutProps) {
           { label: 'Main Menu', items: navigation },
           { label: 'System', items: systemNavigation },
         ]}
-        midSlot={
-          <div className="border-t border-gray-100 pt-6 dark:border-white/5">
-            <button
-              type="button"
-              title="New Report"
-              onClick={() => setShowReportModal(true)}
-              className="flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-primary-blue text-sm font-bold text-white shadow-lg shadow-primary-blue/20 transition-all hover:bg-primary-blue-hover"
-            >
-              <PlusCircle size={18} className="shrink-0" aria-hidden />
-              <span>New Report</span>
-            </button>
-          </div>
-        }
         footer={
           <nav className="space-y-1">
             <Link
@@ -500,11 +487,7 @@ export default function BusinessLayout({ children }: BusinessLayoutProps) {
                 </p>
                 <div className="flex flex-col gap-3">
                   <Link
-                    to={
-                      isProfileIncomplete
-                        ? "/profile/complete/business"
-                        : "/dashboard/business-owner"
-                    }
+                    to="/dashboard/business-owner"
                     className="w-full py-4 bg-primary-blue text-white rounded-xl font-bold hover:bg-primary-blue transition-all shadow-lg shadow-black/10 dark:shadow-none"
                   >
                     {isProfileIncomplete

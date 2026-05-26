@@ -1,6 +1,7 @@
 import { useSignIn } from "@clerk/clerk-react";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { getFriendlyAuthError } from "@/src/shared/utils/authErrors";
 
 type SecondFactorStrategy = "email_code" | "phone_code" | "totp";
 
@@ -60,9 +61,7 @@ export const useLogin = () => {
             return false;
         }
 
-        setError(
-            `Extra sign-in step required (${factors.map((f: any) => f.strategy).filter(Boolean).join(', ') || 'unknown'}). Configure supported factors in Clerk or try the prebuilt <SignIn /> component.`
-        );
+        setError('Additional verification is required. Check your email or authenticator app.');
         return false;
     };
 
@@ -86,7 +85,7 @@ export const useLogin = () => {
             } else {
                 setStatus(signInAttempt.status);
                 if (signInAttempt.status === "needs_first_factor") {
-                    setError("Account verification required. Please check your email for a verification code or link.");
+                    setError("Please verify your email before signing in.");
                 } else if (
                     (signInAttempt.status as string) === "needs_second_factor" ||
                     (signInAttempt.status as string) === "needs_client_trust"
@@ -94,23 +93,11 @@ export const useLogin = () => {
                     const ok = await prepareExtraStep(signInAttempt);
                     if (!ok) setStatus(null);
                 } else {
-                    const statusStr = signInAttempt.status || 'incomplete';
-                    setError(`Sign in ${statusStr.replace('_', ' ')}. Please complete all required steps in your Clerk dashboard.`);
+                    setError("Sign-in could not be completed. Please try again.");
                 }
             }
         } catch (err: unknown) {
-            const clerkErr = err as { errors?: { code?: string; message?: string }[] };
-            const code = clerkErr.errors?.[0]?.code;
-            const msg = clerkErr.errors?.[0]?.message || "An error occurred during sign in.";
-            if (msg.includes("data breach")) {
-                setError("Please use a stronger or different password for security.");
-            } else if (code === "form_identifier_not_found" || /couldn'?t find your account/i.test(msg)) {
-                setError(
-                    "No user with this email exists in your Clerk project. Open Clerk Dashboard → Users and search the address, or create the admin again from Super Admin. If your app has both test and live keys, confirm frontend and backend use keys from the same environment (see project script: node scripts/check-clerk-env.mjs)."
-                );
-            } else {
-                setError(msg);
-            }
+            setError(getFriendlyAuthError(err, "Unable to sign in. Please check your details and try again."));
         } finally {
             setLoading(false);
         }
@@ -138,7 +125,7 @@ export const useLogin = () => {
             }
         } catch (err: unknown) {
             const clerkErr = err as { errors?: { message?: string }[] };
-            setError(clerkErr.errors?.[0]?.message || "Invalid verification code.");
+            setError(getFriendlyAuthError(err, "Invalid verification code. Please try again."));
         } finally {
             setLoading(false);
         }
@@ -173,7 +160,7 @@ export const useLogin = () => {
             });
         } catch (err: unknown) {
             const clerkErr = err as { errors?: { message?: string }[] };
-            setError(clerkErr.errors?.[0]?.message || "An error occurred during social auth.");
+            setError(getFriendlyAuthError(err, "Google sign-in failed. Please try again."));
         }
     };
 
