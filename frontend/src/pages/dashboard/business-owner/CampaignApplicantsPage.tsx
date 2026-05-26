@@ -56,6 +56,8 @@ export default function CampaignApplicantsPage() {
   const { data: applications, isLoading: appsLoading } = useOpportunityApplications(id || '');
   const { data: oppData, isLoading: oppLoading } = useOpportunity(id || '');
   const { data: analysisData, isLoading: analysisLoading } = useMarketingAnalysis(id || '');
+  const { data: predictiveData, isLoading: predictiveLoading } = usePredictiveAnalysis(id || '');
+  const [expandedApplicantId, setExpandedApplicantId] = useState<string | null>(null);
   const formatAnalysisScore = (value: unknown): string => {
     const numericValue = typeof value === 'number' ? value : Number(value);
     return Number.isFinite(numericValue) ? `${Math.round(numericValue)}%` : 'N/A';
