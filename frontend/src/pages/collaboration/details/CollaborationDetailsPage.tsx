@@ -401,6 +401,12 @@ export default function CollaborationDetailsPage() {
                   isLoading={analyticsLoading}
                   isSubmitting={submitAnalyticsMutation.isPending}
                   refreshingId={refreshingAnalyticsId}
+                  userRole={userRole!}
+                  advertiserUsername={
+                    (collab.advertiser as any)?.username ||
+                    (collab.advertiser as any)?.tiktokUsername ||
+                    ''
+                  }
                   onSubmitUrl={async (data) => {
                     try {
                       await submitAnalyticsMutation.mutateAsync(data);

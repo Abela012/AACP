@@ -174,13 +174,27 @@ interface SubmitModalProps {
   onClose: () => void;
   onSubmit: (data: { platform: string; postUrl: string; notes?: string }) => void;
   isSubmitting: boolean;
+  advertiserUsername: string;
 }
-const SubmitModal: React.FC<SubmitModalProps> = ({ onClose, onSubmit, isSubmitting }) => {
+const SubmitModal: React.FC<SubmitModalProps> = ({ onClose, onSubmit, isSubmitting, advertiserUsername }) => {
   const [form, setForm] = useState({ platform: 'TikTok', postUrl: '', notes: '' });
 
   const handleSubmit = () => {
-    if (!form.postUrl.trim()) { toast.error('Post URL is required'); return; }
-    onSubmit({ platform: form.platform, postUrl: form.postUrl.trim(), notes: form.notes || undefined });
+    const url = form.postUrl.trim();
+    if (!url) { toast.error('Post URL is required'); return; }
+
+    // Validate the URL belongs to the advertiser
+    if (advertiserUsername) {
+      const username = advertiserUsername.replace(/^@/, '').toLowerCase();
+      const normalizedUrl = url.toLowerCase();
+      // Check that the URL contains the advertiser's username (handles @username or /username/ patterns)
+      if (!normalizedUrl.includes(`/${username}`) && !normalizedUrl.includes(`@${username}`)) {
+        toast.error(`Only your own posts are allowed. The URL must contain your username (@${username}).`);
+        return;
+      }
+    }
+
+    onSubmit({ platform: form.platform, postUrl: url, notes: form.notes || undefined });
   };
 
   return (
@@ -274,6 +288,10 @@ interface AnalyticsDashboardProps {
   onRefresh: (analyticsId: string) => void;
   isSubmitting: boolean;
   refreshingId: string | null;
+  /** The advertiser's social media username — used to validate submitted post URLs */
+  advertiserUsername: string;
+  /** Role of the currently logged-in user */
+  userRole: string;
 }
 
 export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
@@ -285,8 +303,11 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
   onRefresh,
   isSubmitting,
   refreshingId,
+  advertiserUsername,
+  userRole,
 }) => {
   const [showModal, setShowModal] = useState(false);
+  const isAdvertiser = userRole === 'advertiser';
 
   const completed = analytics.filter(r => r.status === 'completed');
   const totalViews    = completed.reduce((a, r) => a + r.metrics.views,    0);
@@ -311,12 +332,14 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
           <h2 className="text-xl font-bold text-gray-900 dark:text-white">Performance Analytics</h2>
           <p className="text-sm text-gray-500">Live campaign tracking and ROI metrics</p>
         </div>
-        <button
-          onClick={() => setShowModal(true)}
-          className="flex items-center gap-2 px-6 py-3 bg-gray-900 dark:bg-white text-white dark:text-black rounded-xl font-bold hover:opacity-90 transition-all shadow-lg text-sm shrink-0"
-        >
-          <Plus size={18} /> Submit Post Link
-        </button>
+        {isAdvertiser && (
+          <button
+            onClick={() => setShowModal(true)}
+            className="flex items-center gap-2 px-6 py-3 bg-gray-900 dark:bg-white text-white dark:text-black rounded-xl font-bold hover:opacity-90 transition-all shadow-lg text-sm shrink-0"
+          >
+            <Plus size={18} /> Submit Post Link
+          </button>
+        )}
       </div>
 
       {/* Loading state */}
@@ -332,14 +355,18 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
           </div>
           <h3 className="text-xl font-black text-gray-900 dark:text-white">No Analytics Yet</h3>
           <p className="text-sm text-gray-500 max-w-sm mx-auto mt-2 mb-8">
-            Submit a published post URL to start tracking views, engagement, and campaign ROI automatically.
+            {isAdvertiser
+              ? 'Submit a published post URL to start tracking views, engagement, and campaign ROI automatically.'
+              : 'Waiting for the advertiser to submit their published post links for tracking.'}
           </p>
-          <button
-            onClick={() => setShowModal(true)}
-            className="px-8 py-3 bg-primary-blue text-white rounded-xl font-bold hover:bg-primary-blue transition-all shadow-xl shadow-primary-blue/20"
-          >
-            Connect First Post
-          </button>
+          {isAdvertiser && (
+            <button
+              onClick={() => setShowModal(true)}
+              className="px-8 py-3 bg-primary-blue text-white rounded-xl font-bold hover:bg-primary-blue transition-all shadow-xl shadow-primary-blue/20"
+            >
+              Connect First Post
+            </button>
+          )}
         </div>
       ) : (
         <>
@@ -399,13 +426,14 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
         </>
       )}
 
-      {/* Submit Modal */}
+      {/* Submit Modal — only rendered for advertisers */}
       <AnimatePresence>
-        {showModal && (
+        {showModal && isAdvertiser && (
           <SubmitModal
             onClose={() => setShowModal(false)}
             onSubmit={handleSubmit}
             isSubmitting={isSubmitting}
+            advertiserUsername={advertiserUsername}
           />
         )}
       </AnimatePresence>
